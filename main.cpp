@@ -16,7 +16,6 @@ int main(int argc, char *argv[]) {
 	window.show();
 	
 	ClTimer* clTimer = new ClTimer(&circlesHolder);
-	clTimer->start();
 	
 	StatusViewer statusViewer(&window, clTimer);
 

@@ -4,7 +4,7 @@
 #include <QTimer>
 
 GLWidget::GLWidget(CirclesHolder* ch, QWidget *parent) : QGLWidget(parent) {
-	setMouseTracking(true);
+	//setMouseTracking(true);
 	rotation = 0.0;
 	QTimer* rotationTimer = new QTimer(this);
 	rotationTimer->setInterval(1000/60);
