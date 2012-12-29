@@ -9,8 +9,8 @@ INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
 
 SET(QT_USE_QTOPENGL TRUE)
 
-SET(Circles_SOURCES main.cpp GLWidget.cpp ClTimer.cpp)
-SET(Circles_HEADERS GLWidget.h ClTimer.h CirclesHolder.h)
+SET(Circles_SOURCES main.cpp GLWidget.cpp ClTimer.cpp StatusViewer.cpp)
+SET(Circles_HEADERS GLWidget.h ClTimer.h CirclesHolder.h StatusViewer.h NanosecondTimer.h FramesCounter.h)
 
 QT4_WRAP_CPP(Circles_HEADERS_MOC ${Circles_HEADERS})
 

@@ -45,6 +45,7 @@ void GLWidget::paintGL() {
 	glVertex2f(100,500);
 	glVertex2f(500,100);
 	glEnd();
+	frameCounter++;
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event) {

@@ -3,8 +3,9 @@
 
 #include <QtOpenGL/QGLWidget>
 #include "CirclesHolder.h"
+#include "FramesCounter.h"
 
-class GLWidget : public QGLWidget {
+class GLWidget : public QGLWidget, public FramesCounter {
 
 	Q_OBJECT // must include this if you use Qt signals/slots      
 

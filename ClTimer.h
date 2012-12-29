@@ -3,8 +3,9 @@
 
 #include <QThread>
 #include "CirclesHolder.h"
+#include "FramesCounter.h"
 
-class ClTimer : public QThread {
+class ClTimer: public QThread, public FramesCounter {
 
 	Q_OBJECT // must include this if you use Qt signals/slots
 

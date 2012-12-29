@@ -3,6 +3,7 @@
 #include "GLWidget.h"
 #include "ClTimer.h"
 #include "CirclesHolder.h"
+#include "StatusViewer.h"
 
 int main(int argc, char *argv[]) {
 
@@ -16,6 +17,8 @@ int main(int argc, char *argv[]) {
 	
 	ClTimer* clTimer = new ClTimer(&circlesHolder);
 	clTimer->start();
+	
+	StatusViewer statusViewer(&window, clTimer);
 
 	return app.exec();
 }

@@ -1,6 +1,6 @@
 
 #include "ClTimer.h"
-#include <stdio.h>
+#include <cstdio>
 
 ClTimer::ClTimer(CirclesHolder* ch){
 	circlesHolder = ch;
@@ -8,4 +8,8 @@ ClTimer::ClTimer(CirclesHolder* ch){
 
 void ClTimer::run(){
 	printf("clTimer!\n");
+	while(true){
+		frameCounter++;
+	}
 }
+
