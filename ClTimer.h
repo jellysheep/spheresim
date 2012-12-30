@@ -9,6 +9,7 @@
 
 #include "CirclesHolder.h"
 #include "FramesCounter.h"
+#include "Circles.h"
 
 class ClTimer: public QThread, public FramesCounter {
 
@@ -17,6 +18,10 @@ class ClTimer: public QThread, public FramesCounter {
 protected:
 	char* file_contents(const char *filename, int *length);
 	const char* oclErrorString(cl_int error);
+	
+	char hex(int i);
+	void add(double d);
+	void save(int readNum, Circle* c_CPU);
 
 	void run();
 	CirclesHolder* circlesHolder;
@@ -31,11 +36,11 @@ protected:
 	cl::Kernel moveStep_kernel;
 	cl::Kernel randomFill_kernel;
 
-	cl::Buffer cl_circle;
-	cl::Buffer cl_size;
+	cl::Buffer cl_circles;
+	cl::Buffer cl_boxSize;
 	cl::Buffer cl_m_z, cl_m_w;
 	cl::Buffer cl_max_speed;
-	cl::Buffer cl_circlesCount, cl_E;
+	cl::Buffer cl_circlessCount, cl_E;
 		
 	cl_int err;
 	cl::Event event;
@@ -43,9 +48,19 @@ protected:
 	unsigned int eventCounter;
 	bool eventsFull;
 	cl::Event* events;
+	FILE * file;
+	
+    int readNum;
+    Circle* c_CPU;
 
 public:
-	ClTimer(CirclesHolder* ch);
+	ClTimer();
+	
+	cl::Buffer* getCirclesBuffer(){
+		return &cl_circles;
+	}
+	
+	void paintGL(cl_double3 rotation, double translateZ);
 };
 
 #endif  /* _CLTIMER_H_ */

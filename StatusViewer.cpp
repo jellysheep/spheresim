@@ -14,9 +14,9 @@ StatusViewer::StatusViewer(GLWidget* glw, ClTimer* clt) {
 
 void StatusViewer::updateTimer() {
 	double factor = getElapsedNS()/1000000000.0;
-	printf("Elapsed:  %8.4g seconds\n", factor);
+	printf("Elapsed:  %9.5g seconds\n", factor);
 	double glWidgetFrames = glWidget->popFramesCounter() / factor;
-	printf("GlWidget: %8.4g fps\n", glWidgetFrames);
+	printf("GlWidget: %9.5g fps\n", glWidgetFrames);
 	double clTimerFrames = clTimer->popFramesCounter() / factor;
-	printf("clTimer:  %8.4g fps\n\n", clTimerFrames);
+	printf("clTimer:  %9.5g fps\n\n", clTimerFrames);
 }

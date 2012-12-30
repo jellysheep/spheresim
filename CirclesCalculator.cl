@@ -1,4 +1,4 @@
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+//#pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
 #define _3D_ 0
 #define reduced 0.2
@@ -85,7 +85,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
     
     
     
-    //*
+    /*
     floating_type_vector d_pos, d_d;
 	floating_type both_r, d;
 	for(int i = (*num)-1; i>gid; i--){
@@ -99,12 +99,12 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 			//c->thisStepHit = true;
 			//if(!(c_.free && c2->free))continue;
 			d_d = (both_r/d-1)*e*d_pos;
-			//*
+			/*
 			if(dot(d_pos, (c.speed-c2.speed)/d)<0){ //Skalarprodukt
 				d_d *= reduced;
 				//circle[gid].speed = 0;
 				//circle[i].speed = 0;
-			}//*/
+			}// * /
 			circle[gid].force -= c.size*d_d;
 			circle[i].force += c2.size*d_d;
 			
@@ -116,28 +116,28 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 			c->fx = c_.fx-htc_dx/htc_d*htc_f_1;
 			c->fy = c_.fy-htc_dy/htc_d*htc_f_1;
 			c2->fx += htc_dx/htc_d*htc_f_2;
-			c2->fy += htc_dy/htc_d*htc_f_2;//*/
+			c2->fy += htc_dy/htc_d*htc_f_2;// * /
 		}
-	}//*/
+	}// */
     
     floating_type htw_d_d, fact = 1.0;
     if ((htw_d_d = (c.size - c.pos.s0))>0) {
 		//c.speed.s0 = fabs(c.speed.s0);
-		if(c.speed.s0 > 0)fact = reduced;
+		//if(c.speed.s0 > 0)fact = reduced;
 		circle[gid].force.s0 += c.size*htw_d_d*e*fact;
 	}else if ((htw_d_d = (c.size + c.pos.s0 - s.s0))>0) {
 		//c.speed.s0 = -fabs(c.speed.s0);
-		if(c.speed.s0 < 0)fact = reduced;
+		//if(c.speed.s0 < 0)fact = reduced;
 		circle[gid].force.s0 -= c.size*htw_d_d*e*fact;
 	}
 	fact = 1.0;
     if ((htw_d_d = (c.size - c.pos.s1))>0) {
 		//c.speed.s1 = fabs(c.speed.s1);
-		if(c.speed.s1 > 0)fact = reduced;
+		//if(c.speed.s1 > 0)fact = reduced;
 		circle[gid].force.s1 += c.size*htw_d_d*e*fact;
 	}else if ((htw_d_d = (c.size + c.pos.s1 - s.s1))>0) {
 		//c.speed.s1 = -fabs(c.speed.s1);
-		if(c.speed.s1 < 0)fact = reduced;
+		//if(c.speed.s1 < 0)fact = reduced;
 		circle[gid].force.s1 -= c.size*htw_d_d*e*fact;
 	}
 #if _3D_
@@ -150,8 +150,8 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 		circle[gid].force.s2 -= c.size*htw_d_d*e*fact;
 	}
 #endif
-	circle[gid].force.s1 -= 0.07;
-    circle[gid].force -= 0.001*circle[gid].speed*fabs(length(circle[gid].speed));
+	//circle[gid].force.s1 -= 0.07;
+    //circle[gid].force -= 0.001*circle[gid].speed*fabs(length(circle[gid].speed));
     //0.00001*normalize(circle[gid].speed)*pow(length(circle[gid].speed),2);
     circle[gid].pos += c.speed;
     force = circle[gid].force;

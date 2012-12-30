@@ -18,8 +18,13 @@ typedef struct Circle
 	//float x[3];  //padding
 } Circle;
 
-extern int circlesCount;
+extern int circlesCount, _3D_;
 extern double max_speed, E;
-extern cl_double2 size;
+extern cl_double3 boxSize;
+extern bool saveBool;
+extern int edges;
+extern double step;
+
+#define min(a,b) (((a)<(b))?(a):(b))
 
 #endif

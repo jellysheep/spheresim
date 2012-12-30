@@ -3,7 +3,9 @@
 
 #include <QtOpenGL/QGLWidget>
 #include "CirclesHolder.h"
-#include "FramesCounter.h"
+#include "ClTimer.h"
+
+#include <CL/cl.hpp>
 
 class GLWidget : public QGLWidget, public FramesCounter {
 
@@ -11,16 +13,17 @@ class GLWidget : public QGLWidget, public FramesCounter {
 
 protected:
 	void initializeGL();
-	void resizeGL(int w, int h);
+	void reboxSizeGL(int w, int h);
 	void paintGL();
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void keyPressEvent(QKeyEvent *event);
-	double rotation;
-	CirclesHolder* circlesHolder;
-
+	cl_double3 rotation;
+	double translateZ;
+	ClTimer* clTimer;
+    
 public:
-	GLWidget(CirclesHolder* ch, QWidget *parent = NULL);
+	GLWidget(ClTimer* ct, QWidget *parent = NULL);
 
 public slots:
 	void updateTimer();

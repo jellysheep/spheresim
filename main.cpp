@@ -9,15 +9,15 @@ int main(int argc, char *argv[]) {
 
 	QApplication app(argc, argv);
 	
-	CirclesHolder circlesHolder;
+	ClTimer* clTimer = new ClTimer();
 
-	GLWidget window(&circlesHolder);
+	GLWidget window(clTimer);
 	window.resize(800,600);
 	window.show();
 	
-	ClTimer* clTimer = new ClTimer(&circlesHolder);
-	
 	StatusViewer statusViewer(&window, clTimer);
+	
+	clTimer->start();
 
 	return app.exec();
 }
