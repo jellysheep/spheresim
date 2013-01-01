@@ -1,7 +1,9 @@
+#define _3D_ 0
+
 //#pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
-#define _3D_ 0
-#define reduced 0.2
+#define reduced 1.0
+//0.9
 
 #define floating_type double
 #if _3D_
@@ -36,7 +38,7 @@ floating_type uGetUniform(__global uint* m_z, __global uint* m_w)
     uint u = GetUint(m_z, m_w);
     // The magic number below is 1/(2^32 + 2).
     // The result is strictly between 0 and 1.
-    return (u + 1.0) * 2.328306435454494e-10;
+    return (u + 1.0) * 2.328306435454494 * pow(10.0,-10.0);
 }
 
 floating_type GetUniform(__global uint* m_z, __global uint* m_w)
@@ -45,7 +47,7 @@ floating_type GetUniform(__global uint* m_z, __global uint* m_w)
     uint u = GetUint(m_z, m_w);
     // The magic number below is 1/(2^32 + 2).
     // The result is strictly between -1 and 1.
-    return ((u + 1.0) * 2.328306435454494e-10 * 2)-1;
+    return ((u + 1.0) * 2.328306435454494 * pow(10.0,-10.0) * 2)-1;
 }
 
 __kernel void randomFill(__global struct Circle* circle, __global uint* m_z, __global uint* m_w,
@@ -85,7 +87,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
     
     
     
-    /*
+    //*
     floating_type_vector d_pos, d_d;
 	floating_type both_r, d;
 	for(int i = (*num)-1; i>gid; i--){
@@ -99,12 +101,12 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 			//c->thisStepHit = true;
 			//if(!(c_.free && c2->free))continue;
 			d_d = (both_r/d-1)*e*d_pos;
-			/*
+			//*
 			if(dot(d_pos, (c.speed-c2.speed)/d)<0){ //Skalarprodukt
 				d_d *= reduced;
 				//circle[gid].speed = 0;
 				//circle[i].speed = 0;
-			}// * /
+			}// */
 			circle[gid].force -= c.size*d_d;
 			circle[i].force += c2.size*d_d;
 			
@@ -116,7 +118,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 			c->fx = c_.fx-htc_dx/htc_d*htc_f_1;
 			c->fy = c_.fy-htc_dy/htc_d*htc_f_1;
 			c2->fx += htc_dx/htc_d*htc_f_2;
-			c2->fy += htc_dy/htc_d*htc_f_2;// * /
+			c2->fy += htc_dy/htc_d*htc_f_2;// */
 		}
 	}// */
     
@@ -143,10 +145,10 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 #if _3D_
 	fact = 1.0;
     if ((htw_d_d = (c.size - c.pos.s2))>0) {
-		if(c.speed.s2 > 0)fact = reduced;
+		//if(c.speed.s2 > 0)fact = reduced;
 		circle[gid].force.s2 += c.size*htw_d_d*e*fact;
 	}else if ((htw_d_d = (c.size + c.pos.s2 - s.s2))>0) {
-		if(c.speed.s2 < 0)fact = reduced;
+		//if(c.speed.s2 < 0)fact = reduced;
 		circle[gid].force.s2 -= c.size*htw_d_d*e*fact;
 	}
 #endif

@@ -10,7 +10,7 @@ GLWidget::GLWidget(ClTimer* ct, QWidget *parent) : QGLWidget(parent) {
 	rotation = (cl_double3){0,0,0,0};
 	translateZ = 0;
 	QTimer* rotationTimer = new QTimer(this);
-	rotationTimer->setInterval(1000/60);
+	rotationTimer->setInterval(1000/50);
 	QObject::connect(rotationTimer, SIGNAL(timeout()), this, SLOT(updateTimer()), Qt::QueuedConnection);
 	rotationTimer->start();
 }
@@ -71,12 +71,13 @@ void GLWidget::paintGL() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	clTimer->paintGL(rotation, translateZ);
+	/*
 	glColor3f(1,0,0);
 	glBegin(GL_POLYGON);
 	glVertex2f(0,0);
 	glVertex2f(100,500);
 	glVertex2f(500,100);
-	glEnd();
+	glEnd(); // */
 	frameCounter++;
 }
 

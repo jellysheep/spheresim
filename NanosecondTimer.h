@@ -7,8 +7,13 @@ class NanosecondTimer {
 protected:
 	long long lastNS;
 	
-	timespec now;
-	long long getNS(){
+public:
+	NanosecondTimer(){
+		lastNS = getNS();
+	}
+	
+	static long long getNS(){
+		static timespec now;
 		#ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
 			clock_serv_t cclock;
 			mach_timespec_t mts;
@@ -22,10 +27,6 @@ protected:
 		#endif
 
 		return ((1000000000ll*now.tv_sec)+now.tv_nsec);
-	}
-public:
-	NanosecondTimer(){
-		lastNS = getNS();
 	}
 	
 	long getElapsedNS(){

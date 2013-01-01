@@ -21,7 +21,7 @@ protected:
 	
 	char hex(int i);
 	void add(double d);
-	void save(int readNum, Circle* c_CPU);
+	void save(int readNum, Circle** c_CPU);
 
 	void run();
 	CirclesHolder* circlesHolder;
@@ -40,18 +40,20 @@ protected:
 	cl::Buffer cl_boxSize;
 	cl::Buffer cl_m_z, cl_m_w;
 	cl::Buffer cl_max_speed;
-	cl::Buffer cl_circlessCount, cl_E;
+	cl::Buffer cl_circlesCount, cl_E;
 		
 	cl_int err;
 	cl::Event event;
-	static const unsigned int numEvents = 10;
+	static const unsigned int numEvents = 2;
 	unsigned int eventCounter;
 	bool eventsFull;
 	cl::Event* events;
 	FILE * file;
 	
     int readNum;
-    Circle* c_CPU;
+    Circle* c_CPU[2];
+    Circle* circlesBuffer;
+    bool circlesBufferUsed;
 
 public:
 	ClTimer();

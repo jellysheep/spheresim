@@ -5,10 +5,11 @@
 //#include <stdio.h>
 #include <cstdlib>
 //#include <stdlib.h>
-#include <time.h>
+//#include <time.h>
 #include <string>
 #include <string.h>
 #include <math.h>
+#include "NanosecondTimer.h"
 
 ClTimer::ClTimer(){
 	printf("Initialize OpenCL object and context\n");
@@ -62,6 +63,7 @@ ClTimer::ClTimer(){
 		printf("ERROR: OpenCL initialization failed!\n");
 		return;
 	}
+	kernel_source[13] = '0'+_3D_; //define OpenCL version of _3D_
 
 	//pl = kernel_source.boxSize();
 	printf("kernel boxSize: %d\n", pl);
@@ -112,32 +114,46 @@ ClTimer::ClTimer(){
 	circle[i].D = .01;
 	circle[i].E = 1;
 	*/
+	
+	srand(NanosecondTimer::getNS());
+	uint* m_z = new uint(rand());
+	//for(int i = 0; i<10000; i++);
+	uint* m_w = new uint(rand());
+	cl_double2* boxSize2D = new cl_double2((cl_double2){boxSize.s0,boxSize.s1});
+	
+	int cl_mem_method = CL_MEM_COPY_HOST_PTR;
+	cl_mem_method = CL_MEM_USE_HOST_PTR;
 
 	printf("Creating OpenCL arrays\n");
-	cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(Circle)*circlesCount, NULL, &err);
-	cl_m_z = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(uint), NULL, &err);
-	cl_m_w = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(uint), NULL, &err);
-	cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY, sizeof(cl_double2), NULL, &err);
-	cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY, sizeof(double), NULL, &err);
-	cl_circlessCount = cl::Buffer(context, CL_MEM_READ_ONLY, sizeof(int), NULL, &err);
-	cl_E = cl::Buffer(context, CL_MEM_READ_ONLY, sizeof(double), NULL, &err);
+	/*
+	if((cl_mem_method & CL_MEM_USE_HOST_PTR)>0){
+		cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE|CL_MEM_ALLOC_HOST_PTR, sizeof(Circle)*circlesCount, circlesBuffer = new Circle[circlesCount], &err);
+		if(err!=CL_SUCCESS)printf("ERROR: creating circles buffer: %s\n", oclErrorString(err));
+		printf("circles buffer allocated.\n");
+		circlesBufferUsed = true;
+	}else // */
+	{
+		cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(Circle)*circlesCount, NULL, &err);
+		circlesBufferUsed = false;
+	}
+	cl_m_z = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_z, &err);
+	cl_m_w = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_w, &err);
+	cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_double2), boxSize2D, &err);
+	cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &max_speed, &err);
+	cl_circlesCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &circlesCount, &err);
+	cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &E, &err);
 
 	printf("Pushing data to the GPU\n");
 	//push our CPU arrays to the GPU
 
 	//write the circle struct to GPU memory as a buffer
 	//err = queue.enqueueWriteBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle), &circle, NULL, &event);
-	srand(time(NULL));
-	uint m_z = rand();
-	//for(int i = 0; i<10000; i++);
-	uint m_w = rand();
-	cl_double2 boxSize2D = ((cl_double2){boxSize.s0,boxSize.s1});
-	err = queue.enqueueWriteBuffer(cl_m_z, CL_TRUE, 0, sizeof(uint), &m_z, NULL, &event);
-	err = queue.enqueueWriteBuffer(cl_m_w, CL_TRUE, 0, sizeof(uint), &m_w, NULL, &event);
-	err = queue.enqueueWriteBuffer(cl_boxSize, CL_TRUE, 0, sizeof(cl_double2), &boxSize2D, NULL, &event);
+	/*err = queue.enqueueWriteBuffer(cl_m_z, CL_TRUE, 0, sizeof(uint), m_z, NULL, &event);
+	err = queue.enqueueWriteBuffer(cl_m_w, CL_TRUE, 0, sizeof(uint), m_w, NULL, &event);
+	err = queue.enqueueWriteBuffer(cl_boxSize, CL_TRUE, 0, sizeof(cl_double2), boxSize2D, NULL, &event);
 	err = queue.enqueueWriteBuffer(cl_max_speed, CL_TRUE, 0, sizeof(double), &max_speed, NULL, &event);
-	err = queue.enqueueWriteBuffer(cl_circlessCount, CL_TRUE, 0, sizeof(int), &circlesCount, NULL, &event);
-	err = queue.enqueueWriteBuffer(cl_E, CL_TRUE, 0, sizeof(double), &E, NULL, &event);
+	err = queue.enqueueWriteBuffer(cl_circlesCount, CL_TRUE, 0, sizeof(int), &circlesCount, NULL, &event);
+	err = queue.enqueueWriteBuffer(cl_E, CL_TRUE, 0, sizeof(double), &E, NULL, &event);*/
 	
 
 	//Wait for the command queue to finish these commands before proceeding
@@ -147,7 +163,7 @@ ClTimer::ClTimer(){
 
 	//set the arguements of our kernel
 	err = moveStep_kernel.setArg(0, cl_circles);
-	err = moveStep_kernel.setArg(1, cl_circlessCount);
+	err = moveStep_kernel.setArg(1, cl_circlesCount);
 	err = moveStep_kernel.setArg(2, cl_boxSize);
 	err = moveStep_kernel.setArg(3, cl_E);
 	err = randomFill_kernel.setArg(0, cl_circles);
@@ -161,7 +177,7 @@ ClTimer::ClTimer(){
 	
 	
 	
-	printf("\nrunKernel\n");
+	printf("runKernel\n");
     events = new cl::Event[numEvents];
     eventCounter = 0;
     eventsFull = false;
@@ -177,12 +193,14 @@ ClTimer::ClTimer(){
 		fprintf(file, "%u\n", circlesCount);
 		fclose(file);	
 	}
-    readNum = min(500,circlesCount);
-    c_CPU = new Circle[readNum];
+    readNum = min(1000,circlesCount/2);
+    c_CPU[0] = new Circle[readNum];
+    c_CPU[1] = new Circle[readNum];
 		
     err = queue.enqueueNDRangeKernel(randomFill_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &event); 
     if(err!=CL_SUCCESS)printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
     queue.finish();
+	printf("kernel randomFill executed successfully!\n\n");
 }
 
 char ClTimer::hex(int i){
@@ -202,23 +220,27 @@ void ClTimer::add(double d){
 	}
 }
 
-void ClTimer::save(int readNum, Circle* c_CPU){
+void ClTimer::save(int readNum, Circle** c_CPU){
 	file = fopen("save.txt","a");
-	for(int offset = 0; offset<circlesCount; offset+=readNum){
-		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), &c_CPU[0], NULL, &event);
+	int j = 0;
+	int offset = 0;
+	err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU[j=((j+1)%2)], NULL, &event);
+	offset+=readNum;
+	for(; offset<circlesCount; offset+=readNum){
 		event.wait();
+		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU[j=((j+1)%2)], NULL, &event);
 		//queue.finish();
 
 		for(int i=0; i < min((circlesCount-offset),readNum); i++)
 		{
-			add(c_CPU[i].size);
+			add(c_CPU[j][i].size);
 			fprintf(file," ");
-			add(c_CPU[i].pos.s0);
+			add(c_CPU[j][i].pos.s0);
 			fprintf(file," ");
-			add(c_CPU[i].pos.s1);
+			add(c_CPU[j][i].pos.s1);
 			//#if _3D_
 			//	f<<" ";
-			//	add(f, c_CPU[i].pos.s2);
+			//	add(f, c_CPU[j][i].pos.s2);
 			//#endif
 			fprintf(file,"\n");
 		}
@@ -269,22 +291,20 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 	glVertex3d(0,boxSize.s1,boxSize.s2);
 	glEnd();
 	
-	return;
+	
 	
 	double r,x,y,z;
-	for(int offset = 0; offset<circlesCount; offset+=readNum){
-		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), &c_CPU[0], NULL, &event);
-		event.wait();
-		//queue.finish();
-
-		for(int i=0; i < min((circlesCount-offset),readNum); i++)
+	if(circlesBufferUsed){
+		for(int i=0; i < circlesCount; i++)
 		{
-			r = c_CPU[i].size;
-			x = c_CPU[i].pos.s0;
-			y = c_CPU[i].pos.s1;
+			//printf("%4u: %5u\n", j, offset+i);
+			r = circlesBuffer[i].size;
+			x = circlesBuffer[i].pos.s0;
+			y = circlesBuffer[i].pos.s1;
 			z = 0;
+			//printf("Circle (r=%3f): (%4f|%4f|%4f)\n",r,x,y,z);
 			if(_3D_!=0){
-				//z = c_CPU[i].pos.s2;
+				//z = circlesBuffer[i].pos.s2;
 			}
 			if(_3D_==0){
 				glBegin(GL_TRIANGLE_FAN);
@@ -315,6 +335,61 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 
 				glEnd();
 			}
+		}
+	}else{
+		int j = 0;
+		int offset = 0;
+		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU[j], NULL, &event);
+		//offset+=readNum;
+		for(; offset<circlesCount; offset+=readNum){
+			event.wait();
+			if(circlesCount-(offset+readNum)>0){
+				err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*(offset+readNum), sizeof(Circle)*min((circlesCount-(offset+readNum)),readNum), c_CPU[((j+1)%2)], NULL, &event);
+			}
+			//queue.finish();
+
+			for(int i=0; i < min((circlesCount-offset),readNum); i++)
+			{
+				//printf("%4u: %5u\n", j, offset+i);
+				r = c_CPU[j][i].size;
+				x = c_CPU[j][i].pos.s0;
+				y = c_CPU[j][i].pos.s1;
+				z = 0;
+				//printf("Circle (r=%3f): (%4f|%4f|%4f)\n",r,x,y,z);
+				if(_3D_!=0){
+					//z = c_CPU[j][i].pos.s2;
+				}
+				if(_3D_==0){
+					glBegin(GL_TRIANGLE_FAN);
+					#if onlyOneC
+						if(i==cCount-1)
+							glColor3d(1,1,1); 
+						else
+							glColor3d(0.1, 0.1, 0.1); 
+					#else
+						glColor3d(1,1,1); 
+					#endif
+					glVertex3d(x-(r/3),y+(r/3),z);
+					#if onlyOneC
+						if(i==cCount-1)
+							glColor3d(0.4,0.4,0.4); 
+						else
+							glColor3d(0.05, 0.05, 0.05);
+					#else
+						glColor3d(0.4,0.4,0.4); 
+					#endif
+					double d = 0;
+					for(int j = 0; j<=edges; j++){
+						d+=step;
+						//cout<<edges<<" "<<j<<endl;
+						//cout<<d<<endl;
+						glVertex3d(x+cos(d)*r,y+sin(d)*r,z);
+					}
+
+					glEnd();
+				}
+			}
+			j=((j+1)%2);
 		}
 	}
 }
