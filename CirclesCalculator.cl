@@ -1,8 +1,9 @@
 #define _3D_ 0
 
-//#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+#pragma OPENCL EXTENSION cl_amd_fp64 : enable
 
-#define reduced 1.0
+//#define reduced 0.9999999999999
 //0.9
 
 #define floating_type double
@@ -38,7 +39,7 @@ floating_type uGetUniform(__global uint* m_z, __global uint* m_w)
     uint u = GetUint(m_z, m_w);
     // The magic number below is 1/(2^32 + 2).
     // The result is strictly between 0 and 1.
-    return (u + 1.0) * 2.328306435454494 * pow(10.0,-10.0);
+    return (u + 1.0) * 2328306435454494 * pow(10.0,-25.0);
 }
 
 floating_type GetUniform(__global uint* m_z, __global uint* m_w)
@@ -47,14 +48,14 @@ floating_type GetUniform(__global uint* m_z, __global uint* m_w)
     uint u = GetUint(m_z, m_w);
     // The magic number below is 1/(2^32 + 2).
     // The result is strictly between -1 and 1.
-    return ((u + 1.0) * 2.328306435454494 * pow(10.0,-10.0) * 2)-1;
+    return ((u + 1.0) * 2328306435454494 * pow(10.0,-25.0) * 2)-1;
 }
 
 __kernel void randomFill(__global struct Circle* circle, __global uint* m_z, __global uint* m_w,
 						__global floating_type_vector* size, __global floating_type* max_speed){
     int gid = get_global_id(0);
     floating_type_vector s = *size;
-	circle[gid].size = 15;
+	circle[gid].size = 10;
     
 	circle[gid].pos.s0 = circle[gid].size/2+uGetUniform(m_z, m_w)*(s.s0-circle[gid].size);
 	circle[gid].pos.s1 = circle[gid].size/2+uGetUniform(m_z, m_w)*(s.s1-circle[gid].size);
@@ -77,10 +78,11 @@ __kernel void randomFill(__global struct Circle* circle, __global uint* m_z, __g
 }
 
 __kernel void moveStep(__global struct Circle* circle, __global int* num,
-						__global floating_type_vector* size, __global floating_type* E)
+						__global floating_type_vector* size, __global floating_type* E, 
+						__global floating_type* elastic, __global floating_type* gravity)
 {
 	floating_type_vector s = *size, force;
-	floating_type e = *E;
+	floating_type e = *E, reduced = *elastic, g = *gravity;
 	int gid = get_global_id(0);
 	struct Circle c2;
 	struct Circle c = circle[gid];
@@ -125,21 +127,21 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
     floating_type htw_d_d, fact = 1.0;
     if ((htw_d_d = (c.size - c.pos.s0))>0) {
 		//c.speed.s0 = fabs(c.speed.s0);
-		//if(c.speed.s0 > 0)fact = reduced;
+		if(c.speed.s0 > 0)fact = reduced;
 		circle[gid].force.s0 += c.size*htw_d_d*e*fact;
 	}else if ((htw_d_d = (c.size + c.pos.s0 - s.s0))>0) {
 		//c.speed.s0 = -fabs(c.speed.s0);
-		//if(c.speed.s0 < 0)fact = reduced;
+		if(c.speed.s0 < 0)fact = reduced;
 		circle[gid].force.s0 -= c.size*htw_d_d*e*fact;
 	}
 	fact = 1.0;
     if ((htw_d_d = (c.size - c.pos.s1))>0) {
 		//c.speed.s1 = fabs(c.speed.s1);
-		//if(c.speed.s1 > 0)fact = reduced;
+		if(c.speed.s1 > 0)fact = reduced;
 		circle[gid].force.s1 += c.size*htw_d_d*e*fact;
 	}else if ((htw_d_d = (c.size + c.pos.s1 - s.s1))>0) {
 		//c.speed.s1 = -fabs(c.speed.s1);
-		//if(c.speed.s1 < 0)fact = reduced;
+		if(c.speed.s1 < 0)fact = reduced;
 		circle[gid].force.s1 -= c.size*htw_d_d*e*fact;
 	}
 #if _3D_
@@ -152,7 +154,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 		circle[gid].force.s2 -= c.size*htw_d_d*e*fact;
 	}
 #endif
-	//circle[gid].force.s1 -= 0.07;
+	circle[gid].force.s1 -= g;
     //circle[gid].force -= 0.001*circle[gid].speed*fabs(length(circle[gid].speed));
     //0.00001*normalize(circle[gid].speed)*pow(length(circle[gid].speed),2);
     circle[gid].pos += c.speed;

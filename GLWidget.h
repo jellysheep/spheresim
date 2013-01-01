@@ -18,12 +18,26 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void keyPressEvent(QKeyEvent *event);
+	int xRot,yRot,zRot;
 	cl_double3 rotation;
 	double translateZ;
 	ClTimer* clTimer;
+     QPoint lastPos;
     
 public:
 	GLWidget(ClTimer* ct, QWidget *parent = NULL);
+	QSize minimumSizeHint() const;
+	QSize sizeHint() const;
+
+public slots:
+	void setXRotation(int angle);
+	void setYRotation(int angle);
+	void setZRotation(int angle);
+
+signals:
+	void xRotationChanged(int angle);
+	void yRotationChanged(int angle);
+	void zRotationChanged(int angle);
 
 public slots:
 	void updateTimer();

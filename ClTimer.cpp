@@ -81,7 +81,7 @@ ClTimer::ClTimer(){
 	printf("build program\n");
 	try
 	{
-		err = program.build(devices, "");
+		err = program.build(devices, ""); //-cl-single-precision-constant
 	}
 	catch (cl::Error er) {
 		printf("program.build: %s\n", oclErrorString(er.err()));
@@ -122,7 +122,7 @@ ClTimer::ClTimer(){
 	cl_double2* boxSize2D = new cl_double2((cl_double2){boxSize.s0,boxSize.s1});
 	
 	int cl_mem_method = CL_MEM_COPY_HOST_PTR;
-	cl_mem_method = CL_MEM_USE_HOST_PTR;
+	//cl_mem_method = CL_MEM_USE_HOST_PTR;
 
 	printf("Creating OpenCL arrays\n");
 	/*
@@ -142,6 +142,8 @@ ClTimer::ClTimer(){
 	cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &max_speed, &err);
 	cl_circlesCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &circlesCount, &err);
 	cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &E, &err);
+	cl_elastic = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &elastic, &err);
+	cl_gravity = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &gravity, &err);
 
 	printf("Pushing data to the GPU\n");
 	//push our CPU arrays to the GPU
@@ -166,6 +168,8 @@ ClTimer::ClTimer(){
 	err = moveStep_kernel.setArg(1, cl_circlesCount);
 	err = moveStep_kernel.setArg(2, cl_boxSize);
 	err = moveStep_kernel.setArg(3, cl_E);
+	err = moveStep_kernel.setArg(4, cl_elastic);
+	err = moveStep_kernel.setArg(5, cl_gravity);
 	err = randomFill_kernel.setArg(0, cl_circles);
 	err = randomFill_kernel.setArg(1, cl_m_z);
 	err = randomFill_kernel.setArg(2, cl_m_w);
@@ -252,14 +256,6 @@ void ClTimer::save(int readNum, Circle** c_CPU){
 #define onlyOneC 0
 void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 	// Apply some transformations
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef(0.f, 0.f, -1000.f);
-	glTranslatef(0.0, 0.0, translateZ*10);
-	glRotatef(rotation.s0, 1.0, 0.0, 0.0);
-	glRotatef(rotation.s1, 0.0, 1.0, 0.0);
-	glRotatef(rotation.s2, 0.0, 0.0, 1.0);
-	glTranslatef(-boxSize.s0/2, -boxSize.s1/2, -boxSize.s2/2);
 	//glLightfv(GL_LIGHT0, GL_POSITION, LightPosition);
 	/*
 	glRotatef(Clock.GetElapsedTime() * 50, 1.f, 0.f, 0.f);
@@ -291,8 +287,6 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 	glVertex3d(0,boxSize.s1,boxSize.s2);
 	glEnd();
 	
-	
-	
 	double r,x,y,z;
 	if(circlesBufferUsed){
 		for(int i=0; i < circlesCount; i++)
@@ -302,7 +296,7 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 			x = circlesBuffer[i].pos.s0;
 			y = circlesBuffer[i].pos.s1;
 			z = 0;
-			//printf("Circle (r=%3f): (%4f|%4f|%4f)\n",r,x,y,z);
+			//printf("Circle (r=%3f): (%4.2f|%4.2f|%4.2f)\n",r,x,y,z);
 			if(_3D_!=0){
 				//z = circlesBuffer[i].pos.s2;
 			}
@@ -407,6 +401,9 @@ void ClTimer::run(){
 			//printf(
 			//queue.enqueueWaitForEvents(event2);
 			events[eventCounter].wait();
+			events[eventCounter].~Event();
+			//context.release(events[eventCounter]);
+			//queue.release(events[eventCounter]);
 		}else{
 			queue.finish();
 		}

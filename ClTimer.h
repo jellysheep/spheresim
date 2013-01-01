@@ -41,6 +41,7 @@ protected:
 	cl::Buffer cl_m_z, cl_m_w;
 	cl::Buffer cl_max_speed;
 	cl::Buffer cl_circlesCount, cl_E;
+	cl::Buffer cl_elastic, cl_gravity;
 		
 	cl_int err;
 	cl::Event event;

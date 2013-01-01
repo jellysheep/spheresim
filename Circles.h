@@ -19,7 +19,7 @@ typedef struct Circle
 } Circle;
 
 extern int circlesCount, _3D_;
-extern double max_speed, E;
+extern double max_speed, E, elastic, gravity;
 extern cl_double3 boxSize;
 extern bool saveBool;
 extern int edges;
