@@ -12,6 +12,8 @@
 #include "NanosecondTimer.h"
 
 ClTimer::ClTimer(){
+	glWidget = NULL;
+	elapsedFrames = 0;
 	printf("Initialize OpenCL object and context\n");
 	//setup devices and context
 	
@@ -139,11 +141,14 @@ ClTimer::ClTimer(){
 	cl_m_z = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_z, &err);
 	cl_m_w = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_w, &err);
 	cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_double2), boxSize2D, &err);
+	cl_size = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_double2), &size, &err);
 	cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &max_speed, &err);
 	cl_circlesCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &circlesCount, &err);
 	cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &E, &err);
 	cl_elastic = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &elastic, &err);
 	cl_gravity = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &gravity, &err);
+	cl_timeInterval = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &timeInterval, &err);
+	cl_poisson = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &poisson, &err);
 
 	printf("Pushing data to the GPU\n");
 	//push our CPU arrays to the GPU
@@ -164,17 +169,21 @@ ClTimer::ClTimer(){
 
 
 	//set the arguements of our kernel
-	err = moveStep_kernel.setArg(0, cl_circles);
-	err = moveStep_kernel.setArg(1, cl_circlesCount);
-	err = moveStep_kernel.setArg(2, cl_boxSize);
-	err = moveStep_kernel.setArg(3, cl_E);
-	err = moveStep_kernel.setArg(4, cl_elastic);
-	err = moveStep_kernel.setArg(5, cl_gravity);
 	err = randomFill_kernel.setArg(0, cl_circles);
 	err = randomFill_kernel.setArg(1, cl_m_z);
 	err = randomFill_kernel.setArg(2, cl_m_w);
 	err = randomFill_kernel.setArg(3, cl_boxSize);
 	err = randomFill_kernel.setArg(4, cl_max_speed);
+	err = randomFill_kernel.setArg(5, cl_size);
+	err = randomFill_kernel.setArg(6, cl_poisson);
+	err = randomFill_kernel.setArg(7, cl_E);
+	
+	err = moveStep_kernel.setArg(0, cl_circles);
+	err = moveStep_kernel.setArg(1, cl_circlesCount);
+	err = moveStep_kernel.setArg(2, cl_boxSize);
+	err = moveStep_kernel.setArg(3, cl_elastic);
+	err = moveStep_kernel.setArg(4, cl_gravity);
+	err = moveStep_kernel.setArg(5, cl_timeInterval);
 
 	//Wait for the command queue to finish these commands before proceeding
 	queue.finish();
@@ -198,13 +207,26 @@ ClTimer::ClTimer(){
 		fclose(file);	
 	}
     readNum = min(1000,circlesCount/2);
-    c_CPU[0] = new Circle[readNum];
-    c_CPU[1] = new Circle[readNum];
+    if(saveBool){
+		c_CPU_save[0] = new Circle[readNum];
+		c_CPU_save[1] = new Circle[readNum];
+	}
+    c_CPU_render[0] = new Circle[readNum];
+    c_CPU_render[1] = new Circle[readNum];
 		
     err = queue.enqueueNDRangeKernel(randomFill_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &event); 
     if(err!=CL_SUCCESS)printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
     queue.finish();
 	printf("kernel randomFill executed successfully!\n\n");
+}
+
+void ClTimer::set(GLWidget* w){
+	glWidget = w;
+}
+
+void ClTimer::fpsChanged(double fps){
+	double timeInterval = speed/fps;
+	err = queue.enqueueWriteBuffer(cl_timeInterval, CL_TRUE, 0, sizeof(double), &timeInterval, NULL, &event);
 }
 
 char ClTimer::hex(int i){
@@ -224,27 +246,27 @@ void ClTimer::add(double d){
 	}
 }
 
-void ClTimer::save(int readNum, Circle** c_CPU){
+void ClTimer::save(){
 	file = fopen("save.txt","a");
 	int j = 0;
 	int offset = 0;
-	err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU[j=((j+1)%2)], NULL, &event);
+	err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_save[j=((j+1)%2)], NULL, &event);
 	offset+=readNum;
 	for(; offset<circlesCount; offset+=readNum){
 		event.wait();
-		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU[j=((j+1)%2)], NULL, &event);
+		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_save[j=((j+1)%2)], NULL, &event);
 		//queue.finish();
 
 		for(int i=0; i < min((circlesCount-offset),readNum); i++)
 		{
-			add(c_CPU[j][i].size);
+			add(c_CPU_save[j][i].size);
 			fprintf(file," ");
-			add(c_CPU[j][i].pos.s0);
+			add(c_CPU_save[j][i].pos.s0);
 			fprintf(file," ");
-			add(c_CPU[j][i].pos.s1);
+			add(c_CPU_save[j][i].pos.s1);
 			//#if _3D_
 			//	f<<" ";
-			//	add(f, c_CPU[j][i].pos.s2);
+			//	add(f, c_CPU_save[j][i].pos.s2);
 			//#endif
 			fprintf(file,"\n");
 		}
@@ -270,22 +292,24 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 	glVertex3d(boxSize.s0,boxSize.s1,0);
 	glVertex3d(0,boxSize.s1,0);
 	glEnd();
-	glBegin(GL_LINE_LOOP);
-	glVertex3d(0,0,boxSize.s2);
-	glVertex3d(boxSize.s0,0,boxSize.s2);
-	glVertex3d(boxSize.s0,boxSize.s1,boxSize.s2);
-	glVertex3d(0,boxSize.s1,boxSize.s2);
-	glEnd();
-	glBegin(GL_LINES);
-	glVertex3d(0,0,0);
-	glVertex3d(0,0,boxSize.s2);
-	glVertex3d(boxSize.s0,0,0);
-	glVertex3d(boxSize.s0,0,boxSize.s2);
-	glVertex3d(boxSize.s0,boxSize.s1,0);
-	glVertex3d(boxSize.s0,boxSize.s1,boxSize.s2);
-	glVertex3d(0,boxSize.s1,0);
-	glVertex3d(0,boxSize.s1,boxSize.s2);
-	glEnd();
+	if(_3D_!=0){
+		glBegin(GL_LINE_LOOP);
+		glVertex3d(0,0,boxSize.s2);
+		glVertex3d(boxSize.s0,0,boxSize.s2);
+		glVertex3d(boxSize.s0,boxSize.s1,boxSize.s2);
+		glVertex3d(0,boxSize.s1,boxSize.s2);
+		glEnd();
+		glBegin(GL_LINES);
+		glVertex3d(0,0,0);
+		glVertex3d(0,0,boxSize.s2);
+		glVertex3d(boxSize.s0,0,0);
+		glVertex3d(boxSize.s0,0,boxSize.s2);
+		glVertex3d(boxSize.s0,boxSize.s1,0);
+		glVertex3d(boxSize.s0,boxSize.s1,boxSize.s2);
+		glVertex3d(0,boxSize.s1,0);
+		glVertex3d(0,boxSize.s1,boxSize.s2);
+		glEnd();
+	}
 	
 	double r,x,y,z;
 	if(circlesBufferUsed){
@@ -295,7 +319,7 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 			r = circlesBuffer[i].size;
 			x = circlesBuffer[i].pos.s0;
 			y = circlesBuffer[i].pos.s1;
-			z = 0;
+			z = boxSize.s2;
 			//printf("Circle (r=%3f): (%4.2f|%4.2f|%4.2f)\n",r,x,y,z);
 			if(_3D_!=0){
 				//z = circlesBuffer[i].pos.s2;
@@ -333,25 +357,25 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 	}else{
 		int j = 0;
 		int offset = 0;
-		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU[j], NULL, &event);
+		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_render[j], NULL, &event);
 		//offset+=readNum;
 		for(; offset<circlesCount; offset+=readNum){
 			event.wait();
 			if(circlesCount-(offset+readNum)>0){
-				err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*(offset+readNum), sizeof(Circle)*min((circlesCount-(offset+readNum)),readNum), c_CPU[((j+1)%2)], NULL, &event);
+				err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*(offset+readNum), sizeof(Circle)*min((circlesCount-(offset+readNum)),readNum), c_CPU_render[((j+1)%2)], NULL, &event);
 			}
 			//queue.finish();
 
 			for(int i=0; i < min((circlesCount-offset),readNum); i++)
 			{
 				//printf("%4u: %5u\n", j, offset+i);
-				r = c_CPU[j][i].size;
-				x = c_CPU[j][i].pos.s0;
-				y = c_CPU[j][i].pos.s1;
+				r = c_CPU_render[j][i].size;
+				x = c_CPU_render[j][i].pos.s0;
+				y = c_CPU_render[j][i].pos.s1;
 				z = 0;
 				//printf("Circle (r=%3f): (%4f|%4f|%4f)\n",r,x,y,z);
 				if(_3D_!=0){
-					//z = c_CPU[j][i].pos.s2;
+					//z = c_CPU_render[j][i].pos.s2;
 				}
 				if(_3D_==0){
 					glBegin(GL_TRIANGLE_FAN);
@@ -414,10 +438,16 @@ void ClTimer::run(){
 		if(saveBool)
 		{
 			//queue.finish();
-			save(readNum, &c_CPU[0]);
+			save();
 		}
 		//printf(".");
 		frameCounter++;
+		elapsedFrames++;
+		if(elapsedFrames > (fps/renderFps)){
+			if(glWidget != NULL) 
+				glWidget->update();
+			elapsedFrames = 0;
+		}
 	}
 }
 

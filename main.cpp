@@ -14,9 +14,11 @@ int main(int argc, char *argv[]) {
 	printf("ClTimer initialized!\n");
 
 	GLWidget window(clTimer);
-	window.resize(800,600);
+	window.resize(600,600);
 	window.show();
 	printf("GLWidget initialized!\n");
+	
+	clTimer->set(&window);
 	
 	StatusViewer statusViewer(&window, clTimer);
 	printf("StatusViewer initialized!\n");

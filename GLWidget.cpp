@@ -11,9 +11,9 @@ GLWidget::GLWidget(ClTimer* ct, QWidget *parent) : QGLWidget(parent) {
 	xRot = yRot = zRot = 0;
 	translateZ = 0;
 	QTimer* rotationTimer = new QTimer(this);
-	rotationTimer->setInterval(1000/50);
+	rotationTimer->setInterval(1000/renderFps);
 	QObject::connect(rotationTimer, SIGNAL(timeout()), this, SLOT(updateTimer()), Qt::QueuedConnection);
-	rotationTimer->start();
+	//rotationTimer->start();
 }
 
 void GLWidget::updateTimer() {
@@ -63,20 +63,19 @@ void GLWidget::initializeGL() {
 	glClearColor(0.f, 0.f, 0.f, 0.f);
 
 	// Enable Z-buffer read and write
-	glEnable(GL_DEPTH_TEST);
 	glShadeModel( GL_SMOOTH );//flat/smooth
 	//glShadeModel( GL_FLAT );
-	glDepthMask(GL_TRUE);
 
 	// Setup a perspective projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(50.f, 1.f*480/360*boxSize.s1/boxSize.s0, 1.f, 2000.f);
-		
-	glEnable(GL_DEPTH_TEST);						// Enables Depth Testing
-	glDepthFunc(GL_LEQUAL);
+	gluPerspective(50.f, 1.f*boxSize.s1/boxSize.s0, 1.f, 2000.f);
+	
 	
 	if(_3D_!=0){
+		glEnable(GL_DEPTH_TEST);						// Enables Depth Testing
+		glDepthFunc(GL_LEQUAL);
+		glDepthMask(GL_TRUE);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
@@ -89,13 +88,18 @@ void GLWidget::initializeGL() {
 	glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
 }
 
-void GLWidget::reboxSizeGL(int w, int h) {
-	/*glViewport(0, 0, w, h);
-	glMatrixMode(GL_PROJECTION);
+void GLWidget::resizeGL(int w, int h) {
+	//*
+	if(boxSize.s0*h/boxSize.s1 > w){
+		glViewport(0, 0, w, boxSize.s1*w/boxSize.s0);
+	}else{
+		glViewport(0, 0, boxSize.s0*h/boxSize.s1, h);
+	}
+	/*glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0, w, 0, h); // set origin to bottom left corner
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();*/
+	glLoadIdentity();// */
 }
 
 void GLWidget::paintGL() {
@@ -118,13 +122,16 @@ void GLWidget::paintGL() {
 		// Apply some transformations
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		glTranslatef(0.f, 0.f, -1000.f);
+		glTranslatef(0.f, 0.f, -500.f);
 		glTranslatef(0.0, 0.0, zRot*1.0);
 		
+	 //glRotatef(180.0, 0.0, 1.0, 0.0);
 	 glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
      glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
+		double scale = 300.0/boxSize.s0;
+		glScalef(scale,scale,scale);
      //glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
-		glTranslatef(-boxSize.s0/2, -boxSize.s1/2, -boxSize.s2/2);
+		glTranslatef(-boxSize.s0/2, -boxSize.s1/2, (_3D_!=0?(-boxSize.s2/2):0));
 		//glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
 	
 	clTimer->paintGL(rotation, translateZ);

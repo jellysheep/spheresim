@@ -14,6 +14,8 @@ class StatusViewer : public QObject, protected NanosecondTimer {
 protected:
 	GLWidget* glWidget;
 	ClTimer* clTimer;
+	double lastGlWidgetFrames, lastClTimerFrames;
+	const static double f = 0.2;
 
 public:
 	StatusViewer(GLWidget* glw, ClTimer* clt);

@@ -7,13 +7,15 @@
 
 #include <CL/cl.hpp>
 
+class ClTimer;
+
 class GLWidget : public QGLWidget, public FramesCounter {
 
 	Q_OBJECT // must include this if you use Qt signals/slots	  
 
 protected:
 	void initializeGL();
-	void reboxSizeGL(int w, int h);
+	void resizeGL(int w, int h);
 	void paintGL();
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
