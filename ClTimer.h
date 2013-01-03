@@ -28,7 +28,6 @@ protected:
 	void add(double d);
 	void save();
 
-	void run();
 	CirclesHolder* circlesHolder;
 	
 	unsigned int deviceUsed;
@@ -46,7 +45,8 @@ protected:
 	cl::Buffer cl_m_z, cl_m_w;
 	cl::Buffer cl_max_speed;
 	cl::Buffer cl_circlesCount, cl_E;
-	cl::Buffer cl_elastic, cl_gravity, cl_timeInterval, cl_poisson;
+	cl::Buffer cl_elastic, cl_gravity, cl_timeInterval;
+	cl::Buffer cl_poisson, cl_G;
 		
 	cl_int err;
 	cl::Event event;
@@ -63,6 +63,8 @@ protected:
     bool circlesBufferUsed;
     
     long elapsedFrames;
+    
+    void run();
 
 public:
 	ClTimer();
@@ -76,7 +78,11 @@ public:
 	void paintGL(cl_double3 rotation, double translateZ);
     
 	void fpsChanged(double fps);
+
+	friend void start(ClTimer* clTimer);
 };
+
+extern void start(ClTimer* clTimer);
 
 #endif  /* _CLTIMER_H_ */
 

@@ -30,16 +30,19 @@ public:
 	GLWidget(ClTimer* ct, QWidget *parent = NULL);
 	QSize minimumSizeHint() const;
 	QSize sizeHint() const;
+	bool drawingFinished;
 
 public slots:
 	void setXRotation(int angle);
 	void setYRotation(int angle);
 	void setZRotation(int angle);
+	void timeToRender();
 
 signals:
 	void xRotationChanged(int angle);
 	void yRotationChanged(int angle);
 	void zRotationChanged(int angle);
+	void timeToRender_();
 
 public slots:
 	void updateTimer();

@@ -14,7 +14,7 @@ typedef struct Circle
 	cl_double2 pos;
 	cl_double2 speed;
 	cl_double2 force;
-	double size, mass, poisson;
+	double size, mass, poisson, E;
 	//float x[3];  //padding
 } Circle;
 
@@ -24,7 +24,7 @@ typedef struct CircleExtension
 	cl_float2* trace;
 	int traceCount;
 	bool traceFull;
-}
+} CircleExtension;
 
 extern int circlesCount, _3D_;
 
@@ -41,9 +41,10 @@ extern double E;
 extern double poisson;
 extern double elastic;
 extern double gravity;
-extern bool saveBool;
+extern bool saveBool, renderBool;
 extern int edges;
 extern double step;
+extern double G;
 
 extern bool useCircleExtensions;
 extern int traceCount;

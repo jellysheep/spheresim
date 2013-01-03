@@ -1,6 +1,7 @@
 
 #include "ClTimer.h"
 
+#include <QtGui/QApplication>
 #include <cstdio>
 //#include <stdio.h>
 #include <cstdlib>
@@ -12,212 +13,280 @@
 #include "NanosecondTimer.h"
 
 ClTimer::ClTimer(){
-	glWidget = NULL;
-	elapsedFrames = 0;
-	printf("Initialize OpenCL object and context\n");
-	//setup devices and context
-	
-	//this function is defined in util.cpp
-	//it comes from the NVIDIA SDK example code
-	///err = oclGetPlatformID(&platform);
-	//oclErrorString is also defined in util.cpp and comes from the NVIDIA SDK
-	///printf("oclGetPlatformID: %s\n", oclErrorString(err));
-	std::vector<cl::Platform> platforms;
-	err = cl::Platform::get(&platforms);
-	printf("cl::Platform::get(): %s\n", (err));
-	printf("circlesCountber of platforms: %d\n", platforms.size());
-	if (platforms.size() == 0) {
-		printf("Platform size 0\n");
-	}
-	
-	//for right now we just use the first available device
-	//later you may have criteria (such as support for different extensions)
-	//that you want to use to select the device
-	deviceUsed = 0;
-	//create the context
-	///context = clCreateContext(0, 1, &devices[deviceUsed], NULL, NULL, &err);
-	//context properties will be important later, for now we go with defualts
-	cl_context_properties properties[] = 
-		{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
-
-	context = cl::Context(CL_DEVICE_TYPE_ALL, properties);
-	devices = context.getInfo<CL_CONTEXT_DEVICES>();
-	
-	//create the command queue we will use to execute OpenCL commands
-	///command_queue = clCreateCommandQueue(context, devices[deviceUsed], 0, &err);
 	try{
-		queue = cl::CommandQueue(context, devices[deviceUsed], 0, &err);
-	}
-	//catch (cl::Error er) {
-	catch (std::exception er) {
-		printf("ERROR: %s(%d)\n", er.what());//, er.err());
-	}
-	
-	
-	//Program Setup
-	printf("load the program\n");
-	
+		glWidget = NULL;
+		elapsedFrames = 0;
+		printf("Initialize OpenCL object and context\n");
+		//setup devices and context
+		
+		//this function is defined in util.cpp
+		//it comes from the NVIDIA SDK example code
+		///err = oclGetPlatformID(&platform);
+		//oclErrorString is also defined in util.cpp and comes from the NVIDIA SDK
+		///printf("oclGetPlatformID: %s\n", oclErrorString(err));
+		std::vector<cl::Platform> platforms;
+		err = cl::Platform::get(&platforms);
+		printf("cl::Platform::get(): %s\n", (err));
+		printf("numer of platforms: %d\n", platforms.size());
+		if (platforms.size() == 0) {
+			printf("Platform size 0\n");
+		}
+		
+		//for right now we just use the first available device
+		//later you may have criteria (such as support for different extensions)
+		//that you want to use to select the device
+		deviceUsed = 0;
+		//create the context
+		///context = clCreateContext(0, 1, &devices[deviceUsed], NULL, NULL, &err);
+		//context properties will be important later, for now we go with defualts
+		cl_context_properties properties[] = 
+			{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
 
-	int pl;
-	char *kernel_source;
-	kernel_source = file_contents("../CirclesCalculator.cl", &pl);
-	if(kernel_source == NULL){
-		printf("ERROR: OpenCL initialization failed!\n");
-		return;
-	}
-	kernel_source[13] = '0'+_3D_; //define OpenCL version of _3D_
+		context = cl::Context(CL_DEVICE_TYPE_ALL, properties);
+		devices = context.getInfo<CL_CONTEXT_DEVICES>();
+		
+		printf("number of devices: %d\n", devices.size());
+		
+		//create the command queue we will use to execute OpenCL commands
+		///command_queue = clCreateCommandQueue(context, devices[deviceUsed], 0, &err);
+		try{
+			queue = cl::CommandQueue(context, devices[deviceUsed], 0, &err);
+		}
+		catch (cl::Error er) {
+			printf("ERROR: %s(%d)\n", er.what(), er.err());
+		}
+		
+		
+		//Program Setup
+		printf("load the program\n");
+		
 
-	//pl = kernel_source.boxSize();
-	printf("kernel boxSize: %d\n", pl);
-	//printf("kernel: \n %s\n", kernel_source.c_str());
-	try
-	{
-		cl::Program::Sources source(1,
-			std::make_pair(kernel_source, pl));
-		program = cl::Program(context, source);
-	}
-	catch (cl::Error er) {
-		printf("ERROR: %s(%s)\n", er.what(), oclErrorString(er.err()));
-	}
+		int pl;
+		char *kernel_source;
+		kernel_source = file_contents("../CirclesCalculator.cl", &pl);
+		if(kernel_source == NULL){
+			printf("ERROR: OpenCL initialization failed!\n");
+			return;
+		}
+		kernel_source[13] = '0'+_3D_; //define OpenCL version of _3D_
 
-	printf("build program\n");
-	try
-	{
-		err = program.build(devices, ""); //-cl-single-precision-constant
-	}
-	catch (cl::Error er) {
-		printf("program.build: %s\n", oclErrorString(er.err()));
-	//if(err != CL_SUCCESS){
-	}
-	printf("done building program\n");
-	printf("Build Status:  %u\n", program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices[0]));
-	printf("Build Options: %s\n", program.getBuildInfo<CL_PROGRAM_BUILD_OPTIONS>(devices[0]).c_str());
-	printf("Build Log:	 %s\n", program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[0]).c_str());
-	printf("OpenCL initialization finished!\n");
-	printf("\n");
-	
-	
-	//initialize our kernel from the program
-	try{
-		moveStep_kernel = cl::Kernel(program, "moveStep", &err);
-		randomFill_kernel = cl::Kernel(program, "randomFill", &err);
+		//pl = kernel_source.boxSize();
+		printf("kernel boxSize: %d\n", pl);
+		//printf("kernel: \n %s\n", kernel_source.c_str());
+		try
+		{
+			cl::Program::Sources source(1,
+				std::make_pair(kernel_source, pl));
+			program = cl::Program(context, source);
+		}
+		catch (cl::Error er) {
+			printf("ERROR: %s(%s)\n", er.what(), oclErrorString(er.err()));
+		}
+
+		printf("build program\n");
+		try
+		{
+			err = program.build(devices, "");//-cl-fast-relaxed-math -cl-single-precision-constant
+		}
+		catch (cl::Error er) {
+			printf("program.build: %s\n", oclErrorString(er.err()));
+		//if(err != CL_SUCCESS){
+		}
+		printf("done building program\n");
+		printf("Build Status:  %u\n", program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices[0]));
+		printf("Build Options: %s\n", program.getBuildInfo<CL_PROGRAM_BUILD_OPTIONS>(devices[0]).c_str());
+		printf("Build Log:	 %s\n", program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[0]).c_str());
+		printf("OpenCL initialization finished!\n");
+		printf("\n");
+		
+		
+		//initialize our kernel from the program
+		try{
+			moveStep_kernel = cl::Kernel(program, "moveStep", &err);
+			randomFill_kernel = cl::Kernel(program, "randomFill", &err);
+		}
+		catch (cl::Error er) {
+			printf("ERROR: %s(%d)\n", er.what(), er.err());
+		}
+
+		//initialize our CPU memory arrays, send them to the device and set the kernel arguements
+
+		///Circle circle[circlesCount];
+		//circle.A = .5f;
+		//circle.B = 10.0f;
+		//circle.C = 3;
+		/*
+		circle[i].D = .01;
+		circle[i].E = 1;
+		*/
+		
+		srand(NanosecondTimer::getNS());
+		uint* m_z = new uint(rand());
+		//for(int i = 0; i<10000; i++);
+		uint* m_w = new uint(rand());
+		cl_double2* boxSize2D = new cl_double2((cl_double2){boxSize.s0,boxSize.s1});
+		
+		int cl_mem_method = CL_MEM_COPY_HOST_PTR;
+		//cl_mem_method = CL_MEM_USE_HOST_PTR;
+
+		printf("Creating OpenCL arrays\n");
+		//*
+		if((cl_mem_method & CL_MEM_USE_HOST_PTR)>0){
+			cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(Circle)*circlesCount, circlesBuffer = new Circle[circlesCount], &err);
+			if(err!=CL_SUCCESS)printf("ERROR: creating circles buffer: %s\n", oclErrorString(err));
+			printf("circles buffer allocated.\n");
+			circlesBufferUsed = true;
+		}else // */
+		{
+			cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(Circle)*circlesCount, NULL, &err);
+			circlesBufferUsed = false;
+		}
+		cl_m_z = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_z, &err);
+		cl_m_w = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_w, &err);
+		cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_double2), boxSize2D, &err);
+		cl_size = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_double2), &size, &err);
+		cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &max_speed, &err);
+		cl_circlesCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &circlesCount, &err);
+		cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &E, &err);
+		cl_elastic = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &elastic, &err);
+		cl_gravity = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &gravity, &err);
+		cl_timeInterval = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &timeInterval, &err);
+		cl_poisson = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &poisson, &err);
+		cl_G = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &G, &err);
+
+		printf("Pushing data to the GPU\n");
+		//push our CPU arrays to the GPU
+
+		//write the circle struct to GPU memory as a buffer
+		//err = queue.enqueueWriteBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle), &circle, NULL, &event);
+		/*err = queue.enqueueWriteBuffer(cl_m_z, CL_TRUE, 0, sizeof(uint), m_z, NULL, &event);
+		err = queue.enqueueWriteBuffer(cl_m_w, CL_TRUE, 0, sizeof(uint), m_w, NULL, &event);
+		err = queue.enqueueWriteBuffer(cl_boxSize, CL_TRUE, 0, sizeof(cl_double2), boxSize2D, NULL, &event);
+		err = queue.enqueueWriteBuffer(cl_max_speed, CL_TRUE, 0, sizeof(double), &max_speed, NULL, &event);
+		err = queue.enqueueWriteBuffer(cl_circlesCount, CL_TRUE, 0, sizeof(int), &circlesCount, NULL, &event);
+		err = queue.enqueueWriteBuffer(cl_E, CL_TRUE, 0, sizeof(double), &E, NULL, &event);*/
+		
+
+		//Wait for the command queue to finish these commands before proceeding
+		queue.finish();
+	   
+
+
+		//set the arguements of our kernel
+		err = randomFill_kernel.setArg(0, cl_circles);
+		err = randomFill_kernel.setArg(1, cl_m_z);
+		err = randomFill_kernel.setArg(2, cl_m_w);
+		err = randomFill_kernel.setArg(3, cl_boxSize);
+		err = randomFill_kernel.setArg(4, cl_max_speed);
+		err = randomFill_kernel.setArg(5, cl_size);
+		err = randomFill_kernel.setArg(6, cl_poisson);
+		err = randomFill_kernel.setArg(7, cl_E);
+		
+		err = moveStep_kernel.setArg(0, cl_circles);
+		err = moveStep_kernel.setArg(1, cl_circlesCount);
+		err = moveStep_kernel.setArg(2, cl_boxSize);
+		err = moveStep_kernel.setArg(3, cl_elastic);
+		err = moveStep_kernel.setArg(4, cl_gravity);
+		err = moveStep_kernel.setArg(5, cl_timeInterval);
+		err = moveStep_kernel.setArg(6, cl_G);
+
+		//Wait for the command queue to finish these commands before proceeding
+		queue.finish();
+		
+		
+		
+		printf("runKernel\n");
+		events = new cl::Event[numEvents];
+		eventCounter = 0;
+		eventsFull = false;
+		//std::vector<cl::Event> event2(1);
+		if(saveBool){
+			file = fopen("save.txt","w");
+			fprintf(file, "%u ", _3D_);
+			fprintf(file, "%g ", boxSize.s0);
+			fprintf(file, "%g ", boxSize.s1);
+			//#if _3D_
+			//	f<<boxSize.s2<<" ";
+			//#endif
+			fprintf(file, "%u\n", circlesCount);
+			fclose(file);	
+		}
+		readNum = min(1000,circlesCount/2);
+		if(saveBool){
+			c_CPU_save[0] = new Circle[readNum];
+			c_CPU_save[1] = new Circle[readNum];
+		}
+		c_CPU_render[0] = new Circle[readNum];
+		c_CPU_render[1] = new Circle[readNum];
+			
+		err = queue.enqueueNDRangeKernel(randomFill_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &event); 
+		if(err!=CL_SUCCESS)printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
+		queue.finish();
+		printf("kernel randomFill executed successfully!\n\n");
+		
+		/*double r,x,y,z;
+		int j = 0;
+		int offset = 0;
+		Circle c;
+		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_render[j], NULL, &event);
+		//offset+=readNum;
+		for(; offset<circlesCount; offset+=readNum){
+			event.wait();
+			if(circlesCount-(offset+readNum)>0){
+				err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*(offset+readNum), sizeof(Circle)*min((circlesCount-(offset+readNum)),readNum), c_CPU_render[((j+1)%2)], NULL, &event);
+			}
+			//queue.finish();
+
+			for(int i=0; i < min((circlesCount-offset),readNum); i++)
+			{
+				//printf("%4u: %5u\n", j, offset+i);
+				c = c_CPU_render[j][i];
+				r = c.size;
+				x = c.pos.s0;
+				y = c.pos.s1;
+				z = 0;
+				printf("Circle size(%3f) mass(%3f) E(%3f) ",r,c.mass,c.E);
+				printf("pos(%4f|%4f|%4f) ",x,y,z);
+				printf("speed(%4f|%4f|%4f) ",c.speed.s0,c.speed.s1,0.0);
+				printf("force(%4f|%4f|%4f)\n",c.force.s0,c.force.s1,0.0);
+			}
+		}*/
+		
+		
+		/*
+		err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, NULL); 
+		queue.finish();
+		
+		printf("after kernel moveStep:\n");
+		
+		j = 0;
+		offset = 0;
+		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_render[j], NULL, &event);
+		//offset+=readNum;
+		for(; offset<circlesCount; offset+=readNum){
+			if(circlesCount-(offset+readNum)>0){
+				err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*(offset+readNum), sizeof(Circle)*min((circlesCount-(offset+readNum)),readNum), c_CPU_render[((j+1)%2)], NULL, &event);
+			}
+			//queue.finish();
+
+			for(int i=0; i < min((circlesCount-offset),readNum); i++)
+			{
+				//printf("%4u: %5u\n", j, offset+i);
+				c = c_CPU_render[j][i];
+				r = c.size;
+				x = c.pos.s0;
+				y = c.pos.s1;
+				z = 0;
+				printf("Circle size(%3f) mass(%3f) E(%3f) poisson(%3f) ",r,c.mass,c.E,c.poisson);
+				printf("pos(%4f|%4f|%4f) ",x,y,z);
+				printf("speed(%4f|%4f|%4f) ",c.speed.s0,c.speed.s1,0.0);
+				printf("force(%4f|%4f|%4f)\n",c.force.s0,c.force.s1,0.0);
+			}
+		}*/
 	}
 	catch (cl::Error er) {
 		printf("ERROR: %s(%d)\n", er.what(), er.err());
 	}
-
-	//initialize our CPU memory arrays, send them to the device and set the kernel arguements
-
-	///Circle circle[circlesCount];
-	//circle.A = .5f;
-	//circle.B = 10.0f;
-	//circle.C = 3;
-	/*
-	circle[i].D = .01;
-	circle[i].E = 1;
-	*/
-	
-	srand(NanosecondTimer::getNS());
-	uint* m_z = new uint(rand());
-	//for(int i = 0; i<10000; i++);
-	uint* m_w = new uint(rand());
-	cl_double2* boxSize2D = new cl_double2((cl_double2){boxSize.s0,boxSize.s1});
-	
-	int cl_mem_method = CL_MEM_COPY_HOST_PTR;
-	//cl_mem_method = CL_MEM_USE_HOST_PTR;
-
-	printf("Creating OpenCL arrays\n");
-	/*
-	if((cl_mem_method & CL_MEM_USE_HOST_PTR)>0){
-		cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE|CL_MEM_ALLOC_HOST_PTR, sizeof(Circle)*circlesCount, circlesBuffer = new Circle[circlesCount], &err);
-		if(err!=CL_SUCCESS)printf("ERROR: creating circles buffer: %s\n", oclErrorString(err));
-		printf("circles buffer allocated.\n");
-		circlesBufferUsed = true;
-	}else // */
-	{
-		cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(Circle)*circlesCount, NULL, &err);
-		circlesBufferUsed = false;
-	}
-	cl_m_z = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_z, &err);
-	cl_m_w = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_w, &err);
-	cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_double2), boxSize2D, &err);
-	cl_size = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_double2), &size, &err);
-	cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &max_speed, &err);
-	cl_circlesCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &circlesCount, &err);
-	cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &E, &err);
-	cl_elastic = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &elastic, &err);
-	cl_gravity = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &gravity, &err);
-	cl_timeInterval = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &timeInterval, &err);
-	cl_poisson = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &poisson, &err);
-
-	printf("Pushing data to the GPU\n");
-	//push our CPU arrays to the GPU
-
-	//write the circle struct to GPU memory as a buffer
-	//err = queue.enqueueWriteBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle), &circle, NULL, &event);
-	/*err = queue.enqueueWriteBuffer(cl_m_z, CL_TRUE, 0, sizeof(uint), m_z, NULL, &event);
-	err = queue.enqueueWriteBuffer(cl_m_w, CL_TRUE, 0, sizeof(uint), m_w, NULL, &event);
-	err = queue.enqueueWriteBuffer(cl_boxSize, CL_TRUE, 0, sizeof(cl_double2), boxSize2D, NULL, &event);
-	err = queue.enqueueWriteBuffer(cl_max_speed, CL_TRUE, 0, sizeof(double), &max_speed, NULL, &event);
-	err = queue.enqueueWriteBuffer(cl_circlesCount, CL_TRUE, 0, sizeof(int), &circlesCount, NULL, &event);
-	err = queue.enqueueWriteBuffer(cl_E, CL_TRUE, 0, sizeof(double), &E, NULL, &event);*/
-	
-
-	//Wait for the command queue to finish these commands before proceeding
-	queue.finish();
-   
-
-
-	//set the arguements of our kernel
-	err = randomFill_kernel.setArg(0, cl_circles);
-	err = randomFill_kernel.setArg(1, cl_m_z);
-	err = randomFill_kernel.setArg(2, cl_m_w);
-	err = randomFill_kernel.setArg(3, cl_boxSize);
-	err = randomFill_kernel.setArg(4, cl_max_speed);
-	err = randomFill_kernel.setArg(5, cl_size);
-	err = randomFill_kernel.setArg(6, cl_poisson);
-	err = randomFill_kernel.setArg(7, cl_E);
-	
-	err = moveStep_kernel.setArg(0, cl_circles);
-	err = moveStep_kernel.setArg(1, cl_circlesCount);
-	err = moveStep_kernel.setArg(2, cl_boxSize);
-	err = moveStep_kernel.setArg(3, cl_elastic);
-	err = moveStep_kernel.setArg(4, cl_gravity);
-	err = moveStep_kernel.setArg(5, cl_timeInterval);
-
-	//Wait for the command queue to finish these commands before proceeding
-	queue.finish();
-	
-	
-	
-	printf("runKernel\n");
-    events = new cl::Event[numEvents];
-    eventCounter = 0;
-    eventsFull = false;
-    //std::vector<cl::Event> event2(1);
-    if(saveBool){
-		file = fopen("save.txt","w");
-		fprintf(file, "%u ", _3D_);
-		fprintf(file, "%g ", boxSize.s0);
-		fprintf(file, "%g ", boxSize.s1);
-		//#if _3D_
-		//	f<<boxSize.s2<<" ";
-		//#endif
-		fprintf(file, "%u\n", circlesCount);
-		fclose(file);	
-	}
-    readNum = min(1000,circlesCount/2);
-    if(saveBool){
-		c_CPU_save[0] = new Circle[readNum];
-		c_CPU_save[1] = new Circle[readNum];
-	}
-    c_CPU_render[0] = new Circle[readNum];
-    c_CPU_render[1] = new Circle[readNum];
-		
-    err = queue.enqueueNDRangeKernel(randomFill_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &event); 
-    if(err!=CL_SUCCESS)printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
-    queue.finish();
-	printf("kernel randomFill executed successfully!\n\n");
 }
 
 void ClTimer::set(GLWidget* w){
@@ -225,8 +294,11 @@ void ClTimer::set(GLWidget* w){
 }
 
 void ClTimer::fpsChanged(double fps){
-	double timeInterval = speed/fps;
-	err = queue.enqueueWriteBuffer(cl_timeInterval, CL_TRUE, 0, sizeof(double), &timeInterval, NULL, &event);
+	if(speed!=0 && fps!=0){
+		double timeInterval = speed/fps;
+		printf("timeInterval: %10f\n", timeInterval);
+		err = queue.enqueueWriteBuffer(cl_timeInterval, CL_TRUE, 0, sizeof(double), &timeInterval, NULL, &event);
+	}
 }
 
 char ClTimer::hex(int i){
@@ -238,6 +310,7 @@ char ClTimer::hex(int i){
 		return 'A'+(i-10);
 	}
 }
+
 void ClTimer::add(double d){
 	unsigned char* c = (unsigned char*)&d;
 	unsigned int x = 0;
@@ -310,6 +383,7 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 		glVertex3d(0,boxSize.s1,boxSize.s2);
 		glEnd();
 	}
+	if(!renderBool)return;
 	
 	double r,x,y,z;
 	if(circlesBufferUsed){
@@ -357,10 +431,13 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 	}else{
 		int j = 0;
 		int offset = 0;
+		Circle c;
 		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_render[j], NULL, &event);
 		//offset+=readNum;
 		for(; offset<circlesCount; offset+=readNum){
+			//printf("waiting for reading...\n");
 			event.wait();
+			//printf("ready!\n");
 			if(circlesCount-(offset+readNum)>0){
 				err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*(offset+readNum), sizeof(Circle)*min((circlesCount-(offset+readNum)),readNum), c_CPU_render[((j+1)%2)], NULL, &event);
 			}
@@ -369,11 +446,12 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 			for(int i=0; i < min((circlesCount-offset),readNum); i++)
 			{
 				//printf("%4u: %5u\n", j, offset+i);
-				r = c_CPU_render[j][i].size;
-				x = c_CPU_render[j][i].pos.s0;
-				y = c_CPU_render[j][i].pos.s1;
+				c = c_CPU_render[j][i];
+				r = c.size;
+				x = c.pos.s0;
+				y = c.pos.s1;
 				z = 0;
-				//printf("Circle (r=%3f): (%4f|%4f|%4f)\n",r,x,y,z);
+				//printf("Circle (r=%3f): (%4f|%4f|%4f) (%4f|%4f|%4f) (%4f|%4f|%4f)\n",r,x,y,z,c.speed.s0,c.speed.s1,0,c.force.s0,c.force.s1,0);
 				if(_3D_!=0){
 					//z = c_CPU_render[j][i].pos.s2;
 				}
@@ -412,42 +490,87 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 	}
 }
 
+void start(ClTimer* clTimer){
+	clTimer->run();
+}
+
 void ClTimer::run(){
-	while(true){
-		err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter++]); 
-		//printf("step %i\n", i);
-		if(eventCounter>=numEvents){
-			eventCounter = 0;
-			eventsFull = true;
-		}
-		if(eventsFull){
-			//event2.at(0)=events[eventCounter];
-			//printf(
-			//queue.enqueueWaitForEvents(event2);
-			events[eventCounter].wait();
-			events[eventCounter].~Event();
-			//context.release(events[eventCounter]);
-			//queue.release(events[eventCounter]);
-		}else{
-			queue.finish();
-		}
-		//if(err!=CL_SUCCESS)printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
-		//queue.finish();
-		
-		//if(i%5==0)
-		if(saveBool)
-		{
+	printf("ClTimer running!\n");
+	int i = 0;
+	try{
+		while(true){
+			err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter++]); 
+			//printf("step %i\n", i++);
+			if(eventCounter>=numEvents){
+				eventCounter = 0;
+				eventsFull = true;
+			}
+			if(eventsFull){
+				//event2.at(0)=events[eventCounter];
+				//printf(
+				//queue.enqueueWaitForEvents(event2);
+				events[eventCounter].wait();
+				events[eventCounter].~Event();
+				//context.release(events[eventCounter]);
+				//queue.release(events[eventCounter]);
+			}else{
+				queue.finish();
+			}
+			//if(err!=CL_SUCCESS)printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
 			//queue.finish();
-			save();
+			
+			//if(i%5==0)
+			if(saveBool)
+			{
+				//queue.finish();
+				save();
+			}
+			//printf(".");
+			frameCounter++;
+			elapsedFrames++;
+			//printf("frames: (%d/%d)=%d | %d\n", (int)fps, (int)renderFps, (int)(fps/renderFps), elapsedFrames);
+			if(elapsedFrames > (int)(fps/renderFps) && glWidget != NULL){// && glWidget->drawingFinished){
+				glWidget->drawingFinished = false;
+				//glWidget->update();
+				//QCoreApplication::processEvents();
+				emit glWidget->timeToRender();
+				//glWidget->timeToRender();
+				//glWidget->repaint();
+				elapsedFrames = 0;
+			}
+			
+			/*
+			double r,x,y,z;
+			int j = 0;
+			int offset = 0;
+			Circle c;
+			err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_render[j], NULL, &event);
+			//offset+=readNum;
+			for(; offset<circlesCount; offset+=readNum){
+				event.wait();
+				if(circlesCount-(offset+readNum)>0){
+					err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*(offset+readNum), sizeof(Circle)*min((circlesCount-(offset+readNum)),readNum), c_CPU_render[((j+1)%2)], NULL, &event);
+				}
+				//queue.finish();
+
+				for(int i=0; i < min((circlesCount-offset),readNum); i++)
+				{
+					//printf("%4u: %5u\n", j, offset+i);
+					c = c_CPU_render[j][i];
+					r = c.size;
+					x = c.pos.s0;
+					y = c.pos.s1;
+					z = 0;
+					printf("Circle size(%3f) mass(%3f) E(%3f) ",r,c.mass,c.E);
+					printf("pos(%4f|%4f|%4f) ",x,y,z);
+					printf("speed(%4f|%4f|%4f) ",c.speed.s0,c.speed.s1,0.0);
+					printf("force(%4f|%4f|%4f)\n",c.force.s0,c.force.s1,0.0);
+				}
+			}*/
 		}
-		//printf(".");
-		frameCounter++;
-		elapsedFrames++;
-		if(elapsedFrames > (fps/renderFps)){
-			if(glWidget != NULL) 
-				glWidget->update();
-			elapsedFrames = 0;
-		}
+	}
+	catch (cl::Error er) {
+		printf("ERROR: %s (%d | %s)\n", er.what(), er.err(), oclErrorString(er.err()));
 	}
 }
 

@@ -2,6 +2,7 @@
 #include "GLWidget.h"
 #include <GL/glu.h>
 #include <QTimer>
+#include <QtGui/QApplication>
 #include "Circles.h"
 
 GLWidget::GLWidget(ClTimer* ct, QWidget *parent) : QGLWidget(parent) {
@@ -10,13 +11,15 @@ GLWidget::GLWidget(ClTimer* ct, QWidget *parent) : QGLWidget(parent) {
 	rotation = (cl_double3){0,0,0,0};
 	xRot = yRot = zRot = 0;
 	translateZ = 0;
-	QTimer* rotationTimer = new QTimer(this);
+	/*QTimer* rotationTimer = new QTimer(this);
 	rotationTimer->setInterval(1000/renderFps);
 	QObject::connect(rotationTimer, SIGNAL(timeout()), this, SLOT(updateTimer()), Qt::QueuedConnection);
-	//rotationTimer->start();
+	rotationTimer->start();*/
+	QObject::connect(this, SIGNAL(timeToRender_()), this, SLOT(timeToRender()), Qt::DirectConnection);
 }
 
 void GLWidget::updateTimer() {
+	printf("rotationTimer\n");
 	QGLWidget::update();
 	//printf(".\n");
 }
@@ -102,7 +105,20 @@ void GLWidget::resizeGL(int w, int h) {
 	glLoadIdentity();// */
 }
 
+void GLWidget::timeToRender(){
+	//*
+	int ms = 10;
+	struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
+    nanosleep(&ts, NULL);// */
+	//glDraw();
+	update();
+    //QCoreApplication::processEvents();
+	drawingFinished = true;
+}
+
 void GLWidget::paintGL() {
+	//makeCurrent();
+	//printf("paintGL\n");
 	/*
 	// Clear color and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -143,6 +159,7 @@ void GLWidget::paintGL() {
 	glVertex2f(500,100);
 	glEnd(); // */
 	frameCounter++;
+	//doneCurrent();
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)

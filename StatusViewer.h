@@ -7,7 +7,7 @@
 #include "GLWidget.h"
 #include "ClTimer.h"
 
-class StatusViewer : public QObject, protected NanosecondTimer {
+class StatusViewer : public QThread, protected NanosecondTimer {
 
 	Q_OBJECT // must include this if you use Qt signals/slots	  
 
@@ -19,9 +19,10 @@ protected:
 
 public:
 	StatusViewer(GLWidget* glw, ClTimer* clt);
+	
+	void run();
 
-public slots:
-	void updateTimer();
 };
+
 
 #endif  /* _STATUSVIEWER_H_ */
