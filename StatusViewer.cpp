@@ -2,6 +2,9 @@
 #include "GLWidget.h"
 #include "ClTimer.h"
 #include <cstdio>
+#include <cmath>
+
+#define sign(x) (((x)<0)?(-1):(1))
 
 StatusViewer::StatusViewer(GLWidget* glw, ClTimer* clt) {
 	/*QTimer* statusTimer = new QTimer(this);
@@ -16,11 +19,12 @@ StatusViewer::StatusViewer(GLWidget* glw, ClTimer* clt) {
 
 void StatusViewer::run() {
 	while(true){
-		msleep(1000);
+		msleep(500);
 		
 		printf("\nStatusViewer: \n");
 		double factor = getElapsedNS()/1000000000.0;
-		printf("Elapsed:  %8.2f seconds\n", factor);
+		printf("Elapsed:    %8.2f seconds\n", factor);
+		
 		double glWidgetFrames = glWidget->popFramesCounter() / factor;
 		if(lastGlWidgetFrames == 0){
 			lastGlWidgetFrames = glWidgetFrames;
@@ -28,7 +32,11 @@ void StatusViewer::run() {
 			lastGlWidgetFrames *= (1-f);
 			lastGlWidgetFrames += f*glWidgetFrames;
 		}
-		printf("GlWidget: %8.2f fps       [now: %8.2f fps]\n", lastGlWidgetFrames, glWidgetFrames);
+		printf("GlWidget:   %8.2f fps       [now: %8.2f fps]\n", lastGlWidgetFrames, glWidgetFrames);
+		
+		double frameBufferLoad = clTimer->getFrameBufferLoad();
+		printf("frameBufferLoad:  %6.4f\n", frameBufferLoad);
+		
 		double clTimerFrames = clTimer->popFramesCounter() / factor;
 		if(lastClTimerFrames == 0){
 			lastClTimerFrames = clTimerFrames;
@@ -36,8 +44,17 @@ void StatusViewer::run() {
 			lastClTimerFrames *= (1-f);
 			lastClTimerFrames += f*clTimerFrames;
 		}
-		printf("ClTimer:  %8.2f fps       [now: %8.2f fps]\n", lastClTimerFrames, clTimerFrames);
-		fps = lastClTimerFrames;
-		clTimer->fpsChanged(lastClTimerFrames);
+		printf("ClTimer:    %8.2f fps       [now: %8.2f fps]\n", lastClTimerFrames, clTimerFrames);
+		
+		static double bufferLoadTarget = 0.65;
+		double nextClTimerFrames = lastClTimerFrames*(1+
+			0.1*(pow(16,pow((frameBufferLoad>bufferLoadTarget)?
+				(1-((1-frameBufferLoad)*0.5/(1-bufferLoadTarget))):
+				(frameBufferLoad*0.5/bufferLoadTarget),2)))*
+			sign(frameBufferLoad-bufferLoadTarget));
+		printf("frameBuffer:%10.4f => ClTimer:   %8.2f fps\n", frameBufferLoad, nextClTimerFrames);
+		
+		fps = nextClTimerFrames;
+		clTimer->fpsChanged(nextClTimerFrames);
 	}
 }

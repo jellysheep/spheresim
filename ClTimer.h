@@ -56,11 +56,13 @@ protected:
 	cl::Event* events;
 	FILE * file;
 	
-    int readNum;
-    Circle* c_CPU_render[2];
+    int readNum_save, readNum_render, bufferReadIndex, bufferWriteIndex;
+    //Circle* c_CPU_render[2];
+    Circle** c_CPU_render;
     Circle* c_CPU_save[2];
     Circle* circlesBuffer;
     bool circlesBufferUsed;
+    CircleExtension* ceBuffer;
     
     long elapsedFrames;
     
@@ -80,6 +82,8 @@ public:
 	void fpsChanged(double fps);
 
 	friend void start(ClTimer* clTimer);
+	
+	double getFrameBufferLoad();
 };
 
 extern void start(ClTimer* clTimer);

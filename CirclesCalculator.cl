@@ -39,8 +39,8 @@ floating_type uGetUniform(uint* m_z, uint* m_w, uint gid)
     uint u = GetUint(m_z, m_w, gid);
     // The magic number below is 1/(2^32 + 2).
     // The result is strictly between 0 and 1.
-    return (u + 1.0) * 2.328306435454494e-10;
-		//* 2328306435454494 * pow(10.0,-25.0);
+    return (u + 1.0) //* 2.328306435454494e-10;
+		* 2328306435454494 * pow(10.0,-25.0);
 }
 
 floating_type GetUniform(uint* m_z, uint* m_w, uint gid)
@@ -49,8 +49,8 @@ floating_type GetUniform(uint* m_z, uint* m_w, uint gid)
     uint u = GetUint(m_z, m_w, gid);
     // The magic number below is 1/(2^32 + 2).
     // The result is strictly between -1 and 1.
-    return ((u + 1.0) * 2.328306435454494e-10
-		//* 2328306435454494 * pow(10.0,-25.0) 
+    return ((u + 1.0) //* 2.328306435454494e-10
+		* 2328306435454494 * pow(10.0,-25.0) 
 		* 2)-1;
 }
 

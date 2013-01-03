@@ -15,7 +15,7 @@ protected:
 	GLWidget* glWidget;
 	ClTimer* clTimer;
 	double lastGlWidgetFrames, lastClTimerFrames;
-	const static double f = 0.2;
+	const static double f = 0.5;
 
 public:
 	StatusViewer(GLWidget* glw, ClTimer* clt);

@@ -9,11 +9,25 @@
 //#include <time.h>
 #include <string>
 #include <string.h>
-#include <math.h>
+#include <cmath>
 #include "NanosecondTimer.h"
 
 ClTimer::ClTimer(){
 	try{
+		printf("sizeof(Circle): %d\n", sizeof(Circle));
+		srand(NanosecondTimer::getNS());
+		
+		if(useCircleExtensions){
+			ceBuffer = new CircleExtension[circlesCount];
+			for(int i = 0; i<circlesCount; i++){
+				ceBuffer[i].color = (rand()%256)+(256*(rand()%256))+(256*256*(rand()%256));
+				ceBuffer[i].trace = new cl_float2[traceCount];
+				ceBuffer[i].traceCount = 0;
+				ceBuffer[i].traceFull = false;
+			}
+		}
+		
+		
 		glWidget = NULL;
 		elapsedFrames = 0;
 		printf("Initialize OpenCL object and context\n");
@@ -119,8 +133,6 @@ ClTimer::ClTimer(){
 		circle[i].D = .01;
 		circle[i].E = 1;
 		*/
-		
-		srand(NanosecondTimer::getNS());
 		uint* m_z = new uint(rand());
 		//for(int i = 0; i<10000; i++);
 		uint* m_w = new uint(rand());
@@ -209,20 +221,31 @@ ClTimer::ClTimer(){
 			//	f<<boxSize.s2<<" ";
 			//#endif
 			fprintf(file, "%u\n", circlesCount);
-			fclose(file);	
+			fclose(file);
+			
+			readNum_save = min(1000,circlesCount/2);
+			c_CPU_save[0] = new Circle[readNum_save];
+			c_CPU_save[1] = new Circle[readNum_save];
 		}
-		readNum = min(1000,circlesCount/2);
-		if(saveBool){
-			c_CPU_save[0] = new Circle[readNum];
-			c_CPU_save[1] = new Circle[readNum];
-		}
-		c_CPU_render[0] = new Circle[readNum];
-		c_CPU_render[1] = new Circle[readNum];
 			
 		err = queue.enqueueNDRangeKernel(randomFill_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &event); 
 		if(err!=CL_SUCCESS)printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
 		queue.finish();
 		printf("kernel randomFill executed successfully!\n\n");
+		
+		if(renderBool){
+			//c_CPU_render[0] = new Circle[readNum_render];
+			//c_CPU_render[1] = new Circle[readNum_render];
+			readNum_render = min(1000,circlesCount);
+			c_CPU_render = new Circle*[renderBufferCount];
+			for(int i = 0; i<renderBufferCount; i++){
+				c_CPU_render[i] = new Circle[readNum_render];
+			}
+			bufferReadIndex = 0;
+			bufferWriteIndex = 0;
+			err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
+			bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
+		}
 		
 		/*double r,x,y,z;
 		int j = 0;
@@ -296,7 +319,7 @@ void ClTimer::set(GLWidget* w){
 void ClTimer::fpsChanged(double fps){
 	if(speed!=0 && fps!=0){
 		double timeInterval = speed/fps;
-		printf("timeInterval: %10f\n", timeInterval);
+		//printf("timeInterval: %10f\n", timeInterval);
 		err = queue.enqueueWriteBuffer(cl_timeInterval, CL_TRUE, 0, sizeof(double), &timeInterval, NULL, &event);
 	}
 }
@@ -323,14 +346,14 @@ void ClTimer::save(){
 	file = fopen("save.txt","a");
 	int j = 0;
 	int offset = 0;
-	err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_save[j=((j+1)%2)], NULL, &event);
-	offset+=readNum;
-	for(; offset<circlesCount; offset+=readNum){
+	err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum_save), c_CPU_save[j=((j+1)%2)], NULL, &event);
+	offset+=readNum_save;
+	for(; offset<circlesCount; offset+=readNum_save){
 		event.wait();
-		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_save[j=((j+1)%2)], NULL, &event);
+		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum_save), c_CPU_save[j=((j+1)%2)], NULL, &event);
 		//queue.finish();
 
-		for(int i=0; i < min((circlesCount-offset),readNum); i++)
+		for(int i=0; i < min((circlesCount-offset),readNum_save); i++)
 		{
 			add(c_CPU_save[j][i].size);
 			fprintf(file," ");
@@ -347,6 +370,14 @@ void ClTimer::save(){
 	fclose(file);
 }
 
+double ClTimer::getFrameBufferLoad(){
+	int ri = bufferReadIndex, wi = bufferWriteIndex;
+	while(wi<ri){
+		wi += renderBufferCount;
+	}
+	return (1.0*(wi-ri))/renderBufferCount;
+}
+
 
 #define onlyOneC 0
 void ClTimer::paintGL(cl_double3 rotation, double translateZ){
@@ -358,7 +389,7 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 	glRotatef(Clock.GetElapsedTime() * 90, 0.f, 0.f, 1.f);//*/
 
 	// Draw a cube
-	glColor3d(0.8,0.8,0.8);
+	glColor3d(0.2,0.2,0.2);
 	glBegin(GL_LINE_LOOP);
 	glVertex3d(0,0,0);
 	glVertex3d(boxSize.s0,0,0);
@@ -386,6 +417,102 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 	if(!renderBool)return;
 	
 	double r,x,y,z;
+	
+	int i,k,h;
+	Circle c;
+	CircleExtension* ce;
+	int color = 102+(102*256)+(102*256*256);
+	//err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferReadIndex], NULL, NULL);//&event);
+	//printf("waiting for reading...\n");
+	//event.wait();
+	//printf("ready!\n");
+	//queue.finish();
+	if(useCircleExtensions){
+		for(i=0; i < readNum_render; i++)
+		{
+			//printf("%4u: %5u\n", j, offset+i);
+			c = c_CPU_render[bufferReadIndex][i];
+			r = c.size;
+			x = c.pos.s0;
+			y = c.pos.s1;
+			z = 0;
+			ce = &ceBuffer[i];
+			color = ce->color;
+			ce->trace[ce->traceCount] = (cl_float2){x,y};
+			if(connectTracePoints)
+				glBegin(GL_LINE_STRIP);
+			else
+				glBegin(GL_POINTS);
+			k = 0;
+			for(h = (ce->traceFull?((ce->traceCount+1)%traceCount):0); h!=ce->traceCount; h=((h+1)%traceCount)){
+				glColor4b(color/256/256,color/256%256,color%256,255*(k++)/traceCount/2);
+				glVertex2f(ce->trace[h].s0, ce->trace[h].s1);
+			}
+			glColor4b(color/256/256,color/256%256,color%256,255*(k++)/traceCount/2);
+			glVertex2f(x,y);
+			ce->traceCount++;
+			if(ce->traceCount>=traceCount){
+				ce->traceCount = 0;
+				ce->traceFull = true;
+			}
+			glEnd();
+		}
+	}
+	for(i=0; i < readNum_render; i++)
+	{
+		//printf("%4u: %5u\n", j, offset+i);
+		c = c_CPU_render[bufferReadIndex][i];
+		r = c.size;
+		x = c.pos.s0;
+		y = c.pos.s1;
+		z = 0;
+		if(useCircleExtensions){
+			color = ceBuffer[i].color;
+		}
+		//printf("Circle (r=%3f): (%4f|%4f|%4f) (%4f|%4f|%4f) (%4f|%4f|%4f)\n",r,x,y,z,c.speed.s0,c.speed.s1,0,c.force.s0,c.force.s1,0);
+		if(_3D_!=0){
+			//z = c_CPU_render[j][i].pos.s2;
+		}
+		if(_3D_==0){
+			glBegin(GL_TRIANGLE_FAN);
+			#if onlyOneC
+				if(i==cCount-1)
+					glColor3d(1,1,1); 
+				else
+					glColor3d(0.1, 0.1, 0.1); 
+			#else
+				glColor3d(1,1,1); 
+			#endif
+			glVertex3d(x-(r/3),y+(r/3),z);
+			#if onlyOneC
+				if(i==cCount-1)
+					glColor3bv((byte*)&color);
+					//glColor3b(color/256/256,color/256%256,color%256); 
+				else
+					glColor3d(0.05, 0.05, 0.05);
+			#else
+				glColor3bv((GLbyte*)&color);
+				//glColor3b(color/256/256,color/256%256,color%256); 
+			#endif
+			double d = 0;
+			for(int j = 0; j<=edges; j++){
+				d+=step;
+				//cout<<edges<<" "<<j<<endl;
+				//cout<<d<<endl;
+				glVertex3d(x+cos(d)*r,y+sin(d)*r,z);
+			}
+
+			glEnd();
+		}
+	}
+	
+	if(((bufferReadIndex+1)%renderBufferCount) == bufferWriteIndex){
+		printf("frame buffer empty: %3d | %3d\n",bufferReadIndex,bufferWriteIndex);
+	}else{
+		bufferReadIndex = (bufferReadIndex+1)%renderBufferCount;
+	}
+	
+	/*
 	if(circlesBufferUsed){
 		for(int i=0; i < circlesCount; i++)
 		{
@@ -429,9 +556,11 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 			}
 		}
 	}else{
-		int j = 0;
+		int j = 0, k;
 		int offset = 0;
 		Circle c;
+		CircleExtension* ce;
+		int color = 102+(102*256)+(102*256*256);
 		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_render[j], NULL, &event);
 		//offset+=readNum;
 		for(; offset<circlesCount; offset+=readNum){
@@ -451,6 +580,26 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 				x = c.pos.s0;
 				y = c.pos.s1;
 				z = 0;
+				if(useCircleExtensions){
+					ce = &ceBuffer[offset+i];
+					color = ce->color;
+					ce->trace[ce->traceCount] = (cl_float2){x,y};
+					glBegin(GL_LINE_STRIP);
+					//glBegin(GL_POINTS);
+					k = 0;
+					for(int h = (ce->traceFull?((ce->traceCount+1)%traceCount):0); h!=ce->traceCount; h=((h+1)%traceCount)){
+						glColor4b(color/256/256,color/256%256,color%256,255*(k++)/traceCount/2);
+						glVertex2f(ce->trace[h].s0, ce->trace[h].s1);
+					}
+					glColor4b(color/256/256,color/256%256,color%256,255*(k++)/traceCount/2);
+					glVertex2f(x,y);
+					ce->traceCount++;
+					if(ce->traceCount>=traceCount){
+						ce->traceCount = 0;
+						ce->traceFull = true;
+					}
+					glEnd();
+				}
 				//printf("Circle (r=%3f): (%4f|%4f|%4f) (%4f|%4f|%4f) (%4f|%4f|%4f)\n",r,x,y,z,c.speed.s0,c.speed.s1,0,c.force.s0,c.force.s1,0);
 				if(_3D_!=0){
 					//z = c_CPU_render[j][i].pos.s2;
@@ -468,11 +617,13 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 					glVertex3d(x-(r/3),y+(r/3),z);
 					#if onlyOneC
 						if(i==cCount-1)
-							glColor3d(0.4,0.4,0.4); 
+							glColor3bv((byte*)&color);
+							//glColor3b(color/256/256,color/256%256,color%256); 
 						else
 							glColor3d(0.05, 0.05, 0.05);
 					#else
-						glColor3d(0.4,0.4,0.4); 
+						glColor3bv((GLbyte*)&color);
+						//glColor3b(color/256/256,color/256%256,color%256); 
 					#endif
 					double d = 0;
 					for(int j = 0; j<=edges; j++){
@@ -487,7 +638,7 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 			}
 			j=((j+1)%2);
 		}
-	}
+	}*/
 }
 
 void start(ClTimer* clTimer){
@@ -527,17 +678,29 @@ void ClTimer::run(){
 			}
 			//printf(".");
 			frameCounter++;
+			
+			//*
 			elapsedFrames++;
 			//printf("frames: (%d/%d)=%d | %d\n", (int)fps, (int)renderFps, (int)(fps/renderFps), elapsedFrames);
 			if(elapsedFrames > (int)(fps/renderFps) && glWidget != NULL){// && glWidget->drawingFinished){
+				if(bufferReadIndex == ((bufferWriteIndex+1)%renderBufferCount)){
+					printf("frame buffer full: %3d | %3d\n",bufferReadIndex,bufferWriteIndex);
+					continue;
+				}
+				err = queue.enqueueReadBuffer(cl_circles, CL_FALSE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
+				bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
+				
+				
+				elapsedFrames = 0;
+				/*
 				glWidget->drawingFinished = false;
 				//glWidget->update();
 				//QCoreApplication::processEvents();
 				emit glWidget->timeToRender();
 				//glWidget->timeToRender();
 				//glWidget->repaint();
-				elapsedFrames = 0;
-			}
+				// */
+			}// */
 			
 			/*
 			double r,x,y,z;

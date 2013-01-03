@@ -11,15 +11,16 @@ GLWidget::GLWidget(ClTimer* ct, QWidget *parent) : QGLWidget(parent) {
 	rotation = (cl_double3){0,0,0,0};
 	xRot = yRot = zRot = 0;
 	translateZ = 0;
-	/*QTimer* rotationTimer = new QTimer(this);
+	//*
+	QTimer* rotationTimer = new QTimer(this);
 	rotationTimer->setInterval(1000/renderFps);
-	QObject::connect(rotationTimer, SIGNAL(timeout()), this, SLOT(updateTimer()), Qt::QueuedConnection);
-	rotationTimer->start();*/
+	QObject::connect(rotationTimer, SIGNAL(timeout()), this, SLOT(timeToRender()), Qt::QueuedConnection);
+	rotationTimer->start();// */
 	QObject::connect(this, SIGNAL(timeToRender_()), this, SLOT(timeToRender()), Qt::DirectConnection);
 }
 
 void GLWidget::updateTimer() {
-	printf("rotationTimer\n");
+	//printf("rotationTimer\n");
 	QGLWidget::update();
 	//printf(".\n");
 }
@@ -61,9 +62,21 @@ void GLWidget::initializeGL() {
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse); 
 	glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);*/
 	
+	//glDisable(GL_TEXTURE_2D);
+	//glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_COLOR_MATERIAL);
+	glEnable(GL_BLEND);
+	glEnable(GL_POINT_SMOOTH);
+	glEnable(GL_LINE_SMOOTH);
+	//glEnable(GL_POLYGON_SMOOTH);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glClearColor(1,1,1,1);
+	glPointSize(2);
+	glLineWidth(1);
+	
 	// Set color and depth clear value
 	glClearDepth(1.f);
-	glClearColor(0.f, 0.f, 0.f, 0.f);
+	//glClearColor(0.f, 0.f, 0.f, 0.f);
 
 	// Enable Z-buffer read and write
 	glShadeModel( GL_SMOOTH );//flat/smooth
@@ -79,6 +92,7 @@ void GLWidget::initializeGL() {
 		glEnable(GL_DEPTH_TEST);						// Enables Depth Testing
 		glDepthFunc(GL_LEQUAL);
 		glDepthMask(GL_TRUE);
+		
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
@@ -107,7 +121,7 @@ void GLWidget::resizeGL(int w, int h) {
 
 void GLWidget::timeToRender(){
 	//*
-	int ms = 10;
+	int ms = 1;
 	struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
     nanosleep(&ts, NULL);// */
 	//glDraw();
@@ -145,6 +159,9 @@ void GLWidget::paintGL() {
 	 glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
      glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
 		double scale = 300.0/boxSize.s0;
+		if(_3D_ == 0){
+			scale*=1.3;
+		}
 		glScalef(scale,scale,scale);
      //glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
 		glTranslatef(-boxSize.s0/2, -boxSize.s1/2, (_3D_!=0?(-boxSize.s2/2):0));

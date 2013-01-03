@@ -27,6 +27,7 @@ typedef struct CircleExtension
 } CircleExtension;
 
 extern int circlesCount, _3D_;
+extern bool manyCircles;
 
 extern cl_double3 boxSize;
 extern cl_double2 size;
@@ -48,6 +49,8 @@ extern double G;
 
 extern bool useCircleExtensions;
 extern int traceCount;
+extern bool connectTracePoints;
+extern int renderBufferCount;
 
 #define min(a,b) (((a)<(b))?(a):(b))
 
