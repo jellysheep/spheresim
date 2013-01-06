@@ -22,10 +22,10 @@ void StatusViewer::run() {
 		msleep(500);
 		
 		printf("\nStatusViewer: \n");
-		double factor = getElapsedNS()/1000000000.0;
+		scalar factor = getElapsedNS()/1000000000.0;
 		printf("Elapsed:    %8.2f seconds\n", factor);
 		
-		double glWidgetFrames = glWidget->popFramesCounter() / factor;
+		scalar glWidgetFrames = glWidget->popFramesCounter() / factor;
 		if(lastGlWidgetFrames == 0){
 			lastGlWidgetFrames = glWidgetFrames;
 		}else{
@@ -34,10 +34,10 @@ void StatusViewer::run() {
 		}
 		printf("GlWidget:   %8.2f fps       [now: %8.2f fps]\n", lastGlWidgetFrames, glWidgetFrames);
 		
-		double frameBufferLoad = clTimer->getFrameBufferLoad();
-		printf("frameBufferLoad:  %6.4f\n", frameBufferLoad);
+		scalar frameBufferLoad = clTimer->getFrameBufferLoad();
+		//printf("frameBufferLoad:  %6.4f\n", frameBufferLoad);
 		
-		double clTimerFrames = clTimer->popFramesCounter() / factor;
+		scalar clTimerFrames = clTimer->popFramesCounter() / factor;
 		if(lastClTimerFrames == 0){
 			lastClTimerFrames = clTimerFrames;
 		}else{
@@ -46,13 +46,20 @@ void StatusViewer::run() {
 		}
 		printf("ClTimer:    %8.2f fps       [now: %8.2f fps]\n", lastClTimerFrames, clTimerFrames);
 		
-		static double bufferLoadTarget = 0.65;
+		if(lastClTimerFrames < minFps){
+			speedCorrection = lastClTimerFrames / minFps;
+		}else{
+			speedCorrection = 1.0;
+		}
+		static scalar bufferLoadTarget = 0.65;
 		double nextClTimerFrames = lastClTimerFrames*(1+
 			0.1*(pow(16,pow((frameBufferLoad>bufferLoadTarget)?
 				(1-((1-frameBufferLoad)*0.5/(1-bufferLoadTarget))):
 				(frameBufferLoad*0.5/bufferLoadTarget),2)))*
 			sign(frameBufferLoad-bufferLoadTarget));
 		printf("frameBuffer:%10.4f => ClTimer:   %8.2f fps\n", frameBufferLoad, nextClTimerFrames);
+		//renderFps = min((int)nextClTimerFrames, renderFpsMax);
+		//glWidget->rotationTimer->setInterval(1000/renderFps);
 		
 		fps = nextClTimerFrames;
 		clTimer->fpsChanged(nextClTimerFrames);

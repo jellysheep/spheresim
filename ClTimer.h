@@ -77,13 +77,15 @@ public:
 		return &cl_circles;
 	}
 	
-	void paintGL(cl_double3 rotation, double translateZ);
+	void paintGL(vector3 rotation, scalar translateZ);
     
-	void fpsChanged(double fps);
+	void fpsChanged(scalar fps);
 
 	friend void start(ClTimer* clTimer);
 	
-	double getFrameBufferLoad();
+	scalar getFrameBufferLoad();
+	
+	bool newFrame;
 };
 
 extern void start(ClTimer* clTimer);

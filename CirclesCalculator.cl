@@ -1,4 +1,9 @@
-#define _3D_ 0
+#define _3D_ x
+#define _double_ x
+#define _v_nicht_const_ 1
+#define heun 1
+#define step (5/10.0)
+// Heun-Verfahren / Halbschritt-Verfahren
 
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 #pragma OPENCL EXTENSION cl_amd_fp64 : enable
@@ -6,19 +11,35 @@
 //#define reduced 0.9999999999999
 //0.9
 
-#define floating_type double
 #if _3D_
-	#define floating_type_vector double3
+	#define double_vector double3
+	#define float_vector float3
 #else
-	#define floating_type_vector double2
+	#define double_vector double2
+	#define float_vector float2
 #endif
+
+#if _double_
+	#define scalar double
+	#define vector double_vector
+	#define vector3 double3
+	#define vector2 double2
+#else
+	#define scalar float
+	#define vector float_vector
+	#define vector3 float3
+	#define vector2 float2
+#endif
+
+#define sqrt_(x) (sqrt(x))
+//sqrt half_sqrt native_sqrt
 
 typedef struct Circle
 {
-    floating_type_vector pos;
-    floating_type_vector speed;
-    floating_type_vector force;
-    floating_type size,mass,poisson,E;
+    vector pos;
+    vector speed;
+    vector force;
+    scalar size,mass,poisson,E;
     //float x[3];  //padding
 } Circle;
 
@@ -33,7 +54,7 @@ uint GetUint(uint* m_z, uint* m_w, uint gid)
     return (z << 16) + w;
 }
 
-floating_type uGetUniform(uint* m_z, uint* m_w, uint gid)
+scalar uGetUniform(uint* m_z, uint* m_w, uint gid)
 {
     // 0 <= u < 2^32
     uint u = GetUint(m_z, m_w, gid);
@@ -43,7 +64,7 @@ floating_type uGetUniform(uint* m_z, uint* m_w, uint gid)
 		* 2328306435454494 * pow(10.0,-25.0);
 }
 
-floating_type GetUniform(uint* m_z, uint* m_w, uint gid)
+scalar GetUniform(uint* m_z, uint* m_w, uint gid)
 {
     // 0 <= u < 2^32
     uint u = GetUint(m_z, m_w, gid);
@@ -55,15 +76,16 @@ floating_type GetUniform(uint* m_z, uint* m_w, uint gid)
 }
 
 __kernel void randomFill(__global struct Circle* circle, __global uint* z, __global uint* w,
-						__global floating_type_vector* boxSize, __global floating_type* max_speed,
-						__global floating_type_vector* size, __global floating_type* poisson,
-						__global floating_type* E){
+						__global vector3* boxSize, __global scalar* max_speed,
+						__global vector* size, __global scalar* poisson,
+						__global scalar* E){
     int gid = get_global_id(0);
     uint m_z_ = (*z) + gid;
     uint m_w_ = (*w) + gid;
     uint* m_z = &m_z_;
     uint* m_w = &m_w_;
-    floating_type_vector s = *boxSize, s2 = *size;
+    vector3 s = *boxSize;
+    vector s2 = *size;
 	circle[gid].size = s2.s0+((s2.s1-s2.s0)*uGetUniform(m_z, m_w, gid));
 	circle[gid].mass = 4.0/3.0*pow(circle[gid].size,3)*M_PI  *950; //Kautschuk
 	circle[gid].poisson = *poisson;
@@ -90,23 +112,29 @@ __kernel void randomFill(__global struct Circle* circle, __global uint* z, __glo
 }
 
 __kernel void moveStep(__global struct Circle* circle, __global int* num,
-						__global floating_type_vector* size,
-						__global floating_type* elastic, __global floating_type* g,
-						__global floating_type* delta_t_, __global floating_type* G_)
+						__global vector* size,
+						__global scalar* elastic, __global scalar* g,
+						__global scalar* delta_t_, __global scalar* G_)
 {
-	floating_type_vector s = *size, force, acceleration;
-	floating_type reduced = *elastic, gravity = *g, delta_t = *delta_t_, G = *G_;
+	vector s = *size, force, acceleration;
+	scalar reduced = *elastic, gravity = *g, delta_t = *delta_t_, G = *G_;
 	int id = get_global_id(0);
 	struct Circle c2;
+	
 	struct Circle c = circle[id];
+	#if heun
+		c.pos += c.speed*(delta_t*step) + c.force/c.mass*(delta_t*step*delta_t*step)/2.0;
+	#endif
     
-    
-    
-    floating_type_vector d_pos, d_d, d_n;
-	floating_type both_r, d, d_, R, E_, force_;
+    vector d_pos, d_d, d_n;
+	scalar both_r, d, d_, R, E_, force_;
 	//*
 	for(int i = (*num)-1; i>id; i--){
 		c2 = circle[i];
+		#if heun
+			c2.pos += c2.speed*(delta_t*step) + c2.force/c2.mass*(delta_t*step*delta_t*step)/2.0;
+		#endif
+		
 		//#define c2 circle[i]
 		both_r = c.size + c2.size;
 		d_pos = c2.pos-c.pos;
@@ -125,7 +153,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 			d_ = both_r - d;
 			R = 1/((1/c.size)+(1/c2.size));
 			E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c2.poisson*c2.poisson)/c2.E));
-			force = 4.0/3.0*E_*pow(R, 1.0/2.0)*pow(d_, 3.0/2.0) *d_n;
+			force = 4.0/3.0*E_*sqrt(R*pow(d_,3)) *d_n;
 			if(dot(d_pos, (c.speed-c2.speed)/d)<0){ //Skalarprodukt
 				force *= reduced;
 			}
@@ -159,14 +187,14 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 	}// */
     
     //*
-    floating_type htw_d_d, fact = 1.0;
+    scalar htw_d_d, fact = 1.0;
     if ((htw_d_d = (c.size - c.pos.s0))>0) {
 		//c.speed.s0 = fabs(c.speed.s0);
 		if(c.speed.s0 > 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c.size;
 		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0/3.0*E_*pow(R, 1.0/2.0)*pow(d_, 3.0/2.0);
+		force_ = 4.0/3.0*E_*sqrt(R*pow(d_,3));
 		circle[id].force.s0 += force_*fact;
 		//circle[id].force.s0 += c.size*htw_d_d*c.E*fact;
 	}else if ((htw_d_d = (c.size + c.pos.s0 - s.s0))>0) {
@@ -175,7 +203,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 		d_ = htw_d_d;
 		R = c.size;
 		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0/3.0*E_*pow(R, 1.0/2.0)*pow(d_, 3.0/2.0);
+		force_ = 4.0/3.0*E_*sqrt(R*pow(d_,3));
 		circle[id].force.s0 -= force_*fact;
 		//circle[id].force.s0 -= c.size*htw_d_d*c.E*fact;
 	}
@@ -186,7 +214,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 		d_ = htw_d_d;
 		R = c.size;
 		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0/3.0*E_*pow(R, 1.0/2.0)*pow(d_, 3.0/2.0);
+		force_ = 4.0/3.0*E_*sqrt(R*pow(d_,3));
 		circle[id].force.s1 += force_*fact;
 		//circle[id].force.s1 += c.size*htw_d_d*c.E*fact;
 	}else if ((htw_d_d = (c.size + c.pos.s1 - s.s1))>0) {
@@ -195,7 +223,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 		d_ = htw_d_d;
 		R = c.size;
 		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0/3.0*E_*pow(R, 1.0/2.0)*pow(d_, 3.0/2.0);
+		force_ = 4.0/3.0*E_*sqrt(R*pow(d_,3));
 		circle[id].force.s1 -= force_*fact;
 		//circle[id].force.s1 -= c.size*htw_d_d*c.E*fact;
 	}
@@ -206,7 +234,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 		d_ = htw_d_d;
 		R = c.size;
 		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0/3.0*E_*pow(R, 1.0/2.0)*pow(d_, 3.0/2.0);
+		force_ = 4.0/3.0*E_*sqrt(R*pow(d_,3));
 		circle[id].force.s2 += force_*fact;
 		//circle[id].force.s2 += c.size*htw_d_d*c.E*fact;
 	}else if ((htw_d_d = (c.size + c.pos.s2 - s.s2))>0) {
@@ -214,7 +242,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 		d_ = htw_d_d;
 		R = c.size;
 		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0/3.0*E_*pow(R, 1.0/2.0)*pow(d_, 3.0/2.0);
+		force_ = 4.0/3.0*E_*sqrt(R*pow(d_,3));
 		circle[id].force.s2 -= force_*fact;
 		//circle[id].force.s2 -= c.size*htw_d_d*c.E*fact;
 	}
@@ -235,7 +263,10 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
     
     force = circle[id].force;
     acceleration = force / circle[id].mass;
-    circle[id].pos += circle[id].speed*delta_t + 0.5*acceleration*(delta_t*delta_t);
+    circle[id].pos += circle[id].speed*delta_t;
+    #if _v_nicht_const_
+		circle[id].pos += acceleration*(delta_t*delta_t)/2.0;
+	#endif
     circle[id].speed += acceleration*delta_t;
     circle[id].force -= force;
 }

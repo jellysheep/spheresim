@@ -14,8 +14,8 @@ class StatusViewer : public QThread, protected NanosecondTimer {
 protected:
 	GLWidget* glWidget;
 	ClTimer* clTimer;
-	double lastGlWidgetFrames, lastClTimerFrames;
-	const static double f = 0.5;
+	scalar lastGlWidgetFrames, lastClTimerFrames;
+	const static scalar f = 0.5;
 
 public:
 	StatusViewer(GLWidget* glw, ClTimer* clt);

@@ -8,11 +8,12 @@
 GLWidget::GLWidget(ClTimer* ct, QWidget *parent) : QGLWidget(parent) {
 	//setMouseTracking(true);
 	clTimer = ct;
-	rotation = (cl_double3){0,0,0,0};
+	rotation = (vector3){0,0,0};
 	xRot = yRot = zRot = 0;
 	translateZ = 0;
+	newFrame = false;
 	//*
-	QTimer* rotationTimer = new QTimer(this);
+	rotationTimer = new QTimer(this);
 	rotationTimer->setInterval(1000/renderFps);
 	QObject::connect(rotationTimer, SIGNAL(timeout()), this, SLOT(timeToRender()), Qt::QueuedConnection);
 	rotationTimer->start();// */
@@ -20,6 +21,7 @@ GLWidget::GLWidget(ClTimer* ct, QWidget *parent) : QGLWidget(parent) {
 }
 
 void GLWidget::updateTimer() {
+	if(!clTimer->newFrame) return;
 	//printf("rotationTimer\n");
 	QGLWidget::update();
 	//printf(".\n");
@@ -120,6 +122,10 @@ void GLWidget::resizeGL(int w, int h) {
 }
 
 void GLWidget::timeToRender(){
+	if(!clTimer->newFrame) return;
+	clTimer->newFrame = false;
+	
+	newFrame = true;
 	//*
 	int ms = 1;
 	struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
@@ -147,25 +153,27 @@ void GLWidget::paintGL() {
 	//glRotatef(rotation.s2 / 16.0, 0.0, 0.0, 1.0);
 	*/
 	// Clear color and depth buffer
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Apply some transformations
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glTranslatef(0.f, 0.f, -500.f);
-		glTranslatef(0.0, 0.0, zRot*1.0);
-		
-	 //glRotatef(180.0, 0.0, 1.0, 0.0);
-	 glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
-     glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
-		double scale = 300.0/boxSize.s0;
-		if(_3D_ == 0){
-			scale*=1.3;
-		}
-		glScalef(scale,scale,scale);
-     //glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
-		glTranslatef(-boxSize.s0/2, -boxSize.s1/2, (_3D_!=0?(-boxSize.s2/2):0));
-		//glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
+	// Apply some transformations
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glTranslatef(0.f, 0.f, -500.f);
+	glTranslatef(0.0, 0.0, zRot*1.0);
+
+	//glRotatef(180.0, 0.0, 1.0, 0.0);
+	glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
+	glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
+
+	scalar scale = 300.0/boxSize.s0;
+	#if !_3D_
+		scale*=1.3;
+	#endif
+	glScalef(scale,scale,scale);
+
+	//glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
+	glTranslatef(-boxSize.s0/2, -boxSize.s1/2, (_3D_!=0?(-boxSize.s2/2):0));
+	//glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
 	
 	clTimer->paintGL(rotation, translateZ);
 	/*

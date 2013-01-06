@@ -14,16 +14,29 @@
 
 ClTimer::ClTimer(){
 	try{
+		newFrame = false;
+		
 		printf("sizeof(Circle): %d\n", sizeof(Circle));
-		srand(NanosecondTimer::getNS());
+		srand(20);//NanosecondTimer::getNS());
 		
 		if(useCircleExtensions){
+			int light, lightTarget = 90, color;
 			ceBuffer = new CircleExtension[circlesCount];
 			for(int i = 0; i<circlesCount; i++){
-				ceBuffer[i].color = (rand()%256)+(256*(rand()%256))+(256*256*(rand()%256));
-				ceBuffer[i].trace = new cl_float2[traceCount];
-				ceBuffer[i].traceCount = 0;
-				ceBuffer[i].traceFull = false;
+				color = (rand()%256)+(256*(rand()%256))+(256*256*(rand()%256));
+				light = pow(pow(color%256,2)+pow(color/256%256,2)+pow(color/256/256,2),0.5);
+				//printf("light before: %4d\n",light);
+				color = (color%256*lightTarget/light)+256*(color/256%256*lightTarget/light)
+					+256*256*(color/256/256*lightTarget/light);
+				light = pow(pow(color%256,2)+pow(color/256%256,2)+pow(color/256/256,2),0.5);
+				//light = ((color%256)+(color/256%256)+(color/256/256))/3;
+				//printf("light after:  %4d\n",light);
+				ceBuffer[i].color = color;
+				if(useCircleExtensions){
+					ceBuffer[i].trace = new vector[traceCount];
+					ceBuffer[i].traceCount = 0;
+					ceBuffer[i].traceFull = false;
+				}
 			}
 		}
 		
@@ -83,6 +96,7 @@ ClTimer::ClTimer(){
 			return;
 		}
 		kernel_source[13] = '0'+_3D_; //define OpenCL version of _3D_
+		kernel_source[32] = '0'+_double_; //define OpenCL version of _3D_
 
 		//pl = kernel_source.boxSize();
 		printf("kernel boxSize: %d\n", pl);
@@ -136,7 +150,6 @@ ClTimer::ClTimer(){
 		uint* m_z = new uint(rand());
 		//for(int i = 0; i<10000; i++);
 		uint* m_w = new uint(rand());
-		cl_double2* boxSize2D = new cl_double2((cl_double2){boxSize.s0,boxSize.s1});
 		
 		int cl_mem_method = CL_MEM_COPY_HOST_PTR;
 		//cl_mem_method = CL_MEM_USE_HOST_PTR;
@@ -155,16 +168,16 @@ ClTimer::ClTimer(){
 		}
 		cl_m_z = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_z, &err);
 		cl_m_w = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_w, &err);
-		cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_double2), boxSize2D, &err);
-		cl_size = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_double2), &size, &err);
-		cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &max_speed, &err);
+		cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector3), &boxSize, &err);
+		cl_size = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector), &size, &err);
+		cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &max_speed, &err);
 		cl_circlesCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &circlesCount, &err);
-		cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &E, &err);
-		cl_elastic = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &elastic, &err);
-		cl_gravity = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &gravity, &err);
-		cl_timeInterval = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &timeInterval, &err);
-		cl_poisson = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &poisson, &err);
-		cl_G = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(double), &G, &err);
+		cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &E, &err);
+		cl_elastic = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &elastic, &err);
+		cl_gravity = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &gravity, &err);
+		cl_timeInterval = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &timeInterval, &err);
+		cl_poisson = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &poisson, &err);
+		cl_G = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &G, &err);
 
 		printf("Pushing data to the GPU\n");
 		//push our CPU arrays to the GPU
@@ -173,7 +186,7 @@ ClTimer::ClTimer(){
 		//err = queue.enqueueWriteBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle), &circle, NULL, &event);
 		/*err = queue.enqueueWriteBuffer(cl_m_z, CL_TRUE, 0, sizeof(uint), m_z, NULL, &event);
 		err = queue.enqueueWriteBuffer(cl_m_w, CL_TRUE, 0, sizeof(uint), m_w, NULL, &event);
-		err = queue.enqueueWriteBuffer(cl_boxSize, CL_TRUE, 0, sizeof(cl_double2), boxSize2D, NULL, &event);
+		err = queue.enqueueWriteBuffer(cl_boxSize, CL_TRUE, 0, sizeof(double_vec), boxSize2D, NULL, &event);
 		err = queue.enqueueWriteBuffer(cl_max_speed, CL_TRUE, 0, sizeof(double), &max_speed, NULL, &event);
 		err = queue.enqueueWriteBuffer(cl_circlesCount, CL_TRUE, 0, sizeof(int), &circlesCount, NULL, &event);
 		err = queue.enqueueWriteBuffer(cl_E, CL_TRUE, 0, sizeof(double), &E, NULL, &event);*/
@@ -217,9 +230,9 @@ ClTimer::ClTimer(){
 			fprintf(file, "%u ", _3D_);
 			fprintf(file, "%g ", boxSize.s0);
 			fprintf(file, "%g ", boxSize.s1);
-			//#if _3D_
-			//	f<<boxSize.s2<<" ";
-			//#endif
+			#if _3D_
+				fprintf(file, "%g ", boxSize.s2);
+			#endif
 			fprintf(file, "%u\n", circlesCount);
 			fclose(file);
 			
@@ -243,6 +256,8 @@ ClTimer::ClTimer(){
 			}
 			bufferReadIndex = 0;
 			bufferWriteIndex = 0;
+			err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
+			bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 			err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
 			bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 		}
@@ -316,11 +331,11 @@ void ClTimer::set(GLWidget* w){
 	glWidget = w;
 }
 
-void ClTimer::fpsChanged(double fps){
-	if(speed!=0 && fps!=0){
-		double timeInterval = speed/fps;
+void ClTimer::fpsChanged(scalar fps){
+	if(speed!=0 && fps!=0 && speedCorrection!=0){
+		scalar timeInterval = speed*speedCorrection/fps;
 		//printf("timeInterval: %10f\n", timeInterval);
-		err = queue.enqueueWriteBuffer(cl_timeInterval, CL_TRUE, 0, sizeof(double), &timeInterval, NULL, &event);
+		err = queue.enqueueWriteBuffer(cl_timeInterval, CL_TRUE, 0, sizeof(scalar), &timeInterval, NULL, &event);
 	}
 }
 
@@ -370,7 +385,7 @@ void ClTimer::save(){
 	fclose(file);
 }
 
-double ClTimer::getFrameBufferLoad(){
+scalar ClTimer::getFrameBufferLoad(){
 	int ri = bufferReadIndex, wi = bufferWriteIndex;
 	while(wi<ri){
 		wi += renderBufferCount;
@@ -380,13 +395,25 @@ double ClTimer::getFrameBufferLoad(){
 
 
 #define onlyOneC 0
-void ClTimer::paintGL(cl_double3 rotation, double translateZ){
+void ClTimer::paintGL(vector3 rotation, scalar translateZ){
 	// Apply some transformations
 	//glLightfv(GL_LIGHT0, GL_POSITION, LightPosition);
 	/*
 	glRotatef(Clock.GetElapsedTime() * 50, 1.f, 0.f, 0.f);
 	glRotatef(Clock.GetElapsedTime() * 30, 0.f, 1.f, 0.f);
 	glRotatef(Clock.GetElapsedTime() * 90, 0.f, 0.f, 1.f);//*/
+	
+	if(glWidget->newFrame){
+		glWidget->newFrame = false;
+		if(((bufferReadIndex+2)%renderBufferCount) == bufferWriteIndex){
+			printf("frame buffer empty: %3d | %3d\n",bufferReadIndex,bufferWriteIndex);
+		}else{
+			bufferReadIndex = (bufferReadIndex+1)%renderBufferCount;
+		}
+	}
+	if(bufferReadIndex == bufferWriteIndex){
+		printf("error!!!\n");
+	}
 
 	// Draw a cube
 	glColor3d(0.2,0.2,0.2);
@@ -416,9 +443,9 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 	}
 	if(!renderBool)return;
 	
-	double r,x,y,z;
+	scalar r,x,y,z,d;
 	
-	int i,k,h;
+	int i,k,h,j;
 	Circle c;
 	CircleExtension* ce;
 	int color = 102+(102*256)+(102*256*256);
@@ -427,7 +454,7 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 	//event.wait();
 	//printf("ready!\n");
 	//queue.finish();
-	if(useCircleExtensions){
+	if(useCircleExtensions && useTrace){
 		for(i=0; i < readNum_render; i++)
 		{
 			//printf("%4u: %5u\n", j, offset+i);
@@ -435,10 +462,18 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 			r = c.size;
 			x = c.pos.s0;
 			y = c.pos.s1;
+#if _3D_
+			z = c.pos.s2;
+#else
 			z = 0;
+#endif
 			ce = &ceBuffer[i];
 			color = ce->color;
-			ce->trace[ce->traceCount] = (cl_float2){x,y};
+			ce->trace[ce->traceCount] = (vector){x,y
+#if _3D_
+				,z
+#endif
+				};
 			if(connectTracePoints)
 				glBegin(GL_LINE_STRIP);
 			else
@@ -486,16 +521,16 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 			glVertex3d(x-(r/3),y+(r/3),z);
 			#if onlyOneC
 				if(i==cCount-1)
-					glColor3bv((byte*)&color);
-					//glColor3b(color/256/256,color/256%256,color%256); 
+					//glColor3bv((byte*)&color);
+					glColor3b(color/256/256,color/256%256,color%256); 
 				else
 					glColor3d(0.05, 0.05, 0.05);
 			#else
-				glColor3bv((GLbyte*)&color);
-				//glColor3b(color/256/256,color/256%256,color%256); 
+				//glColor3bv((GLbyte*)&color);
+				glColor3b(color/256/256,color/256%256,color%256); 
 			#endif
-			double d = 0;
-			for(int j = 0; j<=edges; j++){
+			d = 0;
+			for(j = 0; j<=edges; j++){
 				d+=step;
 				//cout<<edges<<" "<<j<<endl;
 				//cout<<d<<endl;
@@ -504,12 +539,6 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 
 			glEnd();
 		}
-	}
-	
-	if(((bufferReadIndex+1)%renderBufferCount) == bufferWriteIndex){
-		printf("frame buffer empty: %3d | %3d\n",bufferReadIndex,bufferWriteIndex);
-	}else{
-		bufferReadIndex = (bufferReadIndex+1)%renderBufferCount;
 	}
 	
 	/*
@@ -580,10 +609,10 @@ void ClTimer::paintGL(cl_double3 rotation, double translateZ){
 				x = c.pos.s0;
 				y = c.pos.s1;
 				z = 0;
-				if(useCircleExtensions){
+				if(useCircleExtensions && useTrace){
 					ce = &ceBuffer[offset+i];
 					color = ce->color;
-					ce->trace[ce->traceCount] = (cl_float2){x,y};
+					ce->trace[ce->traceCount] = (float_vec){x,y};
 					glBegin(GL_LINE_STRIP);
 					//glBegin(GL_POINTS);
 					k = 0;
@@ -685,13 +714,13 @@ void ClTimer::run(){
 			if(elapsedFrames > (int)(fps/renderFps) && glWidget != NULL){// && glWidget->drawingFinished){
 				if(bufferReadIndex == ((bufferWriteIndex+1)%renderBufferCount)){
 					printf("frame buffer full: %3d | %3d\n",bufferReadIndex,bufferWriteIndex);
-					continue;
+				}else{
+					err = queue.enqueueReadBuffer(cl_circles, CL_FALSE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
+					bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
+				
+				
+					elapsedFrames = 0;
 				}
-				err = queue.enqueueReadBuffer(cl_circles, CL_FALSE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
-				bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
-				
-				
-				elapsedFrames = 0;
 				/*
 				glWidget->drawingFinished = false;
 				//glWidget->update();
@@ -701,6 +730,8 @@ void ClTimer::run(){
 				//glWidget->repaint();
 				// */
 			}// */
+			
+			newFrame = true;
 			
 			/*
 			double r,x,y,z;
