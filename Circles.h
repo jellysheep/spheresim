@@ -6,7 +6,7 @@
 #include <CL/cl.hpp>
 #include <CL/cl_platform.h>
 
-#define _3D_ 0
+#define _3D_ 1
 #define _double_ 0
 
 typedef cl_float4 cl_float3;
@@ -75,6 +75,10 @@ extern bool useTrace;
 extern long traceCount;
 extern bool connectTracePoints;
 extern int renderBufferCount;
+
+extern bool reflections;
+
+extern vector2 autoRotation;
 
 #define min(a,b) (((a)<(b))?(a):(b))
 

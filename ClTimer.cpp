@@ -17,7 +17,8 @@ ClTimer::ClTimer(){
 		newFrame = false;
 		
 		printf("sizeof(Circle): %d\n", sizeof(Circle));
-		srand(20);//NanosecondTimer::getNS());
+		srand(20);
+		//srand(NanosecondTimer::getNS());
 		
 		if(useCircleExtensions){
 			int light, lightTarget = 90, color;
@@ -395,7 +396,7 @@ scalar ClTimer::getFrameBufferLoad(){
 
 
 #define onlyOneC 0
-void ClTimer::paintGL(vector3 rotation, scalar translateZ){
+void ClTimer::paintGL(bool readNewFrame){
 	// Apply some transformations
 	//glLightfv(GL_LIGHT0, GL_POSITION, LightPosition);
 	/*
@@ -403,16 +404,18 @@ void ClTimer::paintGL(vector3 rotation, scalar translateZ){
 	glRotatef(Clock.GetElapsedTime() * 30, 0.f, 1.f, 0.f);
 	glRotatef(Clock.GetElapsedTime() * 90, 0.f, 0.f, 1.f);//*/
 	
-	if(glWidget->newFrame){
-		glWidget->newFrame = false;
-		if(((bufferReadIndex+2)%renderBufferCount) == bufferWriteIndex){
-			printf("frame buffer empty: %3d | %3d\n",bufferReadIndex,bufferWriteIndex);
-		}else{
-			bufferReadIndex = (bufferReadIndex+1)%renderBufferCount;
+	if(readNewFrame){
+		if(glWidget->newFrame){
+			glWidget->newFrame = false;
+			if(((bufferReadIndex+2)%renderBufferCount) == bufferWriteIndex){
+				printf("frame buffer empty: %3d | %3d\n",bufferReadIndex,bufferWriteIndex);
+			}else{
+				bufferReadIndex = (bufferReadIndex+1)%renderBufferCount;
+			}
 		}
-	}
-	if(bufferReadIndex == bufferWriteIndex){
-		printf("error!!!\n");
+		if(bufferReadIndex == bufferWriteIndex){
+			printf("error!!!\n");
+		}
 	}
 
 	// Draw a cube
@@ -424,12 +427,14 @@ void ClTimer::paintGL(vector3 rotation, scalar translateZ){
 	glVertex3d(0,boxSize.s1,0);
 	glEnd();
 	if(_3D_!=0){
+		glColor3d(0.2,0.2,0.2);
 		glBegin(GL_LINE_LOOP);
 		glVertex3d(0,0,boxSize.s2);
 		glVertex3d(boxSize.s0,0,boxSize.s2);
 		glVertex3d(boxSize.s0,boxSize.s1,boxSize.s2);
 		glVertex3d(0,boxSize.s1,boxSize.s2);
 		glEnd();
+		glColor3d(0.2,0.2,0.2);
 		glBegin(GL_LINES);
 		glVertex3d(0,0,0);
 		glVertex3d(0,0,boxSize.s2);
@@ -441,7 +446,6 @@ void ClTimer::paintGL(vector3 rotation, scalar translateZ){
 		glVertex3d(0,boxSize.s1,boxSize.s2);
 		glEnd();
 	}
-	if(!renderBool)return;
 	
 	scalar r,x,y,z,d;
 	
@@ -474,6 +478,7 @@ void ClTimer::paintGL(vector3 rotation, scalar translateZ){
 				,z
 #endif
 				};
+			glColor4b(color/256/256,color/256%256,color%256,0);
 			if(connectTracePoints)
 				glBegin(GL_LINE_STRIP);
 			else
@@ -481,10 +486,18 @@ void ClTimer::paintGL(vector3 rotation, scalar translateZ){
 			k = 0;
 			for(h = (ce->traceFull?((ce->traceCount+1)%traceCount):0); h!=ce->traceCount; h=((h+1)%traceCount)){
 				glColor4b(color/256/256,color/256%256,color%256,255*(k++)/traceCount/2);
-				glVertex2f(ce->trace[h].s0, ce->trace[h].s1);
+				#if _3D_
+					glVertex3d(ce->trace[h].s0, ce->trace[h].s1, ce->trace[h].s2);
+				#else
+					glVertex2d(ce->trace[h].s0, ce->trace[h].s1);
+				#endif
 			}
 			glColor4b(color/256/256,color/256%256,color%256,255*(k++)/traceCount/2);
-			glVertex2f(x,y);
+			#if _3D_
+				glVertex3d(x,y,z);
+			#else
+				glVertex2d(x,y);
+			#endif
 			ce->traceCount++;
 			if(ce->traceCount>=traceCount){
 				ce->traceCount = 0;
@@ -500,15 +513,18 @@ void ClTimer::paintGL(vector3 rotation, scalar translateZ){
 		r = c.size;
 		x = c.pos.s0;
 		y = c.pos.s1;
-		z = 0;
+#if _3D_
+			z = c.pos.s2;
+#else
+			z = 0;
+#endif
 		if(useCircleExtensions){
 			color = ceBuffer[i].color;
 		}
 		//printf("Circle (r=%3f): (%4f|%4f|%4f) (%4f|%4f|%4f) (%4f|%4f|%4f)\n",r,x,y,z,c.speed.s0,c.speed.s1,0,c.force.s0,c.force.s1,0);
-		if(_3D_!=0){
-			//z = c_CPU_render[j][i].pos.s2;
-		}
-		if(_3D_==0){
+		//if(_3D_==0)
+		//{
+		#if !_3D_
 			glBegin(GL_TRIANGLE_FAN);
 			#if onlyOneC
 				if(i==cCount-1)
@@ -538,7 +554,25 @@ void ClTimer::paintGL(vector3 rotation, scalar translateZ){
 			}
 
 			glEnd();
-		}
+		//}else{ //3D
+		#else
+			#if onlyOneC
+				if(i==cCount-1)
+					//glColor3bv((byte*)&color);
+					glColor3b(color/256/256,color/256%256,color%256); 
+				else
+					glColor3d(0.05, 0.05, 0.05);
+			#else
+				//glColor3bv((GLbyte*)&color);
+				glColor3b(color/256/256,color/256%256,color%256); 
+			#endif
+			glPushMatrix();
+			glTranslated(x,y,z);
+			glWidget->drawsphere(1,r);
+			//glTranslated(-x,-y,-z);
+			glPopMatrix();
+		//}
+		#endif
 	}
 	
 	/*

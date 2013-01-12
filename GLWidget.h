@@ -26,6 +26,11 @@ protected:
 	ClTimer* clTimer;
     QPoint lastPos;
     
+    GLfloat* LightPosition;
+    
+    void normalize(GLfloat *a);
+    void drawtri(GLfloat *a, GLfloat *b, GLfloat *c, int div, float r);
+    
 public:
 	GLWidget(ClTimer* ct, QWidget *parent = NULL);
 	QSize minimumSizeHint() const;
@@ -33,6 +38,8 @@ public:
 	bool drawingFinished;
     QTimer* rotationTimer;
     bool newFrame;
+    
+    void drawsphere(int ndiv, float radius);
 
 public slots:
 	void setXRotation(int angle);

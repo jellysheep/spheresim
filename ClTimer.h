@@ -77,7 +77,7 @@ public:
 		return &cl_circles;
 	}
 	
-	void paintGL(vector3 rotation, scalar translateZ);
+	void paintGL(bool readNewFrame);
     
 	void fpsChanged(scalar fps);
 

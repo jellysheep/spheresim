@@ -95,6 +95,7 @@ __kernel void randomFill(__global struct Circle* circle, __global uint* z, __glo
 	circle[gid].pos.s1 = circle[gid].size/2+uGetUniform(m_z, m_w, gid)*(s.s1-circle[gid].size);
 	#if _3D_
 		circle[gid].pos.s2 = circle[gid].size/2+uGetUniform(m_z, m_w, gid)*(s.s2-circle[gid].size);
+		printf("pos: %f\n", circle[gid].pos.s2);
 	#endif
 	
 	circle[gid].speed.s0 = GetUniform(m_z, m_w, gid);
@@ -129,7 +130,8 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
     vector d_pos, d_d, d_n;
 	scalar both_r, d, d_, R, E_, force_;
 	//*
-	for(int i = (*num)-1; i>id; i--){
+	int n = *num, n2 = 0;
+	for(int i = n-1; i>id; i--){
 		c2 = circle[i];
 		#if heun
 			c2.pos += c2.speed*(delta_t*step) + c2.force/c2.mass*(delta_t*step*delta_t*step)/2.0;
@@ -138,17 +140,34 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 		//#define c2 circle[i]
 		both_r = c.size + c2.size;
 		d_pos = c2.pos-c.pos;
+		
+		//*
+		if(gravity == 0){
+			if(d_pos.s0>both_r||d_pos.s0<-both_r||d_pos.s1>both_r||d_pos.s1<-both_r||d_pos.s2>both_r||d_pos.s2<-both_r){
+				continue;
+			}
+			//*
+			else{
+				if(++n2>4) break;
+			}// */
+		}// */
+
 		//d_pos.s2 = 0;
 		d = length(d_pos);
-		d_n = d_pos/d; // bzw. normalize(d_pos);
 		
-		// Gravitation:
-		force = G*c.mass*c2.mass/pow(d,2) *d_n;
-		circle[id].force += force;
-		circle[i].force -= force;
+		if(gravity!=0){
+			d_n = d_pos/d; // bzw. normalize(d_pos);
+			// Gravitation:
+			force = G*c.mass*c2.mass/pow(d,2) *d_n;
+			circle[id].force += force;
+			circle[i].force -= force;
+		}
 		
 		// Abstossung:
 		if (d < both_r) {
+			if(gravity == 0){
+				d_n = d_pos/d; // bzw. normalize(d_pos);
+			}
 			// nach Kontaktmechanik mit Poisson-Zahlen:
 			d_ = both_r - d;
 			R = 1/((1/c.size)+(1/c2.size));
@@ -249,9 +268,6 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 #endif
 	// */
 	
-	// Gravitation nach unten:
-	circle[id].force.s1 -= gravity*circle[id].mass;
-	
 	// Luftwiderstand:
     //circle[id].force -= 0.001*circle[id].speed*fabs(length(circle[id].speed));
     //0.00001*normalize(circle[id].speed)*pow(length(circle[id].speed),2);
@@ -262,8 +278,14 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
     circle[id].force -= force;*/
     
     force = circle[id].force;
+	
     acceleration = force / circle[id].mass;
-    circle[id].pos += circle[id].speed*delta_t;
+	
+	// Gravitation nach unten:
+	//circle[id].force.s1 -= gravity*circle[id].mass;
+	acceleration.s1 -= gravity;
+	
+    circle[id].pos += c.speed*delta_t;
     #if _v_nicht_const_
 		circle[id].pos += acceleration*(delta_t*delta_t)/2.0;
 	#endif

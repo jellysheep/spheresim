@@ -3,6 +3,7 @@
 #include <GL/glu.h>
 #include <QTimer>
 #include <QtGui/QApplication>
+#include <cmath>
 #include "Circles.h"
 
 GLWidget::GLWidget(ClTimer* ct, QWidget *parent) : QGLWidget(parent) {
@@ -68,9 +69,9 @@ void GLWidget::initializeGL() {
 	//glDisable(GL_DEPTH_TEST);
 	//glDisable(GL_COLOR_MATERIAL);
 	glEnable(GL_BLEND);
-	glEnable(GL_POINT_SMOOTH);
-	glEnable(GL_LINE_SMOOTH);
-	//glEnable(GL_POLYGON_SMOOTH);
+	//~ glEnable(GL_POINT_SMOOTH);
+	//~ glEnable(GL_LINE_SMOOTH);
+	//~ glEnable(GL_POLYGON_SMOOTH);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(1,1,1,1);
 	glPointSize(2);
@@ -78,11 +79,11 @@ void GLWidget::initializeGL() {
 	
 	// Set color and depth clear value
 	glClearDepth(1.f);
-	//glClearColor(0.f, 0.f, 0.f, 0.f);
+	//~ glClearColor(0.f, 0.f, 0.f, 0.5f);
 
 	// Enable Z-buffer read and write
 	glShadeModel( GL_SMOOTH );//flat/smooth
-	//glShadeModel( GL_FLAT );
+	//~ glShadeModel( GL_FLAT );
 
 	// Setup a perspective projection
 	glMatrixMode(GL_PROJECTION);
@@ -90,21 +91,35 @@ void GLWidget::initializeGL() {
 	gluPerspective(50.f, 1.f*boxSize.s1/boxSize.s0, 1.f, 2000.f);
 	
 	
-	if(_3D_!=0){
+	#if _3D_
 		glEnable(GL_DEPTH_TEST);						// Enables Depth Testing
 		glDepthFunc(GL_LEQUAL);
 		glDepthMask(GL_TRUE);
 		
 		glEnable(GL_LIGHTING);
+		
+		GLfloat LightAmbient[]= { 0.01f, 0.01f, 0.01f, 1.0f };
+		GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
+		GLfloat LightSpecular[]= { 1.0f, 1.0f, 1.0f, 1.0f };
+		LightPosition = new GLfloat[4];
+		LightPosition[0] = (float)boxSize.s0/2;
+		LightPosition[1] = (float)boxSize.s1;
+		LightPosition[2] = (float)boxSize.s2/2;
+		LightPosition[3] = 1.0f;
+		glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse); 
+		glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular); 
+		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
+		
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
-	}
-	GLfloat LightAmbient[]= { 0.1f, 0.1f, 0.1f, 1.0f };
-	GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat LightPosition[]= { (float)boxSize.s0/2, (float)boxSize.s1, (float)boxSize.s2/2, 1.0f };
-	glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse); 
-	glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
+		glEnable(GL_TEXTURE_2D);
+		
+		//glEnable(GL_NORMALIZE);
+		glEnable(GL_RESCALE_NORMAL);
+		
+		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	#endif
 }
 
 void GLWidget::resizeGL(int w, int h) {
@@ -130,6 +145,11 @@ void GLWidget::timeToRender(){
 	int ms = 1;
 	struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
     nanosleep(&ts, NULL);// */
+    
+    #if _3D_
+		setXRotation(xRot + autoRotation.s0*16.0);
+		setYRotation(yRot + autoRotation.s1*16.0);
+	#endif
 	//glDraw();
 	update();
     //QCoreApplication::processEvents();
@@ -153,7 +173,11 @@ void GLWidget::paintGL() {
 	//glRotatef(rotation.s2 / 16.0, 0.0, 0.0, 1.0);
 	*/
 	// Clear color and depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if(reflections){
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	}else{
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 
 	// Apply some transformations
 	glMatrixMode(GL_MODELVIEW);
@@ -165,17 +189,98 @@ void GLWidget::paintGL() {
 	glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
 	glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
 
-	scalar scale = 300.0/boxSize.s0;
+	scalar scale = 250.0/boxSize.s0;
 	#if !_3D_
-		scale*=1.3;
+		scale*=1.5;
 	#endif
 	glScalef(scale,scale,scale);
 
 	//glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
 	glTranslatef(-boxSize.s0/2, -boxSize.s1/2, (_3D_!=0?(-boxSize.s2/2):0));
-	//glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
 	
-	clTimer->paintGL(rotation, translateZ);
+	
+	#if _3D_
+		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
+	#endif
+	static double reflection = 0.5;
+	if(renderBool){
+		#if _3D_
+		if(reflections){
+			glEnable(GL_CULL_FACE);
+			glFrontFace(GL_CW);
+			
+			/* Don't update color or depth. */
+			glDisable(GL_DEPTH_TEST);
+			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+			/* Draw 1 into the stencil buffer. */
+			glEnable(GL_STENCIL_TEST);
+			glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+			glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
+
+			/* Now drawing the floor just tags the floor pixels
+			as stencil value 1. */
+			
+			glBegin(GL_QUADS);
+			glVertex3d(0,0,0);
+			glVertex3d(boxSize.s0,0,0);
+			glVertex3d(boxSize.s0,0,boxSize.s2);
+			glVertex3d(0,0,boxSize.s2);
+			glEnd();
+
+			/* Re-enable update of color and depth. */ 
+			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			glEnable(GL_DEPTH_TEST);
+
+			/* Now, only render where stencil is set to 1. */
+			glStencilFunc(GL_EQUAL, 1, 0xffffffff);  /* draw if stencil ==1 */
+			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+			/* Draw reflected ninja, but only where floor is. */
+			glPushMatrix();
+			glScalef(1.0, -1.0, 1.0);
+			glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
+			
+			glCullFace(GL_FRONT);
+			clTimer->paintGL(true);
+			glCullFace(GL_BACK);
+			glPopMatrix();
+			glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
+
+			glDisable(GL_STENCIL_TEST);
+			
+			
+			glColor4f(1.0, 1.0, 1.0, reflection);
+			glBegin(GL_QUADS);
+			glVertex3d(0,0,0);
+			glVertex3d(boxSize.s0,0,0);
+			glVertex3d(boxSize.s0,0,boxSize.s2);
+			glVertex3d(0,0,boxSize.s2);
+			glEnd();
+			
+			/* Draw "bottom" of floor in blue. */
+			/* Switch face orientation. */
+			/*
+			glFrontFace(GL_CCW);  
+			glColor4f(1.0, 0.0, 1.0, 0.5);
+			glBegin(GL_QUADS);
+				double y = -0.01;
+				glVertex3d(0,y,0);
+				glVertex3d(0,y,boxSize.s2);
+				glVertex3d(boxSize.s0,y,boxSize.s2);
+				glVertex3d(boxSize.s0,y,0);
+			glEnd();
+			glFrontFace(GL_CW);
+			// */
+			glDisable(GL_CULL_FACE);
+			clTimer->paintGL(false);
+		}else{
+			clTimer->paintGL(true);
+		}
+		#else
+		clTimer->paintGL(true);
+		#endif
+	}
 	/*
 	glColor3f(1,0,0);
 	glBegin(GL_POLYGON);
@@ -201,7 +306,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
          setXRotation(xRot + 8 * dy);
          setYRotation(yRot + 8 * dx);
      } else if (event->buttons() & Qt::RightButton) {
-         setXRotation(xRot + 8 * dy);
+         //setXRotation(xRot + 8 * dy);
          setZRotation(zRot + 8 * dx);
      }
      lastPos = event->pos();
@@ -228,40 +333,86 @@ QSize GLWidget::sizeHint() const
 	return QSize(600, 800);
 }
 
- static void qNormalizeAngle(int &angle)
- {
-     while (angle < 0)
-         angle += 360 * 16;
-     while (angle > 360 * 16)
-         angle -= 360 * 16;
- }
+static void qNormalizeAngle(int &angle)
+{
+    while (angle < 0)
+        angle += 360 * 16;
+    while (angle > 360 * 16)
+        angle -= 360 * 16;
+}
 
- void GLWidget::setXRotation(int angle)
- {
-     qNormalizeAngle(angle);
-     if (angle != xRot) {
-         xRot = angle;
-         emit xRotationChanged(angle);
-         updateGL();
-     }
- }
+void GLWidget::setXRotation(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != xRot) {
+        xRot = angle;
+        emit xRotationChanged(angle);
+        updateGL();
+    }
+}
 
- void GLWidget::setYRotation(int angle)
- {
-     qNormalizeAngle(angle);
-     if (angle != yRot) {
-         yRot = angle;
-         emit yRotationChanged(angle);
-         updateGL();
-     }
- }
+void GLWidget::setYRotation(int angle)
+{
+    qNormalizeAngle(angle);
+    if (angle != yRot) {
+        yRot = angle;
+        emit yRotationChanged(angle);
+        updateGL();
+    }
+}
 
- void GLWidget::setZRotation(int angle)
- {
-     qNormalizeAngle(angle);
-     if (angle != zRot) {
-         zRot = angle;
-         emit zRotationChanged(angle);
-         updateGL();
-     }
- }
+void GLWidget::setZRotation(int angle)
+{
+    //qNormalizeAngle(angle);
+    if (angle != zRot) {
+        zRot = angle;
+        emit zRotationChanged(angle);
+        updateGL();
+    }
+}
+ 
+#define _X .525731112119133606 
+#define _Z .850650808352039932
+
+static float vdata[12][3] = {	
+	{-_X, 0.0, _Z}, {_X, 0.0, _Z}, {-_X, 0.0, -_Z}, {_X, 0.0, -_Z},	
+	{0.0, _Z, _X}, {0.0, _Z, -_X}, {0.0, -_Z, _X}, {0.0, -_Z, -_X},	
+	{_Z, _X, 0.0}, {-_Z, _X, 0.0}, {_Z, -_X, 0.0}, {-_Z, -_X, 0.0} 
+};
+static uint tindices[20][3] = { 
+	{0,4,1}, {0,9,4}, {9,5,4}, {4,5,8}, {4,8,1},	
+	{8,10,1}, {8,3,10}, {5,3,8}, {5,2,3}, {2,7,3},	
+	{7,10,3}, {7,6,10}, {7,11,6}, {11,0,6}, {0,1,6}, 
+	{6,1,10}, {9,0,11}, {9,11,2}, {9,2,5}, {7,2,11} };
+
+void GLWidget::normalize(GLfloat *a) {
+	GLfloat d=sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]);
+	a[0]/=d; a[1]/=d; a[2]/=d;
+}
+
+void GLWidget::drawtri(GLfloat *a, GLfloat *b, GLfloat *c, int div, float r) {
+	if (div<=0) {
+		glNormal3fv(a); glVertex3f(a[0]*r, a[1]*r, a[2]*r);
+		glNormal3fv(b); glVertex3f(b[0]*r, b[1]*r, b[2]*r);
+		glNormal3fv(c); glVertex3f(c[0]*r, c[1]*r, c[2]*r);
+	} else {
+		GLfloat ab[3], ac[3], bc[3];
+		for (int i=0;i<3;i++) {
+			ab[i]=(a[i]+b[i])/2;
+			ac[i]=(a[i]+c[i])/2;
+			bc[i]=(b[i]+c[i])/2;
+		}
+		normalize(ab); normalize(ac); normalize(bc);
+		drawtri(a, ab, ac, div-1, r);
+		drawtri(b, bc, ab, div-1, r);
+		drawtri(c, ac, bc, div-1, r);
+		drawtri(ab, bc, ac, div-1, r);  //<--Comment this line and sphere looks really cool!
+	}  
+}
+
+void GLWidget::drawsphere(int ndiv, float radius=1.0) {
+	glBegin(GL_TRIANGLES);
+	for (int i=0;i<20;i++)
+		drawtri(vdata[tindices[i][0]], vdata[tindices[i][1]], vdata[tindices[i][2]], ndiv, radius);
+	glEnd();
+}
