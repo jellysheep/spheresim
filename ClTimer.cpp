@@ -67,10 +67,17 @@ ClTimer::ClTimer(){
 		//create the context
 		///context = clCreateContext(0, 1, &devices[deviceUsed], NULL, NULL, &err);
 		//context properties will be important later, for now we go with defualts
-		cl_context_properties properties[] = 
-			{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
+		try{
+			cl_context_properties properties[] = 
+				{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
+		
 
-		context = cl::Context(CL_DEVICE_TYPE_ALL, properties);
+			context = cl::Context(CL_DEVICE_TYPE_ALL, properties);
+				
+		}
+		catch (cl::Error er) {
+			printf("ERROR: %s(%s)\n", er.what(), oclErrorString(er.err()));
+		}
 		devices = context.getInfo<CL_CONTEXT_DEVICES>();
 		
 		printf("number of devices: %d\n", devices.size());
@@ -81,7 +88,7 @@ ClTimer::ClTimer(){
 			queue = cl::CommandQueue(context, devices[deviceUsed], 0, &err);
 		}
 		catch (cl::Error er) {
-			printf("ERROR: %s(%d)\n", er.what(), er.err());
+			printf("ERROR: %s(%s)\n", er.what(), oclErrorString(er.err()));
 		}
 		
 		
@@ -131,8 +138,11 @@ ClTimer::ClTimer(){
 		
 		//initialize our kernel from the program
 		try{
-			moveStep_kernel = cl::Kernel(program, "moveStep", &err);
+			moveStep_kernel = cl::Kernel(program, "moveStep2", &err);
 			randomFill_kernel = cl::Kernel(program, "randomFill", &err);
+			moveStep_addInterForces_kernel = cl::Kernel(program, "moveStep3_addInterForces", &err);
+			moveStep_addWallForces_kernel = cl::Kernel(program, "moveStep3_addWallForces", &err);
+			moveStep_updatePositions_kernel = cl::Kernel(program, "moveStep3_updatePositions", &err);
 		}
 		catch (cl::Error er) {
 			printf("ERROR: %s(%d)\n", er.what(), er.err());
@@ -156,7 +166,7 @@ ClTimer::ClTimer(){
 		//cl_mem_method = CL_MEM_USE_HOST_PTR;
 
 		printf("Creating OpenCL arrays\n");
-		//*
+		/*
 		if((cl_mem_method & CL_MEM_USE_HOST_PTR)>0){
 			cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(Circle)*circlesCount, circlesBuffer = new Circle[circlesCount], &err);
 			if(err!=CL_SUCCESS)printf("ERROR: creating circles buffer: %s\n", oclErrorString(err));
@@ -215,6 +225,18 @@ ClTimer::ClTimer(){
 		err = moveStep_kernel.setArg(4, cl_gravity);
 		err = moveStep_kernel.setArg(5, cl_timeInterval);
 		err = moveStep_kernel.setArg(6, cl_G);
+		
+		err = moveStep_addInterForces_kernel.setArg(0, cl_circles);
+		err = moveStep_addInterForces_kernel.setArg(1, cl_elastic);
+		err = moveStep_addInterForces_kernel.setArg(2, cl_G);
+		
+		err = moveStep_addWallForces_kernel.setArg(0, cl_circles);
+		err = moveStep_addWallForces_kernel.setArg(1, cl_boxSize);
+		err = moveStep_addWallForces_kernel.setArg(2, cl_elastic);
+		
+		err = moveStep_updatePositions_kernel.setArg(0, cl_circles);
+		err = moveStep_updatePositions_kernel.setArg(1, cl_gravity);
+		err = moveStep_updatePositions_kernel.setArg(2, cl_timeInterval);
 
 		//Wait for the command queue to finish these commands before proceeding
 		queue.finish();
@@ -222,7 +244,11 @@ ClTimer::ClTimer(){
 		
 		
 		printf("runKernel\n");
-		events = new cl::Event[numEvents];
+		if(useSplitKernels){
+			events = new cl::Event[numEvents*3];
+		}else{
+			events = new cl::Event[numEvents];
+		}
 		eventCounter = 0;
 		eventsFull = false;
 		//std::vector<cl::Event> event2(1);
@@ -324,7 +350,7 @@ ClTimer::ClTimer(){
 		}*/
 	}
 	catch (cl::Error er) {
-		printf("ERROR: %s(%d)\n", er.what(), er.err());
+		printf("ERROR: %s(%s)\n", er.what(), oclErrorString(er.err()));
 	}
 }
 
@@ -408,7 +434,7 @@ void ClTimer::paintGL(bool readNewFrame){
 		if(glWidget->newFrame){
 			glWidget->newFrame = false;
 			if(((bufferReadIndex+2)%renderBufferCount) == bufferWriteIndex){
-				printf("frame buffer empty: %3d | %3d\n",bufferReadIndex,bufferWriteIndex);
+				printf("frame buffer empty: %3d | %3d\r",bufferReadIndex,bufferWriteIndex);
 			}else{
 				bufferReadIndex = (bufferReadIndex+1)%renderBufferCount;
 			}
@@ -452,7 +478,11 @@ void ClTimer::paintGL(bool readNewFrame){
 	int i,k,h,j;
 	Circle c;
 	CircleExtension* ce;
-	int color = 102+(102*256)+(102*256*256);
+	#if _3D_
+		int color = 102+(102*256)+(102*256*256);
+	#else
+		int color = 30+(30*256)+(30*256*256);
+	#endif
 	//err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferReadIndex], NULL, NULL);//&event);
 	//printf("waiting for reading...\n");
 	//event.wait();
@@ -713,7 +743,14 @@ void ClTimer::run(){
 	int i = 0;
 	try{
 		while(true){
-			err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter++]); 
+			if(useSplitKernels){
+				err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount*circlesCount,1), cl::NDRange(circlesCount,1), NULL, &events[eventCounter]); 
+				err = queue.enqueueNDRangeKernel(moveStep_addWallForces_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+1]); 
+				err = queue.enqueueNDRangeKernel(moveStep_updatePositions_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+2]); 
+				eventCounter++;
+			}else{
+				err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter++]);
+			}
 			//printf("step %i\n", i++);
 			if(eventCounter>=numEvents){
 				eventCounter = 0;
@@ -723,8 +760,17 @@ void ClTimer::run(){
 				//event2.at(0)=events[eventCounter];
 				//printf(
 				//queue.enqueueWaitForEvents(event2);
-				events[eventCounter].wait();
-				events[eventCounter].~Event();
+				if(useSplitKernels){
+					events[eventCounter].wait();
+					events[eventCounter].~Event();
+					events[eventCounter+1].wait();
+					events[eventCounter+1].~Event();
+					events[eventCounter+2].wait();
+					events[eventCounter+2].~Event();
+				}else{
+					events[eventCounter].wait();
+					events[eventCounter].~Event();
+				}
 				//context.release(events[eventCounter]);
 				//queue.release(events[eventCounter]);
 			}else{
@@ -742,30 +788,32 @@ void ClTimer::run(){
 			//printf(".");
 			frameCounter++;
 			
-			//*
-			elapsedFrames++;
-			//printf("frames: (%d/%d)=%d | %d\n", (int)fps, (int)renderFps, (int)(fps/renderFps), elapsedFrames);
-			if(elapsedFrames > (int)(fps/renderFps) && glWidget != NULL){// && glWidget->drawingFinished){
-				if(bufferReadIndex == ((bufferWriteIndex+1)%renderBufferCount)){
-					printf("frame buffer full: %3d | %3d\n",bufferReadIndex,bufferWriteIndex);
-				}else{
-					err = queue.enqueueReadBuffer(cl_circles, CL_FALSE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
-					bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
+			if(renderBool){
+				//*
+				elapsedFrames++;
+				//printf("frames: (%d/%d)=%d | %d\n", (int)fps, (int)renderFps, (int)(fps/renderFps), elapsedFrames);
+				if(elapsedFrames > (int)(fps/renderFps) && glWidget != NULL){// && glWidget->drawingFinished){
+					if(bufferReadIndex == ((bufferWriteIndex+1)%renderBufferCount)){
+						printf("frame buffer full: %3d | %3d\r",bufferReadIndex,bufferWriteIndex);
+					}else{
+						err = queue.enqueueReadBuffer(cl_circles, CL_FALSE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
+						bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
+					
+					
+						elapsedFrames = 0;
+					}
+					/*
+					glWidget->drawingFinished = false;
+					//glWidget->update();
+					//QCoreApplication::processEvents();
+					emit glWidget->timeToRender();
+					//glWidget->timeToRender();
+					//glWidget->repaint();
+					// */
+				}// */
 				
-				
-					elapsedFrames = 0;
-				}
-				/*
-				glWidget->drawingFinished = false;
-				//glWidget->update();
-				//QCoreApplication::processEvents();
-				emit glWidget->timeToRender();
-				//glWidget->timeToRender();
-				//glWidget->repaint();
-				// */
-			}// */
-			
-			newFrame = true;
+				newFrame = true;
+			}
 			
 			/*
 			double r,x,y,z;

@@ -4,12 +4,15 @@ cmake_minimum_required(VERSION 2.8)
 #need to include FindOPENCL.cmake to
 SET( CMAKE_MODULE_PATH ${circles_SOURCE_DIR}/cmake)
 
+SET( CMAKE_CXX_COMPILER "ccache" )
+SET( CMAKE_CXX_COMPILER_ARG1 "g++" )
+
 message("CMake module path: ${CMAKE_MODULE_PATH}\n")
 
 FIND_PACKAGE (OPENCL)
 
 INCLUDE_DIRECTORIES( 
-	${circles_SOURCE_DIR}/../opencl12
+	${circles_SOURCE_DIR}/../opencl10
 )
 
 FIND_PACKAGE(Qt4 REQUIRED)

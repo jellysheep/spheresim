@@ -39,6 +39,10 @@ protected:
 	cl::Program program;
 	cl::Kernel moveStep_kernel;
 	cl::Kernel randomFill_kernel;
+	
+	cl::Kernel moveStep_addInterForces_kernel;
+	cl::Kernel moveStep_addWallForces_kernel;
+	cl::Kernel moveStep_updatePositions_kernel;
 
 	cl::Buffer cl_circles;
 	cl::Buffer cl_boxSize, cl_size;

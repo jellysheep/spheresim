@@ -34,7 +34,7 @@ typedef cl_double4 cl_double3;
 
 typedef struct Circle
 {
-	vector pos;
+	vector pos, oldPos;
 	vector speed;
 	vector force;
 	scalar size, mass, poisson, E;
@@ -77,6 +77,7 @@ extern bool connectTracePoints;
 extern int renderBufferCount;
 
 extern bool reflections;
+extern bool useSplitKernels;
 
 extern vector2 autoRotation;
 

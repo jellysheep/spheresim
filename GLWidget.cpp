@@ -202,7 +202,7 @@ void GLWidget::paintGL() {
 	#if _3D_
 		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
 	#endif
-	static double reflection = 0.5;
+	static double reflection = 0.9;
 	if(renderBool){
 		#if _3D_
 		if(reflections){
