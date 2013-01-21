@@ -1,11 +1,13 @@
 #ifndef _STATUSVIEWER_H_
 #define _STATUSVIEWER_H_
 
-#include <QObject>
-#include <QTimer>
+//#include <QObject>
+//#include <QTimer>
+#include <QThread>
 #include "NanosecondTimer.h"
-#include "GLWidget.h"
-#include "ClTimer.h"
+#include "Circles.h"
+class GLWidget;
+class ClTimer;
 
 class StatusViewer : public QThread, protected NanosecondTimer {
 

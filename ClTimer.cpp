@@ -11,6 +11,7 @@
 #include <string.h>
 #include <cmath>
 #include "NanosecondTimer.h"
+#include "GLWidget.h"
 
 ClTimer::ClTimer(){
 	try{
@@ -18,7 +19,7 @@ ClTimer::ClTimer(){
 		
 		printf("sizeof(Circle): %d\n", sizeof(Circle));
 		srand(20);
-		//srand(NanosecondTimer::getNS());
+		srand(NanosecondTimer::getNS());
 		
 		if(useCircleExtensions){
 			int light, lightTarget = 90, color;
@@ -69,7 +70,7 @@ ClTimer::ClTimer(){
 		//context properties will be important later, for now we go with defualts
 		try{
 			cl_context_properties properties[] = 
-				{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
+				{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[platforms.size()-1])(), 0};
 		
 
 			context = cl::Context(CL_DEVICE_TYPE_ALL, properties);
@@ -105,6 +106,7 @@ ClTimer::ClTimer(){
 		}
 		kernel_source[13] = '0'+_3D_; //define OpenCL version of _3D_
 		kernel_source[32] = '0'+_double_; //define OpenCL version of _3D_
+		if(G == 0) kernel_source[46] = '0';
 
 		//pl = kernel_source.boxSize();
 		printf("kernel boxSize: %d\n", pl);
@@ -217,6 +219,7 @@ ClTimer::ClTimer(){
 		err = randomFill_kernel.setArg(5, cl_size);
 		err = randomFill_kernel.setArg(6, cl_poisson);
 		err = randomFill_kernel.setArg(7, cl_E);
+		err = randomFill_kernel.setArg(8, cl_circlesCount);
 		
 		err = moveStep_kernel.setArg(0, cl_circles);
 		err = moveStep_kernel.setArg(1, cl_circlesCount);
@@ -268,10 +271,11 @@ ClTimer::ClTimer(){
 			c_CPU_save[1] = new Circle[readNum_save];
 		}
 			
+		long long ns = NanosecondTimer::getNS();
 		err = queue.enqueueNDRangeKernel(randomFill_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &event); 
 		if(err!=CL_SUCCESS)printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
 		queue.finish();
-		printf("kernel randomFill executed successfully!\n\n");
+		printf("kernel randomFill executed successfully!\nTime needed: %8.3f ms\n", (NanosecondTimer::getNS()-ns)/1000000.0);
 		
 		if(renderBool){
 			//c_CPU_render[0] = new Circle[readNum_render];
@@ -489,6 +493,7 @@ void ClTimer::paintGL(bool readNewFrame){
 	//printf("ready!\n");
 	//queue.finish();
 	if(useCircleExtensions && useTrace){
+		glDisable(GL_LIGHTING);
 		for(i=0; i < readNum_render; i++)
 		{
 			//printf("%4u: %5u\n", j, offset+i);
@@ -515,14 +520,14 @@ void ClTimer::paintGL(bool readNewFrame){
 				glBegin(GL_POINTS);
 			k = 0;
 			for(h = (ce->traceFull?((ce->traceCount+1)%traceCount):0); h!=ce->traceCount; h=((h+1)%traceCount)){
-				glColor4b(color/256/256,color/256%256,color%256,255*(k++)/traceCount/2);
+				glColor4b(color/256/256,color/256%256,color%256,255*pow((k++)*1.0/traceCount,0.5)/2);
 				#if _3D_
 					glVertex3d(ce->trace[h].s0, ce->trace[h].s1, ce->trace[h].s2);
 				#else
 					glVertex2d(ce->trace[h].s0, ce->trace[h].s1);
 				#endif
 			}
-			glColor4b(color/256/256,color/256%256,color%256,255*(k++)/traceCount/2);
+			glColor4b(color/256/256,color/256%256,color%256,255*pow((k++)*1.0/traceCount,0.5)/2);
 			#if _3D_
 				glVertex3d(x,y,z);
 			#else
@@ -535,6 +540,9 @@ void ClTimer::paintGL(bool readNewFrame){
 			}
 			glEnd();
 		}
+		#if _3D_
+			glEnable(GL_LIGHTING);
+		#endif
 	}
 	for(i=0; i < readNum_render; i++)
 	{
@@ -551,6 +559,7 @@ void ClTimer::paintGL(bool readNewFrame){
 		if(useCircleExtensions){
 			color = ceBuffer[i].color;
 		}
+		//color = 102+(102*256)+(102*256*256);
 		//printf("Circle (r=%3f): (%4f|%4f|%4f) (%4f|%4f|%4f) (%4f|%4f|%4f)\n",r,x,y,z,c.speed.s0,c.speed.s1,0,c.force.s0,c.force.s1,0);
 		//if(_3D_==0)
 		//{
@@ -744,7 +753,7 @@ void ClTimer::run(){
 	try{
 		while(true){
 			if(useSplitKernels){
-				err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount*circlesCount,1), cl::NDRange(circlesCount,1), NULL, &events[eventCounter]); 
+				err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(circlesCount/(circlesCount/1024+1),1), NULL, &events[eventCounter]);
 				err = queue.enqueueNDRangeKernel(moveStep_addWallForces_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+1]); 
 				err = queue.enqueueNDRangeKernel(moveStep_updatePositions_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+2]); 
 				eventCounter++;

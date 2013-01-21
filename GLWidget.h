@@ -2,7 +2,7 @@
 #define _GLWIDGET_H
 
 #include <QtOpenGL/QGLWidget>
-#include "CirclesHolder.h"
+#include "FramesCounter.h"
 #include "ClTimer.h"
 
 #include <CL/cl.hpp>
@@ -30,6 +30,7 @@ protected:
     
     void normalize(GLfloat *a);
     void drawtri(GLfloat *a, GLfloat *b, GLfloat *c, int div, float r);
+	void timeToRender2();
     
 public:
 	GLWidget(ClTimer* ct, QWidget *parent = NULL);

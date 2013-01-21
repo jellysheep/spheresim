@@ -48,19 +48,23 @@ void StatusViewer::run() {
 		}
 		printf("ClTimer:    %8.2f fps       [now: %8.2f fps]\n", lastClTimerFrames, clTimerFrames);
 		
-		if(lastClTimerFrames < minFps){
-			speedCorrection = lastClTimerFrames / minFps;
-		}else{
-			speedCorrection = 1.0;
-		}
 		if(renderBool){
 			static scalar bufferLoadTarget = 0.65;
-			double nextClTimerFrames = lastClTimerFrames*(1+
-				0.1*(pow(16,pow((frameBufferLoad>bufferLoadTarget)?
+			double nextClTimerFrames = lastClTimerFrames*(1
+				//*
+				+0.04*(pow(16,pow((frameBufferLoad>bufferLoadTarget)?
 					(1-((1-frameBufferLoad)*0.5/(1-bufferLoadTarget))):
 					(frameBufferLoad*0.5/bufferLoadTarget),2)))*
-				sign(frameBufferLoad-bufferLoadTarget));
-			printf("frameBuffer:%10.4f => ClTimer:   %8.2f fps\n", frameBufferLoad, nextClTimerFrames);
+				sign(frameBufferLoad-bufferLoadTarget) // */
+				);
+			
+			if(nextClTimerFrames < minFps){
+				speedCorrection = nextClTimerFrames / minFps;
+			}else{
+				speedCorrection = 1.0;
+			}
+			
+			printf("frameBuffer:%10.4f => ClTimer:   %8.2f fps     (speed: %8.4f => %8.2f fps)\n", frameBufferLoad, nextClTimerFrames, speed*speedCorrection, nextClTimerFrames/speed/speedCorrection);
 			//renderFps = min((int)nextClTimerFrames, renderFpsMax);
 			//glWidget->rotationTimer->setInterval(1000/renderFps);
 						

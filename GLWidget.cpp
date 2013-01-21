@@ -4,7 +4,7 @@
 #include <QTimer>
 #include <QtGui/QApplication>
 #include <cmath>
-#include "Circles.h"
+#include "ClTimer.h"
 
 GLWidget::GLWidget(ClTimer* ct, QWidget *parent) : QGLWidget(parent) {
 	//setMouseTracking(true);
@@ -69,12 +69,12 @@ void GLWidget::initializeGL() {
 	//glDisable(GL_DEPTH_TEST);
 	//glDisable(GL_COLOR_MATERIAL);
 	glEnable(GL_BLEND);
-	//~ glEnable(GL_POINT_SMOOTH);
+	glEnable(GL_POINT_SMOOTH);
 	//~ glEnable(GL_LINE_SMOOTH);
 	//~ glEnable(GL_POLYGON_SMOOTH);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(1,1,1,1);
-	glPointSize(2);
+	glPointSize(1.5);
 	glLineWidth(1);
 	
 	// Set color and depth clear value
@@ -140,6 +140,10 @@ void GLWidget::timeToRender(){
 	if(!clTimer->newFrame) return;
 	clTimer->newFrame = false;
 	
+	timeToRender2();
+}
+
+void GLWidget::timeToRender2(){
 	newFrame = true;
 	//*
 	int ms = 1;
@@ -183,13 +187,14 @@ void GLWidget::paintGL() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef(0.f, 0.f, -500.f);
+	glTranslatef(0.f, 0.f, 280.f);
 	glTranslatef(0.0, 0.0, zRot*1.0);
 
 	//glRotatef(180.0, 0.0, 1.0, 0.0);
 	glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
 	glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
 
-	scalar scale = 250.0/boxSize.s0;
+	scalar scale = 109.0/boxSize.s0;
 	#if !_3D_
 		scale*=1.5;
 	#endif
@@ -202,7 +207,7 @@ void GLWidget::paintGL() {
 	#if _3D_
 		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
 	#endif
-	static double reflection = 0.9;
+	static double reflection = 0.95;
 	if(renderBool){
 		#if _3D_
 		if(reflections){
@@ -347,7 +352,7 @@ void GLWidget::setXRotation(int angle)
     if (angle != xRot) {
         xRot = angle;
         emit xRotationChanged(angle);
-        updateGL();
+        timeToRender2();
     }
 }
 
@@ -357,7 +362,7 @@ void GLWidget::setYRotation(int angle)
     if (angle != yRot) {
         yRot = angle;
         emit yRotationChanged(angle);
-        updateGL();
+        timeToRender2();
     }
 }
 
@@ -367,7 +372,7 @@ void GLWidget::setZRotation(int angle)
     if (angle != zRot) {
         zRot = angle;
         emit zRotationChanged(angle);
-        updateGL();
+        timeToRender2();
     }
 }
  

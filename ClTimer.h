@@ -7,13 +7,10 @@
 #include <CL/cl_platform.h>
 #include "CL/cl.hpp"
 
-#include "CirclesHolder.h"
 #include "FramesCounter.h"
 #include "Circles.h"
 
 class GLWidget;
-
-#include "GLWidget.h"
 
 class ClTimer: public QThread, public FramesCounter {
 
@@ -28,8 +25,6 @@ protected:
 	void add(double d);
 	void save();
 
-	CirclesHolder* circlesHolder;
-	
 	unsigned int deviceUsed;
 	std::vector<cl::Device> devices;
 	

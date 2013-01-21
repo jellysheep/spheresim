@@ -1,5 +1,6 @@
 #define _3D_ x
 #define _double_ x
+#define _G_ 1
 #define _v_nicht_const_ 1
 #define heun 1
 #define step (5/10.0)
@@ -7,6 +8,7 @@
 
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 #pragma OPENCL EXTENSION cl_amd_fp64 : enable
+#pragma OPENCL EXTENSION cl_amd_vec3 : enable
 
 //#define reduced 0.9999999999999
 //0.9
@@ -54,6 +56,16 @@ uint GetUint(uint* m_z, uint* m_w, uint gid)
     *m_w = w;
     return (z << 16) + w;
 }
+uint gGetUint(__global uint* m_z, __global uint* m_w, uint gid)
+{
+	uint z = *m_z;
+    z = 36969 * (z & 65535) + (z >> 16);
+    *m_z = z;
+    uint w = *m_w;
+    w = 18000 * (w & 65535) + (w >> 16);
+    *m_w = w;
+    return (z << 16) + w;
+}
 
 scalar uGetUniform(uint* m_z, uint* m_w, uint gid)
 {
@@ -80,14 +92,22 @@ scalar GetUniform(uint* m_z, uint* m_w, uint gid)
 __kernel void randomFill(__global struct Circle* circle, __global uint* z, __global uint* w,
 						__global vector3* boxSize, __global scalar* max_speed,
 						__global vector* size, __global scalar* poisson,
-						__global scalar* E){
+						__global scalar* E, __global uint* num){
     int gid = get_global_id(0);
-    uint m_z_ = (*z) + gid;
-    uint m_w_ = (*w) + gid;
-    uint* m_z = &m_z_;
-    uint* m_w = &m_w_;
     vector3 s = *boxSize;
     vector s2 = *size;
+    uint m_z_ = 0;//(*z) + (gid*s.s0*1000000);
+    uint m_w_ = 0;//(*w) + (gid*s2.s0*100000000);
+    uint n = *num;
+    for(int i = 0; i<n; i++){
+		if(i == gid){
+			m_z_ = gGetUint(z,w,gid);
+			m_w_ = gGetUint(z,w,gid);
+		}
+		barrier(CLK_GLOBAL_MEM_FENCE);
+	}
+    uint* m_z = &m_z_;
+    uint* m_w = &m_w_;
 	circle[gid].size = s2.s0+((s2.s1-s2.s0)*uGetUniform(m_z, m_w, gid));
 	circle[gid].mass = 4.0/3.0*pow_(circle[gid].size,3)*M_PI  *950; //Kautschuk
 	circle[gid].poisson = *poisson;
@@ -488,8 +508,8 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 __kernel void moveStep3_addInterForces(__global struct Circle* circle, 
 						__global scalar* elastic, __global scalar* G_)
 {
-	int id = get_group_id(0);
-	int id2 = get_local_id(0);
+	int id = get_global_id(0);
+	int id2 = get_global_id(1);
 	//printf("group id: %5d local id: %5d global id: %5d\n",id,id2, get_global_id(0));
 	if(id2<=id) return;
 	
@@ -508,8 +528,10 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 	both_r = c->size + c2->size;
 	d_pos = c2->pos-c->pos;
 	
-	/*
-	if(G == 0){
+	//*
+	#if _G_==0
+	if(G == 0)
+	{
 		if(d_pos.s0>both_r||d_pos.s0<-both_r||d_pos.s1>both_r||d_pos.s1<-both_r
 			#if _3D_
 			||d_pos.s2>both_r||d_pos.s2<-both_r
@@ -517,36 +539,58 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 			){
 			return;
 		}
-	}// */
+	}
+	#endif
+	// */
 
 	//d_pos.s2 = 0;
 	d = length(d_pos);
+	d = max(d,0.00005f);
 	
-	//if(G!=0)
+	/*
+	d_n = d_pos/d;
+	force = 10000000000000000000000000.0*pow_(d,12) *d_n;
+	c->force -= force;
+	c2->force += force;
+	force = 1000000000000.0*pow_(d,6) *d_n;
+	c->force += force;
+	c2->force -= force;
+	return;*/
+	
+	#if _G_
+	if(G!=0)
 	{
-		d_n = d_pos/d; // bzw. normalize(d_pos);
+		d_n = d_pos/d;
+		 // bzw. normalize(d_pos);
 		// Gravitation:
 		force = G*c->mass*c2->mass/pow_(d,2) *d_n;
 		c->force += force;
 		c2->force -= force;
 	}
+	#endif
 	
 	// Abstossung:
 	if (d < both_r) {
-		/*
-		if(G == 0){
+		//*
+		//#if _G_==0
+		if(G == 0)
+		{
 			d_n = d_pos/d; // bzw. normalize(d_pos);
-		}// */
+		}
+		//#endif
+		// */
 		// nach Kontaktmechanik mit Poisson-Zahlen:
 		d_ = both_r - d;
+		//*
 		R = 1/((1/c->size)+(1/c2->size));
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c2->poisson*c2->poisson)/c2->E));
 		force = 4.0/3.0*E_*sqrt(R*pow_(d_,3)) *d_n;
-		if(dot(d_pos, (c->speed-c2->speed)/d)<0){ //Skalarprodukt
+		if(reduced!=1 && dot(d_pos, (c->speed-c2->speed)/d)<0){ //Skalarprodukt
 			force *= reduced;
 		}
 		c->force -= force;
 		c2->force += force;
+		// */
 	}
 }
 
