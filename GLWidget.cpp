@@ -4,9 +4,9 @@
 #include <QTimer>
 #include <QtGui/QApplication>
 #include <cmath>
-#include "ClTimer.h"
+#include "Calculator.h"
 
-GLWidget::GLWidget(ClTimer* ct, QWidget *parent) : QGLWidget(parent) {
+GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	//setMouseTracking(true);
 	clTimer = ct;
 	rotation = (vector3){0,0,0};
@@ -22,7 +22,7 @@ GLWidget::GLWidget(ClTimer* ct, QWidget *parent) : QGLWidget(parent) {
 }
 
 void GLWidget::updateTimer() {
-	if(!clTimer->newFrame) return;
+	if(!clTimer->getNewFrame()) return;
 	//printf("rotationTimer\n");
 	QGLWidget::update();
 	//printf(".\n");
@@ -137,14 +137,14 @@ void GLWidget::resizeGL(int w, int h) {
 }
 
 void GLWidget::timeToRender(){
-	if(!clTimer->newFrame) return;
-	clTimer->newFrame = false;
+	if(!clTimer->getNewFrame()) return;
+	clTimer->setNewFrame(false);
+	newFrame = true;
 	
 	timeToRender2();
 }
 
 void GLWidget::timeToRender2(){
-	newFrame = true;
 	//*
 	int ms = 1;
 	struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };

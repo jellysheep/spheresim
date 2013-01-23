@@ -23,8 +23,8 @@ INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
 
 SET(QT_USE_QTOPENGL TRUE)
 
-SET(circles_SOURCES main.cpp 	GLWidget.cpp	ClTimer.cpp 	StatusViewer.cpp	Circles.cpp	ExponentialSlider.cpp	ExponentialInput.cpp)
-SET(circles_HEADERS 			GLWidget.h		ClTimer.h 		StatusViewer.h 		Circles.h	ExponentialSlider.h		ExponentialInput.h	Ui_Control.h	NanosecondTimer.h FramesCounter.h)
+SET(circles_SOURCES main.cpp 	GLWidget.cpp	OpenClCalculator.cpp 	StatusViewer.cpp	Circles.cpp	ExponentialSlider.cpp	ExponentialInput.cpp	Ui_Control.cpp)
+SET(circles_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Circles.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	NanosecondTimer.h FramesCounter.h Calculator.h)
 
 QT4_WRAP_CPP(circles_HEADERS_MOC ${circles_HEADERS})
 

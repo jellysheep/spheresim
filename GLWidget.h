@@ -3,11 +3,12 @@
 
 #include <QtOpenGL/QGLWidget>
 #include "FramesCounter.h"
-#include "ClTimer.h"
+#include "Calculator.h"
+#include "Circles.h"
 
 #include <CL/cl.hpp>
 
-class ClTimer;
+class Calculator;
 
 class GLWidget : public QGLWidget, public FramesCounter {
 
@@ -23,7 +24,7 @@ protected:
 	int xRot,yRot,zRot;
 	vector3 rotation;
 	scalar translateZ;
-	ClTimer* clTimer;
+	Calculator* clTimer;
     QPoint lastPos;
     
     GLfloat* LightPosition;
@@ -33,7 +34,7 @@ protected:
 	void timeToRender2();
     
 public:
-	GLWidget(ClTimer* ct, QWidget *parent = NULL);
+	GLWidget(Calculator* ct, QWidget *parent = NULL);
 	QSize minimumSizeHint() const;
 	QSize sizeHint() const;
 	bool drawingFinished;

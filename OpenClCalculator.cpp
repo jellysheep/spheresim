@@ -1,5 +1,5 @@
 
-#include "ClTimer.h"
+#include "OpenClCalculator.h"
 
 #include <QtGui/QApplication>
 #include <cstdio>
@@ -13,7 +13,7 @@
 #include "NanosecondTimer.h"
 #include "GLWidget.h"
 
-ClTimer::ClTimer(){
+OpenClCalculator::OpenClCalculator(){
 	try{
 		newFrame = false;
 		
@@ -358,11 +358,11 @@ ClTimer::ClTimer(){
 	}
 }
 
-void ClTimer::set(GLWidget* w){
+void OpenClCalculator::set(GLWidget* w){
 	glWidget = w;
 }
 
-void ClTimer::fpsChanged(scalar fps){
+void OpenClCalculator::fpsChanged(scalar fps){
 	if(speed!=0 && fps!=0 && speedCorrection!=0){
 		scalar timeInterval = speed*speedCorrection/fps;
 		//printf("timeInterval: %10f\n", timeInterval);
@@ -370,7 +370,7 @@ void ClTimer::fpsChanged(scalar fps){
 	}
 }
 
-char ClTimer::hex(int i){
+char OpenClCalculator::hex(int i){
 	if(i<0 || i>15){
 		return '0';
 	}else if(i<10){
@@ -380,7 +380,7 @@ char ClTimer::hex(int i){
 	}
 }
 
-void ClTimer::add(double d){
+void OpenClCalculator::add(double d){
 	unsigned char* c = (unsigned char*)&d;
 	unsigned int x = 0;
 	for(int i = 0; i<8; i++){
@@ -388,7 +388,7 @@ void ClTimer::add(double d){
 	}
 }
 
-void ClTimer::save(){
+void OpenClCalculator::save(){
 	file = fopen("save.txt","a");
 	int j = 0;
 	int offset = 0;
@@ -416,7 +416,7 @@ void ClTimer::save(){
 	fclose(file);
 }
 
-scalar ClTimer::getFrameBufferLoad(){
+scalar OpenClCalculator::getFrameBufferLoad(){
 	int ri = bufferReadIndex, wi = bufferWriteIndex;
 	while(wi<ri){
 		wi += renderBufferCount;
@@ -426,7 +426,7 @@ scalar ClTimer::getFrameBufferLoad(){
 
 
 #define onlyOneC 0
-void ClTimer::paintGL(bool readNewFrame){
+void OpenClCalculator::paintGL(bool readNewFrame){
 	// Apply some transformations
 	//glLightfv(GL_LIGHT0, GL_POSITION, LightPosition);
 	/*
@@ -743,12 +743,12 @@ void ClTimer::paintGL(bool readNewFrame){
 	}*/
 }
 
-void start(ClTimer* clTimer){
+void start(OpenClCalculator* clTimer){
 	clTimer->run();
 }
 
-void ClTimer::run(){
-	printf("ClTimer running!\n");
+void OpenClCalculator::run(){
+	printf("OpenClCalculator running!\n");
 	int i = 0;
 	try{
 		while(true){
@@ -859,7 +859,7 @@ void ClTimer::run(){
 	}
 }
 
-char* ClTimer::file_contents(const char *filename, int *length)
+char* OpenClCalculator::file_contents(const char *filename, int *length)
 {
 	FILE *f = fopen(filename, "r");
 	void *buffer;
@@ -883,7 +883,7 @@ char* ClTimer::file_contents(const char *filename, int *length)
 
 // Helper function to get error string
 // *********************************************************************
-const char* ClTimer::oclErrorString(cl_int error)
+const char* OpenClCalculator::oclErrorString(cl_int error)
 {
 	static const char* errorString[] = {
 		"CL_SUCCESS",

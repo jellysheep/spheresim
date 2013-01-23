@@ -1,5 +1,5 @@
-#ifndef _CLTIMER_H_
-#define _CLTIMER_H_
+#ifndef _OPENCL_CALCULATOR_H_
+#define _OPENCL_CALCULATOR_H_
 
 #include <QThread>
 
@@ -7,12 +7,12 @@
 #include <CL/cl_platform.h>
 #include "CL/cl.hpp"
 
-#include "FramesCounter.h"
 #include "Circles.h"
+#include "Calculator.h"
 
 class GLWidget;
 
-class ClTimer: public QThread, public FramesCounter {
+class OpenClCalculator: protected QThread, public Calculator {
 
 	Q_OBJECT // must include this if you use Qt signals/slots
 
@@ -66,9 +66,11 @@ protected:
     long elapsedFrames;
     
     void run();
+	
+	bool newFrame;
 
 public:
-	ClTimer();
+	OpenClCalculator();
 	
 	void set(GLWidget* w);
 	
@@ -80,14 +82,24 @@ public:
     
 	void fpsChanged(scalar fps);
 
-	friend void start(ClTimer* clTimer);
+	friend void start(OpenClCalculator* clTimer);
 	
 	scalar getFrameBufferLoad();
 	
-	bool newFrame;
+	bool getNewFrame(){
+		return newFrame;
+	}
+	
+	void setNewFrame(bool b){
+		newFrame = b;
+	}
+	
+	void start(){
+		QThread::start();
+	}
 };
 
-extern void start(ClTimer* clTimer);
+extern void start(OpenClCalculator* clTimer);
 
-#endif  /* _CLTIMER_H_ */
+#endif  /* _OPENCL_CALCULATOR_H_ */
 

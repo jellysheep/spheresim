@@ -6,6 +6,7 @@
 #include <QtConcurrentRun>
 #include <QStyleFactory>
 #include <QMainWindow>
+#include <QHBoxLayout>
 #include <cstdio>
 
 #ifdef Q_WS_X11
@@ -13,7 +14,7 @@
 #endif
 
 #include "GLWidget.h"
-#include "ClTimer.h"
+#include "OpenClCalculator.h"
 #include "CirclesHolder.h"
 #include "StatusViewer.h"
 
@@ -25,8 +26,8 @@ int main(int argc, char *argv[]) {
 	
 	QApplication::setStyle(QStyleFactory::create("Plastique"));
 	
-	ClTimer* clTimer = new ClTimer();
-	printf("ClTimer initialized!\n");
+	Calculator* clTimer = new OpenClCalculator();
+	printf("Calculator initialized!\n");
 	
 	QMainWindow* win = new QMainWindow();
 	
@@ -46,7 +47,7 @@ int main(int argc, char *argv[]) {
 	printf("GLWidget initialized!\n");
 	
 	QWidget* w2 = new QWidget();
-	Ui::Control* control = new Ui::Control();
+	Control* control = new Control();
 	control->setupUi(w2);
 	layout->addWidget(w2);
 	//control->resize(600,600);
@@ -65,7 +66,7 @@ int main(int argc, char *argv[]) {
 	
 	//QFuture<void> future = QtConcurrent::run(start, clTimer);
 	clTimer->start();
-	printf("ClTimer started!\n");
+	printf("Calculator started!\n");
 	//QFuture<void> future2 = QtConcurrent::run(run, &statusViewer);
 
 	return app.exec();

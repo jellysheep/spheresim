@@ -1,12 +1,12 @@
 #include "StatusViewer.h"
 #include "GLWidget.h"
-#include "ClTimer.h"
+#include "Calculator.h"
 #include <cstdio>
 #include <cmath>
 
 #define sign(x) (((x)<0)?(-1):(1))
 
-StatusViewer::StatusViewer(GLWidget* glw, ClTimer* clt) {
+StatusViewer::StatusViewer(GLWidget* glw, Calculator* clt) {
 	/*QTimer* statusTimer = new QTimer(this);
 	statusTimer->setInterval(1000);
 	QObject::connect(statusTimer, SIGNAL(timeout()), this, SLOT(updateTimer()), Qt::QueuedConnection);
@@ -14,7 +14,7 @@ StatusViewer::StatusViewer(GLWidget* glw, ClTimer* clt) {
 	glWidget = glw;
 	clTimer = clt;
 	lastGlWidgetFrames = 0;
-	lastClTimerFrames = 0;
+	lastCalculatorFrames = 0;
 }
 
 void StatusViewer::run() {
@@ -40,17 +40,17 @@ void StatusViewer::run() {
 		//printf("frameBufferLoad:  %6.4f\n", frameBufferLoad);
 		
 		scalar clTimerFrames = clTimer->popFramesCounter() / factor;
-		if(lastClTimerFrames == 0){
-			lastClTimerFrames = clTimerFrames;
+		if(lastCalculatorFrames == 0){
+			lastCalculatorFrames = clTimerFrames;
 		}else{
-			lastClTimerFrames *= (1-f);
-			lastClTimerFrames += f*clTimerFrames;
+			lastCalculatorFrames *= (1-f);
+			lastCalculatorFrames += f*clTimerFrames;
 		}
-		printf("ClTimer:    %8.2f fps       [now: %8.2f fps]\n", lastClTimerFrames, clTimerFrames);
+		printf("Calculator:    %8.2f fps       [now: %8.2f fps]\n", lastCalculatorFrames, clTimerFrames);
 		
 		if(renderBool){
 			static scalar bufferLoadTarget = 0.65;
-			double nextClTimerFrames = lastClTimerFrames*(1
+			double nextCalculatorFrames = lastCalculatorFrames*(1
 				//*
 				+0.04*(pow(16,pow((frameBufferLoad>bufferLoadTarget)?
 					(1-((1-frameBufferLoad)*0.5/(1-bufferLoadTarget))):
@@ -58,18 +58,18 @@ void StatusViewer::run() {
 				sign(frameBufferLoad-bufferLoadTarget) // */
 				);
 			
-			if(nextClTimerFrames < minFps){
-				speedCorrection = nextClTimerFrames / minFps;
+			if(nextCalculatorFrames < minFps){
+				speedCorrection = nextCalculatorFrames / minFps;
 			}else{
 				speedCorrection = 1.0;
 			}
 			
-			printf("frameBuffer:%10.4f => ClTimer:   %8.2f fps     (speed: %8.4f => %8.2f fps)\n", frameBufferLoad, nextClTimerFrames, speed*speedCorrection, nextClTimerFrames/speed/speedCorrection);
-			//renderFps = min((int)nextClTimerFrames, renderFpsMax);
+			printf("frameBuffer:%10.4f => Calculator:   %8.2f fps     (speed: %8.4f => %8.2f fps)\n", frameBufferLoad, nextCalculatorFrames, speed*speedCorrection, nextCalculatorFrames/speed/speedCorrection);
+			//renderFps = min((int)nextCalculatorFrames, renderFpsMax);
 			//glWidget->rotationTimer->setInterval(1000/renderFps);
 						
-			fps = nextClTimerFrames;
-			clTimer->fpsChanged(nextClTimerFrames);
+			fps = nextCalculatorFrames;
+			clTimer->fpsChanged(nextCalculatorFrames);
 		}
 	}
 }

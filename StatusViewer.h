@@ -7,7 +7,7 @@
 #include "NanosecondTimer.h"
 #include "Circles.h"
 class GLWidget;
-class ClTimer;
+class Calculator;
 
 class StatusViewer : public QThread, protected NanosecondTimer {
 
@@ -15,12 +15,12 @@ class StatusViewer : public QThread, protected NanosecondTimer {
 
 protected:
 	GLWidget* glWidget;
-	ClTimer* clTimer;
-	scalar lastGlWidgetFrames, lastClTimerFrames;
+	Calculator* clTimer;
+	scalar lastGlWidgetFrames, lastCalculatorFrames;
 	const static scalar f = 0.5;
 
 public:
-	StatusViewer(GLWidget* glw, ClTimer* clt);
+	StatusViewer(GLWidget* glw, Calculator* clt);
 	
 	void run();
 

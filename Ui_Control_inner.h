@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'untitledNZ1328.ui'
+** Form generated from reading UI file 'untitledUV1697.ui'
 **
-** Created: Mon Jan 21 21:26:01 2013
+** Created: Tue Jan 22 13:22:35 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef UNTITLEDNZ1328_H
-#define UNTITLEDNZ1328_H
+#ifndef UNTITLEDUV1697_H
+#define UNTITLEDUV1697_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -21,6 +21,7 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QProgressBar>
+#include <QtGui/QPushButton>
 #include <QtGui/QSpacerItem>
 #include <QtGui/QSpinBox>
 #include <QtGui/QVBoxLayout>
@@ -66,12 +67,14 @@ public:
     QSpacerItem *verticalSpacer;
     QGroupBox *groupBox_4;
     QGridLayout *gridLayout_6;
+    QPushButton *start;
     QLabel *label_3;
     QDoubleSpinBox *render_fps;
     QLabel *label_4;
     QDoubleSpinBox *calc_fps;
     QLabel *label_7;
     QProgressBar *frame_buffer;
+    QPushButton *stop;
     QGroupBox *groupBox_2;
     QGridLayout *gridLayout_4;
     QDoubleSpinBox *radius_min;
@@ -107,8 +110,8 @@ public:
             Control->setObjectName(QString::fromUtf8("Control"));
         Control->setWindowModality(Qt::NonModal);
         Control->setEnabled(true);
-        Control->resize(447, 490);
-        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        Control->resize(431, 519);
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(1);
         sizePolicy.setVerticalStretch(1);
         sizePolicy.setHeightForWidth(Control->sizePolicy().hasHeightForWidth());
@@ -323,10 +326,15 @@ public:
         groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
         gridLayout_6 = new QGridLayout(groupBox_4);
         gridLayout_6->setObjectName(QString::fromUtf8("gridLayout_6"));
+        start = new QPushButton(groupBox_4);
+        start->setObjectName(QString::fromUtf8("start"));
+
+        gridLayout_6->addWidget(start, 0, 0, 1, 1);
+
         label_3 = new QLabel(groupBox_4);
         label_3->setObjectName(QString::fromUtf8("label_3"));
 
-        gridLayout_6->addWidget(label_3, 0, 0, 1, 1);
+        gridLayout_6->addWidget(label_3, 1, 0, 1, 1);
 
         render_fps = new QDoubleSpinBox(groupBox_4);
         render_fps->setObjectName(QString::fromUtf8("render_fps"));
@@ -336,12 +344,12 @@ public:
         render_fps->setMaximum(1e+06);
         render_fps->setSingleStep(0.01);
 
-        gridLayout_6->addWidget(render_fps, 1, 1, 1, 1);
+        gridLayout_6->addWidget(render_fps, 2, 1, 1, 1);
 
         label_4 = new QLabel(groupBox_4);
         label_4->setObjectName(QString::fromUtf8("label_4"));
 
-        gridLayout_6->addWidget(label_4, 1, 0, 1, 1);
+        gridLayout_6->addWidget(label_4, 2, 0, 1, 1);
 
         calc_fps = new QDoubleSpinBox(groupBox_4);
         calc_fps->setObjectName(QString::fromUtf8("calc_fps"));
@@ -351,18 +359,29 @@ public:
         calc_fps->setMaximum(1e+06);
         calc_fps->setSingleStep(0.01);
 
-        gridLayout_6->addWidget(calc_fps, 0, 1, 1, 1);
+        gridLayout_6->addWidget(calc_fps, 1, 1, 1, 1);
 
         label_7 = new QLabel(groupBox_4);
         label_7->setObjectName(QString::fromUtf8("label_7"));
 
-        gridLayout_6->addWidget(label_7, 2, 0, 1, 1);
+        gridLayout_6->addWidget(label_7, 3, 0, 1, 1);
 
         frame_buffer = new QProgressBar(groupBox_4);
         frame_buffer->setObjectName(QString::fromUtf8("frame_buffer"));
+        QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(frame_buffer->sizePolicy().hasHeightForWidth());
+        frame_buffer->setSizePolicy(sizePolicy1);
         frame_buffer->setValue(24);
 
-        gridLayout_6->addWidget(frame_buffer, 2, 1, 1, 1);
+        gridLayout_6->addWidget(frame_buffer, 3, 1, 1, 1);
+
+        stop = new QPushButton(groupBox_4);
+        stop->setObjectName(QString::fromUtf8("stop"));
+        stop->setEnabled(false);
+
+        gridLayout_6->addWidget(stop, 0, 1, 1, 1);
 
 
         verticalLayout_2->addWidget(groupBox_4);
@@ -592,6 +611,8 @@ public:
         label_13->setBuddy(earth_gravity);
         label_21->setBuddy(e_modul_3);
 #endif // QT_NO_SHORTCUT
+        QWidget::setTabOrder(start, stop);
+        QWidget::setTabOrder(stop, count);
         QWidget::setTabOrder(count, radius_min);
         QWidget::setTabOrder(radius_min, one_size);
         QWidget::setTabOrder(one_size, radius_max);
@@ -618,6 +639,10 @@ public:
 
         retranslateUi(Control);
         QObject::connect(one_size, SIGNAL(toggled(bool)), radius_max, SLOT(setDisabled(bool)));
+        QObject::connect(start, SIGNAL(clicked(bool)), start, SLOT(setEnabled(bool)));
+        QObject::connect(start, SIGNAL(clicked(bool)), stop, SLOT(setDisabled(bool)));
+        QObject::connect(stop, SIGNAL(clicked(bool)), stop, SLOT(setEnabled(bool)));
+        QObject::connect(stop, SIGNAL(clicked(bool)), start, SLOT(setDisabled(bool)));
 
         QMetaObject::connectSlotsByName(Control);
     } // setupUi
@@ -644,9 +669,11 @@ public:
         groupBox_6->setTitle(QApplication::translate("Control", "Calculations", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("Control", "Speed", 0, QApplication::UnicodeUTF8));
         groupBox_4->setTitle(QApplication::translate("Control", "Info", 0, QApplication::UnicodeUTF8));
+        start->setText(QApplication::translate("Control", "Start", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("Control", "Calc. FPS", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("Control", "Render FPS", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("Control", "Frame buffer", 0, QApplication::UnicodeUTF8));
+        stop->setText(QApplication::translate("Control", "Stop", 0, QApplication::UnicodeUTF8));
         groupBox_2->setTitle(QApplication::translate("Control", "Objects", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("Control", "Radius min.", 0, QApplication::UnicodeUTF8));
         one_size->setText(QApplication::translate("Control", "yes", 0, QApplication::UnicodeUTF8));
@@ -672,4 +699,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // UNTITLEDNZ1328_H
+#endif // UNTITLEDUV1697_H
