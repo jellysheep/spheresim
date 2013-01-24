@@ -88,7 +88,7 @@ extern scalar G_fact;
 extern scalar airResistance;
 extern bool wallResistance;
 
-extern bool useCircleExtensions;
+extern bool useColoursBool;
 extern bool useTrace;
 extern long traceCount;
 extern bool connectTracePoints;

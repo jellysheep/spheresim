@@ -24,7 +24,7 @@ OpenClCalculator::OpenClCalculator(){
 		srand(20);
 		srand(NanosecondTimer::getNS());
 		
-		//if(useCircleExtensions)
+		//if(useColoursBool)
 		{
 			int light, lightTarget = 90, color;
 			ceBuffer = new CircleExtension[circlesCount];
@@ -38,7 +38,7 @@ OpenClCalculator::OpenClCalculator(){
 				//light = ((color%256)+(color/256%256)+(color/256/256))/3;
 				//printf("light after:  %4d\n",light);
 				ceBuffer[i].color = color;
-				if(useCircleExtensions){
+				if(useColoursBool){
 					ceBuffer[i].trace = new vector[traceCount];
 					ceBuffer[i].traceCount = 0;
 					ceBuffer[i].traceFull = false;
@@ -372,8 +372,13 @@ void OpenClCalculator::fpsChanged(scalar fps){
 	if(speed!=0 && fps!=0 && speedCorrection!=0){
 		scalar timeInterval = speed*speedCorrection/fps;
 		//printf("timeInterval: %10f\n", timeInterval);
-		err = queue.enqueueWriteBuffer(cl_timeInterval, CL_TRUE, 0, sizeof(scalar), &timeInterval, NULL, &event);
+		err = queue.enqueueWriteBuffer(cl_timeInterval, CL_TRUE, 0, sizeof(scalar), &timeInterval, NULL, NULL);
 	}
+}
+
+void OpenClCalculator::boxSizeChanged(){
+	cl_vector3* boxSize_cl = clVector(boxSize);
+	err = queue.enqueueWriteBuffer(cl_boxSize, CL_TRUE, 0, sizeof(cl_vector3), boxSize_cl, NULL, NULL);
 }
 
 char OpenClCalculator::hex(int i){
@@ -498,7 +503,7 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 	//event.wait();
 	//printf("ready!\n");
 	//queue.finish();
-	if(useCircleExtensions && useTrace){
+	if(useTrace){
 		glDisable(GL_LIGHTING);
 		for(i=0; i < readNum_render; i++)
 		{
@@ -513,7 +518,8 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 			z = 0;
 #endif
 			ce = &ceBuffer[i];
-			color = ce->color;
+			if(useColoursBool)
+				color = ce->color;
 			ce->trace[ce->traceCount] = (vector){x,y
 #if _3D_
 				,z
@@ -562,7 +568,7 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 #else
 			z = 0;
 #endif
-		if(useCircleExtensions){
+		if(useColoursBool){
 			color = ceBuffer[i].color;
 		}
 		//color = 102+(102*256)+(102*256*256);
@@ -688,7 +694,7 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 				x = c.pos.s[0];
 				y = c.pos.s[1];
 				z = 0;
-				if(useCircleExtensions && useTrace){
+				if(useColoursBool && useTrace){
 					ce = &ceBuffer[offset+i];
 					color = ce->color;
 					ce->trace[ce->traceCount] = (float_vec){x,y};
@@ -864,6 +870,10 @@ void OpenClCalculator::run(){
 		printf("ERROR: %s (%d | %s)\n", er.what(), er.err(), oclErrorString(er.err()));
 	}
 	hasStopped = true;
+}
+
+bool OpenClCalculator::getRunning(){
+	return running||!hasStopped;
 }
 
 char* OpenClCalculator::file_contents(const char *filename, int *length)

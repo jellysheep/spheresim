@@ -25,21 +25,18 @@ void StatusViewer::run() {
 		scalar factor = getElapsedNS()/1000000000.0;
 		printf("Elapsed:    %8.2f seconds\n", factor);
 		
-		//if(glWidget!=NULL)
-		//{
-			scalar glWidgetFrames = glWidget->popFramesCounter() / factor;
-			if(lastGlWidgetFrames == 0){
-				lastGlWidgetFrames = glWidgetFrames;
-			}else{
-				lastGlWidgetFrames *= (1-f);
-				lastGlWidgetFrames += f*glWidgetFrames;
-			}
-			printf("GlWidget:   %8.2f fps       [now: %8.2f fps]\n", lastGlWidgetFrames, glWidgetFrames);
-		//}
+		scalar glWidgetFrames = glWidget->popFramesCounter() / factor;
+		if(lastGlWidgetFrames == 0){
+			lastGlWidgetFrames = glWidgetFrames;
+		}else{
+			lastGlWidgetFrames *= (1-f);
+			lastGlWidgetFrames += f*glWidgetFrames;
+		}
+		printf("GlWidget:   %8.2f fps       [now: %8.2f fps]\n", lastGlWidgetFrames, glWidgetFrames);
 		
 		scalar frameBufferLoad = clTimer->getFrameBufferLoad();
 		//printf("frameBufferLoad:  %6.4f\n", frameBufferLoad);
-		
+			
 		scalar clTimerFrames = clTimer->popFramesCounter() / factor;
 		if(lastCalculatorFrames == 0){
 			lastCalculatorFrames = clTimerFrames;
@@ -48,32 +45,34 @@ void StatusViewer::run() {
 			lastCalculatorFrames += f*clTimerFrames;
 		}
 		printf("Calculator:    %8.2f fps       [now: %8.2f fps]\n", lastCalculatorFrames, clTimerFrames);
-		
-		double nextCalculatorFrames = clTimerFrames;
-		if(renderBool){
-			static scalar bufferLoadTarget = 0.65;
-			nextCalculatorFrames = lastCalculatorFrames*(1
-				//*
-				+0.04*(pow(16,pow((frameBufferLoad>bufferLoadTarget)?
-					(1-((1-frameBufferLoad)*0.5/(1-bufferLoadTarget))):
-					(frameBufferLoad*0.5/bufferLoadTarget),2)))*
-				sign(frameBufferLoad-bufferLoadTarget) // */
-				);
 			
-			printf("frameBuffer:%10.4f => Calculator:   %8.2f fps\n", frameBufferLoad, nextCalculatorFrames);
-			//renderFps = min((int)nextCalculatorFrames, renderFpsMax);
-			//glWidget->rotationTimer->setInterval(1000/renderFps);
-		}
-		
-		if(nextCalculatorFrames < minFps){
-			speedCorrection = nextCalculatorFrames / (speed*minFps);
-		}else{
-			speedCorrection = 1.0;
-		}
+		if(clTimer->getRunning()){
+			double nextCalculatorFrames = clTimerFrames;
+			if(renderBool){
+				static scalar bufferLoadTarget = 0.65;
+				nextCalculatorFrames = lastCalculatorFrames*(1
+					//*
+					+0.04*(pow(16,pow((frameBufferLoad>bufferLoadTarget)?
+						(1-((1-frameBufferLoad)*0.5/(1-bufferLoadTarget))):
+						(frameBufferLoad*0.5/bufferLoadTarget),2)))*
+					sign(frameBufferLoad-bufferLoadTarget) // */
+					);
+				
+				printf("frameBuffer:%10.4f => Calculator:   %8.2f fps\n", frameBufferLoad, nextCalculatorFrames);
+				//renderFps = min((int)nextCalculatorFrames, renderFpsMax);
+				//glWidget->rotationTimer->setInterval(1000/renderFps);
+			}
+			
+			if(nextCalculatorFrames < minFps){
+				speedCorrection = nextCalculatorFrames / (speed*minFps);
+			}else{
+				speedCorrection = 1.0;
+			}
 
-		fps = nextCalculatorFrames;
-		clTimer->fpsChanged(nextCalculatorFrames);
-		
+			fps = nextCalculatorFrames;
+			clTimer->fpsChanged(nextCalculatorFrames);
+		}
+			
 		emit fpsChanged(glWidgetFrames, clTimerFrames, frameBufferLoad, speed*min(1.0,clTimerFrames/(speed*minFps)));
 	}
 }

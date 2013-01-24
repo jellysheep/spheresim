@@ -11,9 +11,9 @@ class StatusViewer;
 class Control : public QObject, public Ui::Control {
 	Q_OBJECT
 protected:
-	const GLWidget* glw;
-	const Calculator* cal;
-	const StatusViewer* sv;
+	GLWidget* glw;
+	Calculator* cal;
+	StatusViewer* sv;
 public:
 	Control(GLWidget* g, Calculator* c, StatusViewer* s);
 	void setupUi(QWidget* w);
@@ -25,6 +25,9 @@ public slots:
 	void useColours(bool b);
 	void showTrace(bool b);
 	void connectTrace(bool b);
+	void xBoxSize(double angle);
+	void yBoxSize(double angle);
+	void zBoxSize(double angle);
 };
 
 #endif /* _UI_CONTROL_ */

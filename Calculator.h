@@ -23,11 +23,15 @@ public:
 	virtual void setNewFrame(bool newFrame)=0;
 	
     CircleExtension* ceBuffer;
+    
+    virtual bool getRunning()=0;
 	
 public slots:
     virtual void start()=0;
     
     virtual void stop()=0;
+    
+    virtual void boxSizeChanged()=0;
 };
 
 #endif

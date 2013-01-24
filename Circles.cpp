@@ -40,7 +40,7 @@ scalar G_fact = 1;
 scalar airResistance = 0;
 bool wallResistance = true;
 
-bool useCircleExtensions = true;// && (circlesCount<=100);
+bool useColoursBool = true;// && (circlesCount<=100);
 bool useTrace = true && (!manyCircles);
 long traceCount = renderFpsMax*1/sqrt(std::max(1.0,log(circlesCount)));
 bool connectTracePoints = true;

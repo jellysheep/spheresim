@@ -31,6 +31,12 @@ void Control::setupUi(QWidget* w){
 		this, SLOT(showTrace(bool)), Qt::QueuedConnection);
 	QObject::connect(connect_trace, SIGNAL(toggled(bool)), 
 		this, SLOT(connectTrace(bool)), Qt::QueuedConnection);
+	QObject::connect(x, SIGNAL(valueChanged(double)), 
+		this, SLOT(xBoxSize(double)), Qt::QueuedConnection);
+	QObject::connect(y, SIGNAL(valueChanged(double)), 
+		this, SLOT(yBoxSize(double)), Qt::QueuedConnection);
+	QObject::connect(z, SIGNAL(valueChanged(double)), 
+		this, SLOT(zBoxSize(double)), Qt::QueuedConnection);
 	
 	calc_speed->setValue(speed);
 	count->setValue(circlesCount);
@@ -52,7 +58,7 @@ void Control::setupUi(QWidget* w){
 	poissons_ratio->setValue(poisson);
 	elasticity->setValue(elastic);
 	fps->setValue(renderFpsMax);
-	colours->setChecked(useCircleExtensions);
+	colours->setChecked(useColoursBool);
 	traces->setChecked(useTrace);
 	connect_trace->setChecked(connectTracePoints);
 	x_rot->setValue(autoRotation.s[0]);
@@ -77,8 +83,20 @@ void Control::yAutoRot(double angle){
 void Control::zAutoRot(double angle){
 	autoRotation.s[2] = angle;
 }
+void Control::xBoxSize(double angle){
+	boxSize.s[0] = angle;
+	emit cal->boxSizeChanged();
+}
+void Control::yBoxSize(double angle){
+	boxSize.s[1] = angle;
+	emit cal->boxSizeChanged();
+}
+void Control::zBoxSize(double angle){
+	boxSize.s[2] = angle;
+	emit cal->boxSizeChanged();
+}
 void Control::useColours(bool b){
-	useCircleExtensions = b;
+	useColoursBool = b;
 }
 void Control::showTrace(bool b){
 	useTrace = b;

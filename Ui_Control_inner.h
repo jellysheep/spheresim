@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'untitledq11261.ui'
+** Form generated from reading UI file 'untitledc11261.ui'
 **
-** Created: Thu Jan 24 17:30:34 2013
+** Created: Thu Jan 24 21:22:26 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef UNTITLEDQ11261_H
-#define UNTITLEDQ11261_H
+#ifndef UNTITLEDC11261_H
+#define UNTITLEDC11261_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -189,7 +189,7 @@ public:
         x_rot->setWrapping(false);
         x_rot->setAccelerated(true);
         x_rot->setDecimals(2);
-        x_rot->setMinimum(0);
+        x_rot->setMinimum(-10);
         x_rot->setMaximum(10);
         x_rot->setSingleStep(0.01);
         x_rot->setValue(0);
@@ -216,7 +216,7 @@ public:
         y_rot->setWrapping(false);
         y_rot->setAccelerated(true);
         y_rot->setDecimals(2);
-        y_rot->setMinimum(0);
+        y_rot->setMinimum(-10);
         y_rot->setMaximum(10);
         y_rot->setSingleStep(0.01);
         y_rot->setValue(0.1);
@@ -228,7 +228,7 @@ public:
         z_rot->setWrapping(false);
         z_rot->setAccelerated(true);
         z_rot->setDecimals(2);
-        z_rot->setMinimum(0);
+        z_rot->setMinimum(-10);
         z_rot->setMaximum(10);
         z_rot->setSingleStep(0.01);
         z_rot->setValue(0);
@@ -661,7 +661,11 @@ public:
         QWidget::setTabOrder(connect_trace, x_rot);
         QWidget::setTabOrder(x_rot, y_rot);
         QWidget::setTabOrder(y_rot, z_rot);
-        QWidget::setTabOrder(z_rot, calc_fps);
+        QWidget::setTabOrder(z_rot, calc_speed);
+        QWidget::setTabOrder(calc_speed, real_speed);
+        QWidget::setTabOrder(real_speed, calc_fps);
+        QWidget::setTabOrder(calc_fps, real_fps);
+        QWidget::setTabOrder(real_fps, render_fps);
 
         retranslateUi(Control);
         QObject::connect(one_size, SIGNAL(toggled(bool)), radius_max, SLOT(setDisabled(bool)));
@@ -726,4 +730,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // UNTITLEDQ11261_H
+#endif // UNTITLEDC11261_H

@@ -67,8 +67,8 @@ int main(int argc, char *argv[]) {
 	win->showMaximized();
 	
 	//QFuture<void> future = QtConcurrent::run(start, clTimer);
-	clTimer->start();
-	printf("Calculator started!\n");
+	//clTimer->start();
+	//printf("Calculator started!\n");
 	//QFuture<void> future2 = QtConcurrent::run(run, &statusViewer);
 
 	return app.exec();

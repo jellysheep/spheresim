@@ -93,6 +93,8 @@ public:
 	void setNewFrame(bool b){
 		newFrame = b;
 	}
+	
+	bool getRunning();
 
 public slots:
 	void start(){
@@ -106,6 +108,7 @@ public slots:
 			running = false;
 		while(!hasStopped);
 	}
+	void boxSizeChanged();
 };
 
 extern void start(OpenClCalculator* clTimer);
