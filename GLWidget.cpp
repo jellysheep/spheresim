@@ -51,7 +51,7 @@ void GLWidget::initializeGL() {
 	// Setup a perspective projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(50.f, 1.f*800/600*boxSize.s0/boxSize.s1, 1.f, 3000.f);
+	gluPerspective(50.f, 1.f*800/600*boxSize.s[0]/boxSize.s[1], 1.f, 3000.f);
 	
 	if(_3D_!=0){
 		glEnable(GL_LIGHTING);
@@ -60,7 +60,7 @@ void GLWidget::initializeGL() {
 	}
 	GLfloat LightAmbient[]= { 0.1f, 0.1f, 0.1f, 1.0f };
 	GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat LightPosition[]= { (float)boxSize.s0/2, (float)boxSize.s1, 0, 1.0f };
+	GLfloat LightPosition[]= { (float)boxSize.s[0]/2, (float)boxSize.s[1], 0, 1.0f };
 	glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse); 
 	glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);*/
@@ -88,7 +88,7 @@ void GLWidget::initializeGL() {
 	// Setup a perspective projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(50.f, 1.f*boxSize.s1/boxSize.s0, 1.f, 2000.f);
+	gluPerspective(50.f, 1.f*boxSize.s[1]/boxSize.s[0], 1.f, 2000.f);
 	
 	
 	#if _3D_
@@ -102,9 +102,9 @@ void GLWidget::initializeGL() {
 		GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
 		GLfloat LightSpecular[]= { 1.0f, 1.0f, 1.0f, 1.0f };
 		LightPosition = new GLfloat[4];
-		LightPosition[0] = (float)boxSize.s0/2;
-		LightPosition[1] = (float)boxSize.s1;
-		LightPosition[2] = (float)boxSize.s2/2;
+		LightPosition[0] = (float)boxSize.s[0]/2;
+		LightPosition[1] = (float)boxSize.s[1];
+		LightPosition[2] = (float)boxSize.s[2]/2;
 		LightPosition[3] = 1.0f;
 		glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse); 
@@ -124,10 +124,10 @@ void GLWidget::initializeGL() {
 
 void GLWidget::resizeGL(int w, int h) {
 	//*
-	if(boxSize.s0*h/boxSize.s1 > w){
-		glViewport(0, 0, w, boxSize.s1*w/boxSize.s0);
+	if(boxSize.s[0]*h/boxSize.s[1] > w){
+		glViewport(0, 0, w, boxSize.s[1]*w/boxSize.s[0]);
 	}else{
-		glViewport(0, 0, boxSize.s0*h/boxSize.s1, h);
+		glViewport(0, 0, boxSize.s[0]*h/boxSize.s[1], h);
 	}
 	/*glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -141,6 +141,12 @@ void GLWidget::timeToRender(){
 	clTimer->setNewFrame(false);
 	newFrame = true;
 	
+    //#if _3D_
+		xRot += autoRotation.s[0]*16.0;
+		yRot += autoRotation.s[1]*16.0;
+		zRot += autoRotation.s[2]*16.0;
+	//#endif
+	
 	timeToRender2();
 }
 
@@ -150,10 +156,6 @@ void GLWidget::timeToRender2(){
 	struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
     nanosleep(&ts, NULL);// */
     
-    #if _3D_
-		setXRotation(xRot + autoRotation.s0*16.0);
-		setYRotation(yRot + autoRotation.s1*16.0);
-	#endif
 	//glDraw();
 	update();
     //QCoreApplication::processEvents();
@@ -168,13 +170,13 @@ void GLWidget::paintGL() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	//glMatrixMode(GL_MODELVIEW);
-	//glTranslatef(-boxSize.s0/2, -boxSize.s1/2, -boxSize.s2/2);
+	//glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, -boxSize.s[2]/2);
 	//glTranslatef(0.0, 0.0, -10.0);
 	glTranslatef(0.0, 0.0, zRot/16.0);
 	//glTranslatef(0.f, 0.f, 1000.f);
-	//glRotatef(rotation.s0 / 16.0, 1.0, 0.0, 0.0);
-	//glRotatef(rotation.s1 / 16.0, 0.0, 1.0, 0.0);
-	//glRotatef(rotation.s2 / 16.0, 0.0, 0.0, 1.0);
+	//glRotatef(rotation.s[0] / 16.0, 1.0, 0.0, 0.0);
+	//glRotatef(rotation.s[1] / 16.0, 0.0, 1.0, 0.0);
+	//glRotatef(rotation.s[2] / 16.0, 0.0, 0.0, 1.0);
 	*/
 	// Clear color and depth buffer
 	if(reflections){
@@ -194,14 +196,14 @@ void GLWidget::paintGL() {
 	glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
 	glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
 
-	scalar scale = 109.0/boxSize.s0;
+	scalar scale = 109.0/boxSize.s[0];
 	#if !_3D_
 		scale*=1.5;
 	#endif
 	glScalef(scale,scale,scale);
 
 	//glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
-	glTranslatef(-boxSize.s0/2, -boxSize.s1/2, (_3D_!=0?(-boxSize.s2/2):0));
+	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (_3D_!=0?(-boxSize.s[2]/2):0));
 	
 	
 	#if _3D_
@@ -228,9 +230,9 @@ void GLWidget::paintGL() {
 			
 			glBegin(GL_QUADS);
 			glVertex3d(0,0,0);
-			glVertex3d(boxSize.s0,0,0);
-			glVertex3d(boxSize.s0,0,boxSize.s2);
-			glVertex3d(0,0,boxSize.s2);
+			glVertex3d(boxSize.s[0],0,0);
+			glVertex3d(boxSize.s[0],0,boxSize.s[2]);
+			glVertex3d(0,0,boxSize.s[2]);
 			glEnd();
 
 			/* Re-enable update of color and depth. */ 
@@ -258,9 +260,9 @@ void GLWidget::paintGL() {
 			glColor4f(1.0, 1.0, 1.0, reflection);
 			glBegin(GL_QUADS);
 			glVertex3d(0,0,0);
-			glVertex3d(boxSize.s0,0,0);
-			glVertex3d(boxSize.s0,0,boxSize.s2);
-			glVertex3d(0,0,boxSize.s2);
+			glVertex3d(boxSize.s[0],0,0);
+			glVertex3d(boxSize.s[0],0,boxSize.s[2]);
+			glVertex3d(0,0,boxSize.s[2]);
 			glEnd();
 			
 			/* Draw "bottom" of floor in blue. */
@@ -271,9 +273,9 @@ void GLWidget::paintGL() {
 			glBegin(GL_QUADS);
 				double y = -0.01;
 				glVertex3d(0,y,0);
-				glVertex3d(0,y,boxSize.s2);
-				glVertex3d(boxSize.s0,y,boxSize.s2);
-				glVertex3d(boxSize.s0,y,0);
+				glVertex3d(0,y,boxSize.s[2]);
+				glVertex3d(boxSize.s[0],y,boxSize.s[2]);
+				glVertex3d(boxSize.s[0],y,0);
 			glEnd();
 			glFrontFace(GL_CW);
 			// */
@@ -351,7 +353,6 @@ void GLWidget::setXRotation(int angle)
     qNormalizeAngle(angle);
     if (angle != xRot) {
         xRot = angle;
-        emit xRotationChanged(angle);
         timeToRender2();
     }
 }
@@ -361,7 +362,6 @@ void GLWidget::setYRotation(int angle)
     qNormalizeAngle(angle);
     if (angle != yRot) {
         yRot = angle;
-        emit yRotationChanged(angle);
         timeToRender2();
     }
 }
@@ -371,9 +371,13 @@ void GLWidget::setZRotation(int angle)
     //qNormalizeAngle(angle);
     if (angle != zRot) {
         zRot = angle;
-        emit zRotationChanged(angle);
         timeToRender2();
     }
+}
+
+void GLWidget::setRenderFps(double fps){
+	renderFps = fps;
+	rotationTimer->setInterval(1000/renderFps);
 }
  
 #define _X .525731112119133606 

@@ -15,13 +15,17 @@
 
 OpenClCalculator::OpenClCalculator(){
 	try{
+		hasStopped = true;
+		running = false;
+		
 		newFrame = false;
 		
 		printf("sizeof(Circle): %d\n", sizeof(Circle));
 		srand(20);
 		srand(NanosecondTimer::getNS());
 		
-		if(useCircleExtensions){
+		//if(useCircleExtensions)
+		{
 			int light, lightTarget = 90, color;
 			ceBuffer = new CircleExtension[circlesCount];
 			for(int i = 0; i<circlesCount; i++){
@@ -179,10 +183,12 @@ OpenClCalculator::OpenClCalculator(){
 			cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(Circle)*circlesCount, NULL, &err);
 			circlesBufferUsed = false;
 		}
+		cl_vector3* boxSize_cl = clVector(boxSize);
+		cl_vector2* size_cl = clVector(size);
 		cl_m_z = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_z, &err);
 		cl_m_w = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_w, &err);
-		cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector3), &boxSize, &err);
-		cl_size = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector), &size, &err);
+		cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_vector3), boxSize_cl, &err);
+		cl_size = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_vector2), size_cl, &err);
 		cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &max_speed, &err);
 		cl_circlesCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &circlesCount, &err);
 		cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &E, &err);
@@ -258,10 +264,10 @@ OpenClCalculator::OpenClCalculator(){
 		if(saveBool){
 			file = fopen("save.txt","w");
 			fprintf(file, "%u ", _3D_);
-			fprintf(file, "%g ", boxSize.s0);
-			fprintf(file, "%g ", boxSize.s1);
+			fprintf(file, "%g ", boxSize.s[0]);
+			fprintf(file, "%g ", boxSize.s[1]);
 			#if _3D_
-				fprintf(file, "%g ", boxSize.s2);
+				fprintf(file, "%g ", boxSize.s[2]);
 			#endif
 			fprintf(file, "%u\n", circlesCount);
 			fclose(file);
@@ -280,7 +286,7 @@ OpenClCalculator::OpenClCalculator(){
 		if(renderBool){
 			//c_CPU_render[0] = new Circle[readNum_render];
 			//c_CPU_render[1] = new Circle[readNum_render];
-			readNum_render = min(1000,circlesCount);
+			readNum_render = min(10000,circlesCount);
 			c_CPU_render = new Circle*[renderBufferCount];
 			for(int i = 0; i<renderBufferCount; i++){
 				c_CPU_render[i] = new Circle[readNum_render];
@@ -311,13 +317,13 @@ OpenClCalculator::OpenClCalculator(){
 				//printf("%4u: %5u\n", j, offset+i);
 				c = c_CPU_render[j][i];
 				r = c.size;
-				x = c.pos.s0;
-				y = c.pos.s1;
+				x = c.pos.s[0];
+				y = c.pos.s[1];
 				z = 0;
 				printf("Circle size(%3f) mass(%3f) E(%3f) ",r,c.mass,c.E);
 				printf("pos(%4f|%4f|%4f) ",x,y,z);
-				printf("speed(%4f|%4f|%4f) ",c.speed.s0,c.speed.s1,0.0);
-				printf("force(%4f|%4f|%4f)\n",c.force.s0,c.force.s1,0.0);
+				printf("speed(%4f|%4f|%4f) ",c.speed.s[0],c.speed.s[1],0.0);
+				printf("force(%4f|%4f|%4f)\n",c.force.s[0],c.force.s[1],0.0);
 			}
 		}*/
 		
@@ -343,13 +349,13 @@ OpenClCalculator::OpenClCalculator(){
 				//printf("%4u: %5u\n", j, offset+i);
 				c = c_CPU_render[j][i];
 				r = c.size;
-				x = c.pos.s0;
-				y = c.pos.s1;
+				x = c.pos.s[0];
+				y = c.pos.s[1];
 				z = 0;
 				printf("Circle size(%3f) mass(%3f) E(%3f) poisson(%3f) ",r,c.mass,c.E,c.poisson);
 				printf("pos(%4f|%4f|%4f) ",x,y,z);
-				printf("speed(%4f|%4f|%4f) ",c.speed.s0,c.speed.s1,0.0);
-				printf("force(%4f|%4f|%4f)\n",c.force.s0,c.force.s1,0.0);
+				printf("speed(%4f|%4f|%4f) ",c.speed.s[0],c.speed.s[1],0.0);
+				printf("force(%4f|%4f|%4f)\n",c.force.s[0],c.force.s[1],0.0);
 			}
 		}*/
 	}
@@ -403,12 +409,12 @@ void OpenClCalculator::save(){
 		{
 			add(c_CPU_save[j][i].size);
 			fprintf(file," ");
-			add(c_CPU_save[j][i].pos.s0);
+			add(c_CPU_save[j][i].pos.s[0]);
 			fprintf(file," ");
-			add(c_CPU_save[j][i].pos.s1);
+			add(c_CPU_save[j][i].pos.s[1]);
 			//#if _3D_
 			//	f<<" ";
-			//	add(f, c_CPU_save[j][i].pos.s2);
+			//	add(f, c_CPU_save[j][i].pos.s[2]);
 			//#endif
 			fprintf(file,"\n");
 		}
@@ -452,28 +458,28 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 	glColor3d(0.2,0.2,0.2);
 	glBegin(GL_LINE_LOOP);
 	glVertex3d(0,0,0);
-	glVertex3d(boxSize.s0,0,0);
-	glVertex3d(boxSize.s0,boxSize.s1,0);
-	glVertex3d(0,boxSize.s1,0);
+	glVertex3d(boxSize.s[0],0,0);
+	glVertex3d(boxSize.s[0],boxSize.s[1],0);
+	glVertex3d(0,boxSize.s[1],0);
 	glEnd();
 	if(_3D_!=0){
 		glColor3d(0.2,0.2,0.2);
 		glBegin(GL_LINE_LOOP);
-		glVertex3d(0,0,boxSize.s2);
-		glVertex3d(boxSize.s0,0,boxSize.s2);
-		glVertex3d(boxSize.s0,boxSize.s1,boxSize.s2);
-		glVertex3d(0,boxSize.s1,boxSize.s2);
+		glVertex3d(0,0,boxSize.s[2]);
+		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
+		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
+		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
 		glEnd();
 		glColor3d(0.2,0.2,0.2);
 		glBegin(GL_LINES);
 		glVertex3d(0,0,0);
-		glVertex3d(0,0,boxSize.s2);
-		glVertex3d(boxSize.s0,0,0);
-		glVertex3d(boxSize.s0,0,boxSize.s2);
-		glVertex3d(boxSize.s0,boxSize.s1,0);
-		glVertex3d(boxSize.s0,boxSize.s1,boxSize.s2);
-		glVertex3d(0,boxSize.s1,0);
-		glVertex3d(0,boxSize.s1,boxSize.s2);
+		glVertex3d(0,0,boxSize.s[2]);
+		glVertex3d(boxSize.s[0],0,0);
+		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
+		glVertex3d(boxSize.s[0],boxSize.s[1],0);
+		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
+		glVertex3d(0,boxSize.s[1],0);
+		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
 		glEnd();
 	}
 	
@@ -499,10 +505,10 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 			//printf("%4u: %5u\n", j, offset+i);
 			c = c_CPU_render[bufferReadIndex][i];
 			r = c.size;
-			x = c.pos.s0;
-			y = c.pos.s1;
+			x = c.pos.s[0];
+			y = c.pos.s[1];
 #if _3D_
-			z = c.pos.s2;
+			z = c.pos.s[2];
 #else
 			z = 0;
 #endif
@@ -522,9 +528,9 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 			for(h = (ce->traceFull?((ce->traceCount+1)%traceCount):0); h!=ce->traceCount; h=((h+1)%traceCount)){
 				glColor4b(color/256/256,color/256%256,color%256,255*pow((k++)*1.0/traceCount,0.5)/2);
 				#if _3D_
-					glVertex3d(ce->trace[h].s0, ce->trace[h].s1, ce->trace[h].s2);
+					glVertex3d(ce->trace[h].s[0], ce->trace[h].s[1], ce->trace[h].s[2]);
 				#else
-					glVertex2d(ce->trace[h].s0, ce->trace[h].s1);
+					glVertex2d(ce->trace[h].s[0], ce->trace[h].s[1]);
 				#endif
 			}
 			glColor4b(color/256/256,color/256%256,color%256,255*pow((k++)*1.0/traceCount,0.5)/2);
@@ -549,10 +555,10 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 		//printf("%4u: %5u\n", j, offset+i);
 		c = c_CPU_render[bufferReadIndex][i];
 		r = c.size;
-		x = c.pos.s0;
-		y = c.pos.s1;
+		x = c.pos.s[0];
+		y = c.pos.s[1];
 #if _3D_
-			z = c.pos.s2;
+			z = c.pos.s[2];
 #else
 			z = 0;
 #endif
@@ -560,7 +566,7 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 			color = ceBuffer[i].color;
 		}
 		//color = 102+(102*256)+(102*256*256);
-		//printf("Circle (r=%3f): (%4f|%4f|%4f) (%4f|%4f|%4f) (%4f|%4f|%4f)\n",r,x,y,z,c.speed.s0,c.speed.s1,0,c.force.s0,c.force.s1,0);
+		//printf("Circle (r=%3f): (%4f|%4f|%4f) (%4f|%4f|%4f) (%4f|%4f|%4f)\n",r,x,y,z,c.speed.s[0],c.speed.s[1],0,c.force.s[0],c.force.s[1],0);
 		//if(_3D_==0)
 		//{
 		#if !_3D_
@@ -620,12 +626,12 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 		{
 			//printf("%4u: %5u\n", j, offset+i);
 			r = circlesBuffer[i].size;
-			x = circlesBuffer[i].pos.s0;
-			y = circlesBuffer[i].pos.s1;
-			z = boxSize.s2;
+			x = circlesBuffer[i].pos.s[0];
+			y = circlesBuffer[i].pos.s[1];
+			z = boxSize.s[2];
 			//printf("Circle (r=%3f): (%4.2f|%4.2f|%4.2f)\n",r,x,y,z);
 			if(_3D_!=0){
-				//z = circlesBuffer[i].pos.s2;
+				//z = circlesBuffer[i].pos.s[2];
 			}
 			if(_3D_==0){
 				glBegin(GL_TRIANGLE_FAN);
@@ -679,8 +685,8 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 				//printf("%4u: %5u\n", j, offset+i);
 				c = c_CPU_render[j][i];
 				r = c.size;
-				x = c.pos.s0;
-				y = c.pos.s1;
+				x = c.pos.s[0];
+				y = c.pos.s[1];
 				z = 0;
 				if(useCircleExtensions && useTrace){
 					ce = &ceBuffer[offset+i];
@@ -691,7 +697,7 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 					k = 0;
 					for(int h = (ce->traceFull?((ce->traceCount+1)%traceCount):0); h!=ce->traceCount; h=((h+1)%traceCount)){
 						glColor4b(color/256/256,color/256%256,color%256,255*(k++)/traceCount/2);
-						glVertex2f(ce->trace[h].s0, ce->trace[h].s1);
+						glVertex2f(ce->trace[h].s[0], ce->trace[h].s[1]);
 					}
 					glColor4b(color/256/256,color/256%256,color%256,255*(k++)/traceCount/2);
 					glVertex2f(x,y);
@@ -702,9 +708,9 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 					}
 					glEnd();
 				}
-				//printf("Circle (r=%3f): (%4f|%4f|%4f) (%4f|%4f|%4f) (%4f|%4f|%4f)\n",r,x,y,z,c.speed.s0,c.speed.s1,0,c.force.s0,c.force.s1,0);
+				//printf("Circle (r=%3f): (%4f|%4f|%4f) (%4f|%4f|%4f) (%4f|%4f|%4f)\n",r,x,y,z,c.speed.s[0],c.speed.s[1],0,c.force.s[0],c.force.s[1],0);
 				if(_3D_!=0){
-					//z = c_CPU_render[j][i].pos.s2;
+					//z = c_CPU_render[j][i].pos.s[2];
 				}
 				if(_3D_==0){
 					glBegin(GL_TRIANGLE_FAN);
@@ -751,7 +757,7 @@ void OpenClCalculator::run(){
 	printf("OpenClCalculator running!\n");
 	int i = 0;
 	try{
-		while(true){
+		while(running){
 			if(useSplitKernels){
 				err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(circlesCount/(circlesCount/1024+1),1), NULL, &events[eventCounter]);
 				err = queue.enqueueNDRangeKernel(moveStep_addWallForces_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+1]); 
@@ -843,13 +849,13 @@ void OpenClCalculator::run(){
 					//printf("%4u: %5u\n", j, offset+i);
 					c = c_CPU_render[j][i];
 					r = c.size;
-					x = c.pos.s0;
-					y = c.pos.s1;
+					x = c.pos.s[0];
+					y = c.pos.s[1];
 					z = 0;
 					printf("Circle size(%3f) mass(%3f) E(%3f) ",r,c.mass,c.E);
 					printf("pos(%4f|%4f|%4f) ",x,y,z);
-					printf("speed(%4f|%4f|%4f) ",c.speed.s0,c.speed.s1,0.0);
-					printf("force(%4f|%4f|%4f)\n",c.force.s0,c.force.s1,0.0);
+					printf("speed(%4f|%4f|%4f) ",c.speed.s[0],c.speed.s[1],0.0);
+					printf("force(%4f|%4f|%4f)\n",c.force.s[0],c.force.s[1],0.0);
 				}
 			}*/
 		}
@@ -857,6 +863,7 @@ void OpenClCalculator::run(){
 	catch (cl::Error er) {
 		printf("ERROR: %s (%d | %s)\n", er.what(), er.err(), oclErrorString(er.err()));
 	}
+	hasStopped = true;
 }
 
 char* OpenClCalculator::file_contents(const char *filename, int *length)

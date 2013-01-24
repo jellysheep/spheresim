@@ -3,7 +3,7 @@
 #define _G_ 1
 #define _v_nicht_const_ 1
 #define heun 1
-#define step (5/10.0)
+#define step (5.0f/10.0f)
 // Heun-Verfahren / Halbschritt-Verfahren
 
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
@@ -147,7 +147,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 	
 	struct Circle c = circle[id];
 	#if heun
-		c.pos += c.speed*(delta_t*step) + c.force/c.mass*(delta_t*step*delta_t*step)/2.0;
+		c.pos += c.speed*(delta_t*step) + c.force/c.mass*(delta_t*step*delta_t*step)/2.0f;
 	#endif
     
     vector d_pos, d_n;
@@ -157,7 +157,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 	for(int i = n-1; i>id; i--){
 		c2 = circle[i];
 		#if heun
-			c2.pos += c2.speed*(delta_t*step) + c2.force/c2.mass*(delta_t*step*delta_t*step)/2.0;
+			c2.pos += c2.speed*(delta_t*step) + c2.force/c2.mass*(delta_t*step*delta_t*step)/2.0f;
 		#endif
 		
 		//#define c2 circle[i]
@@ -199,7 +199,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 			d_ = both_r - d;
 			R = 1/((1/c.size)+(1/c2.size));
 			E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c2.poisson*c2.poisson)/c2.E));
-			force = 4.0/3.0*E_*sqrt(R*pow_(d_,3)) *d_n;
+			force = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3)) *d_n;
 			if(dot(d_pos, (c.speed-c2.speed)/d)<0){ //Skalarprodukt
 				force *= reduced;
 			}
@@ -233,14 +233,14 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 	}// */
     
     //*
-    scalar htw_d_d, fact = 1.0;
+    scalar htw_d_d, fact = 1.0f;
     if ((htw_d_d = (c.size - c.pos.s0))>0) {
 		//c.speed.s0 = fabs(c.speed.s0);
 		if(c.speed.s0 > 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c.size;
 		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s0 += force_*fact;
 		//circle[id].force.s0 += c.size*htw_d_d*c.E*fact;
 	}else if ((htw_d_d = (c.size + c.pos.s0 - s.s0))>0) {
@@ -249,18 +249,18 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 		d_ = htw_d_d;
 		R = c.size;
 		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s0 -= force_*fact;
 		//circle[id].force.s0 -= c.size*htw_d_d*c.E*fact;
 	}
-	fact = 1.0;
+	fact = 1.0f;
     if ((htw_d_d = (c.size - c.pos.s1))>0) {
 		//c.speed.s1 = fabs(c.speed.s1);
 		if(c.speed.s1 > 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c.size;
 		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s1 += force_*fact;
 		//circle[id].force.s1 += c.size*htw_d_d*c.E*fact;
 	}else if ((htw_d_d = (c.size + c.pos.s1 - s.s1))>0) {
@@ -269,18 +269,18 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 		d_ = htw_d_d;
 		R = c.size;
 		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s1 -= force_*fact;
 		//circle[id].force.s1 -= c.size*htw_d_d*c.E*fact;
 	}
 #if _3D_
-	fact = 1.0;
+	fact = 1.0f;
     if ((htw_d_d = (c.size - c.pos.s2))>0) {
 		if(c.speed.s2 > 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c.size;
 		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s2 += force_*fact;
 		//circle[id].force.s2 += c.size*htw_d_d*c.E*fact;
 	}else if ((htw_d_d = (c.size + c.pos.s2 - s.s2))>0) {
@@ -288,7 +288,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 		d_ = htw_d_d;
 		R = c.size;
 		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s2 -= force_*fact;
 		//circle[id].force.s2 -= c.size*htw_d_d*c.E*fact;
 	}
@@ -314,7 +314,7 @@ __kernel void moveStep(__global struct Circle* circle, __global int* num,
 	
     circle[id].pos += c.speed*delta_t;
     #if _v_nicht_const_
-		circle[id].pos += acceleration*(delta_t*delta_t)/2.0;
+		circle[id].pos += acceleration*(delta_t*delta_t)/2.0f;
 	#endif
     circle[id].speed += acceleration*delta_t;
     circle[id].force -= force;
@@ -332,7 +332,7 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 	
 	__global struct Circle* c = &circle[id];
 	#if heun
-		pos = c->pos + c->speed*(delta_t*step) + c->force/c->mass*(delta_t*step*delta_t*step)/2.0;
+		pos = c->pos + c->speed*(delta_t*step) + c->force/c->mass*(delta_t*step*delta_t*step)/2.0f;
 	#endif
     
     vector d_pos, d_n;
@@ -342,7 +342,7 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 	for(int i = n-1; i>id; i--){
 		c2 = &circle[i];
 		#if heun
-			pos2 = c2->pos + c2->speed*(delta_t*step) + c2->force/c2->mass*(delta_t*step*delta_t*step)/2.0;
+			pos2 = c2->pos + c2->speed*(delta_t*step) + c2->force/c2->mass*(delta_t*step*delta_t*step)/2.0f;
 		#endif
 		
 		//#define c2 circle[i]
@@ -384,7 +384,7 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 			d_ = both_r - d;
 			R = 1/((1/c->size)+(1/c2->size));
 			E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c2->poisson*c2->poisson)/c2->E));
-			force = 4.0/3.0*E_*sqrt(R*pow_(d_,3)) *d_n;
+			force = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3)) *d_n;
 			if(dot(d_pos, (c->speed-c2->speed)/d)<0){ //Skalarprodukt
 				force *= reduced;
 			}
@@ -418,14 +418,14 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 	}// */
     
     //*
-    scalar htw_d_d, fact = 1.0;
+    scalar htw_d_d, fact = 1.0f;
     if ((htw_d_d = (c->size - pos.s0))>0) {
 		//c->speed.s0 = fabs(c->speed.s0);
 		if(c->speed.s0 > 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s0 += force_*fact;
 		//circle[id].force.s0 += c->size*htw_d_d*c->E*fact;
 	}else if ((htw_d_d = (c->size + pos.s0 - s.s0))>0) {
@@ -434,18 +434,18 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s0 -= force_*fact;
 		//circle[id].force.s0 -= c->size*htw_d_d*c->E*fact;
 	}
-	fact = 1.0;
+	fact = 1.0f;
     if ((htw_d_d = (c->size - pos.s1))>0) {
 		//c->speed.s1 = fabs(c->speed.s1);
 		if(c->speed.s1 > 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s1 += force_*fact;
 		//circle[id].force.s1 += c->size*htw_d_d*c->E*fact;
 	}else if ((htw_d_d = (c->size + pos.s1 - s.s1))>0) {
@@ -454,18 +454,18 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s1 -= force_*fact;
 		//circle[id].force.s1 -= c->size*htw_d_d*c->E*fact;
 	}
 #if _3D_
-	fact = 1.0;
+	fact = 1.0f;
     if ((htw_d_d = (c->size - pos.s2))>0) {
 		if(c->speed.s2 > 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s2 += force_*fact;
 		//circle[id].force.s2 += c->size*htw_d_d*c->E*fact;
 	}else if ((htw_d_d = (c->size + pos.s2 - s.s2))>0) {
@@ -473,7 +473,7 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s2 -= force_*fact;
 		//circle[id].force.s2 -= c->size*htw_d_d*c->E*fact;
 	}
@@ -499,7 +499,7 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 	
     c->pos += c->speed*delta_t;
     #if _v_nicht_const_
-		c->pos += acceleration*(delta_t*delta_t)/2.0;
+		c->pos += acceleration*(delta_t*delta_t)/2.0f;
 	#endif
 	c->speed += acceleration*delta_t;
     c->force -= force;
@@ -584,7 +584,7 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 		//*
 		R = 1/((1/c->size)+(1/c2->size));
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c2->poisson*c2->poisson)/c2->E));
-		force = 4.0/3.0*E_*sqrt(R*pow_(d_,3)) *d_n;
+		force = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3)) *d_n;
 		if(reduced!=1 && dot(d_pos, (c->speed-c2->speed)/d)<0){ //Skalarprodukt
 			force *= reduced;
 		}
@@ -613,14 +613,14 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 	scalar d_, R, E_, force_;
     
     //*
-    scalar htw_d_d, fact = 1.0;
+    scalar htw_d_d, fact = 1.0f;
     if ((htw_d_d = (c->size - c->pos.s0))>0) {
 		//c->speed.s0 = fabs(c->speed.s0);
 		if(c->speed.s0 > 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s0 += force_*fact;
 		//circle[id].force.s0 += c->size*htw_d_d*c->E*fact;
 	}else if ((htw_d_d = (c->size + c->pos.s0 - s.s0))>0) {
@@ -629,18 +629,18 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s0 -= force_*fact;
 		//circle[id].force.s0 -= c->size*htw_d_d*c->E*fact;
 	}
-	fact = 1.0;
+	fact = 1.0f;
     if ((htw_d_d = (c->size - c->pos.s1))>0) {
 		//c->speed.s1 = fabs(c->speed.s1);
 		if(c->speed.s1 > 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s1 += force_*fact;
 		//circle[id].force.s1 += c->size*htw_d_d*c->E*fact;
 	}else if ((htw_d_d = (c->size + c->pos.s1 - s.s1))>0) {
@@ -649,18 +649,18 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s1 -= force_*fact;
 		//circle[id].force.s1 -= c->size*htw_d_d*c->E*fact;
 	}
 #if _3D_
-	fact = 1.0;
+	fact = 1.0f;
     if ((htw_d_d = (c->size - c->pos.s2))>0) {
 		if(c->speed.s2 > 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s2 += force_*fact;
 		//circle[id].force.s2 += c->size*htw_d_d*c->E*fact;
 	}else if ((htw_d_d = (c->size + c->pos.s2 - s.s2))>0) {
@@ -668,7 +668,7 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
-		force_ = 4.0/3.0*E_*sqrt(R*pow_(d_,3));
+		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
 		circle[id].force.s2 -= force_*fact;
 		//circle[id].force.s2 -= c->size*htw_d_d*c->E*fact;
 	}
@@ -711,14 +711,14 @@ __kernel void moveStep3_updatePositions(__global struct Circle* circle,
     c->pos += c->speed*delta_t;
     
     #if _v_nicht_const_
-		c->pos += acceleration*(delta_t*delta_t)/2.0;
+		c->pos += acceleration*(delta_t*delta_t)/2.0f;
 	#endif
 	c->speed += acceleration*delta_t;
     c->force -= force;
     
 	#if heun
 		c->oldPos = c->pos;
-		c->pos += c->speed*(delta_t*step) + c->force/c->mass*(delta_t*step*delta_t*step)/2.0;
+		c->pos += c->speed*(delta_t*step) + c->force/c->mass*(delta_t*step*delta_t*step)/2.0f;
 	#endif
 }
 

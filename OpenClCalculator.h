@@ -12,7 +12,7 @@
 
 class GLWidget;
 
-class OpenClCalculator: protected QThread, public Calculator {
+class OpenClCalculator: public Calculator {
 
 	Q_OBJECT // must include this if you use Qt signals/slots
 
@@ -61,13 +61,13 @@ protected:
     Circle* c_CPU_save[2];
     Circle* circlesBuffer;
     bool circlesBufferUsed;
-    CircleExtension* ceBuffer;
     
     long elapsedFrames;
     
     void run();
 	
 	bool newFrame;
+	bool running, hasStopped;
 
 public:
 	OpenClCalculator();
@@ -93,9 +93,18 @@ public:
 	void setNewFrame(bool b){
 		newFrame = b;
 	}
-	
+
+public slots:
 	void start(){
+		if(running || !hasStopped) return;
+		running = true;
+		hasStopped = false;
 		QThread::start();
+	}
+	void stop(){
+		if(running)
+			running = false;
+		while(!hasStopped);
 	}
 };
 

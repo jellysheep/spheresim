@@ -8,6 +8,7 @@
 #include "Circles.h"
 class GLWidget;
 class Calculator;
+class Control;
 
 class StatusViewer : public QThread, protected NanosecondTimer {
 
@@ -16,6 +17,7 @@ class StatusViewer : public QThread, protected NanosecondTimer {
 protected:
 	GLWidget* glWidget;
 	Calculator* clTimer;
+	Control* ctl;
 	scalar lastGlWidgetFrames, lastCalculatorFrames;
 	const static scalar f = 0.5;
 
@@ -23,6 +25,9 @@ public:
 	StatusViewer(GLWidget* glw, Calculator* clt);
 	
 	void run();
+
+signals:
+	void fpsChanged(scalar glFps, scalar calFps, scalar fbLoad, scalar realSpeed);
 
 };
 

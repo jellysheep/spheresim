@@ -1,5 +1,95 @@
 #include "Ui_Control.h"
+#include "Circles.h"
+#include "Calculator.h"
 
-Control::Control(){
+#define cc (const QObject*)
+//const-cast
+
+Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):glw(g),cal(c),sv(s){
+}
+
+void Control::setupUi(QWidget* w){
+	Ui::Control::setupUi(w);
 	
+	QObject::connect((const QObject*)sv, SIGNAL(fpsChanged(scalar,scalar,scalar,scalar)), 
+		this, SLOT(fpsChanged(scalar,scalar,scalar,scalar)), Qt::QueuedConnection);
+	QObject::connect(x_rot, SIGNAL(valueChanged(double)), 
+		this, SLOT(xAutoRot(double)), Qt::QueuedConnection);
+	QObject::connect(y_rot, SIGNAL(valueChanged(double)), 
+		this, SLOT(yAutoRot(double)), Qt::QueuedConnection);
+	QObject::connect(z_rot, SIGNAL(valueChanged(double)), 
+		this, SLOT(zAutoRot(double)), Qt::QueuedConnection);
+	QObject::connect(start, SIGNAL(clicked()), 
+		cc cal, SLOT(start()), Qt::QueuedConnection);
+	QObject::connect(stop, SIGNAL(clicked()), 
+		cc cal, SLOT(stop()), Qt::QueuedConnection);
+	QObject::connect(fps, SIGNAL(valueChanged(double)), 
+		cc glw, SLOT(setRenderFps(double)), Qt::QueuedConnection);
+	QObject::connect(colours, SIGNAL(toggled(bool)), 
+		this, SLOT(useColours(bool)), Qt::QueuedConnection);
+	QObject::connect(traces, SIGNAL(toggled(bool)), 
+		this, SLOT(showTrace(bool)), Qt::QueuedConnection);
+	QObject::connect(connect_trace, SIGNAL(toggled(bool)), 
+		this, SLOT(connectTrace(bool)), Qt::QueuedConnection);
+	
+	calc_speed->setValue(speed);
+	count->setValue(circlesCount);
+	radius_min->setValue(size.s[0]);
+	radius_max->setValue(size.s[1]);
+	if(size.s[0] == size.s[1]){
+		one_size->setChecked(true);
+	}else{
+		one_size->setChecked(false);
+	}
+	x->setValue(boxSize.s[0]);
+	y->setValue(boxSize.s[1]);
+	z->setValue(boxSize.s[2]);
+	earth_gravity->setValue(gravity);
+	inter_gravity->setValue(G_fact);
+	air_resistance->setValue(airResistance);
+	wall_resistance->setChecked(wallResistance);
+	e_modul->setValue(E);
+	poissons_ratio->setValue(poisson);
+	elasticity->setValue(elastic);
+	fps->setValue(renderFpsMax);
+	colours->setChecked(useCircleExtensions);
+	traces->setChecked(useTrace);
+	connect_trace->setChecked(connectTracePoints);
+	x_rot->setValue(autoRotation.s[0]);
+	y_rot->setValue(autoRotation.s[1]);
+	z_rot->setValue(autoRotation.s[2]);
+}
+
+void Control::fpsChanged(scalar glFps, scalar calFps, scalar fbLoad, scalar realSpeed){
+	render_fps->setValue(glFps);
+	calc_fps->setValue(calFps);
+	frame_buffer->setValue(fbLoad*100);
+	real_speed->setValue(realSpeed);
+	real_fps->setValue(calFps/realSpeed);
+}
+
+void Control::xAutoRot(double angle){
+	autoRotation.s[0] = angle;
+}
+void Control::yAutoRot(double angle){
+	autoRotation.s[1] = angle;
+}
+void Control::zAutoRot(double angle){
+	autoRotation.s[2] = angle;
+}
+void Control::useColours(bool b){
+	useCircleExtensions = b;
+}
+void Control::showTrace(bool b){
+	useTrace = b;
+	if(b == false){
+		if(cal!=NULL && cal->ceBuffer!=NULL)
+			for(int i = 0; i<circlesCount; i++){
+				cal->ceBuffer[i].traceFull = false;
+				cal->ceBuffer[i].traceCount = 0;
+			}
+	}
+}
+void Control::connectTrace(bool b){
+	connectTracePoints = b;
 }

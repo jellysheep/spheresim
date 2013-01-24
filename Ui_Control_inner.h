@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'untitledUV1697.ui'
+** Form generated from reading UI file 'untitledq11261.ui'
 **
-** Created: Tue Jan 22 13:22:35 2013
+** Created: Thu Jan 24 17:30:34 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef UNTITLEDUV1697_H
-#define UNTITLEDUV1697_H
+#ifndef UNTITLEDQ11261_H
+#define UNTITLEDQ11261_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -60,21 +60,23 @@ public:
     QLabel *label_24;
     QCheckBox *connect_trace;
     QVBoxLayout *verticalLayout_2;
-    QGroupBox *groupBox_6;
-    QGridLayout *gridLayout_8;
-    QLabel *label_2;
-    QDoubleSpinBox *speed;
     QSpacerItem *verticalSpacer;
     QGroupBox *groupBox_4;
     QGridLayout *gridLayout_6;
+    QLabel *label_9;
     QPushButton *start;
     QLabel *label_3;
-    QDoubleSpinBox *render_fps;
-    QLabel *label_4;
     QDoubleSpinBox *calc_fps;
-    QLabel *label_7;
-    QProgressBar *frame_buffer;
     QPushButton *stop;
+    QDoubleSpinBox *real_fps;
+    QDoubleSpinBox *calc_speed;
+    QProgressBar *frame_buffer;
+    QLabel *label_2;
+    QLabel *label_7;
+    QLabel *label_4;
+    QDoubleSpinBox *render_fps;
+    QLabel *label_8;
+    QDoubleSpinBox *real_speed;
     QGroupBox *groupBox_2;
     QGridLayout *gridLayout_4;
     QDoubleSpinBox *radius_min;
@@ -99,9 +101,9 @@ public:
     QLabel *label_13;
     QDoubleSpinBox *e_modul;
     QDoubleSpinBox *air_resistance;
-    QDoubleSpinBox *e_modul_2;
+    QDoubleSpinBox *poissons_ratio;
     QLabel *label_21;
-    QDoubleSpinBox *e_modul_3;
+    QDoubleSpinBox *elasticity;
     QSpacerItem *verticalSpacer_2;
 
     void setupUi(QWidget *Control)
@@ -110,7 +112,7 @@ public:
             Control->setObjectName(QString::fromUtf8("Control"));
         Control->setWindowModality(Qt::NonModal);
         Control->setEnabled(true);
-        Control->resize(431, 519);
+        Control->resize(431, 527);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(1);
         sizePolicy.setVerticalStretch(1);
@@ -190,7 +192,7 @@ public:
         x_rot->setMinimum(0);
         x_rot->setMaximum(10);
         x_rot->setSingleStep(0.01);
-        x_rot->setValue(0.1);
+        x_rot->setValue(0);
 
         gridLayout_9->addWidget(x_rot, 0, 1, 1, 1);
 
@@ -229,7 +231,7 @@ public:
         z_rot->setMinimum(0);
         z_rot->setMaximum(10);
         z_rot->setSingleStep(0.01);
-        z_rot->setValue(0.1);
+        z_rot->setValue(0);
 
         gridLayout_9->addWidget(z_rot, 3, 1, 1, 1);
 
@@ -294,30 +296,6 @@ public:
 
         verticalLayout_2 = new QVBoxLayout();
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        groupBox_6 = new QGroupBox(Control);
-        groupBox_6->setObjectName(QString::fromUtf8("groupBox_6"));
-        gridLayout_8 = new QGridLayout(groupBox_6);
-        gridLayout_8->setObjectName(QString::fromUtf8("gridLayout_8"));
-        label_2 = new QLabel(groupBox_6);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
-
-        gridLayout_8->addWidget(label_2, 0, 0, 1, 1);
-
-        speed = new QDoubleSpinBox(groupBox_6);
-        speed->setObjectName(QString::fromUtf8("speed"));
-        speed->setWrapping(false);
-        speed->setAccelerated(true);
-        speed->setDecimals(2);
-        speed->setMinimum(0.01);
-        speed->setMaximum(100);
-        speed->setSingleStep(0.1);
-        speed->setValue(0.1);
-
-        gridLayout_8->addWidget(speed, 0, 1, 1, 1);
-
-
-        verticalLayout_2->addWidget(groupBox_6);
-
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout_2->addItem(verticalSpacer);
@@ -326,6 +304,11 @@ public:
         groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
         gridLayout_6 = new QGridLayout(groupBox_4);
         gridLayout_6->setObjectName(QString::fromUtf8("gridLayout_6"));
+        label_9 = new QLabel(groupBox_4);
+        label_9->setObjectName(QString::fromUtf8("label_9"));
+
+        gridLayout_6->addWidget(label_9, 6, 0, 1, 1);
+
         start = new QPushButton(groupBox_4);
         start->setObjectName(QString::fromUtf8("start"));
 
@@ -334,22 +317,7 @@ public:
         label_3 = new QLabel(groupBox_4);
         label_3->setObjectName(QString::fromUtf8("label_3"));
 
-        gridLayout_6->addWidget(label_3, 1, 0, 1, 1);
-
-        render_fps = new QDoubleSpinBox(groupBox_4);
-        render_fps->setObjectName(QString::fromUtf8("render_fps"));
-        render_fps->setFrame(true);
-        render_fps->setReadOnly(true);
-        render_fps->setButtonSymbols(QAbstractSpinBox::NoButtons);
-        render_fps->setMaximum(1e+06);
-        render_fps->setSingleStep(0.01);
-
-        gridLayout_6->addWidget(render_fps, 2, 1, 1, 1);
-
-        label_4 = new QLabel(groupBox_4);
-        label_4->setObjectName(QString::fromUtf8("label_4"));
-
-        gridLayout_6->addWidget(label_4, 2, 0, 1, 1);
+        gridLayout_6->addWidget(label_3, 5, 0, 1, 1);
 
         calc_fps = new QDoubleSpinBox(groupBox_4);
         calc_fps->setObjectName(QString::fromUtf8("calc_fps"));
@@ -359,12 +327,35 @@ public:
         calc_fps->setMaximum(1e+06);
         calc_fps->setSingleStep(0.01);
 
-        gridLayout_6->addWidget(calc_fps, 1, 1, 1, 1);
+        gridLayout_6->addWidget(calc_fps, 5, 1, 1, 1);
 
-        label_7 = new QLabel(groupBox_4);
-        label_7->setObjectName(QString::fromUtf8("label_7"));
+        stop = new QPushButton(groupBox_4);
+        stop->setObjectName(QString::fromUtf8("stop"));
+        stop->setEnabled(false);
 
-        gridLayout_6->addWidget(label_7, 3, 0, 1, 1);
+        gridLayout_6->addWidget(stop, 0, 1, 1, 1);
+
+        real_fps = new QDoubleSpinBox(groupBox_4);
+        real_fps->setObjectName(QString::fromUtf8("real_fps"));
+        real_fps->setFrame(true);
+        real_fps->setReadOnly(true);
+        real_fps->setButtonSymbols(QAbstractSpinBox::NoButtons);
+        real_fps->setMaximum(1e+06);
+        real_fps->setSingleStep(0.01);
+
+        gridLayout_6->addWidget(real_fps, 6, 1, 1, 1);
+
+        calc_speed = new QDoubleSpinBox(groupBox_4);
+        calc_speed->setObjectName(QString::fromUtf8("calc_speed"));
+        calc_speed->setWrapping(false);
+        calc_speed->setAccelerated(true);
+        calc_speed->setDecimals(2);
+        calc_speed->setMinimum(0.01);
+        calc_speed->setMaximum(100);
+        calc_speed->setSingleStep(0.1);
+        calc_speed->setValue(0.1);
+
+        gridLayout_6->addWidget(calc_speed, 2, 1, 1, 1);
 
         frame_buffer = new QProgressBar(groupBox_4);
         frame_buffer->setObjectName(QString::fromUtf8("frame_buffer"));
@@ -375,13 +366,47 @@ public:
         frame_buffer->setSizePolicy(sizePolicy1);
         frame_buffer->setValue(24);
 
-        gridLayout_6->addWidget(frame_buffer, 3, 1, 1, 1);
+        gridLayout_6->addWidget(frame_buffer, 10, 1, 1, 1);
 
-        stop = new QPushButton(groupBox_4);
-        stop->setObjectName(QString::fromUtf8("stop"));
-        stop->setEnabled(false);
+        label_2 = new QLabel(groupBox_4);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
 
-        gridLayout_6->addWidget(stop, 0, 1, 1, 1);
+        gridLayout_6->addWidget(label_2, 2, 0, 1, 1);
+
+        label_7 = new QLabel(groupBox_4);
+        label_7->setObjectName(QString::fromUtf8("label_7"));
+
+        gridLayout_6->addWidget(label_7, 10, 0, 1, 1);
+
+        label_4 = new QLabel(groupBox_4);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+
+        gridLayout_6->addWidget(label_4, 9, 0, 1, 1);
+
+        render_fps = new QDoubleSpinBox(groupBox_4);
+        render_fps->setObjectName(QString::fromUtf8("render_fps"));
+        render_fps->setFrame(true);
+        render_fps->setReadOnly(true);
+        render_fps->setButtonSymbols(QAbstractSpinBox::NoButtons);
+        render_fps->setMaximum(1e+06);
+        render_fps->setSingleStep(0.01);
+
+        gridLayout_6->addWidget(render_fps, 9, 1, 1, 1);
+
+        label_8 = new QLabel(groupBox_4);
+        label_8->setObjectName(QString::fromUtf8("label_8"));
+
+        gridLayout_6->addWidget(label_8, 3, 0, 1, 1);
+
+        real_speed = new QDoubleSpinBox(groupBox_4);
+        real_speed->setObjectName(QString::fromUtf8("real_speed"));
+        real_speed->setFrame(true);
+        real_speed->setReadOnly(true);
+        real_speed->setButtonSymbols(QAbstractSpinBox::NoButtons);
+        real_speed->setMaximum(1e+06);
+        real_speed->setSingleStep(0.01);
+
+        gridLayout_6->addWidget(real_speed, 3, 1, 1, 1);
 
 
         verticalLayout_2->addWidget(groupBox_4);
@@ -497,6 +522,7 @@ public:
 
         wall_resistance = new QCheckBox(groupBox_3);
         wall_resistance->setObjectName(QString::fromUtf8("wall_resistance"));
+        wall_resistance->setChecked(true);
 
         gridLayout_5->addWidget(wall_resistance, 3, 1, 1, 1);
 
@@ -546,34 +572,34 @@ public:
 
         gridLayout_5->addWidget(air_resistance, 2, 1, 1, 1);
 
-        e_modul_2 = new QDoubleSpinBox(groupBox_3);
-        e_modul_2->setObjectName(QString::fromUtf8("e_modul_2"));
-        e_modul_2->setWrapping(false);
-        e_modul_2->setAccelerated(true);
-        e_modul_2->setDecimals(2);
-        e_modul_2->setMinimum(-1);
-        e_modul_2->setMaximum(0.5);
-        e_modul_2->setSingleStep(0.1);
-        e_modul_2->setValue(0.5);
+        poissons_ratio = new QDoubleSpinBox(groupBox_3);
+        poissons_ratio->setObjectName(QString::fromUtf8("poissons_ratio"));
+        poissons_ratio->setWrapping(false);
+        poissons_ratio->setAccelerated(true);
+        poissons_ratio->setDecimals(2);
+        poissons_ratio->setMinimum(-1);
+        poissons_ratio->setMaximum(0.5);
+        poissons_ratio->setSingleStep(0.1);
+        poissons_ratio->setValue(0.5);
 
-        gridLayout_5->addWidget(e_modul_2, 5, 1, 1, 1);
+        gridLayout_5->addWidget(poissons_ratio, 5, 1, 1, 1);
 
         label_21 = new QLabel(groupBox_3);
         label_21->setObjectName(QString::fromUtf8("label_21"));
 
         gridLayout_5->addWidget(label_21, 6, 0, 1, 1);
 
-        e_modul_3 = new QDoubleSpinBox(groupBox_3);
-        e_modul_3->setObjectName(QString::fromUtf8("e_modul_3"));
-        e_modul_3->setWrapping(false);
-        e_modul_3->setAccelerated(true);
-        e_modul_3->setDecimals(2);
-        e_modul_3->setMinimum(0);
-        e_modul_3->setMaximum(10);
-        e_modul_3->setSingleStep(0.1);
-        e_modul_3->setValue(1);
+        elasticity = new QDoubleSpinBox(groupBox_3);
+        elasticity->setObjectName(QString::fromUtf8("elasticity"));
+        elasticity->setWrapping(false);
+        elasticity->setAccelerated(true);
+        elasticity->setDecimals(2);
+        elasticity->setMinimum(0);
+        elasticity->setMaximum(10);
+        elasticity->setSingleStep(0.1);
+        elasticity->setValue(1);
 
-        gridLayout_5->addWidget(e_modul_3, 6, 1, 1, 1);
+        gridLayout_5->addWidget(elasticity, 6, 1, 1, 1);
 
 
         gridLayout_10->addWidget(groupBox_3, 0, 0, 1, 1);
@@ -596,9 +622,11 @@ public:
         label_23->setBuddy(traces);
         label->setBuddy(fps);
         label_24->setBuddy(connect_trace);
-        label_2->setBuddy(speed);
+        label_9->setBuddy(calc_fps);
         label_3->setBuddy(calc_fps);
+        label_2->setBuddy(calc_speed);
         label_4->setBuddy(render_fps);
+        label_8->setBuddy(calc_fps);
         label_5->setBuddy(radius_min);
         label_17->setBuddy(one_size);
         label_18->setBuddy(radius_max);
@@ -607,9 +635,9 @@ public:
         label_16->setBuddy(wall_resistance);
         label_19->setBuddy(e_modul);
         label_14->setBuddy(inter_gravity);
-        label_20->setBuddy(e_modul_2);
+        label_20->setBuddy(poissons_ratio);
         label_13->setBuddy(earth_gravity);
-        label_21->setBuddy(e_modul_3);
+        label_21->setBuddy(elasticity);
 #endif // QT_NO_SHORTCUT
         QWidget::setTabOrder(start, stop);
         QWidget::setTabOrder(stop, count);
@@ -624,18 +652,16 @@ public:
         QWidget::setTabOrder(inter_gravity, air_resistance);
         QWidget::setTabOrder(air_resistance, wall_resistance);
         QWidget::setTabOrder(wall_resistance, e_modul);
-        QWidget::setTabOrder(e_modul, e_modul_2);
-        QWidget::setTabOrder(e_modul_2, e_modul_3);
-        QWidget::setTabOrder(e_modul_3, fps);
+        QWidget::setTabOrder(e_modul, poissons_ratio);
+        QWidget::setTabOrder(poissons_ratio, elasticity);
+        QWidget::setTabOrder(elasticity, fps);
         QWidget::setTabOrder(fps, colours);
         QWidget::setTabOrder(colours, traces);
         QWidget::setTabOrder(traces, connect_trace);
         QWidget::setTabOrder(connect_trace, x_rot);
         QWidget::setTabOrder(x_rot, y_rot);
         QWidget::setTabOrder(y_rot, z_rot);
-        QWidget::setTabOrder(z_rot, speed);
-        QWidget::setTabOrder(speed, calc_fps);
-        QWidget::setTabOrder(calc_fps, render_fps);
+        QWidget::setTabOrder(z_rot, calc_fps);
 
         retranslateUi(Control);
         QObject::connect(one_size, SIGNAL(toggled(bool)), radius_max, SLOT(setDisabled(bool)));
@@ -666,14 +692,15 @@ public:
         traces->setText(QApplication::translate("Control", "yes", 0, QApplication::UnicodeUTF8));
         label_24->setText(QApplication::translate("Control", "Connect trace", 0, QApplication::UnicodeUTF8));
         connect_trace->setText(QApplication::translate("Control", "yes", 0, QApplication::UnicodeUTF8));
-        groupBox_6->setTitle(QApplication::translate("Control", "Calculations", 0, QApplication::UnicodeUTF8));
-        label_2->setText(QApplication::translate("Control", "Speed", 0, QApplication::UnicodeUTF8));
-        groupBox_4->setTitle(QApplication::translate("Control", "Info", 0, QApplication::UnicodeUTF8));
+        groupBox_4->setTitle(QApplication::translate("Control", "General", 0, QApplication::UnicodeUTF8));
+        label_9->setText(QApplication::translate("Control", "Real calc. FPS", 0, QApplication::UnicodeUTF8));
         start->setText(QApplication::translate("Control", "Start", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("Control", "Calc. FPS", 0, QApplication::UnicodeUTF8));
-        label_4->setText(QApplication::translate("Control", "Render FPS", 0, QApplication::UnicodeUTF8));
-        label_7->setText(QApplication::translate("Control", "Frame buffer", 0, QApplication::UnicodeUTF8));
         stop->setText(QApplication::translate("Control", "Stop", 0, QApplication::UnicodeUTF8));
+        label_2->setText(QApplication::translate("Control", "Speed", 0, QApplication::UnicodeUTF8));
+        label_7->setText(QApplication::translate("Control", "Frame buffer", 0, QApplication::UnicodeUTF8));
+        label_4->setText(QApplication::translate("Control", "Render FPS", 0, QApplication::UnicodeUTF8));
+        label_8->setText(QApplication::translate("Control", "Real speed", 0, QApplication::UnicodeUTF8));
         groupBox_2->setTitle(QApplication::translate("Control", "Objects", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("Control", "Radius min.", 0, QApplication::UnicodeUTF8));
         one_size->setText(QApplication::translate("Control", "yes", 0, QApplication::UnicodeUTF8));
@@ -699,4 +726,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // UNTITLEDUV1697_H
+#endif // UNTITLEDQ11261_H

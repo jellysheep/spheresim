@@ -26,6 +26,8 @@ int main(int argc, char *argv[]) {
 	
 	QApplication::setStyle(QStyleFactory::create("Plastique"));
 	
+	qRegisterMetaType<scalar>("scalar");
+	
 	Calculator* clTimer = new OpenClCalculator();
 	printf("Calculator initialized!\n");
 	
@@ -46,8 +48,14 @@ int main(int argc, char *argv[]) {
 	//layout->addWidget(w);
 	printf("GLWidget initialized!\n");
 	
+	clTimer->set(&window);
+	
+	StatusViewer statusViewer(&window, clTimer);
+	statusViewer.start();
+	printf("StatusViewer initialized!\n");
+	
 	QWidget* w2 = new QWidget();
-	Control* control = new Control();
+	Control* control = new Control(&window, clTimer, &statusViewer);
 	control->setupUi(w2);
 	layout->addWidget(w2);
 	//control->resize(600,600);
@@ -57,12 +65,6 @@ int main(int argc, char *argv[]) {
 	
 	//win->show();
 	win->showMaximized();
-	
-	clTimer->set(&window);
-	
-	StatusViewer statusViewer(&window, clTimer);
-	statusViewer.start();
-	printf("StatusViewer initialized!\n");
 	
 	//QFuture<void> future = QtConcurrent::run(start, clTimer);
 	clTimer->start();
