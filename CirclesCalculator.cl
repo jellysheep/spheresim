@@ -2,9 +2,15 @@
 #define _double_ x
 #define _G_ 1
 #define _v_nicht_const_ 1
+// Heun-Verfahren / Halbschritt-Verfahren
 #define heun 1
 #define step (5.0f/10.0f)
-// Heun-Verfahren / Halbschritt-Verfahren
+// Leapfrog-Verfahren
+#define leapfrog 0
+
+#if leapfrog && heun
+	#error Error: only leapfrog OR heun possible!
+#endif
 
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 #pragma OPENCL EXTENSION cl_amd_fp64 : enable
@@ -120,6 +126,9 @@ __kernel void randomFill(__global struct Circle* circle, __global uint* z, __glo
 		//printf("pos: %f\n", circle[gid].pos.s2);
 	#endif
 	circle[gid].oldPos = circle[gid].pos;
+	#if leapfrog
+		//circle[gid].oldPos = 0;
+	#endif
 	
 	circle[gid].speed.s0 = GetUniform(m_z, m_w, gid);
 	circle[gid].speed.s1 = GetUniform(m_z, m_w, gid);
@@ -135,198 +144,13 @@ __kernel void randomFill(__global struct Circle* circle, __global uint* z, __glo
 	#endif
 }
 
-__kernel void moveStep(__global struct Circle* circle, __global int* num,
-						__global vector* size,
-						__global scalar* elastic, __global scalar* g,
-						__global scalar* delta_t_, __global scalar* G_)
-{
-	vector s = *size, force, acceleration;
-	scalar reduced = *elastic, gravity = *g, delta_t = *delta_t_, G = *G_;
-	int id = get_global_id(0);
-	struct Circle c2;
-	
-	struct Circle c = circle[id];
-	#if heun
-		c.pos += c.speed*(delta_t*step) + c.force/c.mass*(delta_t*step*delta_t*step)/2.0f;
-	#endif
-    
-    vector d_pos, d_n;
-	scalar both_r, d, d_, R, E_, force_;
-	//*
-	int n = *num, n2 = 0;
-	for(int i = n-1; i>id; i--){
-		c2 = circle[i];
-		#if heun
-			c2.pos += c2.speed*(delta_t*step) + c2.force/c2.mass*(delta_t*step*delta_t*step)/2.0f;
-		#endif
-		
-		//#define c2 circle[i]
-		both_r = c.size + c2.size;
-		d_pos = c2.pos-c.pos;
-		
-		/*
-		if(gravity == 0){
-			if(d_pos.s0>both_r||d_pos.s0<-both_r||d_pos.s1>both_r||d_pos.s1<-both_r
-			#if _3D_
-			||d_pos.s2>both_r||d_pos.s2<-both_r
-			#endif
-			){
-				continue;
-			}
-			// *
-			else{
-				if(++n2>4) break;
-			}// * /
-		}// */
-
-		//d_pos.s2 = 0;
-		d = length(d_pos);
-		
-		if(gravity!=0){
-			d_n = d_pos/d; // bzw. normalize(d_pos);
-			// Gravitation:
-			force = G*c.mass*c2.mass/pow_(d,2) *d_n;
-			circle[id].force += force;
-			circle[i].force -= force;
-		}
-		
-		// Abstossung:
-		if (d < both_r) {
-			if(gravity == 0){
-				d_n = d_pos/d; // bzw. normalize(d_pos);
-			}
-			// nach Kontaktmechanik mit Poisson-Zahlen:
-			d_ = both_r - d;
-			R = 1/((1/c.size)+(1/c2.size));
-			E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c2.poisson*c2.poisson)/c2.E));
-			force = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3)) *d_n;
-			if(dot(d_pos, (c.speed-c2.speed)/d)<0){ //Skalarprodukt
-				force *= reduced;
-			}
-			circle[id].force -= force;
-			circle[i].force += force;
-			//continue;
-			
-			/*
-			//c->thisStepHit = true;
-			//if(!(c_.free && c2->free))continue;
-			d_d = (both_r/d-1)*e*d_pos;
-			// *
-			if(dot(d_pos, (c.speed-c2.speed)/d)<0){ //Skalarprodukt
-				d_d *= reduced;
-				//circle[id].speed = 0;
-				//circle[i].speed = 0;
-			}// * /
-			circle[id].force -= c.size*d_d;
-			circle[i].force += c2.size*d_d;
-			
-			/ *
-			htc_d = sqrt(htc_dSqr);
-			htc_d_d = htc_both_r-htc_d;
-			htc_f_1 = E*c_.r*c_.r*htc_d_d/(2*c_.r)/1000000.0;
-			htc_f_2 = E*c2->r*c2->r*htc_d_d/(2*c2->r)/1000000.0;
-			c->fx = c_.fx-htc_dx/htc_d*htc_f_1;
-			c->fy = c_.fy-htc_dy/htc_d*htc_f_1;
-			c2->fx += htc_dx/htc_d*htc_f_2;
-			c2->fy += htc_dy/htc_d*htc_f_2;// */
-		}
-	}// */
-    
-    //*
-    scalar htw_d_d, fact = 1.0f;
-    if ((htw_d_d = (c.size - c.pos.s0))>0) {
-		//c.speed.s0 = fabs(c.speed.s0);
-		if(c.speed.s0 > 0)fact = reduced;
-		d_ = htw_d_d;
-		R = c.size;
-		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s0 += force_*fact;
-		//circle[id].force.s0 += c.size*htw_d_d*c.E*fact;
-	}else if ((htw_d_d = (c.size + c.pos.s0 - s.s0))>0) {
-		//c.speed.s0 = -fabs(c.speed.s0);
-		if(c.speed.s0 < 0)fact = reduced;
-		d_ = htw_d_d;
-		R = c.size;
-		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s0 -= force_*fact;
-		//circle[id].force.s0 -= c.size*htw_d_d*c.E*fact;
-	}
-	fact = 1.0f;
-    if ((htw_d_d = (c.size - c.pos.s1))>0) {
-		//c.speed.s1 = fabs(c.speed.s1);
-		if(c.speed.s1 > 0)fact = reduced;
-		d_ = htw_d_d;
-		R = c.size;
-		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s1 += force_*fact;
-		//circle[id].force.s1 += c.size*htw_d_d*c.E*fact;
-	}else if ((htw_d_d = (c.size + c.pos.s1 - s.s1))>0) {
-		//c.speed.s1 = -fabs(c.speed.s1);
-		if(c.speed.s1 < 0)fact = reduced;
-		d_ = htw_d_d;
-		R = c.size;
-		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s1 -= force_*fact;
-		//circle[id].force.s1 -= c.size*htw_d_d*c.E*fact;
-	}
-#if _3D_
-	fact = 1.0f;
-    if ((htw_d_d = (c.size - c.pos.s2))>0) {
-		if(c.speed.s2 > 0)fact = reduced;
-		d_ = htw_d_d;
-		R = c.size;
-		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s2 += force_*fact;
-		//circle[id].force.s2 += c.size*htw_d_d*c.E*fact;
-	}else if ((htw_d_d = (c.size + c.pos.s2 - s.s2))>0) {
-		if(c.speed.s2 < 0)fact = reduced;
-		d_ = htw_d_d;
-		R = c.size;
-		E_ = 1/(((1-c.poisson*c.poisson)/c.E)+((1-c.poisson*c.poisson)/c.E));
-		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s2 -= force_*fact;
-		//circle[id].force.s2 -= c.size*htw_d_d*c.E*fact;
-	}
-#endif
-	// */
-	
-	// Luftwiderstand:
-    //circle[id].force -= 0.001*circle[id].speed*fabs(length(circle[id].speed));
-    //0.00001*normalize(circle[id].speed)*pow_(length(circle[id].speed),2);
-    
-    /*circle[id].pos += c.speed;
-    force = circle[id].force;
-    circle[id].speed += force;
-    circle[id].force -= force;*/
-    
-    force = circle[id].force;
-	
-	
-	// Gravitation nach unten:
-	//circle[id].force.s1 -= gravity*circle[id].mass;
-    acceleration = force / circle[id].mass;
-	acceleration.s1 -= gravity;
-	
-    circle[id].pos += c.speed*delta_t;
-    #if _v_nicht_const_
-		circle[id].pos += acceleration*(delta_t*delta_t)/2.0f;
-	#endif
-    circle[id].speed += acceleration*delta_t;
-    circle[id].force -= force;
-}
-
 __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 						__global vector* size,
-						__global scalar* elastic, __global scalar* g,
+						__global scalar* elastic, __global vector* g,
 						__global scalar* delta_t_, __global scalar* G_)
 {
-	vector s = *size, force, acceleration, pos, pos2;
-	scalar reduced = *elastic, gravity = *g, delta_t = *delta_t_, G = *G_;
+	vector s = *size, force, acceleration, pos, pos2, gravity = *g;
+	scalar reduced = *elastic, delta_t = *delta_t_, G = *G_;
 	int id = get_global_id(0);
 	__global struct Circle* c2;
 	
@@ -493,9 +317,9 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 	
 	
 	// Gravitation nach unten:
-	//circle[id].force.s1 -= gravity*circle[id].mass;
+	//circle[id].force -= gravity*circle[id].mass;
     acceleration = force / c->mass;
-	acceleration.s1 -= gravity;
+	acceleration -= gravity;
 	
     c->pos += c->speed*delta_t;
     #if _v_nicht_const_
@@ -545,7 +369,7 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 
 	//d_pos.s2 = 0;
 	d = length(d_pos);
-	d = max(d,0.00005f);
+	//d = max(d,(scalar)0.00005f);
 	
 	/*
 	d_n = d_pos/d;
@@ -563,7 +387,7 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 		d_n = d_pos/d;
 		 // bzw. normalize(d_pos);
 		// Gravitation:
-		force = G*c->mass*c2->mass/pow_(d,2) *d_n;
+		force = G*c->mass*c2->mass/pow_(max(d,(scalar)c->size/10),2) *d_n;
 		c->force += force;
 		c2->force -= force;
 	}
@@ -677,11 +501,11 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 
 
 __kernel void moveStep3_updatePositions(__global struct Circle* circle,
-						__global scalar* g,
+						__global vector* g,
 						__global scalar* delta_t_)
 {
-	vector force, acceleration;
-	scalar gravity = *g, delta_t = *delta_t_;
+	vector force, acceleration, gravity = *g;
+	scalar delta_t = *delta_t_;
 	int id = get_global_id(0);
 	
 	__global struct Circle* c = &circle[id];
@@ -701,24 +525,42 @@ __kernel void moveStep3_updatePositions(__global struct Circle* circle,
 	
 	
 	// Gravitation nach unten:
-	//circle[id].force.s1 -= gravity*circle[id].mass;
+	//circle[id].force -= gravity*circle[id].mass;
     acceleration = force / c->mass;
-	acceleration.s1 -= gravity;
+	acceleration -= gravity;
 	
-	#if heun
-		c->pos = c->oldPos;
-	#endif
-    c->pos += c->speed*delta_t;
-    
-    #if _v_nicht_const_
-		c->pos += acceleration*(delta_t*delta_t)/2.0f;
-	#endif
-	c->speed += acceleration*delta_t;
-    c->force -= force;
-    
-	#if heun
-		c->oldPos = c->pos;
-		c->pos += c->speed*(delta_t*step) + c->force/c->mass*(delta_t*step*delta_t*step)/2.0f;
+	#if leapfrog
+	
+		vector pos = c->pos;
+		c->pos = 2*c->pos - c->oldPos + acceleration*delta_t*delta_t;
+		c->oldPos = pos;
+		
+		//c->pos = c->pos + c->speed*delta_t + 1.0f/2.0f*acceleration*delta_t*delta_t;
+		//c->speed = c->speed + 1.0f/2.0f*(c->oldPos + acceleration)*delta_t;
+		
+		
+		//c->oldPos = acceleration;
+		
+		c->force -= force;
+	
+	#else
+		
+		#if heun
+			c->pos = c->oldPos;
+		#endif
+		c->pos += c->speed*delta_t;
+		
+		#if _v_nicht_const_
+			c->pos += acceleration*(delta_t*delta_t)/2.0f;
+		#endif
+		c->speed += acceleration*delta_t;
+		c->force -= force;
+		
+		#if heun
+			c->oldPos = c->pos;
+			c->pos += c->speed*(delta_t*step) + c->force/c->mass*(delta_t*step*delta_t*step)/2.0f;
+		#endif
+	
 	#endif
 }
 

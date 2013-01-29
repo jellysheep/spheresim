@@ -27,6 +27,8 @@ protected:
 	Calculator* clTimer;
     QPoint lastPos;
     
+    scalar rotGrav;
+    
     GLfloat* LightPosition;
     
     void normalize(GLfloat *a);

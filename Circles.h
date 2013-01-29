@@ -6,7 +6,7 @@
 #include <CL/cl.hpp>
 #include <CL/cl_platform.h>
 
-#define _3D_ 0
+#define _3D_ 1
 #define _double_ 0
 
 typedef cl_float4 cl_float3;
@@ -64,8 +64,14 @@ typedef struct CircleExtension
 	bool traceFull;
 } CircleExtension;
 
+typedef struct Plane
+{
+	vector a,b,P;
+} Plane;
+
 extern int circlesCount;
 extern bool manyCircles;
+extern int showCirclesCount;
 
 extern vector3 boxSize;
 extern vector2 size;
@@ -79,7 +85,8 @@ extern scalar max_speed;
 extern scalar E;
 extern scalar poisson;
 extern scalar elastic;
-extern scalar gravity;
+extern scalar gravity_abs;
+extern vector gravity;
 extern bool saveBool, renderBool;
 extern int edges;
 extern scalar step;

@@ -28,6 +28,7 @@ public slots:
 	void xBoxSize(double angle);
 	void yBoxSize(double angle);
 	void zBoxSize(double angle);
+	void speedChanged(double d);
 };
 
 #endif /* _UI_CONTROL_ */

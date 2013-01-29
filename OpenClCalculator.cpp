@@ -74,7 +74,7 @@ OpenClCalculator::OpenClCalculator(){
 		//context properties will be important later, for now we go with defualts
 		try{
 			cl_context_properties properties[] = 
-				{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[platforms.size()-1])(), 0};
+				{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
 		
 
 			context = cl::Context(CL_DEVICE_TYPE_ALL, properties);
@@ -172,9 +172,9 @@ OpenClCalculator::OpenClCalculator(){
 		//cl_mem_method = CL_MEM_USE_HOST_PTR;
 
 		printf("Creating OpenCL arrays\n");
-		/*
-		if((cl_mem_method & CL_MEM_USE_HOST_PTR)>0){
-			cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(Circle)*circlesCount, circlesBuffer = new Circle[circlesCount], &err);
+		//*
+		if(false || (cl_mem_method & CL_MEM_USE_HOST_PTR)>0){
+			cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, sizeof(Circle)*circlesCount, circlesBuffer = new Circle[circlesCount], &err);
 			if(err!=CL_SUCCESS)printf("ERROR: creating circles buffer: %s\n", oclErrorString(err));
 			printf("circles buffer allocated.\n");
 			circlesBufferUsed = true;
@@ -185,6 +185,7 @@ OpenClCalculator::OpenClCalculator(){
 		}
 		cl_vector3* boxSize_cl = clVector(boxSize);
 		cl_vector2* size_cl = clVector(size);
+		cl_vector* gravity_cl = clVector(gravity);
 		cl_m_z = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_z, &err);
 		cl_m_w = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_w, &err);
 		cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_vector3), boxSize_cl, &err);
@@ -193,7 +194,7 @@ OpenClCalculator::OpenClCalculator(){
 		cl_circlesCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &circlesCount, &err);
 		cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &E, &err);
 		cl_elastic = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &elastic, &err);
-		cl_gravity = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &gravity, &err);
+		cl_gravity = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector), gravity_cl, &err);
 		cl_timeInterval = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &timeInterval, &err);
 		cl_poisson = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &poisson, &err);
 		cl_G = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &G, &err);
@@ -286,7 +287,7 @@ OpenClCalculator::OpenClCalculator(){
 		if(renderBool){
 			//c_CPU_render[0] = new Circle[readNum_render];
 			//c_CPU_render[1] = new Circle[readNum_render];
-			readNum_render = min(10000,circlesCount);
+			readNum_render = min(showCirclesCount,circlesCount);
 			c_CPU_render = new Circle*[renderBufferCount];
 			for(int i = 0; i<renderBufferCount; i++){
 				c_CPU_render[i] = new Circle[readNum_render];
@@ -373,6 +374,8 @@ void OpenClCalculator::fpsChanged(scalar fps){
 		scalar timeInterval = speed*speedCorrection/fps;
 		//printf("timeInterval: %10f\n", timeInterval);
 		err = queue.enqueueWriteBuffer(cl_timeInterval, CL_TRUE, 0, sizeof(scalar), &timeInterval, NULL, NULL);
+	}else{
+		printf("ERROR! fpsChanged! \n");
 	}
 }
 
@@ -381,22 +384,9 @@ void OpenClCalculator::boxSizeChanged(){
 	err = queue.enqueueWriteBuffer(cl_boxSize, CL_TRUE, 0, sizeof(cl_vector3), boxSize_cl, NULL, NULL);
 }
 
-char OpenClCalculator::hex(int i){
-	if(i<0 || i>15){
-		return '0';
-	}else if(i<10){
-		return '0'+i;
-	}else{
-		return 'A'+(i-10);
-	}
-}
-
-void OpenClCalculator::add(double d){
-	unsigned char* c = (unsigned char*)&d;
-	unsigned int x = 0;
-	for(int i = 0; i<8; i++){
-		fprintf(file, "%c%c", hex(c[i]/16), hex(c[i]%16));
-	}
+void OpenClCalculator::gravityChanged(){
+	cl_vector* gravity_cl = clVector(gravity);
+	err = queue.enqueueWriteBuffer(cl_gravity, CL_TRUE, 0, sizeof(cl_vector), gravity_cl, NULL, NULL);
 }
 
 void OpenClCalculator::save(){
@@ -412,11 +402,11 @@ void OpenClCalculator::save(){
 
 		for(int i=0; i < min((circlesCount-offset),readNum_save); i++)
 		{
-			add(c_CPU_save[j][i].size);
+			add(file, c_CPU_save[j][i].size);
 			fprintf(file," ");
-			add(c_CPU_save[j][i].pos.s[0]);
+			add(file, c_CPU_save[j][i].pos.s[0]);
 			fprintf(file," ");
-			add(c_CPU_save[j][i].pos.s[1]);
+			add(file, c_CPU_save[j][i].pos.s[1]);
 			//#if _3D_
 			//	f<<" ";
 			//	add(f, c_CPU_save[j][i].pos.s[2]);
@@ -435,6 +425,7 @@ scalar OpenClCalculator::getFrameBufferLoad(){
 	return (1.0*(wi-ri))/renderBufferCount;
 }
 
+Circle* OpenClCalculator::getCirclesBuffer(){return NULL;}
 
 #define onlyOneC 0
 void OpenClCalculator::paintGL(bool readNewFrame){

@@ -21,8 +21,6 @@ protected:
 	char* file_contents(const char *filename, int *length);
 	const char* oclErrorString(cl_int error);
 	
-	char hex(int i);
-	void add(double d);
 	void save();
 
 	unsigned int deviceUsed;
@@ -74,9 +72,7 @@ public:
 	
 	void set(GLWidget* w);
 	
-	cl::Buffer* getCirclesBuffer(){
-		return &cl_circles;
-	}
+	Circle* getCirclesBuffer();
 	
 	void paintGL(bool readNewFrame);
     
@@ -109,6 +105,7 @@ public slots:
 		while(!hasStopped);
 	}
 	void boxSizeChanged();
+	void gravityChanged();
 };
 
 extern void start(OpenClCalculator* clTimer);

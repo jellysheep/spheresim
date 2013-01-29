@@ -13,6 +13,7 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	xRot = yRot = zRot = 0;
 	translateZ = 0;
 	newFrame = false;
+	rotGrav = 0;
 	//*
 	rotationTimer = new QTimer(this);
 	rotationTimer->setInterval(1000/renderFps);
@@ -147,6 +148,14 @@ void GLWidget::timeToRender(){
 		zRot += autoRotation.s[2]*16.0;
 	//#endif
 	
+	//rotGrav += 0.3;
+	gravity.s[0] = cos(M_PI/180.0*(rotGrav+90))*gravity_abs;
+	gravity.s[1] = sin(M_PI/180.0*(rotGrav+90))*gravity_abs;
+	#if _3D_
+		gravity.s[2] = 0;
+	#endif
+	//emit clTimer->gravityChanged();
+	
 	timeToRender2();
 }
 
@@ -195,6 +204,7 @@ void GLWidget::paintGL() {
 	//glRotatef(180.0, 0.0, 1.0, 0.0);
 	glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
 	glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
+	glRotatef(-rotGrav, 0.0, 0.0, 1.0);
 
 	scalar scale = 109.0/boxSize.s[0];
 	#if !_3D_
@@ -337,7 +347,7 @@ QSize GLWidget::minimumSizeHint() const
 
 QSize GLWidget::sizeHint() const
 {
-	return QSize(600, 800);
+	return QSize(3000, 3000);
 }
 
 static void qNormalizeAngle(int &angle)

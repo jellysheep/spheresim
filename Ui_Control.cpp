@@ -37,6 +37,8 @@ void Control::setupUi(QWidget* w){
 		this, SLOT(yBoxSize(double)), Qt::QueuedConnection);
 	QObject::connect(z, SIGNAL(valueChanged(double)), 
 		this, SLOT(zBoxSize(double)), Qt::QueuedConnection);
+	QObject::connect(calc_speed, SIGNAL(valueChanged(double)), 
+		this, SLOT(speedChanged(double)), Qt::QueuedConnection);
 	
 	calc_speed->setValue(speed);
 	count->setValue(circlesCount);
@@ -50,7 +52,7 @@ void Control::setupUi(QWidget* w){
 	x->setValue(boxSize.s[0]);
 	y->setValue(boxSize.s[1]);
 	z->setValue(boxSize.s[2]);
-	earth_gravity->setValue(gravity);
+	earth_gravity->setValue(gravity.s[0]);
 	inter_gravity->setValue(G_fact);
 	air_resistance->setValue(airResistance);
 	wall_resistance->setChecked(wallResistance);
@@ -110,4 +112,7 @@ void Control::showTrace(bool b){
 }
 void Control::connectTrace(bool b){
 	connectTracePoints = b;
+}
+void Control::speedChanged(double d){
+	speed = d;
 }

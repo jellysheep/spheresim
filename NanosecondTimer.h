@@ -13,6 +13,9 @@ public:
 	}
 	
 	static long long getNS(){
+#ifdef __WIN32__
+		return GetTickCount(void)*1000ll*1000ll;
+#else
 		static timespec now;
 		#ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
 			clock_serv_t cclock;
@@ -27,6 +30,7 @@ public:
 		#endif
 
 		return ((1000000000ll*now.tv_sec)+now.tv_nsec);
+#endif
 	}
 	
 	long getElapsedNS(){
