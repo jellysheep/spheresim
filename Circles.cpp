@@ -33,7 +33,7 @@ scalar max_speed = 0.5;
 scalar E = 10*1000000*0.05;//((200)/1000000.0)/2; //Silikonkautschuk
 scalar poisson = 0.5; //Gummi
 scalar elastic = 1.0;//0.05;//0.9;//0.999;//0.9;
-scalar gravity_abs = 10*9.81;
+scalar gravity_abs = 9.81;
 vector gravity = (vector){0,gravity_abs
 	#if _3D_
 	,0

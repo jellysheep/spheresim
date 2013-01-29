@@ -357,7 +357,7 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 	int id2 = get_global_id(1);
 	//printf("group id: %5d local id: %5d global id: %5d\n",id,id2, get_global_id(0));
 	if(id2<=id){
-		for(long l = get_global_size(0)*get_global_size(1); l>0; l--){
+		for(long l = (get_global_size(0)+get_global_size(1)); l>0; l--){
 			barrier(CLK_GLOBAL_MEM_FENCE);
 		}
 		return;
@@ -419,7 +419,7 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 		f += force;
 		//c2->force -= force;
 		//AtomicAddVector(c2->force, -force);
-		f2 += force;
+		f2 -= force;
 	}
 	#endif
 	
@@ -445,19 +445,29 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 		//c->force -= force;
 		//AtomicAdd(&c->force.s0, force.s0);
 		//AtomicAddVector(c->force, -force);
-		f += force;
+		f -= force;
 		//c2->force += force;
 		//AtomicAddVector(c2->force, force);
 		f2 += force;
 		// */
 	}
-	long wait1 = id2*get_global_size(0)+id,
-		wait2 = (get_global_size(1)-id2-1)*get_global_size(0)+(get_global_size(0)-id);
-	//printf("Waiting %d + %d barriers...\n", wait1, wait2);
+	long wait1 = id,
+		wait2 = (get_global_size(0)-id);
+	printf("1 Waiting %d + %d barriers...\n", wait1, wait2);
 	for(long l = wait1; l>0; l--){
 		barrier(CLK_GLOBAL_MEM_FENCE);
 	}
 	c->force += f;
+	for(long l = wait2; l>0; l--){
+		barrier(CLK_GLOBAL_MEM_FENCE);
+	}
+	
+	wait1 = id2;
+	wait2 = (get_global_size(1)-id2);
+	printf("2 Waiting %d + %d barriers...\n", wait1, wait2);
+	for(long l = wait1; l>0; l--){
+		barrier(CLK_GLOBAL_MEM_FENCE);
+	}
 	c2->force += f2;
 	for(long l = wait2; l>0; l--){
 		barrier(CLK_GLOBAL_MEM_FENCE);

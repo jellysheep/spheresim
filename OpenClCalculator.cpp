@@ -72,7 +72,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		//context properties will be important later, for now we go with defualts
 		try{
 			cl_context_properties properties[] = 
-				{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
+				{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[1])(), 0};
 		
 
 			context = cl::Context(CL_DEVICE_TYPE_ALL, properties);
