@@ -13,10 +13,8 @@
 #include "NanosecondTimer.h"
 #include "GLWidget.h"
 
-OpenClCalculator::OpenClCalculator(){
+OpenClCalculator::OpenClCalculator():Calculator(){
 	try{
-		hasStopped = true;
-		running = false;
 		
 		newFrame = false;
 		
@@ -183,18 +181,18 @@ OpenClCalculator::OpenClCalculator(){
 			cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(Circle)*circlesCount, NULL, &err);
 			circlesBufferUsed = false;
 		}
-		cl_vector3* boxSize_cl = clVector(boxSize);
-		cl_vector2* size_cl = clVector(size);
-		cl_vector* gravity_cl = clVector(gravity);
+//		cl_vector3* boxSize_cl = clVector(boxSize);
+//		cl_vector2* size_cl = clVector(size);
+//		cl_vector* gravity_cl = clVector(gravity);
 		cl_m_z = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_z, &err);
 		cl_m_w = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_w, &err);
-		cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_vector3), boxSize_cl, &err);
-		cl_size = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(cl_vector2), size_cl, &err);
+		cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector3), &boxSize, &err);
+		cl_size = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector2), &size, &err);
 		cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &max_speed, &err);
 		cl_circlesCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &circlesCount, &err);
 		cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &E, &err);
 		cl_elastic = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &elastic, &err);
-		cl_gravity = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector), gravity_cl, &err);
+		cl_gravity = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector), &gravity, &err);
 		cl_timeInterval = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &timeInterval, &err);
 		cl_poisson = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &poisson, &err);
 		cl_G = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &G, &err);
@@ -365,28 +363,18 @@ OpenClCalculator::OpenClCalculator(){
 	}
 }
 
-void OpenClCalculator::set(GLWidget* w){
-	glWidget = w;
-}
-
-void OpenClCalculator::fpsChanged(scalar fps){
-	if(speed!=0 && fps!=0 && speedCorrection!=0){
-		scalar timeInterval = speed*speedCorrection/fps;
-		//printf("timeInterval: %10f\n", timeInterval);
-		err = queue.enqueueWriteBuffer(cl_timeInterval, CL_TRUE, 0, sizeof(scalar), &timeInterval, NULL, NULL);
-	}else{
-		printf("ERROR! fpsChanged! \n");
-	}
+void OpenClCalculator::fpsChanged(scalar timeInterval){
+	err = queue.enqueueWriteBuffer(cl_timeInterval, CL_TRUE, 0, sizeof(scalar), &timeInterval, NULL, NULL);
 }
 
 void OpenClCalculator::boxSizeChanged(){
-	cl_vector3* boxSize_cl = clVector(boxSize);
-	err = queue.enqueueWriteBuffer(cl_boxSize, CL_TRUE, 0, sizeof(cl_vector3), boxSize_cl, NULL, NULL);
+	//cl_vector3* boxSize_cl = clVector(boxSize);
+	err = queue.enqueueWriteBuffer(cl_boxSize, CL_TRUE, 0, sizeof(vector3), &boxSize, NULL, NULL);
 }
 
 void OpenClCalculator::gravityChanged(){
-	cl_vector* gravity_cl = clVector(gravity);
-	err = queue.enqueueWriteBuffer(cl_gravity, CL_TRUE, 0, sizeof(cl_vector), gravity_cl, NULL, NULL);
+	//cl_vector* gravity_cl = clVector(gravity);
+	err = queue.enqueueWriteBuffer(cl_gravity, CL_TRUE, 0, sizeof(vector), &gravity, NULL, NULL);
 }
 
 void OpenClCalculator::save(){
@@ -415,14 +403,6 @@ void OpenClCalculator::save(){
 		}
 	}
 	fclose(file);
-}
-
-scalar OpenClCalculator::getFrameBufferLoad(){
-	int ri = bufferReadIndex, wi = bufferWriteIndex;
-	while(wi<ri){
-		wi += renderBufferCount;
-	}
-	return (1.0*(wi-ri))/renderBufferCount;
 }
 
 Circle* OpenClCalculator::getCirclesBuffer(){return NULL;}
@@ -746,125 +726,46 @@ void OpenClCalculator::paintGL(bool readNewFrame){
 	}*/
 }
 
-void start(OpenClCalculator* clTimer){
-	clTimer->run();
-}
-
-void OpenClCalculator::run(){
-	printf("OpenClCalculator running!\n");
-	int i = 0;
-	try{
-		while(running){
-			if(useSplitKernels){
-				err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(circlesCount/(circlesCount/1024+1),1), NULL, &events[eventCounter]);
-				err = queue.enqueueNDRangeKernel(moveStep_addWallForces_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+1]); 
-				err = queue.enqueueNDRangeKernel(moveStep_updatePositions_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+2]); 
-				eventCounter++;
-			}else{
-				err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter++]);
-			}
-			//printf("step %i\n", i++);
-			if(eventCounter>=numEvents){
-				eventCounter = 0;
-				eventsFull = true;
-			}
-			if(eventsFull){
-				//event2.at(0)=events[eventCounter];
-				//printf(
-				//queue.enqueueWaitForEvents(event2);
-				if(useSplitKernels){
-					events[eventCounter].wait();
-					events[eventCounter].~Event();
-					events[eventCounter+1].wait();
-					events[eventCounter+1].~Event();
-					events[eventCounter+2].wait();
-					events[eventCounter+2].~Event();
-				}else{
-					events[eventCounter].wait();
-					events[eventCounter].~Event();
-				}
-				//context.release(events[eventCounter]);
-				//queue.release(events[eventCounter]);
-			}else{
-				queue.finish();
-			}
-			//if(err!=CL_SUCCESS)printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
-			//queue.finish();
-			
-			//if(i%5==0)
-			if(saveBool)
-			{
-				//queue.finish();
-				save();
-			}
-			//printf(".");
-			frameCounter++;
-			
-			if(renderBool){
-				//*
-				elapsedFrames++;
-				//printf("frames: (%d/%d)=%d | %d\n", (int)fps, (int)renderFps, (int)(fps/renderFps), elapsedFrames);
-				if(elapsedFrames > (int)(fps/renderFps) && glWidget != NULL){// && glWidget->drawingFinished){
-					if(bufferReadIndex == ((bufferWriteIndex+1)%renderBufferCount)){
-						printf("frame buffer full: %3d | %3d\r",bufferReadIndex,bufferWriteIndex);
-					}else{
-						err = queue.enqueueReadBuffer(cl_circles, CL_FALSE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
-						bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
-					
-					
-						elapsedFrames = 0;
-					}
-					/*
-					glWidget->drawingFinished = false;
-					//glWidget->update();
-					//QCoreApplication::processEvents();
-					emit glWidget->timeToRender();
-					//glWidget->timeToRender();
-					//glWidget->repaint();
-					// */
-				}// */
-				
-				newFrame = true;
-			}
-			
-			/*
-			double r,x,y,z;
-			int j = 0;
-			int offset = 0;
-			Circle c;
-			err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_render[j], NULL, &event);
-			//offset+=readNum;
-			for(; offset<circlesCount; offset+=readNum){
-				event.wait();
-				if(circlesCount-(offset+readNum)>0){
-					err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*(offset+readNum), sizeof(Circle)*min((circlesCount-(offset+readNum)),readNum), c_CPU_render[((j+1)%2)], NULL, &event);
-				}
-				//queue.finish();
-
-				for(int i=0; i < min((circlesCount-offset),readNum); i++)
-				{
-					//printf("%4u: %5u\n", j, offset+i);
-					c = c_CPU_render[j][i];
-					r = c.size;
-					x = c.pos.s[0];
-					y = c.pos.s[1];
-					z = 0;
-					printf("Circle size(%3f) mass(%3f) E(%3f) ",r,c.mass,c.E);
-					printf("pos(%4f|%4f|%4f) ",x,y,z);
-					printf("speed(%4f|%4f|%4f) ",c.speed.s[0],c.speed.s[1],0.0);
-					printf("force(%4f|%4f|%4f)\n",c.force.s[0],c.force.s[1],0.0);
-				}
-			}*/
+void OpenClCalculator::doStep(){
+	if(useSplitKernels){
+		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(circlesCount/(circlesCount/1024+1),1), NULL, &events[eventCounter]);
+		err = queue.enqueueNDRangeKernel(moveStep_addWallForces_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+1]); 
+		err = queue.enqueueNDRangeKernel(moveStep_updatePositions_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+2]); 
+		eventCounter++;
+	}else{
+		err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter++]);
+	}
+	//printf("step %i\n", i++);
+	if(eventCounter>=numEvents){
+		eventCounter = 0;
+		eventsFull = true;
+	}
+	if(eventsFull){
+		//event2.at(0)=events[eventCounter];
+		//printf(
+		//queue.enqueueWaitForEvents(event2);
+		if(useSplitKernels){
+			events[eventCounter].wait();
+			events[eventCounter].~Event();
+			events[eventCounter+1].wait();
+			events[eventCounter+1].~Event();
+			events[eventCounter+2].wait();
+			events[eventCounter+2].~Event();
+		}else{
+			events[eventCounter].wait();
+			events[eventCounter].~Event();
 		}
+		//context.release(events[eventCounter]);
+		//queue.release(events[eventCounter]);
+	}else{
+		queue.finish();
 	}
-	catch (cl::Error er) {
-		printf("ERROR: %s (%d | %s)\n", er.what(), er.err(), oclErrorString(er.err()));
-	}
-	hasStopped = true;
+	//if(err!=CL_SUCCESS)printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
+	//queue.finish();
 }
 
-bool OpenClCalculator::getRunning(){
-	return running||!hasStopped;
+void OpenClCalculator::saveFrame(){
+	err = queue.enqueueReadBuffer(cl_circles, CL_FALSE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);
 }
 
 char* OpenClCalculator::file_contents(const char *filename, int *length)

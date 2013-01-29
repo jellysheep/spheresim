@@ -70,7 +70,15 @@ void StatusViewer::run() {
 			}
 
 			fps = nextCalculatorFrames;
-			clTimer->fpsChanged(nextCalculatorFrames);
+			
+			if(speed!=0 && fps!=0 && speedCorrection!=0){
+				scalar timeInterval = speed*speedCorrection/fps;
+				//printf("timeInterval: %10f\n", timeInterval);
+				clTimer->fpsChanged(timeInterval);
+			}else{
+				printf("ERROR! fpsChanged! \n");
+				printf("speed: %6f fps: %6f speedCorr.: 6%f\n", speed, fps, speedCorrection);
+			}
 		}
 			
 		emit fpsChanged(glWidgetFrames, clTimerFrames, frameBufferLoad, speed*min(1.0,clTimerFrames/(speed*minFps)));

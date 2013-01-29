@@ -3,9 +3,15 @@ cmake_minimum_required(VERSION 2.8)
 
 #need to include FindOPENCL.cmake to
 SET( CMAKE_MODULE_PATH ${circles_SOURCE_DIR}/cmake)
+SET( CMAKE_INCLUDE_PATH ${circles_SOURCE_DIR}/cmake)
 
 SET( CMAKE_CXX_COMPILER "ccache" )
 SET( CMAKE_CXX_COMPILER_ARG1 "g++" )
+
+#set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-msse2 -msse3 -msse4")
+#set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-msse2 -msse3 -msse4")
+INCLUDE ("OptimizeForArchitecture")
+#OptimizeForArchitecture ()
 
 message("CMake module path: ${CMAKE_MODULE_PATH}\n")
 
@@ -23,8 +29,8 @@ INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
 
 SET(QT_USE_QTOPENGL TRUE)
 
-SET(circles_SOURCES main.cpp 	GLWidget.cpp	OpenClCalculator.cpp 	StatusViewer.cpp	Circles.cpp	ExponentialSlider.cpp	ExponentialInput.cpp	Ui_Control.cpp)
-SET(circles_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Circles.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	NanosecondTimer.h FramesCounter.h Calculator.h)
+SET(circles_SOURCES main.cpp 	GLWidget.cpp	OpenClCalculator.cpp 	StatusViewer.cpp	Circles.cpp	ExponentialSlider.cpp	ExponentialInput.cpp	Ui_Control.cpp	Calculator.cpp)
+SET(circles_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Circles.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	Calculator.h	NanosecondTimer.h FramesCounter.h)
 
 QT4_WRAP_CPP(circles_HEADERS_MOC ${circles_HEADERS})
 

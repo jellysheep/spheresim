@@ -2,56 +2,106 @@
 #ifndef _CIRCLES_H_
 #define _CIRCLES_H_
 
-#define __CL_ENABLE_EXCEPTIONS
-#include <CL/cl.hpp>
-#include <CL/cl_platform.h>
-
 #define _3D_ 1
 #define _double_ 0
 
-typedef cl_float4 cl_float3;
-typedef cl_double4 cl_double3;
+#if defined( __GNUC__ )
+    #define CL_ALIGNED(_x)          __attribute__ ((aligned(_x)))
+#elif defined( _WIN32) && (_MSC_VER)
+    /* Alignment keys neutered on windows because MSVC can't swallow function arguments with alignment requirements     */
+    /* http://msdn.microsoft.com/en-us/library/373ak2y1%28VS.71%29.aspx                                                 */
+    /* #include <crtdefs.h>                                                                                             */
+    /* #define CL_ALIGNED(_x)          _CRT_ALIGN(_x)                                                                   */
+    #define CL_ALIGNED(_x)
+#else
+   #warning  Need to implement some method to align data here
+   #define  CL_ALIGNED(_x)
+#endif
+
+typedef union
+{
+    float  CL_ALIGNED(8) s[2];
+#if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
+   __extension__ struct{ float  x, y; };
+   __extension__ struct{ float  s0, s1; };
+   __extension__ struct{ float  lo, hi; };
+#endif
+}float2;
+
+typedef union
+{
+    float  CL_ALIGNED(16) s[4];
+#if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
+   __extension__ struct{ float   x, y, z, w; };
+   __extension__ struct{ float   s0, s1, s2, s3; };
+   __extension__ struct{ float2  lo, hi; };
+#endif
+}float4;
+
+typedef  float4  float3;
+
+typedef union
+{
+    double  CL_ALIGNED(16) s[2];
+#if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
+   __extension__ struct{ double  x, y; };
+   __extension__ struct{ double s0, s1; };
+   __extension__ struct{ double lo, hi; };
+#endif
+}double2;
+
+typedef union
+{
+    double  CL_ALIGNED(32) s[4];
+#if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
+   __extension__ struct{ double  x, y, z, w; };
+   __extension__ struct{ double  s0, s1, s2, s3; };
+   __extension__ struct{ double2 lo, hi; };
+#endif
+}double4;
+
+typedef  double4  double3;
 
 #if _3D_
-	typedef cl_float3 cl_float_vector;
-	typedef cl_double3 cl_double_vector;
+	typedef float3 float_vector;
+	typedef double3 double_vector;
 #else
-	typedef cl_float2 cl_float_vector;
-	typedef cl_double2 cl_double_vector;
+	typedef float2 float_vector;
+	typedef double2 double_vector;
 #endif
 
 #if _double_
-	typedef cl_double_vector cl_vector;
-	typedef cl_double2 cl_vector2;
-	typedef cl_double3 cl_vector3;
+	typedef double_vector vector;
+	typedef double2 vector2;
+	typedef double3 vector3;
 	typedef double scalar;
 #else
-	typedef cl_float_vector cl_vector;
-	typedef cl_float2 cl_vector2;
-	typedef cl_float3 cl_vector3;
+	typedef float_vector vector;
+	typedef float2 vector2;
+	typedef float3 vector3;
 	typedef float scalar;
 #endif
 
-typedef struct vector2{
+/*typedef struct vector2{
 	scalar s[2];
 } vector2;
 typedef struct vector3{
 	scalar s[3];
-} vector3;
+} vector3;*/
 #if _3D_
 	typedef vector3 vector;
 #else
 	typedef vector2 vector;
 #endif
 
-extern cl_vector2* clVector(vector2 v);
-extern cl_vector3* clVector(vector3 v);
+extern vector2* clVector(vector2 v);
+extern vector3* clVector(vector3 v);
 
 typedef struct Circle
 {
-	cl_vector pos, oldPos;
-	cl_vector speed;
-	cl_vector force;
+	vector pos, oldPos;
+	vector speed;
+	vector force;
 	scalar size, mass, poisson, E;
 	//float x[3];  //padding
 } Circle;

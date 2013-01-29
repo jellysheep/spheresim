@@ -12,6 +12,8 @@ class GLWidget;
 class Calculator : public QThread, public FramesCounter{
 	Q_OBJECT
 protected:
+	GLWidget* glWidget;
+	
     static char hex(int i){
 		if(i<0 || i>15){
 			return '0';
@@ -28,15 +30,30 @@ protected:
 			fprintf(file, "%c%c", hex(c[i]/16), hex(c[i]%16));
 		}
 	}
+    
+    void run();
+    
+    virtual void doStep()=0;
+    virtual void saveFrame()=0;
+    
+    virtual void save()=0;
+	
+    long elapsedFrames;
+    int readNum_save, readNum_render, bufferReadIndex, bufferWriteIndex;
+	
+	bool newFrame;
+	bool running, hasStopped;
 	
 public:
-	virtual void set(GLWidget* w)=0;
+	Calculator();
+	
+	void set(GLWidget* w);
 	
 	virtual void paintGL(bool readNewFrame)=0;
     
-	virtual void fpsChanged(scalar fps)=0;
-
-	virtual scalar getFrameBufferLoad()=0;
+	virtual void fpsChanged(scalar timeInterval)=0;
+	
+	scalar getFrameBufferLoad();
 	
 	virtual bool getNewFrame()=0;
 	
@@ -44,14 +61,24 @@ public:
 	
     CircleExtension* ceBuffer;
     
-    virtual bool getRunning()=0;
+    bool getRunning();
     
     virtual Circle* getCirclesBuffer()=0;
 	
 public slots:
-    virtual void start()=0;
-    
-    virtual void stop()=0;
+	void start(){
+		printf("starting calculator...");
+		if(running || !hasStopped) return;
+		running = true;
+		hasStopped = false;
+		QThread::start();
+		printf("started calculator! \n");
+	}
+	void stop(){
+		if(running)
+			running = false;
+		while(!hasStopped);
+	}
     
     virtual void boxSizeChanged()=0;
     

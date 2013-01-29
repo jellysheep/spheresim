@@ -10,14 +10,11 @@
 #include "Circles.h"
 #include "Calculator.h"
 
-class GLWidget;
-
 class OpenClCalculator: public Calculator {
 
 	Q_OBJECT // must include this if you use Qt signals/slots
 
 protected:
-	GLWidget* glWidget;
 	char* file_contents(const char *filename, int *length);
 	const char* oclErrorString(cl_int error);
 	
@@ -52,36 +49,24 @@ protected:
 	bool eventsFull;
 	cl::Event* events;
 	FILE * file;
-	
-    int readNum_save, readNum_render, bufferReadIndex, bufferWriteIndex;
-    //Circle* c_CPU_render[2];
+    bool circlesBufferUsed;
+    
     Circle** c_CPU_render;
     Circle* c_CPU_save[2];
     Circle* circlesBuffer;
-    bool circlesBufferUsed;
     
-    long elapsedFrames;
-    
-    void run();
-	
-	bool newFrame;
-	bool running, hasStopped;
+    void doStep();
+    void saveFrame();
 
 public:
 	OpenClCalculator();
-	
-	void set(GLWidget* w);
 	
 	Circle* getCirclesBuffer();
 	
 	void paintGL(bool readNewFrame);
     
-	void fpsChanged(scalar fps);
+	void fpsChanged(scalar timeInterval);
 
-	friend void start(OpenClCalculator* clTimer);
-	
-	scalar getFrameBufferLoad();
-	
 	bool getNewFrame(){
 		return newFrame;
 	}
@@ -90,20 +75,7 @@ public:
 		newFrame = b;
 	}
 	
-	bool getRunning();
-
 public slots:
-	void start(){
-		if(running || !hasStopped) return;
-		running = true;
-		hasStopped = false;
-		QThread::start();
-	}
-	void stop(){
-		if(running)
-			running = false;
-		while(!hasStopped);
-	}
 	void boxSizeChanged();
 	void gravityChanged();
 };
