@@ -49,7 +49,7 @@ public:
 	
 	void set(GLWidget* w);
 	
-	virtual void paintGL(bool readNewFrame)=0;
+	virtual void paintGL(bool readNewFrame);
     
 	virtual void fpsChanged(scalar timeInterval)=0;
 	
@@ -63,7 +63,7 @@ public:
     
     bool getRunning();
     
-    virtual Circle* getCirclesBuffer()=0;
+    virtual Circle* getCircle(int i)=0;
 	
 public slots:
 	void start(){

@@ -2,7 +2,7 @@
 #ifndef _CIRCLES_H_
 #define _CIRCLES_H_
 
-#define _3D_ 1
+#define _3D_ 0
 #define _double_ 0
 
 #if defined( __GNUC__ )

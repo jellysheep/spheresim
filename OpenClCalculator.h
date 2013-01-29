@@ -61,10 +61,8 @@ protected:
 public:
 	OpenClCalculator();
 	
-	Circle* getCirclesBuffer();
+	Circle* getCircle(int i);
 	
-	void paintGL(bool readNewFrame);
-    
 	void fpsChanged(scalar timeInterval);
 
 	bool getNewFrame(){

@@ -329,15 +329,41 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
     c->force -= force;
 }
 
+inline void AtomicAdd(volatile __global float *source, const float operand) {
+    union {
+        unsigned int intVal;
+        float floatVal;
+    } newVal;
+    union {
+        unsigned int intVal;
+        float floatVal;
+    } prevVal;
+    do {
+        prevVal.floatVal = *source;
+        newVal.floatVal = prevVal.floatVal + operand;
+    } while (atomic_cmpxchg((volatile __global unsigned int *)source, prevVal.intVal, newVal.intVal) != prevVal.intVal);
+}
+
+#define AtomicAddVector(x,y) { \
+	AtomicAdd(&(x).s0, y.s0); \
+	AtomicAdd(&(x).s1, y.s1); \
+	AtomicAdd(&(x).s2, y.s2); \
+}
+
 __kernel void moveStep3_addInterForces(__global struct Circle* circle, 
 						__global scalar* elastic, __global scalar* G_)
 {
 	int id = get_global_id(0);
 	int id2 = get_global_id(1);
 	//printf("group id: %5d local id: %5d global id: %5d\n",id,id2, get_global_id(0));
-	if(id2<=id) return;
+	if(id2<=id){
+		for(long l = get_global_size(0)*get_global_size(1); l>0; l--){
+			barrier(CLK_GLOBAL_MEM_FENCE);
+		}
+		return;
+	}
 	
-	vector force;
+	vector force, f, f2;
 	scalar reduced = *elastic, G = *G_;
 	
 	__global struct Circle* c;
@@ -388,8 +414,12 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 		 // bzw. normalize(d_pos);
 		// Gravitation:
 		force = G*c->mass*c2->mass/pow_(max(d,(scalar)c->size/10),2) *d_n;
-		c->force += force;
-		c2->force -= force;
+		//c->force += force;
+		//AtomicAddVector(c->force, force);
+		f += force;
+		//c2->force -= force;
+		//AtomicAddVector(c2->force, -force);
+		f2 += force;
 	}
 	#endif
 	
@@ -412,9 +442,25 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 		if(reduced!=1 && dot(d_pos, (c->speed-c2->speed)/d)<0){ //Skalarprodukt
 			force *= reduced;
 		}
-		c->force -= force;
-		c2->force += force;
+		//c->force -= force;
+		//AtomicAdd(&c->force.s0, force.s0);
+		//AtomicAddVector(c->force, -force);
+		f += force;
+		//c2->force += force;
+		//AtomicAddVector(c2->force, force);
+		f2 += force;
 		// */
+	}
+	long wait1 = id2*get_global_size(0)+id,
+		wait2 = (get_global_size(1)-id2-1)*get_global_size(0)+(get_global_size(0)-id);
+	//printf("Waiting %d + %d barriers...\n", wait1, wait2);
+	for(long l = wait1; l>0; l--){
+		barrier(CLK_GLOBAL_MEM_FENCE);
+	}
+	c->force += f;
+	c2->force += f2;
+	for(long l = wait2; l>0; l--){
+		barrier(CLK_GLOBAL_MEM_FENCE);
 	}
 }
 
@@ -509,6 +555,7 @@ __kernel void moveStep3_updatePositions(__global struct Circle* circle,
 	int id = get_global_id(0);
 	
 	__global struct Circle* c = &circle[id];
+	barrier(CLK_GLOBAL_MEM_FENCE);
     
 	// */
 	
@@ -562,6 +609,7 @@ __kernel void moveStep3_updatePositions(__global struct Circle* circle,
 		#endif
 	
 	#endif
+	barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
 
