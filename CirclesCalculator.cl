@@ -329,148 +329,125 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
     c->force -= force;
 }
 
-inline void AtomicAdd(volatile __global float *source, const float operand) {
-    union {
-        unsigned int intVal;
-        float floatVal;
-    } newVal;
-    union {
-        unsigned int intVal;
-        float floatVal;
-    } prevVal;
-    do {
-        prevVal.floatVal = *source;
-        newVal.floatVal = prevVal.floatVal + operand;
-    } while (atomic_cmpxchg((volatile __global unsigned int *)source, prevVal.intVal, newVal.intVal) != prevVal.intVal);
-}
-
-#define AtomicAddVector(x,y) { \
-	AtomicAdd(&(x).s0, y.s0); \
-	AtomicAdd(&(x).s1, y.s1); \
-	AtomicAdd(&(x).s2, y.s2); \
-}
-
+#define count 10
 __kernel void moveStep3_addInterForces(__global struct Circle* circle, 
-						__global scalar* elastic, __global scalar* G_)
+						__global scalar* elastic, __global scalar* G_,
+						__global vector* forces, __global int* indices)
 {
 	int id = get_global_id(0);
 	int id2 = get_global_id(1);
 	//printf("group id: %5d local id: %5d global id: %5d\n",id,id2, get_global_id(0));
-	if(id2<=id){
-		for(long l = (get_global_size(0)+get_global_size(1)); l>0; l--){
-			barrier(CLK_GLOBAL_MEM_FENCE);
-		}
-		return;
+	bool doNext = true;
+	if(id2<=id) doNext = false;
+	if(id == 0){
+		indices[id2] = 0;
+		//printf("indices[%d] = %d\n", id2, indices[id2]);
+		/*for(int i = 0; i<count; i++){
+			forces[count*id2 + i] = 0;
+		}*/
 	}
-	
-	vector force, f, f2;
-	scalar reduced = *elastic, G = *G_;
 	
 	__global struct Circle* c;
 	c = &circle[id];
 	__global struct Circle* c2;
 	c2 = &circle[id2];
-    
-    vector d_pos, d_n;
-	scalar both_r, d, d_, R, E_;
 	
-	//#define c2 circle[i]
-	both_r = c->size + c2->size;
-	d_pos = c2->pos-c->pos;
+	barrier(CLK_GLOBAL_MEM_FENCE);
+		
 	
-	//*
-	#if _G_==0
-	if(G == 0)
-	{
-		if(d_pos.s0>both_r||d_pos.s0<-both_r||d_pos.s1>both_r||d_pos.s1<-both_r
-			#if _3D_
-			||d_pos.s2>both_r||d_pos.s2<-both_r
-			#endif
-			){
-			return;
-		}
-	}
-	#endif
-	// */
-
-	//d_pos.s2 = 0;
-	d = length(d_pos);
-	//d = max(d,(scalar)0.00005f);
-	
-	/*
-	d_n = d_pos/d;
-	force = 10000000000000000000000000.0*pow_(d,12) *d_n;
-	c->force -= force;
-	c2->force += force;
-	force = 1000000000000.0*pow_(d,6) *d_n;
-	c->force += force;
-	c2->force -= force;
-	return;*/
-	
-	#if _G_
-	if(G!=0)
-	{
-		d_n = d_pos/d;
-		 // bzw. normalize(d_pos);
-		// Gravitation:
-		force = G*c->mass*c2->mass/pow_(max(d,(scalar)c->size/10),2) *d_n;
-		//c->force += force;
-		//AtomicAddVector(c->force, force);
-		f += force;
-		//c2->force -= force;
-		//AtomicAddVector(c2->force, -force);
-		f2 -= force;
-	}
-	#endif
-	
-	// Abstossung:
-	if (d < both_r) {
+	if(doNext){
+		vector force;
+		scalar reduced = *elastic, G = *G_;
+		
+		vector d_pos, d_n;
+		scalar both_r, d, d_, R, E_;
+		
+		//#define c2 circle[i]
+		both_r = c->size + c2->size;
+		d_pos = c2->pos-c->pos;
+		
 		//*
-		//#if _G_==0
+		#if _G_==0
 		if(G == 0)
 		{
-			d_n = d_pos/d; // bzw. normalize(d_pos);
+			if(d_pos.s0>both_r||d_pos.s0<-both_r||d_pos.s1>both_r||d_pos.s1<-both_r
+				#if _3D_
+				||d_pos.s2>both_r||d_pos.s2<-both_r
+				#endif
+				){
+				doNext = false;
+			}
 		}
-		//#endif
+		#endif
 		// */
-		// nach Kontaktmechanik mit Poisson-Zahlen:
-		d_ = both_r - d;
-		//*
-		R = 1/((1/c->size)+(1/c2->size));
-		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c2->poisson*c2->poisson)/c2->E));
-		force = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3)) *d_n;
-		if(reduced!=1 && dot(d_pos, (c->speed-c2->speed)/d)<0){ //Skalarprodukt
-			force *= reduced;
+		
+		if(doNext){
+
+			//d_pos.s2 = 0;
+			d = length(d_pos);
+			//d = max(d,(scalar)0.00005f);
+			
+			/*
+			d_n = d_pos/d;
+			force = 10000000000000000000000000.0*pow_(d,12) *d_n;
+			c->force -= force;
+			c2->force += force;
+			force = 1000000000000.0*pow_(d,6) *d_n;
+			c->force += force;
+			c2->force -= force;
+			return;*/
+			
+			#if _G_
+			if(G!=0)
+			{
+				d_n = d_pos/d;
+				 // bzw. normalize(d_pos);
+				// Gravitation:
+				force = G*c->mass*c2->mass/pow_(max(d,(scalar)c->size/10),2) *d_n;
+				c->force += force;
+				
+				c2->force -= force;
+			}
+			#endif
+			
+			// Abstossung:
+			if (d < both_r) {
+				//*
+				//#if _G_==0
+				if(G == 0)
+				{
+					d_n = d_pos/d; // bzw. normalize(d_pos);
+				}
+				//#endif
+				// */
+				// nach Kontaktmechanik mit Poisson-Zahlen:
+				d_ = both_r - d;
+				//*
+				R = 1/((1/c->size)+(1/c2->size));
+				E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c2->poisson*c2->poisson)/c2->E));
+				force = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3)) *d_n;
+				if(reduced!=1 && dot(d_pos, (c->speed-c2->speed)/d)<0){ //Skalarprodukt
+					force *= reduced;
+				}
+				//printf("id: %d id2: %d index1: %d index2: %d\n", id, id2, indices[id], indices[id2]);
+				//c->force -= force;
+				forces[id*count+atomic_inc(&indices[id])] = -force;
+				//c2->force += force;
+				forces[id2*count+atomic_inc(&indices[id2])] = force;
+				// */
+				//printf("now: id: %d id2: %d index1: %d index2: %d\n", id, id2, indices[id], indices[id2]);
+			}
 		}
-		//c->force -= force;
-		//AtomicAdd(&c->force.s0, force.s0);
-		//AtomicAddVector(c->force, -force);
-		f -= force;
-		//c2->force += force;
-		//AtomicAddVector(c2->force, force);
-		f2 += force;
-		// */
 	}
-	long wait1 = id,
-		wait2 = (get_global_size(0)-id);
-	printf("1 Waiting %d + %d barriers...\n", wait1, wait2);
-	for(long l = wait1; l>0; l--){
-		barrier(CLK_GLOBAL_MEM_FENCE);
-	}
-	c->force += f;
-	for(long l = wait2; l>0; l--){
-		barrier(CLK_GLOBAL_MEM_FENCE);
-	}
-	
-	wait1 = id2;
-	wait2 = (get_global_size(1)-id2);
-	printf("2 Waiting %d + %d barriers...\n", wait1, wait2);
-	for(long l = wait1; l>0; l--){
-		barrier(CLK_GLOBAL_MEM_FENCE);
-	}
-	c2->force += f2;
-	for(long l = wait2; l>0; l--){
-		barrier(CLK_GLOBAL_MEM_FENCE);
+	barrier(CLK_GLOBAL_MEM_FENCE);
+	if(id == 0){
+		for(int i = indices[id2]-1; i>=0; i--){
+			//forces[count*id2 + i] = 0;
+			c2->force+=forces[id2*count+i];
+			//printf("id: %d\n", id2);
+			//indices[id2]--;
+		}
+		indices[id2] = 0;
 	}
 }
 
@@ -565,7 +542,6 @@ __kernel void moveStep3_updatePositions(__global struct Circle* circle,
 	int id = get_global_id(0);
 	
 	__global struct Circle* c = &circle[id];
-	barrier(CLK_GLOBAL_MEM_FENCE);
     
 	// */
 	
@@ -619,7 +595,6 @@ __kernel void moveStep3_updatePositions(__global struct Circle* circle,
 		#endif
 	
 	#endif
-	barrier(CLK_GLOBAL_MEM_FENCE);
 }
 
 

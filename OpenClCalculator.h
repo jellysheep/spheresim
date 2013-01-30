@@ -41,6 +41,7 @@ protected:
 	cl::Buffer cl_circlesCount, cl_E;
 	cl::Buffer cl_elastic, cl_gravity, cl_timeInterval;
 	cl::Buffer cl_poisson, cl_G;
+	cl::Buffer cl_forces, cl_indices;
 		
 	cl_int err;
 	cl::Event event;

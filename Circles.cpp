@@ -25,7 +25,7 @@ vector3 boxSize = (vector3){1,1,1};
 vector2 size = (vector2){0.01,0.01};
 
 int renderFpsMax = 50, renderFps = renderFpsMax;
-scalar speed = 0.1, speedCorrection = 1.0;
+scalar speed = 0.01, speedCorrection = 1.0;
 scalar fps = 1000000, minFps = 4000;
 scalar timeInterval = speed*speedCorrection/fps;
 

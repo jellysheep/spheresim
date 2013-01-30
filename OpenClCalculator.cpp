@@ -196,6 +196,8 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		cl_timeInterval = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &timeInterval, &err);
 		cl_poisson = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &poisson, &err);
 		cl_G = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &G, &err);
+		cl_forces = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(vector)*circlesCount*10, NULL, &err);
+		cl_indices = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(int)*circlesCount, NULL, &err);
 
 		printf("Pushing data to the GPU\n");
 		//push our CPU arrays to the GPU
@@ -237,6 +239,8 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		err = moveStep_addInterForces_kernel.setArg(0, cl_circles);
 		err = moveStep_addInterForces_kernel.setArg(1, cl_elastic);
 		err = moveStep_addInterForces_kernel.setArg(2, cl_G);
+		err = moveStep_addInterForces_kernel.setArg(3, cl_forces);
+		err = moveStep_addInterForces_kernel.setArg(4, cl_indices);
 		
 		err = moveStep_addWallForces_kernel.setArg(0, cl_circles);
 		err = moveStep_addWallForces_kernel.setArg(1, cl_boxSize);
@@ -411,7 +415,8 @@ Circle* OpenClCalculator::getCircle(int i){
 
 void OpenClCalculator::doStep(){
 	if(useSplitKernels){
-		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(circlesCount/(circlesCount/1024+1),1), NULL, &events[eventCounter]);
+		//err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(circlesCount/(circlesCount/1024+1),1), NULL, &events[eventCounter]);
+		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(circlesCount,1), NULL, &events[eventCounter]);
 		err = queue.enqueueNDRangeKernel(moveStep_addWallForces_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+1]); 
 		err = queue.enqueueNDRangeKernel(moveStep_updatePositions_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+2]); 
 		eventCounter++;
