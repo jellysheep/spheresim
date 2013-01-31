@@ -17,12 +17,12 @@ cl_vector3* clVector(vector3 v){
 	return ret;
 }*/
 
-int circlesCount = 100;
+int circlesCount = 1000;
 int showCirclesCount = std::min(1000,circlesCount);
 bool manyCircles = (showCirclesCount>20);
 
 vector3 boxSize = (vector3){1,1,1};
-vector2 size = (vector2){0.01,0.01};
+vector2 size = (vector2){0.02,0.02};
 
 int renderFpsMax = 50, renderFps = renderFpsMax;
 scalar speed = 0.01, speedCorrection = 1.0;

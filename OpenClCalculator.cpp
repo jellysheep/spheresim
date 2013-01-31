@@ -72,7 +72,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		//context properties will be important later, for now we go with defualts
 		try{
 			cl_context_properties properties[] = 
-				{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[1])(), 0};
+				{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
 		
 
 			context = cl::Context(CL_DEVICE_TYPE_ALL, properties);
@@ -196,8 +196,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		cl_timeInterval = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &timeInterval, &err);
 		cl_poisson = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &poisson, &err);
 		cl_G = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &G, &err);
-		cl_forces = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(vector)*circlesCount*10, NULL, &err);
-		cl_indices = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(int)*circlesCount, NULL, &err);
+		cl_flags = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(int)*circlesCount, NULL, &err);
 
 		printf("Pushing data to the GPU\n");
 		//push our CPU arrays to the GPU
@@ -227,6 +226,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		err = randomFill_kernel.setArg(6, cl_poisson);
 		err = randomFill_kernel.setArg(7, cl_E);
 		err = randomFill_kernel.setArg(8, cl_circlesCount);
+		err = randomFill_kernel.setArg(9, cl_flags);
 		
 		err = moveStep_kernel.setArg(0, cl_circles);
 		err = moveStep_kernel.setArg(1, cl_circlesCount);
@@ -239,8 +239,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		err = moveStep_addInterForces_kernel.setArg(0, cl_circles);
 		err = moveStep_addInterForces_kernel.setArg(1, cl_elastic);
 		err = moveStep_addInterForces_kernel.setArg(2, cl_G);
-		err = moveStep_addInterForces_kernel.setArg(3, cl_forces);
-		err = moveStep_addInterForces_kernel.setArg(4, cl_indices);
+		err = moveStep_addInterForces_kernel.setArg(3, cl_flags);
 		
 		err = moveStep_addWallForces_kernel.setArg(0, cl_circles);
 		err = moveStep_addWallForces_kernel.setArg(1, cl_boxSize);

@@ -98,8 +98,9 @@ scalar GetUniform(uint* m_z, uint* m_w, uint gid)
 __kernel void randomFill(__global struct Circle* circle, __global uint* z, __global uint* w,
 						__global vector3* boxSize, __global scalar* max_speed,
 						__global vector* size, __global scalar* poisson,
-						__global scalar* E, __global uint* num){
+						__global scalar* E, __global uint* num, __global int* flags){
     int gid = get_global_id(0);
+    flags[gid] = 0;
     vector3 s = *boxSize;
     vector s2 = *size;
     uint m_z_ = 0;//(*z) + (gid*s.s0*1000000);
@@ -329,125 +330,104 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
     c->force -= force;
 }
 
-#define count 10
+#define addForce(i,f) {						\
+	while (atomic_cmpxchg(&flags[i],0,1)==1);\
+	circle[i].force += f;					\
+	flags[i] = 0;							\
+}
+
 __kernel void moveStep3_addInterForces(__global struct Circle* circle, 
 						__global scalar* elastic, __global scalar* G_,
-						__global vector* forces, __global int* indices)
+						__global int* flags)
 {
 	int id = get_global_id(0);
 	int id2 = get_global_id(1);
 	//printf("group id: %5d local id: %5d global id: %5d\n",id,id2, get_global_id(0));
-	bool doNext = true;
-	if(id2<=id) doNext = false;
-	if(id == 0){
-		indices[id2] = 0;
-		//printf("indices[%d] = %d\n", id2, indices[id2]);
-		/*for(int i = 0; i<count; i++){
-			forces[count*id2 + i] = 0;
-		}*/
-	}
+	if(id2<=id) return;
 	
 	__global struct Circle* c;
 	c = &circle[id];
 	__global struct Circle* c2;
 	c2 = &circle[id2];
 	
-	barrier(CLK_GLOBAL_MEM_FENCE);
-		
+	vector force;
+	scalar reduced = *elastic, G = *G_;
 	
-	if(doNext){
-		vector force;
-		scalar reduced = *elastic, G = *G_;
-		
-		vector d_pos, d_n;
-		scalar both_r, d, d_, R, E_;
-		
-		//#define c2 circle[i]
-		both_r = c->size + c2->size;
-		d_pos = c2->pos-c->pos;
-		
-		//*
-		#if _G_==0
-		if(G == 0)
-		{
-			if(d_pos.s0>both_r||d_pos.s0<-both_r||d_pos.s1>both_r||d_pos.s1<-both_r
-				#if _3D_
-				||d_pos.s2>both_r||d_pos.s2<-both_r
-				#endif
-				){
-				doNext = false;
-			}
-		}
-		#endif
-		// */
-		
-		if(doNext){
-
-			//d_pos.s2 = 0;
-			d = length(d_pos);
-			//d = max(d,(scalar)0.00005f);
-			
-			/*
-			d_n = d_pos/d;
-			force = 10000000000000000000000000.0*pow_(d,12) *d_n;
-			c->force -= force;
-			c2->force += force;
-			force = 1000000000000.0*pow_(d,6) *d_n;
-			c->force += force;
-			c2->force -= force;
-			return;*/
-			
-			#if _G_
-			if(G!=0)
-			{
-				d_n = d_pos/d;
-				 // bzw. normalize(d_pos);
-				// Gravitation:
-				force = G*c->mass*c2->mass/pow_(max(d,(scalar)c->size/10),2) *d_n;
-				c->force += force;
-				
-				c2->force -= force;
-			}
+	vector d_pos, d_n;
+	scalar both_r, d, d_, R, E_;
+	
+	//#define c2 circle[i]
+	both_r = c->size + c2->size;
+	d_pos = c2->pos-c->pos;
+	
+	//*
+	#if _G_==0
+	if(G == 0)
+	{
+		if(d_pos.s0>both_r||d_pos.s0<-both_r||d_pos.s1>both_r||d_pos.s1<-both_r
+			#if _3D_
+			||d_pos.s2>both_r||d_pos.s2<-both_r
 			#endif
-			
-			// Abstossung:
-			if (d < both_r) {
-				//*
-				//#if _G_==0
-				if(G == 0)
-				{
-					d_n = d_pos/d; // bzw. normalize(d_pos);
-				}
-				//#endif
-				// */
-				// nach Kontaktmechanik mit Poisson-Zahlen:
-				d_ = both_r - d;
-				//*
-				R = 1/((1/c->size)+(1/c2->size));
-				E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c2->poisson*c2->poisson)/c2->E));
-				force = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3)) *d_n;
-				if(reduced!=1 && dot(d_pos, (c->speed-c2->speed)/d)<0){ //Skalarprodukt
-					force *= reduced;
-				}
-				//printf("id: %d id2: %d index1: %d index2: %d\n", id, id2, indices[id], indices[id2]);
-				//c->force -= force;
-				forces[id*count+atomic_inc(&indices[id])] = -force;
-				//c2->force += force;
-				forces[id2*count+atomic_inc(&indices[id2])] = force;
-				// */
-				//printf("now: id: %d id2: %d index1: %d index2: %d\n", id, id2, indices[id], indices[id2]);
-			}
+			){
+			return;
 		}
 	}
-	barrier(CLK_GLOBAL_MEM_FENCE);
-	if(id == 0){
-		for(int i = indices[id2]-1; i>=0; i--){
-			//forces[count*id2 + i] = 0;
-			c2->force+=forces[id2*count+i];
-			//printf("id: %d\n", id2);
-			//indices[id2]--;
+	#endif
+	// */
+	
+	//d_pos.s2 = 0;
+	d = length(d_pos);
+	//d = max(d,(scalar)0.00005f);
+	
+	/*
+	d_n = d_pos/d;
+	force = 10000000000000000000000000.0*pow_(d,12) *d_n;
+	c->force -= force;
+	c2->force += force;
+	force = 1000000000000.0*pow_(d,6) *d_n;
+	c->force += force;
+	c2->force -= force;
+	return;*/
+	
+	#if _G_
+	if(G!=0)
+	{
+		d_n = d_pos/d;
+		 // bzw. normalize(d_pos);
+		// Gravitation:
+		force = G*c->mass*c2->mass/pow_(max(d,(scalar)c->size/10),2) *d_n;
+		c->force += force;
+		
+		c2->force -= force;
+	}
+	#endif
+	
+	// Abstossung:
+	if (d < both_r) {
+		//*
+		//#if _G_==0
+		if(G == 0)
+		{
+			d_n = d_pos/d; // bzw. normalize(d_pos);
 		}
-		indices[id2] = 0;
+		//#endif
+		// */
+		// nach Kontaktmechanik mit Poisson-Zahlen:
+		d_ = both_r - d;
+		//*
+		R = 1/((1/c->size)+(1/c2->size));
+		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c2->poisson*c2->poisson)/c2->E));
+		force = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3)) *d_n;
+		if(reduced!=1 && dot(d_pos, (c->speed-c2->speed)/d)<0){ //Skalarprodukt
+			force *= reduced;
+		}
+		//printf("id: %d id2: %d index1: %d index2: %d\n", id, id2, indices[id], indices[id2]);
+		//c->force -= force;
+		addForce(id,-force);
+		//c2->force += force;
+		addForce(id2,force);
+		// */
+		//printf("now: id: %d id2: %d index1: %d index2: %d\n", id, id2, indices[id], indices[id2]);
 	}
 }
 
