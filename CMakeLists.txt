@@ -1,41 +1,48 @@
-PROJECT(circles)
+PROJECT(SphereSim)
 cmake_minimum_required(VERSION 2.8)
 
 #need to include FindOPENCL.cmake to
-SET( CMAKE_MODULE_PATH ${circles_SOURCE_DIR}/cmake)
-SET( CMAKE_INCLUDE_PATH ${circles_SOURCE_DIR}/cmake)
+SET( CMAKE_MODULE_PATH ${SphereSim_SOURCE_DIR}/cmake)
+SET( CMAKE_INCLUDE_PATH ${SphereSim_SOURCE_DIR}/cmake)
 
 SET( CMAKE_CXX_COMPILER "ccache" )
 SET( CMAKE_CXX_COMPILER_ARG1 "g++" )
 
-#set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-msse2 -msse3 -msse4")
-#set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-msse2 -msse3 -msse4")
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-msse2 -Ofast")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-msse2 -Ofast")
 INCLUDE ("OptimizeForArchitecture")
 #OptimizeForArchitecture ()
+
+if(OPENMP_FOUND)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
 
 message("CMake module path: ${CMAKE_MODULE_PATH}\n")
 
 FIND_PACKAGE (OPENCL)
 
-INCLUDE_DIRECTORIES( 
-	${circles_SOURCE_DIR}/../opencl10
-)
+FIND_PACKAGE(Eigen3)
 
 FIND_PACKAGE(Qt4 REQUIRED)
 FIND_PACKAGE(OpenGL REQUIRED)
 SET(CMAKE_REQUIRED_LIBRARIES ${GL_LIBRARY})
 LINK_DIRECTORIES(${OPENGL_LIBRARIES})
-INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(
+	${OPENGL_INCLUDE_DIR}
+	${EIGEN3_INCLUDE_DIR}
+)
 
 SET(QT_USE_QTOPENGL TRUE)
 
-SET(circles_SOURCES main.cpp 	GLWidget.cpp	OpenClCalculator.cpp 	StatusViewer.cpp	Circles.cpp	ExponentialSlider.cpp	ExponentialInput.cpp	Ui_Control.cpp	Calculator.cpp)
-SET(circles_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Circles.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	Calculator.h	NanosecondTimer.h FramesCounter.h)
+SET(SphereSim_SOURCES main.cpp 	GLWidget.cpp	OpenClCalculator.cpp 	StatusViewer.cpp	Circles.cpp	ExponentialSlider.cpp	ExponentialInput.cpp	Ui_Control.cpp	Calculator.cpp	EigenCalculator.cpp)
+SET(SphereSim_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Circles.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	Calculator.h	EigenCalculator.h	NanosecondTimer.h FramesCounter.h)
 
-QT4_WRAP_CPP(circles_HEADERS_MOC ${circles_HEADERS})
+QT4_WRAP_CPP(SphereSim_HEADERS_MOC ${SphereSim_HEADERS})
 
 INCLUDE(${QT_USE_FILE})
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 
-ADD_EXECUTABLE(circles_ocgl ${circles_SOURCES} ${circles_HEADERS_MOC})
-TARGET_LINK_LIBRARIES(circles_ocgl ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${cllib} ${OPENCL_LIBRARIES})
+ADD_EXECUTABLE(SphereSim ${SphereSim_SOURCES} ${SphereSim_HEADERS_MOC})
+TARGET_LINK_LIBRARIES(SphereSim ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${cllib} ${OPENCL_LIBRARIES})

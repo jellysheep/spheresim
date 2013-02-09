@@ -333,7 +333,33 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 #define addForce(i,f) {						\
 	while (atomic_cmpxchg(&flags[i],0,1)==1);\
 	circle[i].force += f;					\
-	flags[i] = 0;							\
+	atomic_xchg(&flags[i],0);							\
+}
+
+void GetSemaphor_old(__global int * semaphor) {
+   int occupied = atomic_xchg(semaphor, 1);
+   while(occupied == 1)
+   //for(int i = 0; i<1000 && occupied > 0; i++)
+   {
+     occupied = atomic_xchg(semaphor, 1);
+   }
+}
+#define addForce2(i,f) {						\
+	int waiting = 1;							\
+	while(waiting){								\
+		if(atomic_xchg(&flags[i], 1)==0){		\
+			circle[i].force += f;				\
+			atomic_xchg(&flags[i],0);			\
+			waiting = 0;						\
+		}										\
+	}											\
+}
+
+ 
+
+void ReleaseSemaphor(__global int * semaphor)
+{
+   int prevVal = atomic_xchg(semaphor, 0);
 }
 
 __kernel void moveStep3_addInterForces(__global struct Circle* circle, 
@@ -343,8 +369,15 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 	int id = get_global_id(0);
 	int id2 = get_global_id(1);
 	//printf("group id: %5d local id: %5d global id: %5d\n",id,id2, get_global_id(0));
-	if(id2<=id) return;
 	
+		//flags[id] = 0;
+		
+		//flags[id2] = 0;
+	
+		//barrier(CLK_GLOBAL_MEM_FENCE);
+		
+	if(id2>=id) return;
+		
 	__global struct Circle* c;
 	c = &circle[id];
 	__global struct Circle* c2;
@@ -422,13 +455,18 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 			force *= reduced;
 		}
 		//printf("id: %d id2: %d index1: %d index2: %d\n", id, id2, indices[id], indices[id2]);
+		//GetSemaphor(&flags[id]);
 		//c->force -= force;
-		addForce(id,-force);
+		//ReleaseSemaphor(&flags[id]);
+		addForce2(id,-force);
+		//GetSemaphor(&flags[id2]);
 		//c2->force += force;
-		addForce(id2,force);
+		//ReleaseSemaphor(&flags[id2]);
+		addForce2(id2,force);
 		// */
 		//printf("now: id: %d id2: %d index1: %d index2: %d\n", id, id2, indices[id], indices[id2]);
 	}
+	//printf("id: %5d id2: %5d\n",id,id2);
 }
 
 

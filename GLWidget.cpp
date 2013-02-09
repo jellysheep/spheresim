@@ -204,7 +204,6 @@ void GLWidget::paintGL() {
 	//glRotatef(180.0, 0.0, 1.0, 0.0);
 	glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
 	glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
-	glRotatef(-rotGrav, 0.0, 0.0, 1.0);
 
 	scalar scale = 109.0/boxSize.s[0];
 	#if !_3D_
@@ -212,13 +211,15 @@ void GLWidget::paintGL() {
 	#endif
 	glScalef(scale,scale,scale);
 
-	//glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
-	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (_3D_!=0?(-boxSize.s[2]/2):0));
 	
 	
 	#if _3D_
 		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
 	#endif
+	glRotatef(-rotGrav, 0.0, 0.0, 1.0);
+	//glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
+	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (_3D_!=0?(-boxSize.s[2]/2):0));
+	
 	static double reflection = 0.95;
 	if(renderBool){
 		#if _3D_

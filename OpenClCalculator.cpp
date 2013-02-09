@@ -15,38 +15,11 @@
 
 OpenClCalculator::OpenClCalculator():Calculator(){
 	try{
-		
-		newFrame = false;
-		
 		printf("sizeof(Circle): %d\n", sizeof(Circle));
 		srand(20);
 		srand(NanosecondTimer::getNS());
 		
-		//if(useColoursBool)
-		{
-			int light, lightTarget = 90, color;
-			ceBuffer = new CircleExtension[circlesCount];
-			for(int i = 0; i<circlesCount; i++){
-				color = (rand()%256)+(256*(rand()%256))+(256*256*(rand()%256));
-				light = pow(pow(color%256,2)+pow(color/256%256,2)+pow(color/256/256,2),0.5);
-				//printf("light before: %4d\n",light);
-				color = (color%256*lightTarget/light)+256*(color/256%256*lightTarget/light)
-					+256*256*(color/256/256*lightTarget/light);
-				light = pow(pow(color%256,2)+pow(color/256%256,2)+pow(color/256/256,2),0.5);
-				//light = ((color%256)+(color/256%256)+(color/256/256))/3;
-				//printf("light after:  %4d\n",light);
-				ceBuffer[i].color = color;
-				if(useColoursBool){
-					ceBuffer[i].trace = new vector[traceCount];
-					ceBuffer[i].traceCount = 0;
-					ceBuffer[i].traceFull = false;
-				}
-			}
-		}
-		
-		
 		glWidget = NULL;
-		elapsedFrames = 0;
 		printf("Initialize OpenCL object and context\n");
 		//setup devices and context
 		
@@ -72,7 +45,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		//context properties will be important later, for now we go with defualts
 		try{
 			cl_context_properties properties[] = 
-				{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
+				{ CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[1])(), 0};
 		
 
 			context = cl::Context(CL_DEVICE_TYPE_ALL, properties);
@@ -295,9 +268,11 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 			}
 			bufferReadIndex = 0;
 			bufferWriteIndex = 0;
-			err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
+			saveFrame();
+			//err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
 			bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
-			err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
+			saveFrame();
+			//err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
 			bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 		}
 		
@@ -414,8 +389,8 @@ Circle* OpenClCalculator::getCircle(int i){
 
 void OpenClCalculator::doStep(){
 	if(useSplitKernels){
-		//err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(circlesCount/(circlesCount/1024+1),1), NULL, &events[eventCounter]);
-		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(circlesCount,1), NULL, &events[eventCounter]);
+		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(256,1), NULL, &events[eventCounter]);
+		//err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(circlesCount,1), NULL, &events[eventCounter]);
 		err = queue.enqueueNDRangeKernel(moveStep_addWallForces_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+1]); 
 		err = queue.enqueueNDRangeKernel(moveStep_updatePositions_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+2]); 
 		eventCounter++;

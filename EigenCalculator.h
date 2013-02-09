@@ -1,79 +1,87 @@
 #ifndef _EIGEN_CALCULATOR_H_
 #define _EIGEN_CALCULATOR_H_
 
-#include <QThread>
+#define NDEBUG
 #include <Eigen/Dense>
+using namespace Eigen;
+
+#include <QThread>
 
 #include "Circles.h"
 #include "Calculator.h"
 
-class GLWidget;
+#define useSSE 0
+
+#if useSSE
+	#if _3D_
+		//Vector4d and Vector4f are vectorized
+		//typedef Eigen::Matrix<scalar, 4, 1> eVector;
+		#if _double_
+			typedef Vector4d eVector;
+		#else
+			typedef Vector4f eVector;
+		#endif
+	#else
+		#if _double_
+			//Vector2d is vectorized
+			typedef Vector2d eVector;
+			//typedef Eigen::Matrix<scalar, 2, 1> eVector;
+		#else
+			//Vector2f is not vectorized, but Vector4f is
+			typedef Vector4f eVector;
+			//typedef Eigen::Matrix<scalar, 4, 1> eVector;
+		#endif
+	#endif
+#else
+	#if _3D_
+		//typedef Eigen::Matrix<scalar, 3, 1> eVector;
+		#if _double_
+			typedef Vector3d eVector;
+		#else
+			typedef Vector3f eVector;
+		#endif
+	#else
+		//typedef Eigen::Matrix<scalar, 2, 1> eVector;
+		#if _double_
+			typedef Vector2d eVector;
+		#else
+			typedef Vector2f eVector;
+		#endif
+	#endif
+#endif
 
 class EigenCalculator: public Calculator {
 
 	Q_OBJECT // must include this if you use Qt signals/slots
 
 protected:
-	GLWidget* glWidget;
 	
 	void save();
-
-    int readNum_save, readNum_render, bufferReadIndex, bufferWriteIndex;
-    //Cireige* c_CPU_render[2];
-    Circle** c_CPU_render;
-    Circle* c_CPU_save[2];
-    Circle* circlesBuffer;
-    bool circlesBufferUsed;
+		
+    eVector** renderBuffer;
+    Circle* circles;
+    eVector *circlesOldPos, *circlesPos, *circlesSpeed, *circlesForce;
     
-    long elapsedFrames;
+    void doStep();
+    void saveFrame();
     
-    void run();
-	
-	bool newFrame;
-	bool running, hasStopped;
+    Circle c;
+    
+    scalar timeInterval;
 
 public:
 	EigenCalculator();
 	
-	void set(GLWidget* w);
+	Circle* getCircle(int i);
 	
-	Circle* getCirclesBuffer();
+	void fpsChanged(scalar timeInterval);
 	
-	void paintGL(bool readNewFrame);
-    
-	void fpsChanged(scalar fps);
-
-	friend void start(EigenCalculator* eigTimer);
-	
-	scalar getFrameBufferLoad();
-	
-	bool getNewFrame(){
-		return newFrame;
-	}
-	
-	void setNewFrame(bool b){
-		newFrame = b;
-	}
-	
-	bool getRunning();
-
 public slots:
-	void start(){
-		if(running || !hasStopped) return;
-		running = true;
-		hasStopped = false;
-		QThread::start();
-	}
-	void stop(){
-		if(running)
-			running = false;
-		while(!hasStopped);
-	}
 	void boxSizeChanged();
 	void gravityChanged();
 };
 
-extern void start(EigenCalculator* eigTimer);
+extern void start(EigenCalculator* clTimer);
 
 #endif  /* _EIGEN_CALCULATOR_H_ */
 

@@ -65,14 +65,6 @@ public:
 	Circle* getCircle(int i);
 	
 	void fpsChanged(scalar timeInterval);
-
-	bool getNewFrame(){
-		return newFrame;
-	}
-	
-	void setNewFrame(bool b){
-		newFrame = b;
-	}
 	
 public slots:
 	void boxSizeChanged();

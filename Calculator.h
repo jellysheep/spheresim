@@ -54,10 +54,14 @@ public:
 	virtual void fpsChanged(scalar timeInterval)=0;
 	
 	scalar getFrameBufferLoad();
+
+	bool getNewFrame(){
+		return newFrame;
+	}
 	
-	virtual bool getNewFrame()=0;
-	
-	virtual void setNewFrame(bool newFrame)=0;
+	void setNewFrame(bool b){
+		newFrame = b;
+	}
 	
     CircleExtension* ceBuffer;
     

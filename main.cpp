@@ -1,4 +1,6 @@
 
+#include "EigenCalculator.h"
+
 #include "Ui_Control.h"
 
 #include <QtGui/QApplication>
@@ -28,7 +30,8 @@ int main(int argc, char *argv[]) {
 	
 	qRegisterMetaType<scalar>("scalar");
 	
-	Calculator* clTimer = new OpenClCalculator();
+	//Calculator* clTimer = new OpenClCalculator();
+	Calculator* clTimer = new EigenCalculator();
 	printf("Calculator initialized!\n");
 	
 	QMainWindow* win = new QMainWindow();

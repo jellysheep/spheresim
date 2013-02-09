@@ -7,6 +7,28 @@
 Calculator::Calculator(){
 	hasStopped = true;
 	running = false;
+	
+	newFrame = false;
+	elapsedFrames = 0;
+	
+	int light, lightTarget = 90, color;
+	ceBuffer = new CircleExtension[circlesCount];
+	for(int i = 0; i<circlesCount; i++){
+		color = (rand()%256)+(256*(rand()%256))+(256*256*(rand()%256));
+		light = pow(pow(color%256,2)+pow(color/256%256,2)+pow(color/256/256,2),0.5);
+		//printf("light before: %4d\n",light);
+		color = (color%256*lightTarget/light)+256*(color/256%256*lightTarget/light)
+			+256*256*(color/256/256*lightTarget/light);
+		light = pow(pow(color%256,2)+pow(color/256%256,2)+pow(color/256/256,2),0.5);
+		//light = ((color%256)+(color/256%256)+(color/256/256))/3;
+		//printf("light after:  %4d\n",light);
+		ceBuffer[i].color = color;
+		if(useColoursBool){
+			ceBuffer[i].trace = new vector[traceCount];
+			ceBuffer[i].traceCount = 0;
+			ceBuffer[i].traceFull = false;
+		}
+	}
 }
 
 void Calculator::set(GLWidget* w){
@@ -40,6 +62,8 @@ void Calculator::run(){
 			
 			if(renderBool){
 				elapsedFrames++;
+				//printf("fps: %8f renderFps: %8d\n", fps, renderFps);
+				//printf("elapsed frames: %8d frames to elapse: %8f\n", elapsedFrames, (float)(fps/renderFps));
 				//printf("frames: (%d/%d)=%d | %d\n", (int)fps, (int)renderFps, (int)(fps/renderFps), elapsedFrames);
 				if(elapsedFrames > (int)(fps/renderFps) && glWidget != NULL){// && glWidget->drawingFinished){
 					if(bufferReadIndex == ((bufferWriteIndex+1)%renderBufferCount)){
@@ -201,6 +225,7 @@ void Calculator::paintGL(bool readNewFrame){
 		}
 		//color = 102+(102*256)+(102*256*256);
 		//printf("Circle (r=%3f): (%4f|%4f|%4f) (%4f|%4f|%4f) (%4f|%4f|%4f)\n",r,x,y,z,c.speed.s[0],c.speed.s[1],0,c.force.s[0],c.force.s[1],0);
+		//printf("Circle (r=%3f): (%4f|%4f|%4f)\n",r,x,y,z);
 		//if(_3D_==0)
 		//{
 		#if !_3D_
