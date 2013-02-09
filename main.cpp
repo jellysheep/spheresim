@@ -3,6 +3,8 @@
 
 #include "Ui_Control.h"
 
+#include "ExceptionHandler.h"
+
 #include <QtGui/QApplication>
 #include <QtOpenGL/QGLWidget>
 #include <QtConcurrentRun>
@@ -21,6 +23,8 @@
 #include "StatusViewer.h"
 
 int main(int argc, char *argv[]) {
+	
+	addExceptionHandler();
 	
 	XInitThreads();
 

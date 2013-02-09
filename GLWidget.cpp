@@ -10,8 +10,8 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	//setMouseTracking(true);
 	clTimer = ct;
 	rotation = (vector3){0,0,0};
-	xRot = 300;
-	yRot = -200;
+	xRot = 400;
+	yRot = -300;
 	translateZ = 0;
 	newFrame = false;
 	rotGrav = 0;
