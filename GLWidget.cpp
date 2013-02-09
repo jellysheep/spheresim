@@ -10,7 +10,8 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	//setMouseTracking(true);
 	clTimer = ct;
 	rotation = (vector3){0,0,0};
-	xRot = yRot = zRot = 0;
+	xRot = 300;
+	yRot = -200;
 	translateZ = 0;
 	newFrame = false;
 	rotGrav = 0;
@@ -103,9 +104,9 @@ void GLWidget::initializeGL() {
 		GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
 		GLfloat LightSpecular[]= { 1.0f, 1.0f, 1.0f, 1.0f };
 		LightPosition = new GLfloat[4];
-		LightPosition[0] = (float)boxSize.s[0]/2;
+		LightPosition[0] = 0;//(float)boxSize.s[0]/2;
 		LightPosition[1] = (float)boxSize.s[1];
-		LightPosition[2] = (float)boxSize.s[2]/2;
+		LightPosition[2] = 0;//(float)boxSize.s[2]/2;
 		LightPosition[3] = 1.0f;
 		glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse); 
@@ -124,13 +125,18 @@ void GLWidget::initializeGL() {
 }
 
 void GLWidget::resizeGL(int w, int h) {
-	//*
+	/*
 	if(boxSize.s[0]*h/boxSize.s[1] > w){
 		glViewport(0, 0, w, boxSize.s[1]*w/boxSize.s[0]);
 	}else{
 		glViewport(0, 0, boxSize.s[0]*h/boxSize.s[1], h);
-	}
-	/*glMatrixMode(GL_PROJECTION);
+	}//*/
+	glViewport(0,0,w,h);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(50.f, 1.f*w/h, 1.f, 2000.f);
+	/*
+	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0, w, 0, h); // set origin to bottom left corner
 	glMatrixMode(GL_MODELVIEW);
@@ -148,6 +154,7 @@ void GLWidget::timeToRender(){
 		zRot += autoRotation.s[2]*16.0;
 	//#endif
 	
+	/*
 	rotGrav += 0.2;
 	gravity.s[0] = cos(M_PI/180.0*(rotGrav+90))*gravity_abs;
 	gravity.s[1] = sin(M_PI/180.0*(rotGrav+90))*gravity_abs;
@@ -155,6 +162,7 @@ void GLWidget::timeToRender(){
 		gravity.s[2] = 0;
 	#endif
 	emit clTimer->gravityChanged();
+	//*/
 	
 	timeToRender2();
 }
@@ -205,7 +213,8 @@ void GLWidget::paintGL() {
 	glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
 	glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
 
-	scalar scale = 109.0/boxSize.s[0];
+	
+	scalar scale = 80.0/boxSize.s[0];
 	#if !_3D_
 		scale*=1.5;
 	#endif

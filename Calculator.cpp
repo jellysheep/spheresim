@@ -17,7 +17,12 @@ Calculator::Calculator(){
 	hueOffset = rans(360);
 	for(int i = 0; i<circlesCount; i++){
 		if(useColorHSV){
-			ceBuffer[i].hsvColor = QColor::fromHsv((rani(60)+(int)hueOffset)%360, 255, 70+rani(90));
+			#if _3D_
+				lightTarget = 50;
+			#else
+				lightTarget = 0;
+			#endif
+			ceBuffer[i].hsvColor = QColor::fromHsv((rani(60)+(int)hueOffset)%360, 255, 70+rani(90)+lightTarget);
 			ceBuffer[i].color = ceBuffer[i].hsvColor.toRgb();
 			//printf("H:%3d S:%3d V:%3d  R:%3d G:%3d B:%3d\n",i%360,255,255,ceBuffer[i].color.red(),ceBuffer[i].color.green(),ceBuffer[i].color.blue());
 		}else{

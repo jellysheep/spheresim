@@ -3,15 +3,15 @@
 #include <cmath>
 #include <algorithm>
 
-int circlesCount = 512;
-int showCirclesCount = min(4096,circlesCount);
+int circlesCount = 1500;
+int showCirclesCount = min(1,circlesCount);
 bool manyCircles = (showCirclesCount>20);
 
 vector3 boxSize = (vector3){1,1,1};
-vector2 size = (vector2){0.01,0.01};
+vector2 size = (vector2){0.02,0.02};
 
 int renderFpsMax = 60, renderFps = renderFpsMax;
-scalar speed = 0.1, speedCorrection = 1.0;
+scalar speed = 1, speedCorrection = 1.0;
 scalar fps = 1000000, minFps = 800;
 scalar timeInterval = speed*speedCorrection/fps;
 
@@ -37,7 +37,7 @@ bool useColorsBool = true;// && (circlesCount<=100);
 bool useColorHSV = true;
 float hueOffset;
 bool useTrace = true && (!manyCircles);
-long traceCount = renderFpsMax*5/sqrt(std::max(1.0,log(showCirclesCount)));
+long traceCount = renderFpsMax*50/sqrt(std::max(1.0,log(showCirclesCount)));
 bool connectTracePoints = true;
 int renderBufferCount = renderFpsMax;
 

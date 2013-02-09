@@ -64,15 +64,9 @@ EigenCalculator::EigenCalculator():Calculator(){
 		
 		//cout<<"3D enabled: "<<_3D_<<endl<<endl;
 	}
-	readNum_render = min(showCirclesCount,circlesCount);
-	/*c_CPU_render = new Circle*[renderBufferCount];
-	for(int i = 0; i<renderBufferCount; i++){
-		c_CPU_render[i] = new Circle[readNum_render];
-	}
-	bufferReadIndex = 0;
-	bufferWriteIndex = 0;*/
 	if(renderBool){
 		readNum_render = min(showCirclesCount,circlesCount);
+		printf("Circles to render: %d\n", readNum_render);
 		renderBuffer = new eVector*[renderBufferCount];
 		for(int i = 0; i<renderBufferCount; i++){
 			renderBuffer[i] = new eVector[readNum_render];
@@ -84,6 +78,7 @@ EigenCalculator::EigenCalculator():Calculator(){
 		saveFrame();
 		bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 	}
+	printf("EigenCalculator initialized!\n");
 }
 
 void EigenCalculator::save(){
@@ -259,7 +254,7 @@ void EigenCalculator::doStep(){
 }
 
 void EigenCalculator::saveFrame(){
-	for(int i = 0; i<circlesCount; i++){
+	for(int i = 0; i<readNum_render; i++){
 		renderBuffer[bufferWriteIndex][i] = circlesOldPos[i];
 	}
 }
