@@ -11,19 +11,28 @@ Calculator::Calculator(){
 	newFrame = false;
 	elapsedFrames = 0;
 	
-	int light, lightTarget = 90, color;
+	int light, lightTarget = 90;
+	QColor* color;
 	ceBuffer = new CircleExtension[circlesCount];
+	hueOffset = rans(360);
 	for(int i = 0; i<circlesCount; i++){
-		color = (rand()%256)+(256*(rand()%256))+(256*256*(rand()%256));
-		light = pow(pow(color%256,2)+pow(color/256%256,2)+pow(color/256/256,2),0.5);
-		//printf("light before: %4d\n",light);
-		color = (color%256*lightTarget/light)+256*(color/256%256*lightTarget/light)
-			+256*256*(color/256/256*lightTarget/light);
-		light = pow(pow(color%256,2)+pow(color/256%256,2)+pow(color/256/256,2),0.5);
-		//light = ((color%256)+(color/256%256)+(color/256/256))/3;
-		//printf("light after:  %4d\n",light);
-		ceBuffer[i].color = color;
-		if(useColoursBool){
+		if(useColorHSV){
+			ceBuffer[i].hsvColor = QColor::fromHsv((rani(60)+(int)hueOffset)%360, 255, 70+rani(90));
+			ceBuffer[i].color = ceBuffer[i].hsvColor.toRgb();
+			//printf("H:%3d S:%3d V:%3d  R:%3d G:%3d B:%3d\n",i%360,255,255,ceBuffer[i].color.red(),ceBuffer[i].color.green(),ceBuffer[i].color.blue());
+		}else{
+			ceBuffer[i].color = QColor(rani(255),rani(255),rani(255));
+			color = &ceBuffer[i].color;
+			light = pow(pow(color->red(),2)+pow(color->green(),2)+pow(color->blue(),2),0.5);
+			//printf("light before: %4d\n",light);
+			color->setRed(color->red()*lightTarget/light);
+			color->setGreen(color->green()*lightTarget/light);
+			color->setBlue(color->blue()*lightTarget/light);
+			light = pow(pow(color->red(),2)+pow(color->green(),2)+pow(color->blue(),2),0.5);
+			//light = ((color%256)+(color/256%256)+(color/256/256))/3;
+			//printf("light after:  %4d\n",light);
+		}
+		if(useColorsBool){
 			ceBuffer[i].trace = new vector[traceCount];
 			ceBuffer[i].traceCount = 0;
 			ceBuffer[i].traceFull = false;
@@ -144,16 +153,27 @@ void Calculator::paintGL(bool readNewFrame){
 	int i,k,h,j;
 	Circle* c;
 	CircleExtension* ce;
+	QColor* color;
 	#if _3D_
-		int color = 102+(102*256)+(102*256*256);
+		color = new QColor(102,102,102);
 	#else
-		int color = 30+(30*256)+(30*256*256);
+		color = new QColor(30,30,30);
 	#endif
 	//err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferReadIndex], NULL, NULL);//&event);
 	//printf("waiting for reading...\n");
 	//event.wait();
 	//printf("ready!\n");
 	//queue.finish();
+	if(useColorsBool && useColorHSV){
+		hueOffset+=0.15;
+		if(hueOffset>360)
+			hueOffset -= 360;
+		for(i=0; i < readNum_render; i++){
+			color = &ceBuffer[i].hsvColor;
+			ceBuffer[i].color = QColor::fromHsv((color->hue()+(int)hueOffset)%360, color->saturation(), color->value());
+		}
+	}
+	
 	if(useTrace){
 		glDisable(GL_LIGHTING);
 		for(i=0; i < readNum_render; i++)
@@ -170,28 +190,28 @@ void Calculator::paintGL(bool readNewFrame){
 			z = 0;
 #endif
 			ce = &ceBuffer[i];
-			if(useColoursBool)
-				color = ce->color;
+			if(useColorsBool)
+				color = &ce->color;
 			ce->trace[ce->traceCount] = (vector){x,y
 #if _3D_
 				,z
 #endif
 				};
-			glColor4b(color/256/256,color/256%256,color%256,0);
+			glColor4f(color->redF(),color->greenF(),color->blueF(),0);
 			if(connectTracePoints)
 				glBegin(GL_LINE_STRIP);
 			else
 				glBegin(GL_POINTS);
 			k = 0;
 			for(h = (ce->traceFull?((ce->traceCount+1)%traceCount):0); h!=ce->traceCount; h=((h+1)%traceCount)){
-				glColor4b(color/256/256,color/256%256,color%256,255*std::pow((k++)*1.0/traceCount,0.5)/2);
+				glColor4f(color->redF(),color->greenF(),color->blueF(),std::pow((k++)*1.0/traceCount,0.5)/2);
 				#if _3D_
 					glVertex3d(ce->trace[h].s[0], ce->trace[h].s[1], ce->trace[h].s[2]);
 				#else
 					glVertex2d(ce->trace[h].s[0], ce->trace[h].s[1]);
 				#endif
 			}
-			glColor4b(color/256/256,color/256%256,color%256,255*std::pow((k++)*1.0/traceCount,0.5)/2);
+			glColor4f(color->redF(),color->greenF(),color->blueF(),std::pow((k++)*1.0/traceCount,0.5)/2);
 			#if _3D_
 				glVertex3d(x,y,z);
 			#else
@@ -220,8 +240,9 @@ void Calculator::paintGL(bool readNewFrame){
 #else
 		z = 0;
 #endif
-		if(useColoursBool){
-			color = ceBuffer[i].color;
+		if(useColorsBool)
+		{
+			color = &ceBuffer[i].color;
 		}
 		//color = 102+(102*256)+(102*256*256);
 		//printf("Circle (r=%3f): (%4f|%4f|%4f) (%4f|%4f|%4f) (%4f|%4f|%4f)\n",r,x,y,z,c.speed.s[0],c.speed.s[1],0,c.force.s[0],c.force.s[1],0);
@@ -242,12 +263,12 @@ void Calculator::paintGL(bool readNewFrame){
 			#if onlyOneC
 				if(i==cCount-1)
 					//glColor3bv((byte*)&color);
-					glColor3b(color/256/256,color/256%256,color%256); 
+					glColor3f(color->redF(),color->greenF(),color->blueF()); 
 				else
 					glColor3d(0.05, 0.05, 0.05);
 			#else
 				//glColor3bv((GLbyte*)&color);
-				glColor3b(color/256/256,color/256%256,color%256); 
+				glColor3f(color->redF(),color->greenF(),color->blueF()); 
 			#endif
 			d = 0;
 			for(j = 0; j<=edges; j++){
@@ -263,12 +284,12 @@ void Calculator::paintGL(bool readNewFrame){
 			#if onlyOneC
 				if(i==cCount-1)
 					//glColor3bv((byte*)&color);
-					glColor3b(color/256/256,color/256%256,color%256); 
+					glColor3f(color->redF(),color->greenF(),color->blueF()); 
 				else
 					glColor3d(0.05, 0.05, 0.05);
 			#else
 				//glColor3bv((GLbyte*)&color);
-				glColor3b(color/256/256,color/256%256,color%256); 
+				glColor3f(color->redF(),color->greenF(),color->blueF()); 
 			#endif
 			glPushMatrix();
 			glTranslated(x,y,z);

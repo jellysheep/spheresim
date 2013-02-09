@@ -8,8 +8,8 @@ SET( CMAKE_INCLUDE_PATH ${SphereSim_SOURCE_DIR}/cmake)
 SET( CMAKE_CXX_COMPILER "ccache" )
 SET( CMAKE_CXX_COMPILER_ARG1 "g++" )
 
-set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-msse2 -Ofast")
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-msse2 -Ofast")
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-msse2 -fopenmp -Ofast")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-msse2 -fopenmp -Ofast")
 INCLUDE ("OptimizeForArchitecture")
 #OptimizeForArchitecture ()
 

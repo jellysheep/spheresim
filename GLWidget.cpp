@@ -148,13 +148,13 @@ void GLWidget::timeToRender(){
 		zRot += autoRotation.s[2]*16.0;
 	//#endif
 	
-	//rotGrav += 0.3;
+	rotGrav += 0.2;
 	gravity.s[0] = cos(M_PI/180.0*(rotGrav+90))*gravity_abs;
 	gravity.s[1] = sin(M_PI/180.0*(rotGrav+90))*gravity_abs;
 	#if _3D_
 		gravity.s[2] = 0;
 	#endif
-	//emit clTimer->gravityChanged();
+	emit clTimer->gravityChanged();
 	
 	timeToRender2();
 }

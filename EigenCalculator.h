@@ -10,7 +10,7 @@ using namespace Eigen;
 #include "Circles.h"
 #include "Calculator.h"
 
-#define useSSE 0
+#define useSSE 1
 
 #if useSSE
 	#if _3D_

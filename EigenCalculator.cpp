@@ -6,15 +6,7 @@ using namespace std;
 
 #include "NanosecondTimer.h"
 
-#define parallelFor 
-//_Pragma("omp parallel for")
-
-scalar rans(scalar s){
-	return (rand()%65536)/65536.0*s;
-}
-scalar rans(scalar s1, scalar s2){
-	return s1+rans(s2-s1);
-}
+#define parallelFor _Pragma("omp parallel for")
 
 EigenCalculator::EigenCalculator():Calculator(){
 	srand(1);
@@ -40,10 +32,10 @@ EigenCalculator::EigenCalculator():Calculator(){
 		circles[i].poisson = poisson;
 		circles[i].mass = 4.0/3.0*pow(circles[i].size,3)*M_PI  *950; //Kautschuk
 		
-		circlesPos[i](0) = rans(boxSize.s0);
-		circlesPos[i](1) = rans(boxSize.s1);
+		circlesPos[i](0) = circles[i].size+rans(boxSize.s0-2*circles[i].size);
+		circlesPos[i](1) = circles[i].size+rans(boxSize.s1-2*circles[i].size);
 		#if _3D_
-			circlesPos[i](2) = rans(boxSize.s2);
+			circlesPos[i](2) = circles[i].size+rans(boxSize.s2-2*circles[i].size);
 			#if useSSE
 				//Vector4f or Vector4d
 				circlesPos[i](3) = 0;
@@ -66,11 +58,11 @@ EigenCalculator::EigenCalculator():Calculator(){
 		#endif
 		circlesSpeed[i].normalize();
 		circlesSpeed[i] *= rans(max_speed);
-		cout<<circlesSpeed[i]<<endl<<endl;
+		//cout<<circlesSpeed[i]<<endl<<endl;
 		
 		circlesForce[i] = eVector::Zero();
 		
-		cout<<"3D enabled: "<<_3D_<<endl<<endl;
+		//cout<<"3D enabled: "<<_3D_<<endl<<endl;
 	}
 	readNum_render = min(showCirclesCount,circlesCount);
 	/*c_CPU_render = new Circle*[renderBufferCount];
@@ -98,7 +90,7 @@ void EigenCalculator::save(){
 	//not yet implemented
 }
 
-#define _G_ 1
+#define _G_ 0
 void EigenCalculator::doStep(){
 	parallelFor
 	for(int i = 0; i<circlesCount; i++){
@@ -245,13 +237,13 @@ void EigenCalculator::doStep(){
 	//parallelFor
 	//for(int i = 0; i<circlesCount; i++){
 		EIGEN_ASM_COMMENT("begin");
-		circlesForce[i](0) += gravity.s0;
-		circlesForce[i](1) += gravity.s1;
-		#if _3D_
-			circlesForce[i](2) += gravity.s2;
-		#endif
 		eVector force = circlesForce[i];
 		eVector acceleration = force / circles[i].mass;
+		acceleration(0) += gravity.s0;
+		acceleration(1) += gravity.s1;
+		#if _3D_
+			acceleration(2) += gravity.s2;
+		#endif
 		circlesOldPos[i] += circlesSpeed[i]*timeInterval;
 		circlesOldPos[i] += 0.5*acceleration*timeInterval*timeInterval;
 		
@@ -273,10 +265,10 @@ void EigenCalculator::saveFrame(){
 }
 
 Circle* EigenCalculator::getCircle(int i){
-	circles[i].pos.s0 = renderBuffer[bufferReadIndex][i](0);
+	circles[i].pos.s0 = boxSize.s0-renderBuffer[bufferReadIndex][i](0);
 	circles[i].pos.s1 = boxSize.s1-renderBuffer[bufferReadIndex][i](1);
 	#if _3D_
-		circles[i].pos.s2 = renderBuffer[bufferReadIndex][i](2);
+		circles[i].pos.s2 = boxSize.s2-renderBuffer[bufferReadIndex][i](2);
 	#endif
 	return &circles[i];
 }

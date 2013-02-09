@@ -25,8 +25,8 @@ void Control::setupUi(QWidget* w){
 		cc cal, SLOT(stop()), Qt::QueuedConnection);
 	QObject::connect(fps, SIGNAL(valueChanged(double)), 
 		cc glw, SLOT(setRenderFps(double)), Qt::QueuedConnection);
-	QObject::connect(colours, SIGNAL(toggled(bool)), 
-		this, SLOT(useColours(bool)), Qt::QueuedConnection);
+	QObject::connect(colors, SIGNAL(toggled(bool)), 
+		this, SLOT(useColors(bool)), Qt::QueuedConnection);
 	QObject::connect(traces, SIGNAL(toggled(bool)), 
 		this, SLOT(showTrace(bool)), Qt::QueuedConnection);
 	QObject::connect(connect_trace, SIGNAL(toggled(bool)), 
@@ -60,7 +60,7 @@ void Control::setupUi(QWidget* w){
 	poissons_ratio->setValue(poisson);
 	elasticity->setValue(elastic);
 	fps->setValue(renderFpsMax);
-	colours->setChecked(useColoursBool);
+	colors->setChecked(useColorsBool);
 	traces->setChecked(useTrace);
 	connect_trace->setChecked(connectTracePoints);
 	x_rot->setValue(autoRotation.s[0]);
@@ -97,8 +97,8 @@ void Control::zBoxSize(double angle){
 	boxSize.s[2] = angle;
 	emit cal->boxSizeChanged();
 }
-void Control::useColours(bool b){
-	useColoursBool = b;
+void Control::useColors(bool b){
+	useColorsBool = b;
 }
 void Control::showTrace(bool b){
 	useTrace = b;

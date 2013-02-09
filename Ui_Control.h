@@ -22,7 +22,7 @@ public slots:
 	void xAutoRot(double angle);
 	void yAutoRot(double angle);
 	void zAutoRot(double angle);
-	void useColours(bool b);
+	void useColors(bool b);
 	void showTrace(bool b);
 	void connectTrace(bool b);
 	void xBoxSize(double angle);

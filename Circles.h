@@ -2,8 +2,10 @@
 #ifndef _CIRCLES_H_
 #define _CIRCLES_H_
 
-#define _3D_ 1
-#define _double_ 1
+#include <QColor>
+
+#define _3D_ 0
+#define _double_ 0
 
 #if defined( __GNUC__ )
     #define CL_ALIGNED(_x)          __attribute__ ((aligned(_x)))
@@ -108,7 +110,7 @@ typedef struct Circle
 
 typedef struct CircleExtension
 {
-	int color;
+	QColor color, hsvColor;
 	vector* trace;
 	int traceCount;
 	bool traceFull;
@@ -145,7 +147,9 @@ extern scalar G_fact;
 extern scalar airResistance;
 extern bool wallResistance;
 
-extern bool useColoursBool;
+extern bool useColorsBool;
+extern bool useColorHSV;
+extern float hueOffset;
 extern bool useTrace;
 extern long traceCount;
 extern bool connectTracePoints;
@@ -157,5 +161,11 @@ extern bool useSplitKernels;
 extern vector2 autoRotation;
 
 #define min(a,b) (((a)<(b))?(a):(b))
+
+
+
+extern int rani(int i);
+extern scalar rans(scalar s);
+extern scalar rans(scalar s1, scalar s2);
 
 #endif

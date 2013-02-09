@@ -55,7 +55,7 @@ public:
     QLabel *label_22;
     QLabel *label_23;
     QLabel *label;
-    QCheckBox *colours;
+    QCheckBox *colors;
     QCheckBox *traces;
     QLabel *label_24;
     QCheckBox *connect_trace;
@@ -268,11 +268,11 @@ public:
 
         gridLayout_2->addWidget(label, 0, 0, 1, 1);
 
-        colours = new QCheckBox(groupBox);
-        colours->setObjectName(QString::fromUtf8("colours"));
-        colours->setChecked(true);
+        colors = new QCheckBox(groupBox);
+        colors->setObjectName(QString::fromUtf8("colors"));
+        colors->setChecked(true);
 
-        gridLayout_2->addWidget(colours, 1, 1, 1, 1);
+        gridLayout_2->addWidget(colors, 1, 1, 1, 1);
 
         traces = new QCheckBox(groupBox);
         traces->setObjectName(QString::fromUtf8("traces"));
@@ -618,7 +618,7 @@ public:
         label_25->setBuddy(x_rot);
         label_26->setBuddy(y_rot);
         label_27->setBuddy(z_rot);
-        label_22->setBuddy(colours);
+        label_22->setBuddy(colors);
         label_23->setBuddy(traces);
         label->setBuddy(fps);
         label_24->setBuddy(connect_trace);
@@ -655,8 +655,8 @@ public:
         QWidget::setTabOrder(e_modul, poissons_ratio);
         QWidget::setTabOrder(poissons_ratio, elasticity);
         QWidget::setTabOrder(elasticity, fps);
-        QWidget::setTabOrder(fps, colours);
-        QWidget::setTabOrder(colours, traces);
+        QWidget::setTabOrder(fps, colors);
+        QWidget::setTabOrder(colors, traces);
         QWidget::setTabOrder(traces, connect_trace);
         QWidget::setTabOrder(connect_trace, x_rot);
         QWidget::setTabOrder(x_rot, y_rot);
@@ -689,10 +689,10 @@ public:
         label_26->setText(QApplication::translate("Control", "Y axis", 0, QApplication::UnicodeUTF8));
         label_27->setText(QApplication::translate("Control", "Z axis", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("Control", "Rendering", 0, QApplication::UnicodeUTF8));
-        label_22->setText(QApplication::translate("Control", "Colours", 0, QApplication::UnicodeUTF8));
+        label_22->setText(QApplication::translate("Control", "Colors", 0, QApplication::UnicodeUTF8));
         label_23->setText(QApplication::translate("Control", "Traces", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("Control", "FPS", 0, QApplication::UnicodeUTF8));
-        colours->setText(QApplication::translate("Control", "yes", 0, QApplication::UnicodeUTF8));
+        colors->setText(QApplication::translate("Control", "yes", 0, QApplication::UnicodeUTF8));
         traces->setText(QApplication::translate("Control", "yes", 0, QApplication::UnicodeUTF8));
         label_24->setText(QApplication::translate("Control", "Connect trace", 0, QApplication::UnicodeUTF8));
         connect_trace->setText(QApplication::translate("Control", "yes", 0, QApplication::UnicodeUTF8));
