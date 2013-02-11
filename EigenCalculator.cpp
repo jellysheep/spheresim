@@ -6,7 +6,7 @@ using namespace std;
 
 #include "NanosecondTimer.h"
 
-#define parallelFor _Pragma("omp parallel for")
+#define parallelFor //_Pragma("omp parallel for")
 
 EigenCalculator::EigenCalculator():Calculator(){
 	srand(1);
@@ -24,6 +24,12 @@ EigenCalculator::EigenCalculator():Calculator(){
 	circlesOldPos = new eVector[circlesCount];
 	circlesSpeed = new eVector[circlesCount];
 	circlesForce = new eVector[circlesCount];
+	both_r = new scalar*[circlesCount];
+	
+	gridWidth = size.s0;
+	gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
+	printf("Grid steps: %5d\n", gridSteps);
+	gridIndex = new int*[circlesCount];
 	
 	parallelFor
 	for(int i = 0; i<circlesCount; i++){
@@ -31,6 +37,8 @@ EigenCalculator::EigenCalculator():Calculator(){
 		circles[i].E = E;
 		circles[i].poisson = poisson;
 		circles[i].mass = 4.0/3.0*pow(circles[i].size,3)*M_PI  *950; //Kautschuk
+		
+		both_r[i] = new scalar[circlesCount];
 		
 		circlesPos[i](0) = circles[i].size+rans(boxSize.s0-2*circles[i].size);
 		circlesPos[i](1) = circles[i].size+rans(boxSize.s1-2*circles[i].size);
@@ -42,6 +50,13 @@ EigenCalculator::EigenCalculator():Calculator(){
 			#endif
 		#endif
 		circlesOldPos[i] = circlesPos[i];
+		
+		gridIndex[i] = new int[3];
+		gridIndex[i][0] = circlesPos[i](0)/gridWidth;
+		gridIndex[i][1] = circlesPos[i](1)/gridWidth;
+		#if _3D_
+			gridIndex[i][2] = circlesPos[i](2)/gridWidth;
+		#endif
 		
 		circlesSpeed[i] = eVector::Random();
 		#if useSSE
@@ -63,6 +78,12 @@ EigenCalculator::EigenCalculator():Calculator(){
 		circlesForce[i] = eVector::Zero();
 		
 		//cout<<"3D enabled: "<<_3D_<<endl<<endl;
+	}
+	parallelFor
+	for(int i = 0; i<circlesCount; i++){
+		for(int j = 0; j<circlesCount; j++){
+			both_r[i][j] = circles[i].size + circles[j].size;
+		}
 	}
 	if(renderBool){
 		readNum_render = min(showCirclesCount,circlesCount);
@@ -89,17 +110,34 @@ void EigenCalculator::save(){
 void EigenCalculator::doStep(){
 	parallelFor
 	for(int i = 0; i<circlesCount; i++){
+		eVector force;
+		
+		eVector d_pos, d_n;
+		scalar *both_r_ = &this->both_r[i][0], d, d_, R, E_;
 		for(int j = i+1; j<circlesCount; j++){
-			eVector force;
-			
-			eVector d_pos, d_n;
-			scalar both_r, d, d_, R, E_;
 			
 			//#define c2 circle[i]
-			both_r = circles[i].size + circles[j].size;
+			//both_r = circles[i].size + circles[j].size;
+			//both_r = this->both_r[i][j];
+			
+			/*d_pos(0) = circlesPos[j](0)-circlesPos[i](0);
+			if(abs(d_pos(0))>*both_r) continue;
+			d_pos(1) = circlesPos[j](1)-circlesPos[i](1);
+			if(abs(d_pos(1))>*both_r) continue;
+			d_pos(2) = circlesPos[j](2)-circlesPos[i](2);
+			if(abs(d_pos(2))>*both_r) continue;
+			//*/
+			
+			if(abs(gridIndex[i][0]-gridIndex[j][0]) >1) continue;
+			if(abs(gridIndex[i][1]-gridIndex[j][1]) >1) continue;
+			#if _3D_
+				if(abs(gridIndex[i][2]-gridIndex[j][2]) >1) continue;
+			#endif
+			
+			both_r_ = &both_r[i][j];
 			d_pos = circlesPos[j]-circlesPos[i];
 			
-			//*
+			/*
 			#if _G_==0
 			if(G == 0)
 			{
@@ -142,7 +180,7 @@ void EigenCalculator::doStep(){
 			#endif
 			
 			// Abstossung:
-			if (d < both_r) {
+			if (d < *both_r_) {
 				//*
 				//#if _G_==0
 				if(G == 0)
@@ -152,7 +190,7 @@ void EigenCalculator::doStep(){
 				//#endif
 				// */
 				// nach Kontaktmechanik mit Poisson-Zahlen:
-				d_ = both_r - d;
+				d_ = *both_r_ - d;
 				//*
 				R = 1/((1/circles[i].size)+(1/circles[j].size));
 				E_ = 1/(((1-circles[i].poisson*circles[i].poisson)/circles[i].E)+((1-circles[j].poisson*circles[j].poisson)/circles[j].E));
@@ -248,6 +286,12 @@ void EigenCalculator::doStep(){
 		circlesPos[i] = circlesOldPos[i];
 		circlesPos[i] += circlesSpeed[i]*(timeInterval/2);
 		//circlesPos[i] += 0.5*acceleration*(timeInterval/2)*(timeInterval/2);
+		
+		gridIndex[i][0] = (int)(circlesPos[i](0)/gridWidth);
+		gridIndex[i][1] = (int)(circlesPos[i](1)/gridWidth);
+		#if _3D_
+			gridIndex[i][2] = circlesPos[i](2)/gridWidth;
+		#endif
 		
 		EIGEN_ASM_COMMENT("end");
 	}

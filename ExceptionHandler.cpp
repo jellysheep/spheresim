@@ -36,7 +36,11 @@ void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext)
 	uc = (sig_ucontext_t *)ucontext;
 
 	/* Get the address at the time the signal was raised from the EIP (x86) */
-	caller_address = (void *) uc->uc_mcontext.eip;   
+	#if __WORDSIZE == 32
+		caller_address = (void *) uc->uc_mcontext.eip;   
+	#else
+		caller_address = (void *) info->si_addr;   
+	#endif
 
 	fprintf(stderr, "signal %d (%s), address is %p from %p\n", 
 		sig_num, strsignal(sig_num), info->si_addr, 

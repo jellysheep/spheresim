@@ -61,6 +61,10 @@ protected:
     eVector** renderBuffer;
     Circle* circles;
     eVector *circlesOldPos, *circlesPos, *circlesSpeed, *circlesForce;
+    scalar** both_r;
+    int gridSteps;
+    scalar gridWidth;
+    int **gridIndex;
     
     void doStep();
     void saveFrame();

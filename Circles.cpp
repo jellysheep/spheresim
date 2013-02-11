@@ -3,12 +3,12 @@
 #include <cmath>
 #include <algorithm>
 
-int circlesCount = 1500;
-int showCirclesCount = min(1,circlesCount);
+int circlesCount = 100;
+int showCirclesCount = min(5000,circlesCount);
 bool manyCircles = (showCirclesCount>20);
 
 vector3 boxSize = (vector3){1,1,1};
-vector2 size = (vector2){0.02,0.02};
+vector2 size = (vector2){0.015,0.015};
 
 int renderFpsMax = 60, renderFps = renderFpsMax;
 scalar speed = 1, speedCorrection = 1.0;
@@ -42,7 +42,7 @@ bool connectTracePoints = true;
 int renderBufferCount = renderFpsMax;
 
 bool reflections = true && (showCirclesCount<=100);
-bool useSplitKernels = true;
+bool useSplitKernels = false;
 
 vector2 autoRotation = (vector2){0,0//.2
 									};

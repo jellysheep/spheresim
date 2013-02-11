@@ -10,11 +10,52 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	//setMouseTracking(true);
 	clTimer = ct;
 	rotation = (vector3){0,0,0};
-	xRot = 400;
-	yRot = -300;
+	#if _3D_
+		xRot = 400;
+		yRot = -300;
+	#else
+		xRot = 0;
+		yRot = 0;
+	#endif
 	translateZ = 0;
 	newFrame = false;
 	rotGrav = 0;
+	
+	displayList = glGenLists(1);
+	glNewList(displayList,GL_COMPILE);
+	/*#if _3D_
+		drawsphere(1,0.01f);
+	#else
+		drawCircleF(0.01f,0.5,0.5,0.5);
+	#endif*/
+	glColor3d(0.2,0.2,0.2);
+	glBegin(GL_LINE_LOOP);
+	glVertex3d(0,0,0);
+	glVertex3d(boxSize.s[0],0,0);
+	glVertex3d(boxSize.s[0],boxSize.s[1],0);
+	glVertex3d(0,boxSize.s[1],0);
+	glEnd();
+	if(_3D_!=0){
+		glColor3d(0.2,0.2,0.2);
+		glBegin(GL_LINE_LOOP);
+		glVertex3d(0,0,boxSize.s[2]);
+		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
+		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
+		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
+		glEnd();
+		glColor3d(0.2,0.2,0.2);
+		glBegin(GL_LINES);
+		glVertex3d(0,0,0);
+		glVertex3d(0,0,boxSize.s[2]);
+		glVertex3d(boxSize.s[0],0,0);
+		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
+		glVertex3d(boxSize.s[0],boxSize.s[1],0);
+		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
+		glVertex3d(0,boxSize.s[1],0);
+		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
+		glEnd();
+	}
+	glEndList();
 	//*
 	rotationTimer = new QTimer(this);
 	rotationTimer->setInterval(1000/renderFps);
@@ -77,7 +118,7 @@ void GLWidget::initializeGL() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(1,1,1,1);
 	glPointSize(1.5);
-	glLineWidth(1);
+	glLineWidth(1.5);
 	
 	// Set color and depth clear value
 	glClearDepth(1.f);
@@ -443,5 +484,45 @@ void GLWidget::drawsphere(int ndiv, float radius=1.0) {
 	glBegin(GL_TRIANGLES);
 	for (int i=0;i<20;i++)
 		drawtri(vdata[tindices[i][0]], vdata[tindices[i][1]], vdata[tindices[i][2]], ndiv, radius);
+	glEnd();
+}
+
+void GLWidget::drawCircle(float r, int R, int G, int B){
+	drawCircleF(r, R/128.f, G/128.f, B/128.f);
+}
+
+void GLWidget::drawCircleF2(float r, float R, float G, float B){
+	//glScalef(r,r,r);
+	glColor3f(R,G,B);
+	glCallList(displayList);
+}
+
+void GLWidget::drawsphere2(float radius, float R, float G, float B) {
+	//glScalef(r,r,r);
+	glColor3f(R,G,B);
+	glCallList(displayList);
+}
+
+void GLWidget::drawCircleF(float r, float R, float G, float B){
+	static float d;
+	static int j;
+	glBegin(GL_TRIANGLE_FAN);
+	d = 0;
+	#if onlyOneC
+		if(i==cCount-1)
+			glColor3d(1,1,1); 
+		else
+			glColor3d(0.1, 0.1, 0.1); 
+	#else
+		glColor3d(1,1,1); 
+	#endif
+	glVertex3d((r/3.f),(r/3.f),0);
+	glColor3f(R,G,B); 
+	for(j = 0; j<=edges; j++){
+		d+=step;
+		//cout<<edges<<" "<<j<<endl;
+		//cout<<d<<endl;
+		glVertex3d(cos(d)*r,sin(d)*r,0);
+	}
 	glEnd();
 }

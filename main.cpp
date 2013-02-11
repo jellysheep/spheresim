@@ -22,11 +22,13 @@
 #include "CirclesHolder.h"
 #include "StatusViewer.h"
 
+#define PROFILING 0
+
 int main(int argc, char *argv[]) {
 	
 	addExceptionHandler();
 	
-	XInitThreads();
+	//XInitThreads();
 
 	QApplication app(argc, argv);
 	
@@ -38,40 +40,48 @@ int main(int argc, char *argv[]) {
 	Calculator* clTimer = new EigenCalculator();
 	printf("Calculator initialized!\n");
 	
-	QMainWindow* win = new QMainWindow();
-	
-	win->setCentralWidget(new QWidget());
-	QWidget* f = win->centralWidget();
-	
-	QHBoxLayout* layout = new QHBoxLayout();
-	f->setLayout(layout);
+	#if PROFILING == 0
+		
+		QMainWindow* win = new QMainWindow();
+		
+		win->setCentralWidget(new QWidget());
+		QWidget* f = win->centralWidget();
+		
+		QHBoxLayout* layout = new QHBoxLayout();
+		f->setLayout(layout);
 
-	//QWidget* w = new QWidget();
-	GLWidget window(clTimer);
-	//window.setMinimumSize(QSize(600,600));
-	//window.resize(600,600);
-	//window.show();
-	layout->addWidget(&window);
-	//layout->addWidget(w);
-	printf("GLWidget initialized!\n");
+		//QWidget* w = new QWidget();
+		GLWidget window(clTimer);
+		//window.setMinimumSize(QSize(600,600));
+		//window.resize(600,600);
+		//window.show();
+		layout->addWidget(&window);
+		//layout->addWidget(w);
+		printf("GLWidget initialized!\n");
+		
+		clTimer->set(&window);
+		
+		StatusViewer statusViewer(&window, clTimer);
+		statusViewer.start();
+		printf("StatusViewer initialized!\n");
+		
+		QWidget* w2 = new QWidget();
+		Control* control = new Control(&window, clTimer, &statusViewer);
+		control->setupUi(w2);
+		layout->addWidget(w2);
+		//control->resize(600,600);
+		//control->show();
+		//layout->addWidget(control);
+		printf("Control initialized!\n");
+		
+		//win->show();
+		win->showMaximized();
+		
+	#else
 	
-	clTimer->set(&window);
-	
-	StatusViewer statusViewer(&window, clTimer);
-	statusViewer.start();
-	printf("StatusViewer initialized!\n");
-	
-	QWidget* w2 = new QWidget();
-	Control* control = new Control(&window, clTimer, &statusViewer);
-	control->setupUi(w2);
-	layout->addWidget(w2);
-	//control->resize(600,600);
-	//control->show();
-	//layout->addWidget(control);
-	printf("Control initialized!\n");
-	
-	//win->show();
-	win->showMaximized();
+		clTimer->start();
+		
+	#endif
 	
 	//QFuture<void> future = QtConcurrent::run(start, clTimer);
 	//clTimer->start();

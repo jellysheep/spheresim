@@ -44,6 +44,12 @@ public:
     bool newFrame;
     
     void drawsphere(int ndiv, float radius);
+    void drawsphere2(float radius, float R, float G, float B);
+    void drawCircleF(float radius, float R, float G, float B);
+    void drawCircleF2(float radius, float R, float G, float B);
+    void drawCircle(float radius, int R, int G, int B);
+	
+	unsigned int displayList;
 
 public slots:
 	void setXRotation(int angle);

@@ -125,7 +125,7 @@ void Calculator::paintGL(bool readNewFrame){
 	}
 
 	// Draw a cube
-	glColor3d(0.2,0.2,0.2);
+	/*glColor3d(0.2,0.2,0.2);
 	glBegin(GL_LINE_LOOP);
 	glVertex3d(0,0,0);
 	glVertex3d(boxSize.s[0],0,0);
@@ -151,11 +151,12 @@ void Calculator::paintGL(bool readNewFrame){
 		glVertex3d(0,boxSize.s[1],0);
 		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
 		glEnd();
-	}
+	}*/
+	glCallList(glWidget->displayList);
 	
-	scalar r,x,y,z,d;
+	scalar r,x,y,z;
 	
-	int i,k,h,j;
+	int i,k,h;
 	Circle* c;
 	CircleExtension* ce;
 	QColor* color;
@@ -170,7 +171,7 @@ void Calculator::paintGL(bool readNewFrame){
 	//printf("ready!\n");
 	//queue.finish();
 	if(useColorsBool && useColorHSV){
-		hueOffset+=0.15;
+		hueOffset+=0.30;
 		if(hueOffset>360)
 			hueOffset -= 360;
 		for(i=0; i < readNum_render; i++){
@@ -255,35 +256,20 @@ void Calculator::paintGL(bool readNewFrame){
 		//if(_3D_==0)
 		//{
 		#if !_3D_
-			glBegin(GL_TRIANGLE_FAN);
-			#if onlyOneC
-				if(i==cCount-1)
-					glColor3d(1,1,1); 
-				else
-					glColor3d(0.1, 0.1, 0.1); 
-			#else
-				glColor3d(1,1,1); 
-			#endif
-			glVertex3d(x-(r/3),y+(r/3),z);
+			glPushMatrix();
+			glTranslated(x,y,z);
 			#if onlyOneC
 				if(i==cCount-1)
 					//glColor3bv((byte*)&color);
-					glColor3f(color->redF(),color->greenF(),color->blueF()); 
+					glWidget->drawCircleF(r,color->redF(),color->greenF(),color->blueF());
 				else
-					glColor3d(0.05, 0.05, 0.05);
+					glWidget->drawCircleF(r, 0.05, 0.05, 0.05);
 			#else
 				//glColor3bv((GLbyte*)&color);
-				glColor3f(color->redF(),color->greenF(),color->blueF()); 
+				glWidget->drawCircleF(r, color->redF(),color->greenF(),color->blueF()); 
 			#endif
-			d = 0;
-			for(j = 0; j<=edges; j++){
-				d+=step;
-				//cout<<edges<<" "<<j<<endl;
-				//cout<<d<<endl;
-				glVertex3d(x+cos(d)*r,y+sin(d)*r,z);
-			}
+			glPopMatrix();
 
-			glEnd();
 		//}else{ //3D
 		#else
 			#if onlyOneC
@@ -299,6 +285,7 @@ void Calculator::paintGL(bool readNewFrame){
 			glPushMatrix();
 			glTranslated(x,y,z);
 			glWidget->drawsphere(1,r);
+			//glWidget->drawsphere2(r,color->redF(),color->greenF(),color->blueF());
 			//glTranslated(-x,-y,-z);
 			glPopMatrix();
 		//}
