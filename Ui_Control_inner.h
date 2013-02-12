@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'CalculationsBE4655.ui'
+** Form generated from reading UI file 'Calculationsik5186.ui'
 **
-** Created: Tue Feb 12 15:47:42 2013
+** Created: Tue Feb 12 19:25:17 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef CALCULATIONSBE4655_H
-#define CALCULATIONSBE4655_H
+#ifndef CALCULATIONSIK5186_H
+#define CALCULATIONSIK5186_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -39,7 +39,7 @@ public:
     QLabel *label_6;
     QLabel *label_18;
     QLabel *label_17;
-    QCheckBox *one_sphereSize;
+    QCheckBox *one_size;
     QLabel *label_5;
     QSpinBox *count;
     QGroupBox *groupBox_5;
@@ -71,7 +71,7 @@ public:
     {
         if (Calculations->objectName().isEmpty())
             Calculations->setObjectName(QString::fromUtf8("Calculations"));
-        Calculations->resize(220, 508);
+        Calculations->resize(240, 508);
         dockWidgetContents = new QWidget();
         dockWidgetContents->setObjectName(QString::fromUtf8("dockWidgetContents"));
         verticalLayout = new QVBoxLayout(dockWidgetContents);
@@ -122,11 +122,11 @@ public:
 
         gridLayout_4->addWidget(label_17, 2, 0, 1, 1);
 
-        one_sphereSize = new QCheckBox(groupBox_2);
-        one_sphereSize->setObjectName(QString::fromUtf8("one_sphereSize"));
-        one_sphereSize->setChecked(true);
+        one_size = new QCheckBox(groupBox_2);
+        one_size->setObjectName(QString::fromUtf8("one_size"));
+        one_size->setChecked(true);
 
-        gridLayout_4->addWidget(one_sphereSize, 2, 1, 1, 1);
+        gridLayout_4->addWidget(one_size, 2, 1, 1, 1);
 
         label_5 = new QLabel(groupBox_2);
         label_5->setObjectName(QString::fromUtf8("label_5"));
@@ -326,7 +326,7 @@ public:
 #ifndef QT_NO_SHORTCUT
         label_6->setBuddy(count);
         label_18->setBuddy(radius_max);
-        label_17->setBuddy(one_sphereSize);
+        label_17->setBuddy(one_size);
         label_5->setBuddy(radius_min);
         label_10->setBuddy(x);
         label_11->setBuddy(y);
@@ -341,6 +341,7 @@ public:
 #endif // QT_NO_SHORTCUT
 
         retranslateUi(Calculations);
+        QObject::connect(one_size, SIGNAL(toggled(bool)), radius_max, SLOT(setDisabled(bool)));
 
         QMetaObject::connectSlotsByName(Calculations);
     } // setupUi
@@ -351,8 +352,8 @@ public:
         groupBox_2->setTitle(QApplication::translate("Calculations", "Objects", 0, QApplication::UnicodeUTF8));
         label_6->setText(QApplication::translate("Calculations", "Object Count", 0, QApplication::UnicodeUTF8));
         label_18->setText(QApplication::translate("Calculations", "Radius max.", 0, QApplication::UnicodeUTF8));
-        label_17->setText(QApplication::translate("Calculations", "One sphereSize", 0, QApplication::UnicodeUTF8));
-        one_sphereSize->setText(QApplication::translate("Calculations", "yes", 0, QApplication::UnicodeUTF8));
+        label_17->setText(QApplication::translate("Calculations", "One size", 0, QApplication::UnicodeUTF8));
+        one_size->setText(QApplication::translate("Calculations", "yes", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("Calculations", "Radius min.", 0, QApplication::UnicodeUTF8));
         groupBox_5->setTitle(QApplication::translate("Calculations", "Size", 0, QApplication::UnicodeUTF8));
         label_10->setText(QApplication::translate("Calculations", "X", 0, QApplication::UnicodeUTF8));
@@ -377,19 +378,19 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // CALCULATIONSBE4655_H
+#endif // CALCULATIONSIK5186_H
 
 /********************************************************************************
-** Form generated from reading UI file 'RenderingnV4655.ui'
+** Form generated from reading UI file 'RenderingBC5186.ui'
 **
-** Created: Tue Feb 12 15:47:59 2013
+** Created: Tue Feb 12 19:27:58 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef RENDERINGNV4655_H
-#define RENDERINGNV4655_H
+#ifndef RENDERINGBC5186_H
+#define RENDERINGBC5186_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -452,7 +453,7 @@ public:
     {
         if (Rendering->objectName().isEmpty())
             Rendering->setObjectName(QString::fromUtf8("Rendering"));
-        Rendering->resize(218, 509);
+        Rendering->resize(232, 509);
         dockWidgetContents = new QWidget();
         dockWidgetContents->setObjectName(QString::fromUtf8("dockWidgetContents"));
         gridLayout = new QGridLayout(dockWidgetContents);
@@ -640,11 +641,11 @@ public:
 
         frame_buffer = new QProgressBar(groupBox_4);
         frame_buffer->setObjectName(QString::fromUtf8("frame_buffer"));
-        QSizePolicy sphereSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-        sphereSizePolicy.setHorizontalStretch(0);
-        sphereSizePolicy.setVerticalStretch(0);
-        sphereSizePolicy.setHeightForWidth(frame_buffer->sizePolicy().hasHeightForWidth());
-        frame_buffer->setSizePolicy(sphereSizePolicy);
+        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(frame_buffer->sizePolicy().hasHeightForWidth());
+        frame_buffer->setSizePolicy(sizePolicy);
         frame_buffer->setValue(24);
 
         gridLayout_6->addWidget(frame_buffer, 11, 1, 1, 1);
@@ -699,6 +700,10 @@ public:
 #endif // QT_NO_SHORTCUT
 
         retranslateUi(Rendering);
+        QObject::connect(start, SIGNAL(clicked(bool)), stop, SLOT(setDisabled(bool)));
+        QObject::connect(start, SIGNAL(clicked(bool)), start, SLOT(setEnabled(bool)));
+        QObject::connect(stop, SIGNAL(clicked(bool)), start, SLOT(setDisabled(bool)));
+        QObject::connect(stop, SIGNAL(clicked(bool)), stop, SLOT(setEnabled(bool)));
 
         QMetaObject::connectSlotsByName(Rendering);
     } // setupUi
@@ -737,4 +742,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // RENDERINGNV4655_H
+#endif // RENDERINGBC5186_H

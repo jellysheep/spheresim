@@ -194,7 +194,18 @@ void GLWidget::initializeGL() {
 		glVertex3d(0,boxSize.s[1],0);
 		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
 		glEnd();
+		
+		glEnable(GL_CULL_FACE);
+		glFrontFace(GL_CCW);  
+		drawBoxSides();
+		
+		glDisable(GL_DEPTH_TEST);
+		glFrontFace(GL_CW);
+		drawBoxSides();
+		glDisable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
 	}
+	
 	glEndList();
 	glLineWidth(1.5);
 	glPointSize(1.5);
@@ -352,12 +363,13 @@ void GLWidget::paintGL() {
 		/* Switch face orientation. */
 		//*
 		
+		/*
 		glEnable(GL_CULL_FACE);
 		glFrontFace(GL_CCW);  
 		drawBoxSides();
 		glFrontFace(GL_CW);
 		drawBoxSides();
-		glDisable(GL_CULL_FACE);
+		glDisable(GL_CULL_FACE);*/
 	}
 	/*
 	glColor3f(1,0,0);

@@ -62,9 +62,9 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	calc->radius_min->setValue(sphereSize.s[0]);
 	calc->radius_max->setValue(sphereSize.s[1]);
 	if(sphereSize.s[0] == sphereSize.s[1]){
-		calc->one_sphereSize->setChecked(true);
+		calc->one_size->setChecked(true);
 	}else{
-		calc->one_sphereSize->setChecked(false);
+		calc->one_size->setChecked(false);
 	}
 	calc->x->setValue(boxSize.s[0]);
 	calc->y->setValue(boxSize.s[1]);

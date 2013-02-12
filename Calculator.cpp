@@ -143,8 +143,8 @@ void Calculator::paintGL(bool readNewFrame){
 	//event.wait();
 	//printf("ready!\n");
 	//queue.finish();
-	if(useColorsBool && useColorHSV){
-		hueOffset-=0.20;
+	if(useColorsBool && useColorHSV && readNewFrame){
+		hueOffset-=0.15;
 		if(hueOffset>360)
 			hueOffset -= 360;
 		if(hueOffset<0)
