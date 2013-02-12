@@ -1,79 +1,96 @@
 #include "Ui_Control.h"
 #include "Circles.h"
 #include "Calculator.h"
+#include <QtGui>
+#include <Qt/qdockwidget.h>
 
 #define cc (const QObject*)
 //const-cast
+ 
 
-Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):glw(g),cal(c),sv(s){
-}
-
-void Control::setupUi(QWidget* w){
-	Ui::Control::setupUi(w);
+Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(g),cal(c),sv(s){
+	setDockNestingEnabled(true);
+	
+	setCentralWidget((QWidget*)glw);
+	
+	rendWg = new QDockWidget("Rendering",this);
+	rendWg->setFeatures((QDockWidget::DockWidgetFeature)(QDockWidget::AllDockWidgetFeatures & ~QDockWidget::DockWidgetClosable));
+	rendWg->setAllowedAreas(Qt::AllDockWidgetAreas);
+	calcWg = new QDockWidget("Calculations",this);
+	calcWg->setFeatures((QDockWidget::DockWidgetFeature)(QDockWidget::AllDockWidgetFeatures & ~QDockWidget::DockWidgetClosable));
+	calcWg->setAllowedAreas(Qt::AllDockWidgetAreas);
+	
+	rend = new Ui::Rendering();
+	rend->setupUi(rendWg);
+	calc = new Ui::Calculations();
+	calc->setupUi(calcWg);
+	
+	addDockWidget(Qt::RightDockWidgetArea, rendWg, Qt::Horizontal);
+	addDockWidget(Qt::RightDockWidgetArea, calcWg, Qt::Horizontal);
 	
 	QObject::connect((const QObject*)sv, SIGNAL(fpsChanged(scalar,scalar,scalar,scalar)), 
 		this, SLOT(fpsChanged(scalar,scalar,scalar,scalar)), Qt::QueuedConnection);
-	QObject::connect(x_rot, SIGNAL(valueChanged(double)), 
+	QObject::connect(rend->x_rot, SIGNAL(valueChanged(double)), 
 		this, SLOT(xAutoRot(double)), Qt::QueuedConnection);
-	QObject::connect(y_rot, SIGNAL(valueChanged(double)), 
+	QObject::connect(rend->y_rot, SIGNAL(valueChanged(double)), 
 		this, SLOT(yAutoRot(double)), Qt::QueuedConnection);
-	QObject::connect(z_rot, SIGNAL(valueChanged(double)), 
+	QObject::connect(rend->z_rot, SIGNAL(valueChanged(double)), 
 		this, SLOT(zAutoRot(double)), Qt::QueuedConnection);
-	QObject::connect(start, SIGNAL(clicked()), 
+	QObject::connect(rend->start, SIGNAL(clicked()), 
 		cc cal, SLOT(start()), Qt::QueuedConnection);
-	QObject::connect(stop, SIGNAL(clicked()), 
+	QObject::connect(rend->stop, SIGNAL(clicked()), 
 		cc cal, SLOT(stop()), Qt::QueuedConnection);
-	QObject::connect(fps, SIGNAL(valueChanged(double)), 
+	QObject::connect(rend->fps, SIGNAL(valueChanged(double)), 
 		cc glw, SLOT(setRenderFps(double)), Qt::QueuedConnection);
-	QObject::connect(colors, SIGNAL(toggled(bool)), 
+	QObject::connect(rend->colours, SIGNAL(toggled(bool)), 
 		this, SLOT(useColors(bool)), Qt::QueuedConnection);
-	QObject::connect(traces, SIGNAL(toggled(bool)), 
+	QObject::connect(rend->traces, SIGNAL(toggled(bool)), 
 		this, SLOT(showTrace(bool)), Qt::QueuedConnection);
-	QObject::connect(connect_trace, SIGNAL(toggled(bool)), 
+	QObject::connect(rend->connect_trace, SIGNAL(toggled(bool)), 
 		this, SLOT(connectTrace(bool)), Qt::QueuedConnection);
-	QObject::connect(x, SIGNAL(valueChanged(double)), 
+	QObject::connect(calc->x, SIGNAL(valueChanged(double)), 
 		this, SLOT(xBoxSize(double)), Qt::QueuedConnection);
-	QObject::connect(y, SIGNAL(valueChanged(double)), 
+	QObject::connect(calc->y, SIGNAL(valueChanged(double)), 
 		this, SLOT(yBoxSize(double)), Qt::QueuedConnection);
-	QObject::connect(z, SIGNAL(valueChanged(double)), 
+	QObject::connect(calc->z, SIGNAL(valueChanged(double)), 
 		this, SLOT(zBoxSize(double)), Qt::QueuedConnection);
-	QObject::connect(calc_speed, SIGNAL(valueChanged(double)), 
+	QObject::connect(rend->calc_speed, SIGNAL(valueChanged(double)), 
 		this, SLOT(speedChanged(double)), Qt::QueuedConnection);
 	
-	calc_speed->setValue(speed);
-	count->setValue(circlesCount);
-	radius_min->setValue(size.s[0]);
-	radius_max->setValue(size.s[1]);
-	if(size.s[0] == size.s[1]){
-		one_size->setChecked(true);
+	rend->calc_speed->setValue(speed);
+	calc->count->setValue(circlesCount);
+	calc->radius_min->setValue(sphereSize.s[0]);
+	calc->radius_max->setValue(sphereSize.s[1]);
+	if(sphereSize.s[0] == sphereSize.s[1]){
+		calc->one_sphereSize->setChecked(true);
 	}else{
-		one_size->setChecked(false);
+		calc->one_sphereSize->setChecked(false);
 	}
-	x->setValue(boxSize.s[0]);
-	y->setValue(boxSize.s[1]);
-	z->setValue(boxSize.s[2]);
-	earth_gravity->setValue(gravity.s[0]);
-	inter_gravity->setValue(G_fact);
-	air_resistance->setValue(airResistance);
-	wall_resistance->setChecked(wallResistance);
-	e_modul->setValue(E);
-	poissons_ratio->setValue(poisson);
-	elasticity->setValue(elastic);
-	fps->setValue(renderFpsMax);
-	colors->setChecked(useColorsBool);
-	traces->setChecked(useTrace);
-	connect_trace->setChecked(connectTracePoints);
-	x_rot->setValue(autoRotation.s[0]);
-	y_rot->setValue(autoRotation.s[1]);
-	z_rot->setValue(autoRotation.s[2]);
+	calc->x->setValue(boxSize.s[0]);
+	calc->y->setValue(boxSize.s[1]);
+	calc->z->setValue(boxSize.s[2]);
+	calc->earth_gravity->setValue(gravity.s[0]);
+	calc->inter_gravity->setValue(G_fact);
+	calc->air_resistance->setValue(airResistance);
+	calc->wall_resistance->setChecked(wallResistance);
+	calc->e_modul->setValue(E);
+	calc->poissons_ratio->setValue(poisson);
+	calc->elasticity->setValue(elastic);
+	rend->fps->setValue(renderFpsMax);
+	rend->colours->setChecked(useColorsBool);
+	rend->traces->setChecked(useTrace);
+	rend->connect_trace->setChecked(connectTracePoints);
+	rend->x_rot->setValue(autoRotation.s[0]);
+	rend->y_rot->setValue(autoRotation.s[1]);
+	rend->z_rot->setValue(autoRotation.s[2]);
 }
 
 void Control::fpsChanged(scalar glFps, scalar calFps, scalar fbLoad, scalar realSpeed){
-	render_fps->setValue(glFps);
-	calc_fps->setValue(calFps);
-	frame_buffer->setValue(fbLoad*100);
-	real_speed->setValue(realSpeed);
-	real_fps->setValue(calFps/realSpeed);
+	rend->render_fps->setValue(glFps);
+	rend->calc_fps->setValue(calFps);
+	rend->frame_buffer->setValue(fbLoad*100);
+	rend->real_speed->setValue(realSpeed);
+	rend->real_fps->setValue(calFps/realSpeed);
 }
 
 void Control::xAutoRot(double angle){

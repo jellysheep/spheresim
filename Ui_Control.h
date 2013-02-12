@@ -3,20 +3,28 @@
 
 #include "Ui_Control_inner.h"
 #include "Circles.h"
+#include <QMainWindow>
 
 class GLWidget;
 class Calculator;
 class StatusViewer;
+class QDockWidget;
 
-class Control : public QObject, public Ui::Control {
+class CustomDockWidget : public QWidget {
+	
+};
+
+class Control : public QMainWindow {
 	Q_OBJECT
 protected:
 	GLWidget* glw;
 	Calculator* cal;
 	StatusViewer* sv;
+	Ui::Rendering* rend;
+	Ui::Calculations* calc;
+	QDockWidget *rendWg, *calcWg;
 public:
 	Control(GLWidget* g, Calculator* c, StatusViewer* s);
-	void setupUi(QWidget* w);
 public slots:
 	void fpsChanged(scalar glFps, scalar calFps, scalar fbLoad, scalar realSpeed);
 	void xAutoRot(double angle);

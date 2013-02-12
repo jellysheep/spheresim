@@ -34,6 +34,11 @@ protected:
     void normalize(GLfloat *a);
     void drawtri(GLfloat *a, GLfloat *b, GLfloat *c, int div, float r);
 	void timeToRender2();
+	
+	void reflect();
+	void drawQuad(int i);
+	
+	void drawBoxSides();
     
 public:
 	GLWidget(Calculator* ct, QWidget *parent = NULL);

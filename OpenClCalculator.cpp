@@ -33,7 +33,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		printf("cl::Platform::get(): %s\n", (err));
 		printf("numer of platforms: %d\n", platforms.size());
 		if (platforms.size() == 0) {
-			printf("Platform size 0\n");
+			printf("Platform sphereSize 0\n");
 		}
 		
 		//for right now we just use the first available device
@@ -155,12 +155,12 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 			circlesBufferUsed = false;
 		}
 //		cl_vector3* boxSize_cl = clVector(boxSize);
-//		cl_vector2* size_cl = clVector(size);
+//		cl_vector2* sphereSize_cl = clVector(sphereSize);
 //		cl_vector* gravity_cl = clVector(gravity);
 		cl_m_z = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_z, &err);
 		cl_m_w = cl::Buffer(context, CL_MEM_READ_WRITE|cl_mem_method, sizeof(uint), m_w, &err);
 		cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector3), &boxSize, &err);
-		cl_size = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector2), &size, &err);
+		cl_sphereSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector2), &sphereSize, &err);
 		cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &max_speed, &err);
 		cl_circlesCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &circlesCount, &err);
 		cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &E, &err);
@@ -195,7 +195,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		err = randomFill_kernel.setArg(2, cl_m_w);
 		err = randomFill_kernel.setArg(3, cl_boxSize);
 		err = randomFill_kernel.setArg(4, cl_max_speed);
-		err = randomFill_kernel.setArg(5, cl_size);
+		err = randomFill_kernel.setArg(5, cl_sphereSize);
 		err = randomFill_kernel.setArg(6, cl_poisson);
 		err = randomFill_kernel.setArg(7, cl_E);
 		err = randomFill_kernel.setArg(8, cl_circlesCount);
@@ -297,7 +297,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 				x = c.pos.s[0];
 				y = c.pos.s[1];
 				z = 0;
-				printf("Circle size(%3f) mass(%3f) E(%3f) ",r,c.mass,c.E);
+				printf("Circle sphereSize(%3f) mass(%3f) E(%3f) ",r,c.mass,c.E);
 				printf("pos(%4f|%4f|%4f) ",x,y,z);
 				printf("speed(%4f|%4f|%4f) ",c.speed.s[0],c.speed.s[1],0.0);
 				printf("force(%4f|%4f|%4f)\n",c.force.s[0],c.force.s[1],0.0);
@@ -329,7 +329,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 				x = c.pos.s[0];
 				y = c.pos.s[1];
 				z = 0;
-				printf("Circle size(%3f) mass(%3f) E(%3f) poisson(%3f) ",r,c.mass,c.E,c.poisson);
+				printf("Circle sphereSize(%3f) mass(%3f) E(%3f) poisson(%3f) ",r,c.mass,c.E,c.poisson);
 				printf("pos(%4f|%4f|%4f) ",x,y,z);
 				printf("speed(%4f|%4f|%4f) ",c.speed.s[0],c.speed.s[1],0.0);
 				printf("force(%4f|%4f|%4f)\n",c.force.s[0],c.force.s[1],0.0);
@@ -389,13 +389,13 @@ Circle* OpenClCalculator::getCircle(int i){
 
 void OpenClCalculator::doStep(){
 	if(useSplitKernels){
-		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(32,32), NULL, &events[eventCounter]);
+		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(16,16), NULL, &events[eventCounter]);
 		//err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(circlesCount,1), NULL, &events[eventCounter]);
 		err = queue.enqueueNDRangeKernel(moveStep_addWallForces_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+1]); 
 		err = queue.enqueueNDRangeKernel(moveStep_updatePositions_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+2]); 
 		eventCounter++;
 	}else{
-		err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NDRange(512), NULL, &events[eventCounter++]);
+		err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NDRange(256), NULL, &events[eventCounter++]);
 	}
 	//printf("step %i\n", i++);
 	if(eventCounter>=numEvents){

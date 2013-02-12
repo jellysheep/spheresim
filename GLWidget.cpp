@@ -11,12 +11,13 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	clTimer = ct;
 	rotation = (vector3){0,0,0};
 	#if _3D_
-		xRot = 400;
-		yRot = -300;
+		xRot = 0;//400;
+		yRot = 0;//-300;
 	#else
 		xRot = 0;
 		yRot = 0;
 	#endif
+	zRot = 0;
 	translateZ = 0;
 	newFrame = false;
 	rotGrav = 0;
@@ -24,7 +25,7 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	
 	//*
 	rotationTimer = new QTimer(this);
-	rotationTimer->setInterval(1000/renderFps);
+	rotationTimer->setInterval(1000/(renderFps-5));
 	QObject::connect(rotationTimer, SIGNAL(timeout()), this, SLOT(timeToRender()), Qt::QueuedConnection);
 	rotationTimer->start();// */
 	QObject::connect(this, SIGNAL(timeToRender_()), this, SLOT(timeToRender()), Qt::DirectConnection);
@@ -79,7 +80,7 @@ void GLWidget::initializeGL() {
 	//glDisable(GL_COLOR_MATERIAL);
 	glEnable(GL_BLEND);
 	glEnable(GL_POINT_SMOOTH);
-	//~ glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_LINE_SMOOTH);
 	//~ glEnable(GL_POLYGON_SMOOTH);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(1,1,1,1);
@@ -167,7 +168,7 @@ void GLWidget::initializeGL() {
 	glEndList();
 	glNewList(displayList+1,GL_COMPILE);
 	glLineWidth(1.0);
-	glColor3d(0,0,0);
+	glColor3d(0,0.5,0.3);
 	glBegin(GL_LINE_LOOP);
 	glVertex3d(0,0,0);
 	glVertex3d(boxSize.s[0],0,0);
@@ -175,14 +176,14 @@ void GLWidget::initializeGL() {
 	glVertex3d(0,boxSize.s[1],0);
 	glEnd();
 	if(_3D_!=0){
-		glColor3d(0.2,0.2,0.2);
+		//glColor3d(0.2,0.2,0.2);
 		glBegin(GL_LINE_LOOP);
 		glVertex3d(0,0,boxSize.s[2]);
 		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
 		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
 		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
 		glEnd();
-		glColor3d(0.2,0.2,0.2);
+		//glColor3d(0.2,0.2,0.2);
 		glBegin(GL_LINES);
 		glVertex3d(0,0,0);
 		glVertex3d(0,0,boxSize.s[2]);
@@ -276,13 +277,38 @@ void GLWidget::paintGL() {
 	}else{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
+	
+	glPushMatrix();
+	
+	glMatrixMode(GL_PROJECTION);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+	glBegin(GL_QUADS);
+	float f = -1, col;
+	col = 0.9;
+	glColor3f(col,col,col);
+	glVertex3f(-1.0, 1.0, f);
+	glVertex3f(1.0,1.0, f);
+	col = 0.1;
+	glColor3f(col,col,col);
+	glVertex3f(1.0,-1.0, f);
+	glVertex3f(-1.0,-1.0, f);
+	glEnd();
+	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
+	
+	glPopMatrix();
 
 	// Apply some transformations
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef(0.f, 0.f, -500.f);
 	glTranslatef(0.f, 0.f, 280.f);
-	glTranslatef(0.0, 0.0, translateZ*1.0);
+	glTranslatef(0.0, 0.0, translateZ*0.1);
 
 	//glRotatef(180.0, 0.0, 1.0, 0.0);
 	glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
@@ -312,90 +338,26 @@ void GLWidget::paintGL() {
 	//glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
 	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (_3D_!=0?(-boxSize.s[2]/2):0));
 	
-	static double reflection = 0.95;
 	if(renderBool){
 		#if _3D_
 		if(reflections){
-			glEnable(GL_CULL_FACE);
-			glFrontFace(GL_CW);
-			
-			/* Don't update color or depth. */
-			glDisable(GL_DEPTH_TEST);
-			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-			/* Draw 1 into the stencil buffer. */
-			glEnable(GL_STENCIL_TEST);
-			glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-			glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
-
-			/* Now drawing the floor just tags the floor pixels
-			as stencil value 1. */
-			
-			glBegin(GL_QUADS);
-			glVertex3d(0,0,0);
-			glVertex3d(boxSize.s[0],0,0);
-			glVertex3d(boxSize.s[0],0,boxSize.s[2]);
-			glVertex3d(0,0,boxSize.s[2]);
-			glEnd();
-
-			/* Re-enable update of color and depth. */ 
-			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-			glEnable(GL_DEPTH_TEST);
-
-			/* Now, only render where stencil is set to 1. */
-			glStencilFunc(GL_EQUAL, 1, 0xffffffff);  /* draw if stencil ==1 */
-			glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-			/* Draw reflected ninja, but only where floor is. */
-			glPushMatrix();
-			glScalef(1.0, -1.0, 1.0);
-			glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
-			glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
-			glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
-			glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
-			
-			glCullFace(GL_FRONT);
-			clTimer->paintGL(true);
-			glCullFace(GL_BACK);
-			glPopMatrix();
-			glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
-			glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
-			glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
-			glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
-
-			glDisable(GL_STENCIL_TEST);
-			
-			
-			glColor4f(1.0, 1.0, 1.0, reflection);
-			glBegin(GL_QUADS);
-			glVertex3d(0,0,0);
-			glVertex3d(boxSize.s[0],0,0);
-			glVertex3d(boxSize.s[0],0,boxSize.s[2]);
-			glVertex3d(0,0,boxSize.s[2]);
-			glEnd();
-			
-			/* Draw "bottom" of floor in blue. */
-			/* Switch face orientation. */
-			/*
-			glFrontFace(GL_CCW);  
-			glColor4f(1.0, 0.0, 1.0, 0.5);
-			glBegin(GL_QUADS);
-				double y = -0.01;
-				glVertex3d(0,y,0);
-				glVertex3d(0,y,boxSize.s[2]);
-				glVertex3d(boxSize.s[0],y,boxSize.s[2]);
-				glVertex3d(boxSize.s[0],y,0);
-			glEnd();
-			glFrontFace(GL_CW);
-			// */
-			glDisable(GL_CULL_FACE);
-			clTimer->paintGL(false);
+			reflect();
 		}else{
 			clTimer->paintGL(true);
 		}
 		#else
 		clTimer->paintGL(true);
 		#endif
+		/* Draw "bottom" of floor in blue. */
+		/* Switch face orientation. */
+		//*
+		
+		glEnable(GL_CULL_FACE);
+		glFrontFace(GL_CCW);  
+		drawBoxSides();
+		glFrontFace(GL_CW);
+		drawBoxSides();
+		glDisable(GL_CULL_FACE);
 	}
 	/*
 	glColor3f(1,0,0);
@@ -406,6 +368,127 @@ void GLWidget::paintGL() {
 	glEnd(); // */
 	frameCounter++;
 	//doneCurrent();
+}
+
+void GLWidget::drawBoxSides(){
+	float opacity = 0.1;
+	glColor4f(0.0, 0.0, 0.0, opacity);
+	glBegin(GL_QUADS);
+		double y = -0.01;
+		//~ glColor4f(1,0,0,opacity);
+		glNormal3d(0,-1,0);
+		glVertex3d(y,y,y);
+		glVertex3d(y,y,boxSize.s[2]-y);
+		glVertex3d(boxSize.s[0]-y,y,boxSize.s[2]-y);
+		glVertex3d(boxSize.s[0]-y,y,y);
+		
+		//~ glColor4f(0,1,0,opacity);
+		glNormal3d(1,0,0);
+		glVertex3d(boxSize.s[0]-y,y,y);
+		glVertex3d(boxSize.s[0]-y,y,boxSize.s[2]-y);
+		glVertex3d(boxSize.s[0]-y,boxSize.s[1]-y,boxSize.s[2]-y);
+		glVertex3d(boxSize.s[0]-y,boxSize.s[1]-y,y);
+		
+		//~ glColor4f(0,0,1,opacity);
+		glNormal3d(0,1,0);
+		glVertex3d(boxSize.s[0]-y,boxSize.s[1]-y,y);
+		glVertex3d(boxSize.s[0]-y,boxSize.s[1]-y,boxSize.s[2]-y);
+		glVertex3d(y,boxSize.s[1]-y,boxSize.s[2]-y);
+		glVertex3d(y,boxSize.s[1]-y,y);
+		
+		//~ glColor4f(1,1,0,opacity);
+		glNormal3d(-1,0,0);
+		glVertex3d(y,boxSize.s[1]-y,y);
+		glVertex3d(y,boxSize.s[1]-y,boxSize.s[2]-y);
+		glVertex3d(y,y,boxSize.s[2]-y);
+		glVertex3d(y,y,y);
+		
+		//~ glColor4f(1,0,1,opacity);
+		glNormal3d(0,0,-1);
+		glVertex3d(y,y,y);
+		glVertex3d(boxSize.s[0]-y,y,y);
+		glVertex3d(boxSize.s[0]-y,boxSize.s[1]-y,y);
+		glVertex3d(y,boxSize.s[1]-y,y);
+		
+		//~ glColor4f(0,1,1,opacity);
+		glNormal3d(0,0,1);
+		glVertex3d(y,y,boxSize.s[2]-y);
+		glVertex3d(y,boxSize.s[1]-y,boxSize.s[2]-y);
+		glVertex3d(boxSize.s[0]-y,boxSize.s[1]-y,boxSize.s[2]-y);
+		glVertex3d(boxSize.s[0]-y,y,boxSize.s[2]-y);
+	glEnd();
+}
+
+void GLWidget::drawQuad(int i){
+	if(i == 0){
+		glBegin(GL_QUADS);
+		glVertex3d(0,0,0);
+		glVertex3d(boxSize.s[0],0,0);
+		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
+		glVertex3d(0,0,boxSize.s[2]);
+		glEnd();
+	}
+}
+
+void GLWidget::reflect(){
+	static double reflection = 0.7;//0.95;
+	for(int i = 0; i<1; i++){
+		glEnable(GL_CULL_FACE);
+		glFrontFace(GL_CW);
+		
+		/* Don't update color or depth. */
+		glDisable(GL_DEPTH_TEST);
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+		/* Draw 1 into the stencil buffer. */
+		glEnable(GL_STENCIL_TEST);
+		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+		glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
+
+		/* Now drawing the floor just tags the floor pixels
+		as stencil value 1. */
+		
+		drawQuad(i);
+
+		/* Re-enable update of color and depth. */ 
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glEnable(GL_DEPTH_TEST);
+
+		/* Now, only render where stencil is set to 1. */
+		glStencilFunc(GL_EQUAL, 1, 0xffffffff);  /* draw if stencil ==1 */
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+		/* Draw reflected ninja, but only where floor is. */
+		glPushMatrix();
+		glScalef(1.0, -1.0, 1.0);
+		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
+		glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
+		glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
+		glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
+		
+		glCullFace(GL_FRONT);
+		if(i == 0)
+			clTimer->paintGL(true);
+		else
+			clTimer->paintGL(false);
+		glCullFace(GL_BACK);
+		glPopMatrix();
+		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
+		glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
+		glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
+		glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
+
+		glDisable(GL_STENCIL_TEST);
+		
+		
+		glColor4f(1.0, 1.0, 1.0, reflection);
+		drawQuad(i);
+		
+		glFrontFace(GL_CW);
+		// */
+		glDisable(GL_CULL_FACE);
+	}
+	clTimer->paintGL(false);
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
@@ -441,7 +524,7 @@ void GLWidget::keyPressEvent(QKeyEvent* event) {
 
 QSize GLWidget::minimumSizeHint() const
 {
-	return QSize(100, 100);
+	return QSize(300, 300);
 }
 
 QSize GLWidget::sizeHint() const
@@ -562,7 +645,8 @@ void GLWidget::drawLights(){
 		glPushMatrix();
 		glColor3d(1,1,0); 
 		glTranslated(LightPosition[i][0], LightPosition[i][1], LightPosition[i][2]);
-		glScalef(0.1,0.1,0.1);
+		float scale = 0.02;
+		glScalef(scale,scale,scale);
 		//glWidget->drawsphere(1,r);
 		drawsphere2(0.1);
 		//glTranslated(-x,-y,-z);

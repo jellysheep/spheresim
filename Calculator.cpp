@@ -125,33 +125,6 @@ void Calculator::paintGL(bool readNewFrame){
 	}
 
 	// Draw a cube
-	/*glColor3d(0.2,0.2,0.2);
-	glBegin(GL_LINE_LOOP);
-	glVertex3d(0,0,0);
-	glVertex3d(boxSize.s[0],0,0);
-	glVertex3d(boxSize.s[0],boxSize.s[1],0);
-	glVertex3d(0,boxSize.s[1],0);
-	glEnd();
-	if(_3D_!=0){
-		glColor3d(0.2,0.2,0.2);
-		glBegin(GL_LINE_LOOP);
-		glVertex3d(0,0,boxSize.s[2]);
-		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
-		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
-		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
-		glEnd();
-		glColor3d(0.2,0.2,0.2);
-		glBegin(GL_LINES);
-		glVertex3d(0,0,0);
-		glVertex3d(0,0,boxSize.s[2]);
-		glVertex3d(boxSize.s[0],0,0);
-		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
-		glVertex3d(boxSize.s[0],boxSize.s[1],0);
-		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
-		glVertex3d(0,boxSize.s[1],0);
-		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
-		glEnd();
-	}*/
 	glCallList(glWidget->displayList+1);
 	
 	scalar r,x,y,z;
@@ -165,15 +138,17 @@ void Calculator::paintGL(bool readNewFrame){
 	#else
 		color = new QColor(30,30,30);
 	#endif
-	//err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferReadIndex], NULL, NULL);//&event);
+	//err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, .sizeof(Circle)*readNum_render, c_CPU_render[bufferReadIndex], NULL, NULL);//&event);
 	//printf("waiting for reading...\n");
 	//event.wait();
 	//printf("ready!\n");
 	//queue.finish();
 	if(useColorsBool && useColorHSV){
-		hueOffset+=0.30;
+		hueOffset-=0.20;
 		if(hueOffset>360)
 			hueOffset -= 360;
+		if(hueOffset<0)
+			hueOffset += 360;
 		for(i=0; i < readNum_render; i++){
 			color = &ceBuffer[i].hsvColor;
 			ceBuffer[i].color = QColor::fromHsv((color->hue()+(int)hueOffset)%360, color->saturation(), color->value());

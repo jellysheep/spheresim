@@ -126,7 +126,7 @@ extern bool manyCircles;
 extern int showCirclesCount;
 
 extern vector3 boxSize;
-extern vector2 size;
+extern vector2 sphereSize;
 
 extern int renderFpsMax, renderFps;
 extern scalar speed, speedCorrection;

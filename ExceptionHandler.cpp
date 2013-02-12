@@ -30,7 +30,7 @@ void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext)
 	void *             array[50];
 	void *             caller_address;
 	char **            messages;
-	int                size, i;
+	int                sphereSize, i;
 	sig_ucontext_t *   uc;
 
 	uc = (sig_ucontext_t *)ucontext;
@@ -46,15 +46,15 @@ void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext)
 		sig_num, strsignal(sig_num), info->si_addr, 
 		(void *)caller_address);
 
-	size = backtrace(array, 50);
+	sphereSize = backtrace(array, 50);
 
 	/* overwrite sigaction with caller's address */
 	array[1] = caller_address;
 
-	messages = backtrace_symbols(array, size);
+	messages = backtrace_symbols(array, sphereSize);
 
 	/* skip first stack frame (points here) */
-	for (i = 1; i < size && messages != NULL; ++i)
+	for (i = 1; i < sphereSize && messages != NULL; ++i)
 	{
 		fprintf(stderr, "[bt]: (%d) %s\n", i, messages[i]);
 	}

@@ -35,7 +35,7 @@ protected:
 	cl::Kernel moveStep_updatePositions_kernel;
 
 	cl::Buffer cl_circles;
-	cl::Buffer cl_boxSize, cl_size;
+	cl::Buffer cl_boxSize, cl_sphereSize;
 	cl::Buffer cl_m_z, cl_m_w;
 	cl::Buffer cl_max_speed;
 	cl::Buffer cl_circlesCount, cl_E;

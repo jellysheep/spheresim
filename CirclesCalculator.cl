@@ -12,9 +12,9 @@
 	#error Error: only leapfrog OR heun possible!
 #endif
 
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
-#pragma OPENCL EXTENSION cl_amd_fp64 : enable
-#pragma OPENCL EXTENSION cl_amd_vec3 : enable
+//#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+//#pragma OPENCL EXTENSION cl_amd_fp64 : enable
+//#pragma OPENCL EXTENSION cl_amd_vec3 : enable
 
 //#define reduced 0.9999999999999
 //0.9
@@ -48,7 +48,7 @@ typedef struct Circle
     vector pos, oldPos;
     vector speed;
     vector force;
-    scalar size,mass,poisson,E;
+    scalar sphereSize,mass,poisson,E;
     //float x[3];  //padding
 } Circle;
 
@@ -97,12 +97,12 @@ scalar GetUniform(uint* m_z, uint* m_w, uint gid)
 
 __kernel void randomFill(__global struct Circle* circle, __global uint* z, __global uint* w,
 						__global vector3* boxSize, __global scalar* max_speed,
-						__global vector* size, __global scalar* poisson,
+						__global vector* sphereSize, __global scalar* poisson,
 						__global scalar* E, __global uint* num, __global int* flags){
     int gid = get_global_id(0);
     flags[gid] = 0;
     vector3 s = *boxSize;
-    vector s2 = *size;
+    vector s2 = *sphereSize;
     uint m_z_ = 0;//(*z) + (gid*s.s0*1000000);
     uint m_w_ = 0;//(*w) + (gid*s2.s0*100000000);
     uint n = *num;
@@ -116,6 +116,9 @@ __kernel void randomFill(__global struct Circle* circle, __global uint* z, __glo
     uint* m_z = &m_z_;
     uint* m_w = &m_w_;
 	circle[gid].size = s2.s0+((s2.s1-s2.s0)*uGetUniform(m_z, m_w, gid));
+#ifndef M_PI
+	float M_PI = 314/100.0f;
+#endif
 	circle[gid].mass = 4.0/3.0*pow_(circle[gid].size,3)*M_PI  *950; //Kautschuk
 	circle[gid].poisson = *poisson;
 	circle[gid].E = *E;
@@ -146,11 +149,11 @@ __kernel void randomFill(__global struct Circle* circle, __global uint* z, __glo
 }
 
 __kernel void moveStep2(__global struct Circle* circle, __global int* num,
-						__global vector* size,
+						__global vector* sphereSize,
 						__global scalar* elastic, __global vector* g,
 						__global scalar* delta_t_, __global scalar* G_)
 {
-	vector s = *size, force, acceleration, pos, pos2, gravity = *g;
+	vector s = *sphereSize, force, acceleration, pos, pos2, gravity = *g;
 	scalar reduced = *elastic, delta_t = *delta_t_, G = *G_;
 	int id = get_global_id(0);
 	__global struct Circle* c2;
@@ -471,15 +474,15 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 
 
 __kernel void randomFill2(__global struct Circle* circle, 
-						__global vector* size,
+						__global vector* sphereSize,
 						__global scalar* elastic){
 }
 
 __kernel void moveStep3_addWallForces(__global struct Circle* circle, 
-						__global vector* size,
+						__global vector* sphereSize,
 						__global scalar* elastic)
 {
-	vector s = *size;
+	vector s = *sphereSize;
 	scalar reduced = *elastic;
 	int id = get_global_id(0);
 	

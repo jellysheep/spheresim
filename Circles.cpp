@@ -8,7 +8,7 @@ int showCirclesCount = min(5000,circlesCount);
 bool manyCircles = (showCirclesCount>20);
 
 vector3 boxSize = (vector3){1,1,1};
-vector2 size = (vector2){0.015,0.015};
+vector2 sphereSize = (vector2){0.015,0.015};
 
 int renderFpsMax = 60, renderFps = renderFpsMax;
 scalar speed = 1, speedCorrection = 1.0;
@@ -26,7 +26,7 @@ vector gravity = (vector){0,gravity_abs
 	#endif
 	};
 bool saveBool = false, renderBool = true;
-int edges = 2*2*2*(int)(std::max(4.0,4*log(size.s[1]/boxSize.s[0]*400)));
+int edges = 2*2*2*(int)(std::max(4.0,4*log(sphereSize.s[1]/boxSize.s[0]*400)));
 scalar step = 2*M_PI/edges;
 scalar G = 0;//10000000000.0*6.67384e-11;
 scalar G_fact = 1;
@@ -41,7 +41,7 @@ long traceCount = renderFpsMax*50/sqrt(std::max(1.0,log(showCirclesCount)));
 bool connectTracePoints = true;
 int renderBufferCount = renderFpsMax;
 
-bool reflections = true && (showCirclesCount<=100);
+bool reflections = true && (showCirclesCount<=3000);
 bool useSplitKernels = false;
 
 vector2 autoRotation = (vector2){0,0//.2

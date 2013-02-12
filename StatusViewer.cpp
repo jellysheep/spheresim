@@ -52,7 +52,7 @@ void StatusViewer::run() {
 				static scalar bufferLoadTarget = 0.65;
 				nextCalculatorFrames = lastCalculatorFrames*(1
 					//*
-					+0.01*(pow(16,pow((frameBufferLoad>bufferLoadTarget)?
+					+0.05*(pow(16,pow((frameBufferLoad>bufferLoadTarget)?
 						(1-((1-frameBufferLoad)*0.5/(1-bufferLoadTarget))):
 						(frameBufferLoad*0.5/bufferLoadTarget),2)))*
 					sign(frameBufferLoad-bufferLoadTarget) // */

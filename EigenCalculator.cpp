@@ -6,7 +6,7 @@ using namespace std;
 
 #include "NanosecondTimer.h"
 
-#define parallelFor //_Pragma("omp parallel for")
+#define parallelFor _Pragma("omp parallel for")
 
 EigenCalculator::EigenCalculator():Calculator(){
 	srand(1);
@@ -26,14 +26,14 @@ EigenCalculator::EigenCalculator():Calculator(){
 	circlesForce = new eVector[circlesCount];
 	both_r = new scalar*[circlesCount];
 	
-	gridWidth = size.s0;
+	gridWidth = sphereSize.s0;
 	gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
 	printf("Grid steps: %5d\n", gridSteps);
 	gridIndex = new int*[circlesCount];
 	
 	parallelFor
 	for(int i = 0; i<circlesCount; i++){
-		circles[i].size = rans(size.s0, size.s1);
+		circles[i].size = rans(sphereSize.s0, sphereSize.s1);
 		circles[i].E = E;
 		circles[i].poisson = poisson;
 		circles[i].mass = 4.0/3.0*pow(circles[i].size,3)*M_PI  *950; //Kautschuk
