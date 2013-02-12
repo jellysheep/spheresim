@@ -49,6 +49,8 @@ public:
     void drawCircleF2(float radius);
 	
 	unsigned int displayList;
+	
+	void drawLights();
 
 public slots:
 	void setXRotation(int angle);

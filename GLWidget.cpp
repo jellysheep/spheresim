@@ -106,23 +106,48 @@ void GLWidget::initializeGL() {
 		
 		glEnable(GL_LIGHTING);
 		
-		GLfloat LightAmbient[]= { 0.01f, 0.01f, 0.01f, 1.0f };
-		GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
-		GLfloat LightSpecular[]= { 1.0f, 1.0f, 1.0f, 1.0f };
+		float light = 0.05f;
+		GLfloat LightAmbient[]= { light, light, light, 1.0f };
+		light = 0.5f;
+		GLfloat LightDiffuse[]= { light, light, light, 1.0f };
 		LightPosition = new GLfloat*[4];
+		float fact = 1.5f;
 		for(int i = 0; i<4; i++){
 			LightPosition[i] = new GLfloat[4];
-			LightPosition[i][0] = 0;//(float)boxSize.s[0]/2;
-			LightPosition[i][1] = (float)boxSize.s[1];
-			LightPosition[i][2] = 0;//(float)boxSize.s[2]/2;
+			LightPosition[i][1] = (float)boxSize.s[1]/2*fact;
 			LightPosition[i][3] = 1.0f;
 		}
+		LightPosition[0][0] = +(float)boxSize.s[0]/2*fact;
+		LightPosition[0][2] = -(float)boxSize.s[2]/2*fact;
+		LightPosition[1][0] = -(float)boxSize.s[0]/2*fact;
+		LightPosition[1][2] = +(float)boxSize.s[2]/2*fact;
+		LightPosition[2][0] = +(float)boxSize.s[0]/2*fact;
+		LightPosition[2][2] = +(float)boxSize.s[2]/2*fact;
+		LightPosition[3][0] = -(float)boxSize.s[0]/2*fact;
+		LightPosition[3][2] = -(float)boxSize.s[2]/2*fact;
 		glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse); 
-		glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular); 
 		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
+		glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
+		glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse); 
+		glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
+		glLightfv(GL_LIGHT2, GL_AMBIENT, LightAmbient);
+		glLightfv(GL_LIGHT2, GL_DIFFUSE, LightDiffuse); 
+		glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
+		glLightfv(GL_LIGHT3, GL_AMBIENT, LightAmbient);
+		glLightfv(GL_LIGHT3, GL_DIFFUSE, LightDiffuse); 
+		glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
+		
+		GLfloat mat_shininess[] = { 30.0 };
+		light = 0.5f;
+		GLfloat LightSpecular[]= { light, light, light, 1.0f };
+		glMaterialfv(GL_FRONT, GL_SPECULAR, LightSpecular);
+		glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 		
 		glEnable(GL_LIGHT0);
+		glEnable(GL_LIGHT1);
+		glEnable(GL_LIGHT2);
+		glEnable(GL_LIGHT3);
 		glEnable(GL_COLOR_MATERIAL);
 		glEnable(GL_TEXTURE_2D);
 		
@@ -275,7 +300,14 @@ void GLWidget::paintGL() {
 	
 	#if _3D_
 		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
+		glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
+		glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
+		glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
 	#endif
+	//draw light bulbs
+	drawLights();
+	
+	
 	glRotatef(-rotGrav, 0.0, 0.0, 1.0);
 	//glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
 	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (_3D_!=0?(-boxSize.s[2]/2):0));
@@ -318,12 +350,18 @@ void GLWidget::paintGL() {
 			glPushMatrix();
 			glScalef(1.0, -1.0, 1.0);
 			glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
+			glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
+			glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
+			glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
 			
 			glCullFace(GL_FRONT);
 			clTimer->paintGL(true);
 			glCullFace(GL_BACK);
 			glPopMatrix();
 			glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
+			glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
+			glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
+			glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
 
 			glDisable(GL_STENCIL_TEST);
 			
@@ -517,6 +555,19 @@ void GLWidget::drawCircleF(float r){
 		glVertex3d(cos(d)*r,sin(d)*r,0);
 	}
 	glEnd();
+}
+
+void GLWidget::drawLights(){
+	for(int i = 0; i<4; i++){
+		glPushMatrix();
+		glColor3d(1,1,0); 
+		glTranslated(LightPosition[i][0], LightPosition[i][1], LightPosition[i][2]);
+		glScalef(0.1,0.1,0.1);
+		//glWidget->drawsphere(1,r);
+		drawsphere2(0.1);
+		//glTranslated(-x,-y,-z);
+		glPopMatrix();
+	}
 }
 
 void drawCircleF_old(float r){
