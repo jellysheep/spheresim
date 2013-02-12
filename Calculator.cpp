@@ -152,7 +152,7 @@ void Calculator::paintGL(bool readNewFrame){
 		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
 		glEnd();
 	}*/
-	glCallList(glWidget->displayList);
+	glCallList(glWidget->displayList+1);
 	
 	scalar r,x,y,z;
 	
@@ -258,15 +258,29 @@ void Calculator::paintGL(bool readNewFrame){
 		#if !_3D_
 			glPushMatrix();
 			glTranslated(x,y,z);
+			glScalef(r,r,r);
 			#if onlyOneC
 				if(i==cCount-1)
 					//glColor3bv((byte*)&color);
-					glWidget->drawCircleF(r,color->redF(),color->greenF(),color->blueF());
+					glWidget->drawCircleF2(r,color->redF(),color->greenF(),color->blueF());
 				else
-					glWidget->drawCircleF(r, 0.05, 0.05, 0.05);
+					glWidget->drawCircleF2(r, 0.05, 0.05, 0.05);
 			#else
 				//glColor3bv((GLbyte*)&color);
-				glWidget->drawCircleF(r, color->redF(),color->greenF(),color->blueF()); 
+				
+				glBegin(GL_TRIANGLE_FAN);
+				#if onlyOneC
+					if(i==cCount-1)
+						glColor3d(1,1,1); 
+					else
+						glColor3d(0.1, 0.1, 0.1); 
+				#else
+					glColor3d(1,1,1); 
+				#endif
+				glVertex3d((1/3.f),(1/3.f),0);
+				
+				glColor3f(color->redF(),color->greenF(),color->blueF()); 
+				glWidget->drawCircleF2(1.f); 
 			#endif
 			glPopMatrix();
 
@@ -284,8 +298,9 @@ void Calculator::paintGL(bool readNewFrame){
 			#endif
 			glPushMatrix();
 			glTranslated(x,y,z);
-			glWidget->drawsphere(1,r);
-			//glWidget->drawsphere2(r,color->redF(),color->greenF(),color->blueF());
+			glScalef(r,r,r);
+			//glWidget->drawsphere(1,r);
+			glWidget->drawsphere2(r);
 			//glTranslated(-x,-y,-z);
 			glPopMatrix();
 		//}

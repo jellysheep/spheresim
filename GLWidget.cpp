@@ -21,41 +21,7 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	newFrame = false;
 	rotGrav = 0;
 	
-	displayList = glGenLists(1);
-	glNewList(displayList,GL_COMPILE);
-	/*#if _3D_
-		drawsphere(1,0.01f);
-	#else
-		drawCircleF(0.01f,0.5,0.5,0.5);
-	#endif*/
-	glColor3d(0.2,0.2,0.2);
-	glBegin(GL_LINE_LOOP);
-	glVertex3d(0,0,0);
-	glVertex3d(boxSize.s[0],0,0);
-	glVertex3d(boxSize.s[0],boxSize.s[1],0);
-	glVertex3d(0,boxSize.s[1],0);
-	glEnd();
-	if(_3D_!=0){
-		glColor3d(0.2,0.2,0.2);
-		glBegin(GL_LINE_LOOP);
-		glVertex3d(0,0,boxSize.s[2]);
-		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
-		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
-		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
-		glEnd();
-		glColor3d(0.2,0.2,0.2);
-		glBegin(GL_LINES);
-		glVertex3d(0,0,0);
-		glVertex3d(0,0,boxSize.s[2]);
-		glVertex3d(boxSize.s[0],0,0);
-		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
-		glVertex3d(boxSize.s[0],boxSize.s[1],0);
-		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
-		glVertex3d(0,boxSize.s[1],0);
-		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
-		glEnd();
-	}
-	glEndList();
+	
 	//*
 	rotationTimer = new QTimer(this);
 	rotationTimer->setInterval(1000/renderFps);
@@ -117,8 +83,6 @@ void GLWidget::initializeGL() {
 	//~ glEnable(GL_POLYGON_SMOOTH);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(1,1,1,1);
-	glPointSize(1.5);
-	glLineWidth(1.5);
 	
 	// Set color and depth clear value
 	glClearDepth(1.f);
@@ -133,6 +97,7 @@ void GLWidget::initializeGL() {
 	glLoadIdentity();
 	gluPerspective(50.f, 1.f*boxSize.s[1]/boxSize.s[0], 1.f, 2000.f);
 	
+	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 	
 	#if _3D_
 		glEnable(GL_DEPTH_TEST);						// Enables Depth Testing
@@ -144,15 +109,18 @@ void GLWidget::initializeGL() {
 		GLfloat LightAmbient[]= { 0.01f, 0.01f, 0.01f, 1.0f };
 		GLfloat LightDiffuse[]= { 1.0f, 1.0f, 1.0f, 1.0f };
 		GLfloat LightSpecular[]= { 1.0f, 1.0f, 1.0f, 1.0f };
-		LightPosition = new GLfloat[4];
-		LightPosition[0] = 0;//(float)boxSize.s[0]/2;
-		LightPosition[1] = (float)boxSize.s[1];
-		LightPosition[2] = 0;//(float)boxSize.s[2]/2;
-		LightPosition[3] = 1.0f;
+		LightPosition = new GLfloat*[4];
+		for(int i = 0; i<4; i++){
+			LightPosition[i] = new GLfloat[4];
+			LightPosition[i][0] = 0;//(float)boxSize.s[0]/2;
+			LightPosition[i][1] = (float)boxSize.s[1];
+			LightPosition[i][2] = 0;//(float)boxSize.s[2]/2;
+			LightPosition[i][3] = 1.0f;
+		}
 		glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse); 
 		glLightfv(GL_LIGHT0, GL_SPECULAR, LightSpecular); 
-		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
+		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
 		
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
@@ -163,6 +131,47 @@ void GLWidget::initializeGL() {
 		
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	#endif
+	
+	displayList = glGenLists(2);
+	glNewList(displayList,GL_COMPILE);
+	#if _3D_
+		drawsphere(2,1.f);
+	#else
+		drawCircleF(1.f);
+	#endif
+	glEndList();
+	glNewList(displayList+1,GL_COMPILE);
+	glLineWidth(1.0);
+	glColor3d(0,0,0);
+	glBegin(GL_LINE_LOOP);
+	glVertex3d(0,0,0);
+	glVertex3d(boxSize.s[0],0,0);
+	glVertex3d(boxSize.s[0],boxSize.s[1],0);
+	glVertex3d(0,boxSize.s[1],0);
+	glEnd();
+	if(_3D_!=0){
+		glColor3d(0.2,0.2,0.2);
+		glBegin(GL_LINE_LOOP);
+		glVertex3d(0,0,boxSize.s[2]);
+		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
+		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
+		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
+		glEnd();
+		glColor3d(0.2,0.2,0.2);
+		glBegin(GL_LINES);
+		glVertex3d(0,0,0);
+		glVertex3d(0,0,boxSize.s[2]);
+		glVertex3d(boxSize.s[0],0,0);
+		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
+		glVertex3d(boxSize.s[0],boxSize.s[1],0);
+		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
+		glVertex3d(0,boxSize.s[1],0);
+		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
+		glEnd();
+	}
+	glEndList();
+	glLineWidth(1.5);
+	glPointSize(1.5);
 }
 
 void GLWidget::resizeGL(int w, int h) {
@@ -248,11 +257,12 @@ void GLWidget::paintGL() {
 	glLoadIdentity();
 	glTranslatef(0.f, 0.f, -500.f);
 	glTranslatef(0.f, 0.f, 280.f);
-	glTranslatef(0.0, 0.0, zRot*1.0);
+	glTranslatef(0.0, 0.0, translateZ*1.0);
 
 	//glRotatef(180.0, 0.0, 1.0, 0.0);
 	glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
 	glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
+	glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
 
 	
 	scalar scale = 80.0/boxSize.s[0];
@@ -264,7 +274,7 @@ void GLWidget::paintGL() {
 	
 	
 	#if _3D_
-		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
+		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
 	#endif
 	glRotatef(-rotGrav, 0.0, 0.0, 1.0);
 	//glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
@@ -307,13 +317,13 @@ void GLWidget::paintGL() {
 			/* Draw reflected ninja, but only where floor is. */
 			glPushMatrix();
 			glScalef(1.0, -1.0, 1.0);
-			glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
+			glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
 			
 			glCullFace(GL_FRONT);
 			clTimer->paintGL(true);
 			glCullFace(GL_BACK);
 			glPopMatrix();
-			glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
+			glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
 
 			glDisable(GL_STENCIL_TEST);
 			
@@ -375,7 +385,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
          setYRotation(yRot + 8 * dx);
      } else if (event->buttons() & Qt::RightButton) {
          //setXRotation(xRot + 8 * dy);
-         setZRotation(zRot + 8 * dx);
+         setZTranslate(translateZ + 8 * dx);
      }
      lastPos = event->pos();
  }
@@ -427,11 +437,10 @@ void GLWidget::setYRotation(int angle)
     }
 }
 
-void GLWidget::setZRotation(int angle)
+void GLWidget::setZTranslate(int trans)
 {
-    //qNormalizeAngle(angle);
-    if (angle != zRot) {
-        zRot = angle;
+    if (trans != translateZ) {
+        translateZ = trans;
         timeToRender2();
     }
 }
@@ -487,26 +496,34 @@ void GLWidget::drawsphere(int ndiv, float radius=1.0) {
 	glEnd();
 }
 
-void GLWidget::drawCircle(float r, int R, int G, int B){
-	drawCircleF(r, R/128.f, G/128.f, B/128.f);
-}
-
-void GLWidget::drawCircleF2(float r, float R, float G, float B){
+void GLWidget::drawCircleF2(float r){
 	//glScalef(r,r,r);
-	glColor3f(R,G,B);
 	glCallList(displayList);
 }
 
-void GLWidget::drawsphere2(float radius, float R, float G, float B) {
+void GLWidget::drawsphere2(float radius) {
 	//glScalef(r,r,r);
-	glColor3f(R,G,B);
 	glCallList(displayList);
 }
 
-void GLWidget::drawCircleF(float r, float R, float G, float B){
+void GLWidget::drawCircleF(float r){
+	static float d;
+	static int j;
+	d = 0;
+	for(j = 0; j<=edges; j++){
+		d+=step;
+		//cout<<edges<<" "<<j<<endl;
+		//cout<<d<<endl;
+		glVertex3d(cos(d)*r,sin(d)*r,0);
+	}
+	glEnd();
+}
+
+void drawCircleF_old(float r){
 	static float d;
 	static int j;
 	glBegin(GL_TRIANGLE_FAN);
+	glPushAttrib(GL_CURRENT_BIT);
 	d = 0;
 	#if onlyOneC
 		if(i==cCount-1)
@@ -517,7 +534,8 @@ void GLWidget::drawCircleF(float r, float R, float G, float B){
 		glColor3d(1,1,1); 
 	#endif
 	glVertex3d((r/3.f),(r/3.f),0);
-	glColor3f(R,G,B); 
+	glColor3d(0,1,0); 
+	glPopAttrib();
 	for(j = 0; j<=edges; j++){
 		d+=step;
 		//cout<<edges<<" "<<j<<endl;

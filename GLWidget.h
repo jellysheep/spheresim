@@ -29,7 +29,7 @@ protected:
     
     scalar rotGrav;
     
-    GLfloat* LightPosition;
+    GLfloat** LightPosition;
     
     void normalize(GLfloat *a);
     void drawtri(GLfloat *a, GLfloat *b, GLfloat *c, int div, float r);
@@ -44,17 +44,16 @@ public:
     bool newFrame;
     
     void drawsphere(int ndiv, float radius);
-    void drawsphere2(float radius, float R, float G, float B);
-    void drawCircleF(float radius, float R, float G, float B);
-    void drawCircleF2(float radius, float R, float G, float B);
-    void drawCircle(float radius, int R, int G, int B);
+    void drawsphere2(float radius);
+    void drawCircleF(float radius);
+    void drawCircleF2(float radius);
 	
 	unsigned int displayList;
 
 public slots:
 	void setXRotation(int angle);
 	void setYRotation(int angle);
-	void setZRotation(int angle);
+	void setZTranslate(int angle);
 	void timeToRender();
 	void setRenderFps(double fps);
 

@@ -3,7 +3,7 @@
 #include <cmath>
 #include <algorithm>
 
-int circlesCount = 100;
+int circlesCount = 2048;
 int showCirclesCount = min(5000,circlesCount);
 bool manyCircles = (showCirclesCount>20);
 
@@ -18,7 +18,7 @@ scalar timeInterval = speed*speedCorrection/fps;
 scalar max_speed = 0;//0.5;
 scalar E = 2*1000000*0.05;//((200)/1000000.0)/2; //Silikonkautschuk
 scalar poisson = 0.5; //Gummi
-scalar elastic = 0.9;//0.05;//0.9;//0.999;//0.9;
+scalar elastic = 0.7;//0.05;//0.9;//0.999;//0.9;
 scalar gravity_abs = 9.81;
 vector gravity = (vector){0,gravity_abs
 	#if _3D_
@@ -26,7 +26,7 @@ vector gravity = (vector){0,gravity_abs
 	#endif
 	};
 bool saveBool = false, renderBool = true;
-int edges = 2*(int)(std::max(4.0,4*log(size.s[1]/boxSize.s[0]*400)));
+int edges = 2*2*2*(int)(std::max(4.0,4*log(size.s[1]/boxSize.s[0]*400)));
 scalar step = 2*M_PI/edges;
 scalar G = 0;//10000000000.0*6.67384e-11;
 scalar G_fact = 1;
