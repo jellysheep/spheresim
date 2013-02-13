@@ -25,8 +25,8 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	calc = new Ui::Calculations();
 	calc->setupUi(calcWg);
 	
-	addDockWidget(Qt::RightDockWidgetArea, rendWg, Qt::Horizontal);
 	addDockWidget(Qt::RightDockWidgetArea, calcWg, Qt::Horizontal);
+	addDockWidget(Qt::RightDockWidgetArea, rendWg, Qt::Horizontal);
 	
 	QObject::connect((const QObject*)sv, SIGNAL(fpsChanged(scalar,scalar,scalar,scalar)), 
 		this, SLOT(fpsChanged(scalar,scalar,scalar,scalar)), Qt::QueuedConnection);
@@ -56,6 +56,9 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 		this, SLOT(zBoxSize(double)), Qt::QueuedConnection);
 	QObject::connect(rend->calc_speed, SIGNAL(valueChanged(double)), 
 		this, SLOT(speedChanged(double)), Qt::QueuedConnection);
+		
+	QObject::connect(calc->count, SIGNAL(valueChanged(int)), 
+		cal, SLOT(circleCountChanged(int)), Qt::QueuedConnection);
 	
 	rend->calc_speed->setValue(speed);
 	calc->count->setValue(circlesCount);
@@ -83,6 +86,39 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	rend->x_rot->setValue(autoRotation.s[0]);
 	rend->y_rot->setValue(autoRotation.s[1]);
 	rend->z_rot->setValue(autoRotation.s[2]);
+}
+
+void Control::keyPressEvent(QKeyEvent* event){
+	if(event->isAutoRepeat()){
+		event->ignore();
+		return;
+	}
+	switch(event->key()){
+		case Qt::Key_Space:
+			emit this->toggleRunning();
+			break;
+		case Qt::Key_Escape:
+			break;
+		case Qt::Key_F:
+			calcWg->setHidden(!calcWg->isHidden());
+			rendWg->setHidden(!rendWg->isHidden());
+			break;
+		default:
+			event->ignore();
+			break;
+	}
+}
+
+void Control::toggleRunning(){
+	if(cal->isRunning()){
+		cal->stop();
+		rend->stop->setEnabled(false);
+		rend->start->setEnabled(true);
+	}else{
+		cal->start();
+		rend->stop->setEnabled(true);
+		rend->start->setEnabled(false);
+	}
 }
 
 void Control::fpsChanged(scalar glFps, scalar calFps, scalar fbLoad, scalar realSpeed){

@@ -3,45 +3,68 @@
 #include "GLWidget.h"
 #include <exception>
 #include <cmath>
+#include <cstring>
 
 Calculator::Calculator(){
+	performingAction = false;
 	hasStopped = true;
 	running = false;
 	
 	newFrame = false;
 	elapsedFrames = 0;
 	
-	int light, lightTarget = 90;
-	QColor* color;
-	ceBuffer = new CircleExtension[circlesCount];
+	if(useColorHSV){
+		#if _3D_
+			lightTarget = 50;
+		#else
+			lightTarget = 0;
+		#endif
+	}
 	hueOffset = rans(360);
+	ceBuffer = new CircleExtension[circlesCount];
 	for(int i = 0; i<circlesCount; i++){
-		if(useColorHSV){
-			#if _3D_
-				lightTarget = 50;
-			#else
-				lightTarget = 0;
-			#endif
-			ceBuffer[i].hsvColor = QColor::fromHsv((rani(60)+(int)hueOffset)%360, 255, 70+rani(90)+lightTarget);
-			ceBuffer[i].color = ceBuffer[i].hsvColor.toRgb();
-			//printf("H:%3d S:%3d V:%3d  R:%3d G:%3d B:%3d\n",i%360,255,255,ceBuffer[i].color.red(),ceBuffer[i].color.green(),ceBuffer[i].color.blue());
-		}else{
-			ceBuffer[i].color = QColor(rani(255),rani(255),rani(255));
-			color = &ceBuffer[i].color;
-			light = pow(pow(color->red(),2)+pow(color->green(),2)+pow(color->blue(),2),0.5);
-			//printf("light before: %4d\n",light);
-			color->setRed(color->red()*lightTarget/light);
-			color->setGreen(color->green()*lightTarget/light);
-			color->setBlue(color->blue()*lightTarget/light);
-			light = pow(pow(color->red(),2)+pow(color->green(),2)+pow(color->blue(),2),0.5);
-			//light = ((color%256)+(color/256%256)+(color/256/256))/3;
-			//printf("light after:  %4d\n",light);
-		}
-		if(useColorsBool){
-			ceBuffer[i].trace = new vector[traceCount];
-			ceBuffer[i].traceCount = 0;
-			ceBuffer[i].traceFull = false;
-		}
+		initCeBuffer(i);
+	}
+}
+
+int norm(int i){
+	if(i<0) return i+renderBufferCount;
+	else return i;
+}
+
+int normHue(int i){
+	while(i<0) i+=360;
+	return i%360;
+}
+
+void Calculator::initCeBuffer(int i){
+	int light;
+	QColor* color;
+	if(useColorHSV){
+		#if _3D_
+			lightTarget = 50;
+		#else
+			lightTarget = 0;
+		#endif
+		ceBuffer[i].hsvColor = QColor::fromHsv(normHue(rani(60)), 255, 70+rani(90)+lightTarget);
+		ceBuffer[i].color = ceBuffer[i].hsvColor.toRgb();
+		//printf("H:%3d S:%3d V:%3d  R:%3d G:%3d B:%3d\n",i%360,255,255,ceBuffer[i].color.red(),ceBuffer[i].color.green(),ceBuffer[i].color.blue());
+	}else{
+		ceBuffer[i].color = QColor(rani(255),rani(255),rani(255));
+		color = &ceBuffer[i].color;
+		light = pow(pow(color->red(),2)+pow(color->green(),2)+pow(color->blue(),2),0.5);
+		//printf("light before: %4d\n",light);
+		color->setRed(color->red()*lightTarget/light);
+		color->setGreen(color->green()*lightTarget/light);
+		color->setBlue(color->blue()*lightTarget/light);
+		light = pow(pow(color->red(),2)+pow(color->green(),2)+pow(color->blue(),2),0.5);
+		//light = ((color%256)+(color/256%256)+(color/256/256))/3;
+		//printf("light after:  %4d\n",light);
+	}
+	if(useColorsBool){
+		ceBuffer[i].trace = new vector[traceCount];
+		ceBuffer[i].traceCount = 0;
+		ceBuffer[i].traceFull = false;
 	}
 }
 
@@ -57,7 +80,7 @@ scalar Calculator::getFrameBufferLoad(){
 	return (1.0*(wi-ri))/renderBufferCount;
 }
 
-bool Calculator::getRunning(){
+bool Calculator::isRunning(){
 	return running||!hasStopped;
 }
 
@@ -101,6 +124,27 @@ void Calculator::run(){
 	hasStopped = true;
 }
 
+void Calculator::circleCountChanged(int i){
+	if(performingAction) return;
+	performingAction = true;
+	printf("CirclesCount: %5d new: %5d\n", circlesCount, i);
+	//if(i == circlesCount) return;
+	
+	bool run = isRunning();
+	if(run)stop();
+	circleCountChanged_subclass(i);
+	
+	ceBuffer = newCopy<CircleExtension>(ceBuffer, circlesCount, i);
+	for(int j = circlesCount; j<i; j++){
+		initCeBuffer(j);
+	}
+	//if(i<=circlesCount) //debug
+	circlesCount = i;
+	
+	if(run)start();
+	performingAction = false;
+}
+
 #define onlyOneC 0
 void Calculator::paintGL(bool readNewFrame){
 	// Apply some transformations
@@ -125,7 +169,10 @@ void Calculator::paintGL(bool readNewFrame){
 	}
 
 	// Draw a cube
+	glPushMatrix();
+	glScalef(boxSize.s[0], boxSize.s[1], boxSize.s[2]);
 	glCallList(glWidget->displayList+1);
+	glPopMatrix();
 	
 	scalar r,x,y,z;
 	
@@ -144,14 +191,14 @@ void Calculator::paintGL(bool readNewFrame){
 	//printf("ready!\n");
 	//queue.finish();
 	if(useColorsBool && useColorHSV && readNewFrame){
-		hueOffset-=0.15;
+		hueOffset+=hueStep;
 		if(hueOffset>360)
 			hueOffset -= 360;
 		if(hueOffset<0)
 			hueOffset += 360;
 		for(i=0; i < readNum_render; i++){
 			color = &ceBuffer[i].hsvColor;
-			ceBuffer[i].color = QColor::fromHsv((color->hue()+(int)hueOffset)%360, color->saturation(), color->value());
+			ceBuffer[i].color = QColor::fromHsv(normHue(color->hue()+(int)hueOffset), color->saturation(), color->value());
 		}
 	}
 	
@@ -162,6 +209,7 @@ void Calculator::paintGL(bool readNewFrame){
 			//printf("%4u: %5u\n", j, offset+i);
 			//c = c_CPU_render[bufferReadIndex][i];
 			c = getCircle(i);
+			if(c == NULL) continue;
 			r = c->size;
 			x = c->pos.s[0];
 			y = c->pos.s[1];
@@ -213,6 +261,7 @@ void Calculator::paintGL(bool readNewFrame){
 	{
 		//printf("%4u: %5u\n", j, offset+i);
 		c = getCircle(i);
+		if(c == NULL) continue;
 		r = c->size;
 		x = c->pos.s[0];
 		y = c->pos.s[1];

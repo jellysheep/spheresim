@@ -3,9 +3,9 @@
 #include <cmath>
 #include <algorithm>
 
-int circlesCount = 2048;
-int showCirclesCount = min(5000,circlesCount);
-bool manyCircles = (showCirclesCount>20);
+int circlesCount = 1;
+int maxShowCirclesCount = 500;
+bool manyCircles = (min(circlesCount,maxShowCirclesCount)>20);
 
 vector3 boxSize = (vector3){1,1,1};
 vector2 sphereSize = (vector2){0.015,0.015};
@@ -18,9 +18,9 @@ scalar timeInterval = speed*speedCorrection/fps;
 scalar max_speed = 0;//0.5;
 scalar E = 2*1000000*0.05;//((200)/1000000.0)/2; //Silikonkautschuk
 scalar poisson = 0.5; //Gummi
-scalar elastic = 0.7;//0.05;//0.9;//0.999;//0.9;
+scalar elastic = 0.9;//0.05;//0.9;//0.999;//0.9;
 scalar gravity_abs = 9.81;
-vector gravity = (vector){0,gravity_abs
+vector gravity = (vector){0,-gravity_abs
 	#if _3D_
 	,0
 	#endif
@@ -35,13 +35,14 @@ bool wallResistance = true;
 
 bool useColorsBool = true;// && (circlesCount<=100);
 bool useColorHSV = true;
-float hueOffset;
+scalar hueStep = -0.15;
+scalar hueOffset;
 bool useTrace = true && (!manyCircles);
-long traceCount = renderFpsMax*50/sqrt(std::max(1.0,log(showCirclesCount)));
+long traceCount = renderFpsMax*5/sqrt(std::max(1.0,log((maxShowCirclesCount))));
 bool connectTracePoints = true;
 int renderBufferCount = renderFpsMax;
 
-bool reflections = true && (showCirclesCount<=3000);
+bool reflections = true && (min(circlesCount,maxShowCirclesCount)<=3000);
 bool useSplitKernels = false;
 
 vector2 autoRotation = (vector2){0,0//.2

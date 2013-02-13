@@ -261,7 +261,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		if(renderBool){
 			//c_CPU_render[0] = new Circle[readNum_render];
 			//c_CPU_render[1] = new Circle[readNum_render];
-			readNum_render = min(showCirclesCount,circlesCount);
+			readNum_render = min(maxShowCirclesCount,circlesCount);
 			c_CPU_render = new Circle*[renderBufferCount];
 			for(int i = 0; i<renderBufferCount; i++){
 				c_CPU_render[i] = new Circle[readNum_render];

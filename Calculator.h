@@ -42,7 +42,13 @@ protected:
     int readNum_save, readNum_render, bufferReadIndex, bufferWriteIndex;
 	
 	bool newFrame;
-	bool running, hasStopped;
+	volatile bool running, hasStopped;
+    
+	virtual void circleCountChanged_subclass(int i)=0;
+	
+	int lightTarget;
+	void initCeBuffer(int i);
+	bool performingAction;
 	
 public:
 	Calculator();
@@ -65,14 +71,17 @@ public:
 	
     CircleExtension* ceBuffer;
     
-    bool getRunning();
+    bool isRunning();
     
     virtual Circle* getCircle(int i)=0;
 	
 public slots:
 	void start(){
-		printf("starting calculator...");
-		if(running || !hasStopped) return;
+		printf("starting calculator... ");
+		if(running || !hasStopped){
+			printf("already running!\n");
+			return;
+		}
 		running = true;
 		hasStopped = false;
 		QThread::start();
@@ -81,12 +90,16 @@ public slots:
 	void stop(){
 		if(running)
 			running = false;
-		while(!hasStopped);
+		printf("wait for hasStopped==true\n");
+		while(hasStopped == false);
+		printf("return from stop\n");
 	}
     
     virtual void boxSizeChanged()=0;
     
 	virtual void gravityChanged()=0;
+	
+	virtual void circleCountChanged(int i);
 };
 
 #endif

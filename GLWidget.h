@@ -2,6 +2,7 @@
 #define _GLWIDGET_H
 
 #include <QtOpenGL/QGLWidget>
+#include <QKeyEvent>
 #include "FramesCounter.h"
 #include "Calculator.h"
 #include "Circles.h"
@@ -63,12 +64,10 @@ public slots:
 	void setZTranslate(int angle);
 	void timeToRender();
 	void setRenderFps(double fps);
+	void updateTimer();
 
 signals:
 	void timeToRender_();
-
-public slots:
-	void updateTimer();
 };
 
 #endif  /* _GLWIDGET_H */

@@ -46,7 +46,7 @@ void StatusViewer::run() {
 		}
 		printf("Calculator:    %8.2f fps       [now: %8.2f fps]\n", lastCalculatorFrames, clTimerFrames);
 			
-		if(clTimer->getRunning()){
+		if(clTimer->isRunning()){
 			double nextCalculatorFrames = clTimerFrames;
 			if(renderBool){
 				static scalar bufferLoadTarget = 0.65;

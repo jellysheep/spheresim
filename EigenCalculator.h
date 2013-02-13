@@ -72,6 +72,10 @@ protected:
     Circle c;
     
     scalar timeInterval;
+    
+	void circleCountChanged_subclass(int i);
+	
+	void initCircle(int i);
 
 public:
 	EigenCalculator();

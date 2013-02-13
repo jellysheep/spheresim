@@ -123,7 +123,7 @@ typedef struct Plane
 
 extern int circlesCount;
 extern bool manyCircles;
-extern int showCirclesCount;
+extern int maxShowCirclesCount;
 
 extern vector3 boxSize;
 extern vector2 sphereSize;
@@ -149,7 +149,8 @@ extern bool wallResistance;
 
 extern bool useColorsBool;
 extern bool useColorHSV;
-extern float hueOffset;
+extern scalar hueStep;
+extern scalar hueOffset;
 extern bool useTrace;
 extern long traceCount;
 extern bool connectTracePoints;
@@ -167,5 +168,21 @@ extern vector2 autoRotation;
 extern int rani(int i);
 extern scalar rans(scalar s);
 extern scalar rans(scalar s1, scalar s2);
+
+template <class T>
+T* newCopy(T* oOld, int iOld, int iNew){
+	bool deleteOld = true;
+	if(iNew<iOld){
+		//*oNew = oOld;
+		return oOld;
+	}
+	T* bufferNew = new T[iNew];
+	memcpy(bufferNew, oOld, sizeof(T)*(iOld));
+	if(deleteOld){
+		delete[] oOld;
+	}
+	//*oNew = bufferNew;
+	return bufferNew;
+}
 
 #endif

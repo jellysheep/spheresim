@@ -37,6 +37,8 @@ public slots:
 	void yBoxSize(double angle);
 	void zBoxSize(double angle);
 	void speedChanged(double d);
+	void toggleRunning();
+	void keyPressEvent(QKeyEvent* event);
 };
 
 #endif /* _UI_CONTROL_ */

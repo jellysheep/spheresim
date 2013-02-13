@@ -7,12 +7,13 @@
 #include "Calculator.h"
 
 GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
+	setFocusPolicy(Qt::StrongFocus);
 	//setMouseTracking(true);
 	clTimer = ct;
 	rotation = (vector3){0,0,0};
 	#if _3D_
-		xRot = 0;//400;
-		yRot = 0;//-300;
+		xRot = 400;
+		yRot = -300;
 	#else
 		xRot = 0;
 		yRot = 0;
@@ -171,28 +172,28 @@ void GLWidget::initializeGL() {
 	glColor3d(0,0.5,0.3);
 	glBegin(GL_LINE_LOOP);
 	glVertex3d(0,0,0);
-	glVertex3d(boxSize.s[0],0,0);
-	glVertex3d(boxSize.s[0],boxSize.s[1],0);
-	glVertex3d(0,boxSize.s[1],0);
+	glVertex3d(1,0,0);
+	glVertex3d(1,1,0);
+	glVertex3d(0,1,0);
 	glEnd();
 	if(_3D_!=0){
 		//glColor3d(0.2,0.2,0.2);
 		glBegin(GL_LINE_LOOP);
-		glVertex3d(0,0,boxSize.s[2]);
-		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
-		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
-		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
+		glVertex3d(0,0,1);
+		glVertex3d(1,0,1);
+		glVertex3d(1,1,1);
+		glVertex3d(0,1,1);
 		glEnd();
 		//glColor3d(0.2,0.2,0.2);
 		glBegin(GL_LINES);
 		glVertex3d(0,0,0);
-		glVertex3d(0,0,boxSize.s[2]);
-		glVertex3d(boxSize.s[0],0,0);
-		glVertex3d(boxSize.s[0],0,boxSize.s[2]);
-		glVertex3d(boxSize.s[0],boxSize.s[1],0);
-		glVertex3d(boxSize.s[0],boxSize.s[1],boxSize.s[2]);
-		glVertex3d(0,boxSize.s[1],0);
-		glVertex3d(0,boxSize.s[1],boxSize.s[2]);
+		glVertex3d(0,0,1);
+		glVertex3d(1,0,0);
+		glVertex3d(1,0,1);
+		glVertex3d(1,1,0);
+		glVertex3d(1,1,1);
+		glVertex3d(0,1,0);
+		glVertex3d(0,1,1);
 		glEnd();
 		
 		glEnable(GL_CULL_FACE);
@@ -309,8 +310,10 @@ void GLWidget::paintGL() {
 	glVertex3f(1.0,-1.0, f);
 	glVertex3f(-1.0,-1.0, f);
 	glEnd();
-	glEnable(GL_LIGHTING);
-	glEnable(GL_DEPTH_TEST);
+	#if _3D_
+		glEnable(GL_LIGHTING);
+		glEnable(GL_DEPTH_TEST);
+	#endif
 	
 	glPopMatrix();
 
@@ -327,7 +330,7 @@ void GLWidget::paintGL() {
 	glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
 
 	
-	scalar scale = 80.0/boxSize.s[0];
+	scalar scale = 80.0;
 	#if !_3D_
 		scale*=1.5;
 	#endif
@@ -340,9 +343,9 @@ void GLWidget::paintGL() {
 		glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
 		glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
 		glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
+		//draw light bulbs
+		drawLights();
 	#endif
-	//draw light bulbs
-	drawLights();
 	
 	
 	glRotatef(-rotGrav, 0.0, 0.0, 1.0);
@@ -390,44 +393,44 @@ void GLWidget::drawBoxSides(){
 		//~ glColor4f(1,0,0,opacity);
 		glNormal3d(0,-1,0);
 		glVertex3d(y,y,y);
-		glVertex3d(y,y,boxSize.s[2]-y);
-		glVertex3d(boxSize.s[0]-y,y,boxSize.s[2]-y);
-		glVertex3d(boxSize.s[0]-y,y,y);
+		glVertex3d(y,y,1-y);
+		glVertex3d(1-y,y,1-y);
+		glVertex3d(1-y,y,y);
 		
 		//~ glColor4f(0,1,0,opacity);
 		glNormal3d(1,0,0);
-		glVertex3d(boxSize.s[0]-y,y,y);
-		glVertex3d(boxSize.s[0]-y,y,boxSize.s[2]-y);
-		glVertex3d(boxSize.s[0]-y,boxSize.s[1]-y,boxSize.s[2]-y);
-		glVertex3d(boxSize.s[0]-y,boxSize.s[1]-y,y);
+		glVertex3d(1-y,y,y);
+		glVertex3d(1-y,y,1-y);
+		glVertex3d(1-y,1-y,1-y);
+		glVertex3d(1-y,1-y,y);
 		
 		//~ glColor4f(0,0,1,opacity);
 		glNormal3d(0,1,0);
-		glVertex3d(boxSize.s[0]-y,boxSize.s[1]-y,y);
-		glVertex3d(boxSize.s[0]-y,boxSize.s[1]-y,boxSize.s[2]-y);
-		glVertex3d(y,boxSize.s[1]-y,boxSize.s[2]-y);
-		glVertex3d(y,boxSize.s[1]-y,y);
+		glVertex3d(1-y,1-y,y);
+		glVertex3d(1-y,1-y,1-y);
+		glVertex3d(y,1-y,1-y);
+		glVertex3d(y,1-y,y);
 		
 		//~ glColor4f(1,1,0,opacity);
 		glNormal3d(-1,0,0);
-		glVertex3d(y,boxSize.s[1]-y,y);
-		glVertex3d(y,boxSize.s[1]-y,boxSize.s[2]-y);
-		glVertex3d(y,y,boxSize.s[2]-y);
+		glVertex3d(y,1-y,y);
+		glVertex3d(y,1-y,1-y);
+		glVertex3d(y,y,1-y);
 		glVertex3d(y,y,y);
 		
 		//~ glColor4f(1,0,1,opacity);
 		glNormal3d(0,0,-1);
 		glVertex3d(y,y,y);
-		glVertex3d(boxSize.s[0]-y,y,y);
-		glVertex3d(boxSize.s[0]-y,boxSize.s[1]-y,y);
-		glVertex3d(y,boxSize.s[1]-y,y);
+		glVertex3d(1-y,y,y);
+		glVertex3d(1-y,1-y,y);
+		glVertex3d(y,1-y,y);
 		
 		//~ glColor4f(0,1,1,opacity);
 		glNormal3d(0,0,1);
-		glVertex3d(y,y,boxSize.s[2]-y);
-		glVertex3d(y,boxSize.s[1]-y,boxSize.s[2]-y);
-		glVertex3d(boxSize.s[0]-y,boxSize.s[1]-y,boxSize.s[2]-y);
-		glVertex3d(boxSize.s[0]-y,y,boxSize.s[2]-y);
+		glVertex3d(y,y,1-y);
+		glVertex3d(y,1-y,1-y);
+		glVertex3d(1-y,1-y,1-y);
+		glVertex3d(1-y,y,1-y);
 	glEnd();
 }
 
@@ -525,12 +528,11 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 
 void GLWidget::keyPressEvent(QKeyEvent* event) {
 	switch(event->key()) {
-	case Qt::Key_Escape:
-		close();
-		break;
-	default:
-		event->ignore();
-		break;
+		case Qt::Key_Escape:
+			break;
+		default:
+			event->ignore();
+			break;
 	}
 }
 

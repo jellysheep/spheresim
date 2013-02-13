@@ -33,51 +33,11 @@ EigenCalculator::EigenCalculator():Calculator(){
 	
 	parallelFor
 	for(int i = 0; i<circlesCount; i++){
-		circles[i].size = rans(sphereSize.s0, sphereSize.s1);
-		circles[i].E = E;
-		circles[i].poisson = poisson;
-		circles[i].mass = 4.0/3.0*pow(circles[i].size,3)*M_PI  *950; //Kautschuk
 		
 		both_r[i] = new scalar[circlesCount];
 		
-		circlesPos[i](0) = circles[i].size+rans(boxSize.s0-2*circles[i].size);
-		circlesPos[i](1) = circles[i].size+rans(boxSize.s1-2*circles[i].size);
-		#if _3D_
-			circlesPos[i](2) = circles[i].size+rans(boxSize.s2-2*circles[i].size);
-			#if useSSE
-				//Vector4f or Vector4d
-				circlesPos[i](3) = 0;
-			#endif
-		#endif
-		circlesOldPos[i] = circlesPos[i];
+		initCircle(i);
 		
-		gridIndex[i] = new int[3];
-		gridIndex[i][0] = circlesPos[i](0)/gridWidth;
-		gridIndex[i][1] = circlesPos[i](1)/gridWidth;
-		#if _3D_
-			gridIndex[i][2] = circlesPos[i](2)/gridWidth;
-		#endif
-		
-		circlesSpeed[i] = eVector::Random();
-		#if useSSE
-			#if _3D_
-				//Vector4f or Vector4d
-				circlesSpeed[i](3) = 0;
-			#else
-				#if !_double_
-					//Vector4f
-					circlesSpeed[i](2) = 0;
-					circlesSpeed[i](3) = 0;
-				#endif
-			#endif
-		#endif
-		circlesSpeed[i].normalize();
-		circlesSpeed[i] *= rans(max_speed);
-		//cout<<circlesSpeed[i]<<endl<<endl;
-		
-		circlesForce[i] = eVector::Zero();
-		
-		//cout<<"3D enabled: "<<_3D_<<endl<<endl;
 	}
 	parallelFor
 	for(int i = 0; i<circlesCount; i++){
@@ -86,7 +46,7 @@ EigenCalculator::EigenCalculator():Calculator(){
 		}
 	}
 	if(renderBool){
-		readNum_render = min(showCirclesCount,circlesCount);
+		readNum_render = min(maxShowCirclesCount,circlesCount);
 		printf("Circles to render: %d\n", readNum_render);
 		renderBuffer = new eVector*[renderBufferCount];
 		for(int i = 0; i<renderBufferCount; i++){
@@ -100,6 +60,52 @@ EigenCalculator::EigenCalculator():Calculator(){
 		bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 	}
 	printf("EigenCalculator initialized!\n");
+}
+
+void EigenCalculator::initCircle(int i){
+	circles[i].size = rans(sphereSize.s0, sphereSize.s1);
+	circles[i].E = E;
+	circles[i].poisson = poisson;
+	circles[i].mass = 4.0/3.0*pow(circles[i].size,3)*M_PI  *950; //Kautschuk
+	
+	circlesPos[i](0) = circles[i].size+rans(boxSize.s0-2*circles[i].size);
+	circlesPos[i](1) = circles[i].size+rans(boxSize.s1-2*circles[i].size);
+	#if _3D_
+		circlesPos[i](2) = circles[i].size+rans(boxSize.s2-2*circles[i].size);
+		#if useSSE
+			//Vector4f or Vector4d
+			circlesPos[i](3) = 0;
+		#endif
+	#endif
+	circlesOldPos[i] = circlesPos[i];
+	
+	gridIndex[i] = new int[3];
+	gridIndex[i][0] = circlesPos[i](0)/gridWidth;
+	gridIndex[i][1] = circlesPos[i](1)/gridWidth;
+	#if _3D_
+		gridIndex[i][2] = circlesPos[i](2)/gridWidth;
+	#endif
+	
+	circlesSpeed[i] = eVector::Random();
+	#if useSSE
+		#if _3D_
+			//Vector4f or Vector4d
+			circlesSpeed[i](3) = 0;
+		#else
+			#if !_double_
+				//Vector4f
+				circlesSpeed[i](2) = 0;
+				circlesSpeed[i](3) = 0;
+			#endif
+		#endif
+	#endif
+	circlesSpeed[i].normalize();
+	circlesSpeed[i] *= rans(max_speed);
+	//cout<<circlesSpeed[i]<<endl<<endl;
+	
+	circlesForce[i] = eVector::Zero();
+	
+	//cout<<"3D enabled: "<<_3D_<<endl<<endl;
 }
 
 void EigenCalculator::save(){
@@ -240,7 +246,7 @@ void EigenCalculator::doStep(){
 			E_ = 1/(((1-poisson*poisson)/E)+((1-poisson*poisson)/E));
 			force_ = 4.0f/3.0f*E_*sqrt(R*pow(d_,3));
 			circlesForce[i](1) += force_*fact;
-		}else if ((htw_d_d = (circles[i].size + circlesPos[i](1) - boxSize.s0))>0) {
+		}else if ((htw_d_d = (circles[i].size + circlesPos[i](1) - boxSize.s1))>0) {
 			if(circlesSpeed[i](1) < 0)fact = elastic;
 			d_ = htw_d_d;
 			R = circles[i].size;
@@ -257,7 +263,7 @@ void EigenCalculator::doStep(){
 				E_ = 1/(((1-poisson*poisson)/E)+((1-poisson*poisson)/E));
 				force_ = 4.0f/3.0f*E_*sqrt(R*pow(d_,3));
 				circlesForce[i](2) += force_*fact;
-			}else if ((htw_d_d = (circles[i].size + circlesPos[i](2) - boxSize.s0))>0) {
+			}else if ((htw_d_d = (circles[i].size + circlesPos[i](2) - boxSize.s2))>0) {
 				if(circlesSpeed[i](2) < 0)fact = elastic;
 				d_ = htw_d_d;
 				R = circles[i].size;
@@ -304,10 +310,11 @@ void EigenCalculator::saveFrame(){
 }
 
 Circle* EigenCalculator::getCircle(int i){
-	circles[i].pos.s0 = boxSize.s0-renderBuffer[bufferReadIndex][i](0);
-	circles[i].pos.s1 = boxSize.s1-renderBuffer[bufferReadIndex][i](1);
+	if(renderBuffer[bufferReadIndex][i]==eVector::Zero()) return NULL;
+	circles[i].pos.s0 = renderBuffer[bufferReadIndex][i](0);
+	circles[i].pos.s1 = renderBuffer[bufferReadIndex][i](1);
 	#if _3D_
-		circles[i].pos.s2 = boxSize.s2-renderBuffer[bufferReadIndex][i](2);
+		circles[i].pos.s2 = renderBuffer[bufferReadIndex][i](2);
 	#endif
 	return &circles[i];
 }
@@ -320,4 +327,54 @@ void EigenCalculator::boxSizeChanged(){
 }
 
 void EigenCalculator::gravityChanged(){
+}
+
+void EigenCalculator::circleCountChanged_subclass(int i){
+	//circles
+	circles = newCopy<Circle>(circles, circlesCount, i);
+	//circlesOldPos
+	circlesOldPos = newCopy<eVector>(circlesOldPos, circlesCount, i);
+	//circlesPos
+	circlesPos = newCopy<eVector>(circlesPos, circlesCount, i);
+	//circlesSpeed
+	circlesSpeed = newCopy<eVector>(circlesSpeed, circlesCount, i);
+	//circlesForce
+	circlesForce = newCopy<eVector>(circlesForce, circlesCount, i);
+	//gridIndex
+	gridIndex = newCopy<int*>(gridIndex, circlesCount, i);
+	//renderBuffer
+	int readNum_render_new = min(maxShowCirclesCount,i);
+	//if(readNum_render_new>readNum_render)
+	{
+		for(int j = 0; j<renderBufferCount; j++){
+			renderBuffer[j] = newCopy<eVector>(renderBuffer[j], readNum_render, readNum_render_new);
+		}
+	}
+	readNum_render = readNum_render_new;
+	
+	for(int j = circlesCount; j<i; j++){
+		if(j<readNum_render){
+			for(int k = bufferReadIndex; k!=bufferWriteIndex; k=(k+1)%renderBufferCount){
+				renderBuffer[k][j] = eVector::Zero();
+			}
+		}
+		
+		initCircle(j);
+	}
+	//bufferReadIndex = (readNum_render+bufferWriteIndex-1)%readNum_render;
+	//both_r
+	both_r = newCopy<scalar*>(both_r, circlesCount, i);
+	for(int j = 0; j<i; j++){
+		if(j<circlesCount){
+			both_r[j] = newCopy<scalar>(both_r[j], circlesCount, i);
+			for(int k = circlesCount; k<i; k++){
+				both_r[j][k] = circles[j].size+circles[k].size;
+			}
+		}else{
+			both_r[j] = new scalar[i];
+			for(int k = 0; k<i; k++){
+				both_r[j][k] = circles[j].size+circles[k].size;
+			}
+		}
+	}
 }
