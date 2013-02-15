@@ -578,24 +578,24 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	int dx = event->x() - lastPos.x();
 	int dy = event->y() - lastPos.y();
 
-	if ((event->buttons() & Qt::LeftButton)&&(event->modifiers() & Qt::ShiftModifier)) {
+	if (event->buttons() & Qt::LeftButton) {
+		setXRotation(xRot + 8/16.0 * dy);
+		setYRotation(yRot + 8/16.0 * dx);
+	} else if ((event->buttons() & Qt::MiddleButton)&&(event->modifiers() & Qt::ControlModifier)) {
+		//translate / move forward
+		translate = -dy;
+		transX += translate*sin(yRotCam*M_PI/180.0)*cos(xRotCam*M_PI/180.0);
+		transY -= translate*sin(xRotCam*M_PI/180.0);
+		transZ -= translate*cos(yRotCam*M_PI/180.0)*cos(xRotCam*M_PI/180.0);
+	} else if ((event->buttons() & Qt::MiddleButton)&&(event->modifiers() & Qt::ShiftModifier)) {
+		transX += -dx*0.2*cos(yRotCam*M_PI/180.0);
+		transZ += -dx*0.2*sin(yRotCam*M_PI/180.0);
+		transY += dy*0.2;
+	} else if (event->buttons() & Qt::MiddleButton) {
 		xRotCam += 8/16.0 * dy;
 		yRotCam += 8/16.0 * dx;
 		shrinkAngle(xRotCam);
 		shrinkAngle(yRotCam);
-	} else if (event->buttons() & Qt::LeftButton) {
-		setXRotation(xRot + 8/16.0 * dy);
-		setYRotation(yRot + 8/16.0 * dx);
-	} else if (event->buttons() & Qt::RightButton) {
-		//translate
-		translate = dx;
-		transX += translate*sin(yRotCam*M_PI/180.0)*cos(xRotCam*M_PI/180.0);
-		transY -= translate*sin(xRotCam*M_PI/180.0);
-		transZ -= translate*cos(yRotCam*M_PI/180.0)*cos(xRotCam*M_PI/180.0);
-	} else if (event->buttons() & Qt::MiddleButton) {
-		transX += -dx*0.2*cos(yRotCam*M_PI/180.0);
-		transZ += -dx*0.2*sin(yRotCam*M_PI/180.0);
-		transY += dy*0.2;
 	}
 	lastPos = event->pos();
 	timeToRender2();
