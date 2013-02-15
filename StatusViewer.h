@@ -12,7 +12,7 @@ class Control;
 
 class StatusViewer : public QThread, protected NanosecondTimer {
 
-	Q_OBJECT // must include this if you use Qt signals/slots	  
+	Q_OBJECT // must include this if you use Qt signals/slots	 
 
 protected:
 	GLWidget* glWidget;

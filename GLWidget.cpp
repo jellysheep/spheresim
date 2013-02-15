@@ -12,14 +12,19 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	clTimer = ct;
 	rotation = (vector3){0,0,0};
 	#if _3D_
-		xRot = 400;
-		yRot = -300;
+		xRot = 40;
+		yRot = 60;
 	#else
 		xRot = 0;
 		yRot = 0;
 	#endif
 	zRot = 0;
-	translateZ = 0;
+	xRotCam = 0;
+	yRotCam = 0;
+	transX = 0;
+	transY = 0;
+	transZ = 0;
+	translate = 0;
 	newFrame = false;
 	rotGrav = 0;
 	
@@ -98,6 +103,8 @@ void GLWidget::initializeGL() {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(50.f, 1.f*boxSize.s[1]/boxSize.s[0], 1.f, 2000.f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 	
 	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 	
@@ -108,43 +115,44 @@ void GLWidget::initializeGL() {
 		
 		glEnable(GL_LIGHTING);
 		
-		float light = 0.05f;
-		GLfloat LightAmbient[]= { light, light, light, 1.0f };
-		light = 0.5f;
-		GLfloat LightDiffuse[]= { light, light, light, 1.0f };
-		LightPosition = new GLfloat*[4];
-		float fact = 1.5f;
-		for(int i = 0; i<4; i++){
-			LightPosition[i] = new GLfloat[4];
-			LightPosition[i][1] = (float)boxSize.s[1]/2*fact;
-			LightPosition[i][3] = 1.0f;
-		}
-		LightPosition[0][0] = +(float)boxSize.s[0]/2*fact;
-		LightPosition[0][2] = -(float)boxSize.s[2]/2*fact;
-		LightPosition[1][0] = -(float)boxSize.s[0]/2*fact;
-		LightPosition[1][2] = +(float)boxSize.s[2]/2*fact;
-		LightPosition[2][0] = +(float)boxSize.s[0]/2*fact;
-		LightPosition[2][2] = +(float)boxSize.s[2]/2*fact;
-		LightPosition[3][0] = -(float)boxSize.s[0]/2*fact;
-		LightPosition[3][2] = -(float)boxSize.s[2]/2*fact;
-		glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse); 
-		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
-		glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
-		glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse); 
-		glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
-		glLightfv(GL_LIGHT2, GL_AMBIENT, LightAmbient);
-		glLightfv(GL_LIGHT2, GL_DIFFUSE, LightDiffuse); 
-		glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
-		glLightfv(GL_LIGHT3, GL_AMBIENT, LightAmbient);
-		glLightfv(GL_LIGHT3, GL_DIFFUSE, LightDiffuse); 
-		glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
+		float light;
 		
-		GLfloat mat_shininess[] = { 30.0 };
-		light = 0.5f;
+		GLfloat mat_shininess[] = { 100.0 };
+		light = 0.6f;
 		GLfloat LightSpecular[]= { light, light, light, 1.0f };
 		glMaterialfv(GL_FRONT, GL_SPECULAR, LightSpecular);
 		glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+		
+		light = 0.05f;
+		GLfloat LightAmbient[]= { light, light, light, 1.0f };
+		light = 0.4f;
+		GLfloat LightDiffuse[]= { light, light, light, 1.0f };
+		LightPosition = new GLfloat*[4];
+		int lights[] = {GL_LIGHT0, GL_LIGHT1, GL_LIGHT2, GL_LIGHT3};
+		float fact = 1.5f;
+		for(int i = 0; i<4; i++){
+			LightPosition[i] = new GLfloat[4];
+			for(int j = 0; j<3; j++){
+				LightPosition[i][j] = boxSize.s[j]/2;
+			}
+			LightPosition[i][1] += (float)boxSize.s[1]/2*fact;
+			LightPosition[i][3] = 1.0f;
+		}
+		fact = 2;
+		LightPosition[0][0] += +(float)boxSize.s[0]/2*fact;
+		LightPosition[0][2] += -(float)boxSize.s[2]/2*fact;
+		LightPosition[1][0] += -(float)boxSize.s[0]/2*fact;
+		LightPosition[1][2] += +(float)boxSize.s[2]/2*fact;
+		LightPosition[2][0] += +(float)boxSize.s[0]/2*fact;
+		LightPosition[2][2] += +(float)boxSize.s[2]/2*fact;
+		LightPosition[3][0] += -(float)boxSize.s[0]/2*fact;
+		LightPosition[3][2] += -(float)boxSize.s[2]/2*fact;
+		for(int i = 0; i<4; i++){
+			glLightfv(lights[i], GL_AMBIENT, LightAmbient);
+			glLightfv(lights[i], GL_DIFFUSE, LightDiffuse); 
+			glLightfv(lights[i], GL_POSITION,LightPosition[i]);
+			if(i<2)glLightfv(lights[i], GL_SPECULAR, LightSpecular);
+		}
 		
 		glEnable(GL_LIGHT0);
 		glEnable(GL_LIGHT1);
@@ -223,6 +231,8 @@ void GLWidget::resizeGL(int w, int h) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(50.f, 1.f*w/h, 1.f, 2000.f);
+	glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
 	/*
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -236,7 +246,7 @@ void GLWidget::timeToRender(){
 	clTimer->setNewFrame(false);
 	newFrame = true;
 	
-    //#if _3D_
+	//#if _3D_
 		xRot += autoRotation.s[0]*16.0;
 		yRot += autoRotation.s[1]*16.0;
 		zRot += autoRotation.s[2]*16.0;
@@ -259,11 +269,11 @@ void GLWidget::timeToRender2(){
 	//*
 	int ms = 1;
 	struct timespec ts = { ms / 1000, (ms % 1000) * 1000 * 1000 };
-    nanosleep(&ts, NULL);// */
-    
+	nanosleep(&ts, NULL);// */
+	
 	//glDraw();
 	update();
-    //QCoreApplication::processEvents();
+	//QCoreApplication::processEvents();
 	drawingFinished = true;
 }
 
@@ -287,15 +297,16 @@ void GLWidget::paintGL() {
 	if(reflections){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}else{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	
-	glPushMatrix();
 	
-	glMatrixMode(GL_PROJECTION);
-
+	//*
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	
+	glPushMatrix();
 
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
@@ -315,19 +326,33 @@ void GLWidget::paintGL() {
 		glEnable(GL_DEPTH_TEST);
 	#endif
 	
-	glPopMatrix();
+	glPopMatrix();//*/
+	
+	
+	if(wireframe){
+		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	}else{
+		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+	}
 
 	// Apply some transformations
-	glMatrixMode(GL_MODELVIEW);
+	//glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef(0.f, 0.f, -500.f);
-	glTranslatef(0.f, 0.f, 280.f);
-	glTranslatef(0.0, 0.0, translateZ*0.1);
 
 	//glRotatef(180.0, 0.0, 1.0, 0.0);
-	glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
-	glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
-	glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
+	glRotatef(xRotCam, 1.0, 0.0, 0.0);
+	glRotatef(yRotCam, 0.0, 1.0, 0.0);
+	
+	
+	glTranslatef(-transX, -transY, -transZ);
+	
+	glTranslatef(0.f, 0.f, -500.f);
+	glTranslatef(0.f, 0.f, 280.f);
+	
+	
+	glRotatef(xRot, 1.0, 0.0, 0.0);
+	glRotatef(yRot, 0.0, 1.0, 0.0);
+	glRotatef(zRot, 0.0, 0.0, 1.0);
 
 	
 	scalar scale = 80.0;
@@ -338,30 +363,24 @@ void GLWidget::paintGL() {
 
 	
 	
-	#if _3D_
-		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
-		glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
-		glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
-		glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
-		//draw light bulbs
-		drawLights();
-	#endif
 	
 	
 	glRotatef(-rotGrav, 0.0, 0.0, 1.0);
 	//glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
 	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (_3D_!=0?(-boxSize.s[2]/2):0));
+	#if _3D_
+		setLightPos();
+		//draw light bulbs
+		drawLights();
+	#endif
 	
 	if(renderBool){
 		#if _3D_
 		if(reflections){
 			reflect();
-		}else{
-			clTimer->paintGL(true);
-		}
-		#else
-		clTimer->paintGL(true);
+		}else
 		#endif
+		clTimer->paintGL(true);
 		/* Draw "bottom" of floor in blue. */
 		/* Switch face orientation. */
 		//*
@@ -383,6 +402,13 @@ void GLWidget::paintGL() {
 	glEnd(); // */
 	frameCounter++;
 	//doneCurrent();
+}
+
+void GLWidget::setLightPos(){
+	glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
+	glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
+	glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
+	glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
 }
 
 void GLWidget::drawBoxSides(){
@@ -476,10 +502,7 @@ void GLWidget::reflect(){
 		/* Draw reflected ninja, but only where floor is. */
 		glPushMatrix();
 		glScalef(1.0, -1.0, 1.0);
-		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
-		glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
-		glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
-		glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
+		setLightPos();
 		
 		glCullFace(GL_FRONT);
 		if(i == 0)
@@ -488,43 +511,95 @@ void GLWidget::reflect(){
 			clTimer->paintGL(false);
 		glCullFace(GL_BACK);
 		glPopMatrix();
-		glLightfv(GL_LIGHT0, GL_POSITION,LightPosition[0]);
-		glLightfv(GL_LIGHT1, GL_POSITION,LightPosition[1]);
-		glLightfv(GL_LIGHT2, GL_POSITION,LightPosition[2]);
-		glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
+		setLightPos();
 
 		glDisable(GL_STENCIL_TEST);
 		
 		
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 		glColor4f(1.0, 1.0, 1.0, reflection);
 		drawQuad(i);
 		
-		glFrontFace(GL_CW);
+		glCullFace(GL_FRONT);
+		glColor4f(1.0, 1.0, 1.0, 1.0);
+		drawQuad(i);
+		
 		// */
 		glDisable(GL_CULL_FACE);
 	}
+	
+	glClear(GL_STENCIL_BUFFER_BIT);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
+	
+	/* Don't update color or depth. */
+	glDisable(GL_DEPTH_TEST);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+	/* Draw 1 into the stencil buffer. */
+	glEnable(GL_STENCIL_TEST);
+	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+	glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
+
+	/* Now drawing the floor just tags the floor pixels
+	as stencil value 1. */
+	for(int i = 0; i<1; i++){
+		
+		drawQuad(i);
+	}
+	glDisable(GL_CULL_FACE);
+
+	/* Re-enable update of color and depth. */ 
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
+
+	/* Now, only render where stencil is set to 1. */
+	glStencilFunc(GL_NOTEQUAL, 1, 0xffffffff);  /* draw if stencil ==1 */
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	clTimer->paintGL(false);
+	glDisable(GL_STENCIL_TEST);
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
- {
-     lastPos = event->pos();
- }
+{
+	lastPos = event->pos();
+}
 
- void GLWidget::mouseMoveEvent(QMouseEvent *event)
- {
-     int dx = event->x() - lastPos.x();
-     int dy = event->y() - lastPos.y();
+void shrinkAngle(scalar& s){
+	while(s>360)	s-=360;
+	while(s<0)		s+=360;
+}
 
-     if (event->buttons() & Qt::LeftButton) {
-         setXRotation(xRot + 8 * dy);
-         setYRotation(yRot + 8 * dx);
-     } else if (event->buttons() & Qt::RightButton) {
-         //setXRotation(xRot + 8 * dy);
-         setZTranslate(translateZ + 8 * dx);
-     }
-     lastPos = event->pos();
- }
+void GLWidget::mouseMoveEvent(QMouseEvent *event)
+{
+	int dx = event->x() - lastPos.x();
+	int dy = event->y() - lastPos.y();
+
+	if ((event->buttons() & Qt::LeftButton)&&(event->modifiers() & Qt::ShiftModifier)) {
+		xRotCam += 8/16.0 * dy;
+		yRotCam += 8/16.0 * dx;
+		shrinkAngle(xRotCam);
+		shrinkAngle(yRotCam);
+	} else if (event->buttons() & Qt::LeftButton) {
+		setXRotation(xRot + 8/16.0 * dy);
+		setYRotation(yRot + 8/16.0 * dx);
+	} else if (event->buttons() & Qt::RightButton) {
+		//translate
+		translate = dx;
+		transX += translate*sin(yRotCam*M_PI/180.0)*cos(xRotCam*M_PI/180.0);
+		transY -= translate*sin(xRotCam*M_PI/180.0);
+		transZ -= translate*cos(yRotCam*M_PI/180.0)*cos(xRotCam*M_PI/180.0);
+	} else if (event->buttons() & Qt::MiddleButton) {
+		transX += -dx*0.2*cos(yRotCam*M_PI/180.0);
+		transZ += -dx*0.2*sin(yRotCam*M_PI/180.0);
+		transY += dy*0.2;
+	}
+	lastPos = event->pos();
+	timeToRender2();
+}
 
 void GLWidget::keyPressEvent(QKeyEvent* event) {
 	switch(event->key()) {
@@ -546,38 +621,28 @@ QSize GLWidget::sizeHint() const
 	return QSize(3000, 3000);
 }
 
-static void qNormalizeAngle(int &angle)
+static void qNormalizeAngle(scalar &angle)
 {
-    while (angle < 0)
-        angle += 360 * 16;
-    while (angle > 360 * 16)
-        angle -= 360 * 16;
+	while (angle < 0)
+		angle += 360;
+	while (angle > 360)
+		angle -= 360;
 }
 
-void GLWidget::setXRotation(int angle)
+void GLWidget::setXRotation(scalar angle)
 {
-    qNormalizeAngle(angle);
-    if (angle != xRot) {
-        xRot = angle;
-        timeToRender2();
-    }
+	qNormalizeAngle(angle);
+	if (angle != xRot) {
+		xRot = angle;
+	}
 }
 
-void GLWidget::setYRotation(int angle)
+void GLWidget::setYRotation(scalar angle)
 {
-    qNormalizeAngle(angle);
-    if (angle != yRot) {
-        yRot = angle;
-        timeToRender2();
-    }
-}
-
-void GLWidget::setZTranslate(int trans)
-{
-    if (trans != translateZ) {
-        translateZ = trans;
-        timeToRender2();
-    }
+	qNormalizeAngle(angle);
+	if (angle != yRot) {
+		yRot = angle;
+	}
 }
 
 void GLWidget::setRenderFps(double fps){

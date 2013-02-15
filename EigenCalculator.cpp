@@ -6,7 +6,9 @@ using namespace std;
 
 #include "NanosecondTimer.h"
 
-#define parallelFor _Pragma("omp parallel for")
+#define parallelFor _Pragma("omp parallel for if(circlesCount>500)")
+
+#define fixSun 0
 
 EigenCalculator::EigenCalculator():Calculator(){
 	srand(1);
@@ -66,7 +68,6 @@ void EigenCalculator::initCircle(int i){
 	circles[i].size = rans(sphereSize.s0, sphereSize.s1);
 	circles[i].E = E;
 	circles[i].poisson = poisson;
-	circles[i].mass = 4.0/3.0*pow(circles[i].size,3)*M_PI  *950; //Kautschuk
 	
 	circlesPos[i](0) = circles[i].size+rans(boxSize.s0-2*circles[i].size);
 	circlesPos[i](1) = circles[i].size+rans(boxSize.s1-2*circles[i].size);
@@ -106,13 +107,28 @@ void EigenCalculator::initCircle(int i){
 	circlesForce[i] = eVector::Zero();
 	
 	//cout<<"3D enabled: "<<_3D_<<endl<<endl;
+	
+	#if fixSun
+		if(i == 0) circles[i].size = 3*sphereSize.s0;
+		//if(i == 0) circles[i].mass*=5;
+		if(i == 0) ceBuffer[i].hsvColor = QColor::fromHsv(0,0,0);
+		if(i == 0) circlesPos[i](0) = boxSize.s0/2;
+		if(i == 0) circlesPos[i](1) = boxSize.s1/2;
+		#if _3D_
+			if(i == 0) circlesPos[i](2) = boxSize.s2/2;
+		#endif
+		if(i == 0) circlesSpeed[i] = eVector::Zero();
+	#endif
+	circlesOldPos[i] = circlesPos[i];
+	circles[i].mass = 4.0/3.0*pow(circles[i].size,3)*M_PI  *950; //Kautschuk
 }
+
 
 void EigenCalculator::save(){
 	//not yet implemented
 }
 
-#define _G_ 0
+#define _G_ 1
 void EigenCalculator::doStep(){
 	parallelFor
 	for(int i = 0; i<circlesCount; i++){
@@ -134,11 +150,16 @@ void EigenCalculator::doStep(){
 			if(abs(d_pos(2))>*both_r) continue;
 			//*/
 			
-			if(abs(gridIndex[i][0]-gridIndex[j][0]) >1) continue;
-			if(abs(gridIndex[i][1]-gridIndex[j][1]) >1) continue;
-			#if _3D_
-				if(abs(gridIndex[i][2]-gridIndex[j][2]) >1) continue;
+			#if _G_
+			if(G==0)
 			#endif
+			{
+				if(abs(gridIndex[i][0]-gridIndex[j][0]) >1) continue;
+				if(abs(gridIndex[i][1]-gridIndex[j][1]) >1) continue;
+				#if _3D_
+					if(abs(gridIndex[i][2]-gridIndex[j][2]) >1) continue;
+				#endif
+			}
 			
 			both_r_ = &both_r[i][j];
 			d_pos = circlesPos[j]-circlesPos[i];
@@ -160,7 +181,7 @@ void EigenCalculator::doStep(){
 			
 			//d_pos.s2 = 0;
 			d = d_pos.norm();
-			//d = max(d,(scalar)0.00005f);
+			d = max(d,(scalar)0.00005f);
 			
 			/*
 			d_n = d_pos/d;
@@ -176,7 +197,7 @@ void EigenCalculator::doStep(){
 			if(G!=0)
 			{
 				d_n = d_pos/d;
-				 // bzw. normalize(d_pos);
+				// bzw. normalize(d_pos);
 				// Gravitation:
 				force = G*circles[i].mass*circles[j].mass/pow(max(d,(scalar)circles[i].size/10),2) *d_n;
 				circlesForce[i] += force;
@@ -219,7 +240,7 @@ void EigenCalculator::doStep(){
 		}
 	}
 	
-	parallelFor
+	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
 		scalar d_, R, E_, force_;
 		scalar htw_d_d, fact = 1.0f;
@@ -272,9 +293,12 @@ void EigenCalculator::doStep(){
 				circlesForce[i](2) -= force_*fact;
 			}
 		#endif
-	//}
+	}
 	//parallelFor
-	//for(int i = 0; i<circlesCount; i++){
+	for(int i = 0; i<circlesCount; i++){
+		#if fixSun
+			if(i==0)continue;
+		#endif
 		EIGEN_ASM_COMMENT("begin");
 		eVector force = circlesForce[i];
 		eVector acceleration = force / circles[i].mass;
@@ -346,12 +370,14 @@ void EigenCalculator::circleCountChanged_subclass(int i){
 	int readNum_render_new = min(maxShowCirclesCount,i);
 	//if(readNum_render_new>readNum_render)
 	{
+		parallelFor
 		for(int j = 0; j<renderBufferCount; j++){
 			renderBuffer[j] = newCopy<eVector>(renderBuffer[j], readNum_render, readNum_render_new);
 		}
 	}
 	readNum_render = readNum_render_new;
 	
+	parallelFor
 	for(int j = circlesCount; j<i; j++){
 		if(j<readNum_render){
 			for(int k = bufferReadIndex; k!=bufferWriteIndex; k=(k+1)%renderBufferCount){
@@ -364,6 +390,7 @@ void EigenCalculator::circleCountChanged_subclass(int i){
 	//bufferReadIndex = (readNum_render+bufferWriteIndex-1)%readNum_render;
 	//both_r
 	both_r = newCopy<scalar*>(both_r, circlesCount, i);
+	parallelFor
 	for(int j = 0; j<i; j++){
 		if(j<circlesCount){
 			both_r[j] = newCopy<scalar>(both_r[j], circlesCount, i);

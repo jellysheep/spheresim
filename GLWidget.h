@@ -13,7 +13,7 @@ class Calculator;
 
 class GLWidget : public QGLWidget, public FramesCounter {
 
-	Q_OBJECT // must include this if you use Qt signals/slots	  
+	Q_OBJECT // must include this if you use Qt signals/slots	 
 
 protected:
 	void initializeGL();
@@ -22,9 +22,11 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void keyPressEvent(QKeyEvent *event);
-	int xRot,yRot,zRot;
+	scalar xRot,yRot,zRot;
+	scalar xRotCam,yRotCam;
 	vector3 rotation;
-	scalar translateZ;
+	scalar translate;
+	scalar transX, transY, transZ;
 	Calculator* clTimer;
     QPoint lastPos;
     
@@ -34,7 +36,6 @@ protected:
     
     void normalize(GLfloat *a);
     void drawtri(GLfloat *a, GLfloat *b, GLfloat *c, int div, float r);
-	void timeToRender2();
 	
 	void reflect();
 	void drawQuad(int i);
@@ -57,12 +58,15 @@ public:
 	unsigned int displayList;
 	
 	void drawLights();
+	
+	void setLightPos();
 
 public slots:
-	void setXRotation(int angle);
-	void setYRotation(int angle);
-	void setZTranslate(int angle);
+	void setXRotation(scalar angle);
+	void setYRotation(scalar angle);
+	//void setZTranslate(int angle);
 	void timeToRender();
+	void timeToRender2();
 	void setRenderFps(double fps);
 	void updateTimer();
 

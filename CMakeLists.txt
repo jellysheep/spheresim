@@ -9,7 +9,7 @@ SET( CMAKE_CXX_COMPILER "ccache" )
 SET( CMAKE_CXX_COMPILER_ARG1 "g++" )
 
 #set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-fopenmp -msse2 -Ofast")
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fopenmp -g -msse2 -Ofast") # 
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fopenmp -g -msse2 -O2") # 
 INCLUDE ("OptimizeForArchitecture")
 OptimizeForArchitecture ()
 

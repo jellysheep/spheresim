@@ -1,6 +1,7 @@
 #include "Ui_Control.h"
 #include "Circles.h"
 #include "Calculator.h"
+#include "GLWidget.h"
 #include <QtGui>
 #include <Qt/qdockwidget.h>
 
@@ -59,6 +60,11 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 		
 	QObject::connect(calc->count, SIGNAL(valueChanged(int)), 
 		cal, SLOT(circleCountChanged(int)), Qt::QueuedConnection);
+		
+	QObject::connect(rend->wireframe, SIGNAL(toggled(bool)), 
+		this, SLOT(showWireframe(bool)), Qt::QueuedConnection);
+	QObject::connect(rend->reflections, SIGNAL(toggled(bool)), 
+		this, SLOT(showReflections(bool)), Qt::QueuedConnection);
 	
 	rend->calc_speed->setValue(speed);
 	calc->count->setValue(circlesCount);
@@ -86,6 +92,12 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	rend->x_rot->setValue(autoRotation.s[0]);
 	rend->y_rot->setValue(autoRotation.s[1]);
 	rend->z_rot->setValue(autoRotation.s[2]);
+	rend->wireframe->setChecked(wireframe);
+	rend->reflections->setChecked(reflections);
+}
+
+void Control::updateGL(){
+	emit glw->timeToRender2();
 }
 
 void Control::keyPressEvent(QKeyEvent* event){
@@ -131,27 +143,34 @@ void Control::fpsChanged(scalar glFps, scalar calFps, scalar fbLoad, scalar real
 
 void Control::xAutoRot(double angle){
 	autoRotation.s[0] = angle;
+	updateGL();
 }
 void Control::yAutoRot(double angle){
 	autoRotation.s[1] = angle;
+	updateGL();
 }
 void Control::zAutoRot(double angle){
 	autoRotation.s[2] = angle;
+	updateGL();
 }
 void Control::xBoxSize(double angle){
 	boxSize.s[0] = angle;
 	emit cal->boxSizeChanged();
+	updateGL();
 }
 void Control::yBoxSize(double angle){
 	boxSize.s[1] = angle;
 	emit cal->boxSizeChanged();
+	updateGL();
 }
 void Control::zBoxSize(double angle){
 	boxSize.s[2] = angle;
 	emit cal->boxSizeChanged();
+	updateGL();
 }
 void Control::useColors(bool b){
 	useColorsBool = b;
+	updateGL();
 }
 void Control::showTrace(bool b){
 	useTrace = b;
@@ -162,10 +181,21 @@ void Control::showTrace(bool b){
 				cal->ceBuffer[i].traceCount = 0;
 			}
 	}
+	updateGL();
 }
 void Control::connectTrace(bool b){
 	connectTracePoints = b;
+	updateGL();
 }
 void Control::speedChanged(double d){
 	speed = d;
+}
+
+void Control::showWireframe(bool b){
+	wireframe = b;
+	updateGL();
+}
+void Control::showReflections(bool b){
+	reflections = b;
+	updateGL();
 }

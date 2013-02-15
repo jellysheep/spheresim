@@ -1,7 +1,8 @@
 #ifndef _UI_CONTROL_
 #define _UI_CONTROL_
 
-#include "Ui_Control_inner.h"
+#include "Ui_Control_calculations.h"
+#include "Ui_Control_rendering.h"
 #include "Circles.h"
 #include <QMainWindow>
 
@@ -23,6 +24,7 @@ protected:
 	Ui::Rendering* rend;
 	Ui::Calculations* calc;
 	QDockWidget *rendWg, *calcWg;
+	void updateGL();
 public:
 	Control(GLWidget* g, Calculator* c, StatusViewer* s);
 public slots:
@@ -39,6 +41,8 @@ public slots:
 	void speedChanged(double d);
 	void toggleRunning();
 	void keyPressEvent(QKeyEvent* event);
+	void showWireframe(bool b);
+	void showReflections(bool b);
 };
 
 #endif /* _UI_CONTROL_ */

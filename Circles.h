@@ -157,9 +157,10 @@ extern bool connectTracePoints;
 extern int renderBufferCount;
 
 extern bool reflections;
+extern bool wireframe;
 extern bool useSplitKernels;
 
-extern vector2 autoRotation;
+extern vector3 autoRotation;
 
 #define min(a,b) (((a)<(b))?(a):(b))
 

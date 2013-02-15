@@ -108,7 +108,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		printf("done building program\n");
 		printf("Build Status:  %u\n", program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices[0]));
 		printf("Build Options: %s\n", program.getBuildInfo<CL_PROGRAM_BUILD_OPTIONS>(devices[0]).c_str());
-		printf("Build Log:	 %s\n", program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[0]).c_str());
+		printf("Build Log:	%s\n", program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[0]).c_str());
 		printf("OpenCL initialization finished!\n");
 		printf("\n");
 		
@@ -186,7 +186,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 
 		//Wait for the command queue to finish these commands before proceeding
 		queue.finish();
-	   
+	  
 
 
 		//set the arguements of our kernel

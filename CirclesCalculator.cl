@@ -122,7 +122,7 @@ __kernel void randomFill(__global struct Circle* circle, __global uint* z, __glo
 	circle[gid].mass = 4.0/3.0*pow_(circle[gid].size,3)*M_PI  *950; //Kautschuk
 	circle[gid].poisson = *poisson;
 	circle[gid].E = *E;
-	    
+	   
 	circle[gid].pos.s0 = circle[gid].size/2+uGetUniform(m_z, m_w, gid)*(s.s0-circle[gid].size);
 	circle[gid].pos.s1 = circle[gid].size/2+uGetUniform(m_z, m_w, gid)*(s.s1-circle[gid].size);
 	#if _3D_
@@ -429,7 +429,7 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 	if(G!=0)
 	{
 		d_n = d_pos/d;
-		 // bzw. normalize(d_pos);
+		// bzw. normalize(d_pos);
 		// Gravitation:
 		force = G*c->mass*c2->mass/pow_(max(d,(scalar)c->size/10),2) *d_n;
 		c->force += force;
