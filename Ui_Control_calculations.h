@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'Calculationsi15477.ui'
+** Form generated from reading UI file 'Calculationsjw4991.ui'
 **
-** Created: Thu Feb 14 12:31:57 2013
+** Created: Fri Feb 15 15:51:11 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef CALCULATIONSI15477_H
-#define CALCULATIONSI15477_H
+#ifndef CALCULATIONSJW4991_H
+#define CALCULATIONSJW4991_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -33,23 +33,29 @@ public:
     QWidget *dockWidgetContents;
     QVBoxLayout *verticalLayout;
     QGroupBox *groupBox_2;
-    QGridLayout *gridLayout_4;
+    QGridLayout *gridLayout;
+    QLabel *label_7;
+    QSpinBox *visible_count;
+    QLabel *label_5;
     QDoubleSpinBox *radius_max;
     QDoubleSpinBox *radius_min;
     QLabel *label_6;
-    QLabel *label_18;
+    QSpinBox *count;
     QLabel *label_17;
     QCheckBox *one_size;
-    QLabel *label_5;
-    QSpinBox *count;
+    QLabel *label_18;
+    QLabel *label_28;
+    QCheckBox *wireframe;
     QGroupBox *groupBox_5;
     QGridLayout *gridLayout_7;
-    QDoubleSpinBox *x;
-    QLabel *label_10;
-    QLabel *label_11;
-    QDoubleSpinBox *y;
     QDoubleSpinBox *z;
+    QDoubleSpinBox *x;
+    QLabel *label_11;
+    QLabel *label_22;
+    QLabel *label_10;
     QLabel *label_12;
+    QDoubleSpinBox *y;
+    QCheckBox *cube;
     QGroupBox *groupBox_3;
     QGridLayout *gridLayout_5;
     QLabel *label_15;
@@ -71,7 +77,7 @@ public:
     {
         if (Calculations->objectName().isEmpty())
             Calculations->setObjectName(QString::fromUtf8("Calculations"));
-        Calculations->resize(240, 508);
+        Calculations->resize(251, 556);
         dockWidgetContents = new QWidget();
         dockWidgetContents->setObjectName(QString::fromUtf8("dockWidgetContents"));
         verticalLayout = new QVBoxLayout(dockWidgetContents);
@@ -80,12 +86,32 @@ public:
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
         groupBox_2->setMinimumSize(QSize(0, 133));
         groupBox_2->setMaximumSize(QSize(16777215, 16777215));
-        gridLayout_4 = new QGridLayout(groupBox_2);
-        gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
+        gridLayout = new QGridLayout(groupBox_2);
+        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        label_7 = new QLabel(groupBox_2);
+        label_7->setObjectName(QString::fromUtf8("label_7"));
+
+        gridLayout->addWidget(label_7, 1, 0, 1, 1);
+
+        visible_count = new QSpinBox(groupBox_2);
+        visible_count->setObjectName(QString::fromUtf8("visible_count"));
+        visible_count->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        visible_count->setAccelerated(true);
+        visible_count->setMaximum(100000);
+        visible_count->setValue(10);
+
+        gridLayout->addWidget(visible_count, 1, 1, 1, 1);
+
+        label_5 = new QLabel(groupBox_2);
+        label_5->setObjectName(QString::fromUtf8("label_5"));
+
+        gridLayout->addWidget(label_5, 2, 0, 1, 1);
+
         radius_max = new QDoubleSpinBox(groupBox_2);
         radius_max->setObjectName(QString::fromUtf8("radius_max"));
         radius_max->setEnabled(false);
         radius_max->setWrapping(false);
+        radius_max->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         radius_max->setAccelerated(true);
         radius_max->setDecimals(3);
         radius_max->setMinimum(0.001);
@@ -93,11 +119,12 @@ public:
         radius_max->setSingleStep(0.001);
         radius_max->setValue(0.01);
 
-        gridLayout_4->addWidget(radius_max, 3, 1, 1, 1);
+        gridLayout->addWidget(radius_max, 4, 1, 1, 1);
 
         radius_min = new QDoubleSpinBox(groupBox_2);
         radius_min->setObjectName(QString::fromUtf8("radius_min"));
         radius_min->setWrapping(false);
+        radius_min->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         radius_min->setAccelerated(true);
         radius_min->setDecimals(3);
         radius_min->setMinimum(0.001);
@@ -105,41 +132,48 @@ public:
         radius_min->setSingleStep(0.001);
         radius_min->setValue(0.01);
 
-        gridLayout_4->addWidget(radius_min, 1, 1, 1, 1);
+        gridLayout->addWidget(radius_min, 2, 1, 1, 1);
 
         label_6 = new QLabel(groupBox_2);
         label_6->setObjectName(QString::fromUtf8("label_6"));
 
-        gridLayout_4->addWidget(label_6, 0, 0, 1, 1);
+        gridLayout->addWidget(label_6, 0, 0, 1, 1);
 
-        label_18 = new QLabel(groupBox_2);
-        label_18->setObjectName(QString::fromUtf8("label_18"));
+        count = new QSpinBox(groupBox_2);
+        count->setObjectName(QString::fromUtf8("count"));
+        count->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        count->setAccelerated(true);
+        count->setMaximum(100000);
+        count->setValue(10);
 
-        gridLayout_4->addWidget(label_18, 3, 0, 1, 1);
+        gridLayout->addWidget(count, 0, 1, 1, 1);
 
         label_17 = new QLabel(groupBox_2);
         label_17->setObjectName(QString::fromUtf8("label_17"));
 
-        gridLayout_4->addWidget(label_17, 2, 0, 1, 1);
+        gridLayout->addWidget(label_17, 3, 0, 1, 1);
 
         one_size = new QCheckBox(groupBox_2);
         one_size->setObjectName(QString::fromUtf8("one_size"));
         one_size->setChecked(true);
 
-        gridLayout_4->addWidget(one_size, 2, 1, 1, 1);
+        gridLayout->addWidget(one_size, 3, 1, 1, 1);
 
-        label_5 = new QLabel(groupBox_2);
-        label_5->setObjectName(QString::fromUtf8("label_5"));
+        label_18 = new QLabel(groupBox_2);
+        label_18->setObjectName(QString::fromUtf8("label_18"));
 
-        gridLayout_4->addWidget(label_5, 1, 0, 1, 1);
+        gridLayout->addWidget(label_18, 4, 0, 1, 1);
 
-        count = new QSpinBox(groupBox_2);
-        count->setObjectName(QString::fromUtf8("count"));
-        count->setAccelerated(true);
-        count->setMaximum(100000);
-        count->setValue(10);
+        label_28 = new QLabel(groupBox_2);
+        label_28->setObjectName(QString::fromUtf8("label_28"));
 
-        gridLayout_4->addWidget(count, 0, 1, 1, 1);
+        gridLayout->addWidget(label_28, 5, 0, 1, 1);
+
+        wireframe = new QCheckBox(groupBox_2);
+        wireframe->setObjectName(QString::fromUtf8("wireframe"));
+        wireframe->setChecked(false);
+
+        gridLayout->addWidget(wireframe, 5, 1, 1, 1);
 
 
         verticalLayout->addWidget(groupBox_2);
@@ -148,43 +182,10 @@ public:
         groupBox_5->setObjectName(QString::fromUtf8("groupBox_5"));
         gridLayout_7 = new QGridLayout(groupBox_5);
         gridLayout_7->setObjectName(QString::fromUtf8("gridLayout_7"));
-        x = new QDoubleSpinBox(groupBox_5);
-        x->setObjectName(QString::fromUtf8("x"));
-        x->setWrapping(false);
-        x->setAccelerated(true);
-        x->setDecimals(2);
-        x->setMinimum(0.01);
-        x->setMaximum(10);
-        x->setSingleStep(0.01);
-        x->setValue(0.3);
-
-        gridLayout_7->addWidget(x, 0, 1, 1, 1);
-
-        label_10 = new QLabel(groupBox_5);
-        label_10->setObjectName(QString::fromUtf8("label_10"));
-
-        gridLayout_7->addWidget(label_10, 0, 0, 1, 1);
-
-        label_11 = new QLabel(groupBox_5);
-        label_11->setObjectName(QString::fromUtf8("label_11"));
-
-        gridLayout_7->addWidget(label_11, 2, 0, 1, 1);
-
-        y = new QDoubleSpinBox(groupBox_5);
-        y->setObjectName(QString::fromUtf8("y"));
-        y->setWrapping(false);
-        y->setAccelerated(true);
-        y->setDecimals(2);
-        y->setMinimum(0.01);
-        y->setMaximum(10);
-        y->setSingleStep(0.01);
-        y->setValue(0.3);
-
-        gridLayout_7->addWidget(y, 2, 1, 1, 1);
-
         z = new QDoubleSpinBox(groupBox_5);
         z->setObjectName(QString::fromUtf8("z"));
         z->setWrapping(false);
+        z->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         z->setAccelerated(true);
         z->setDecimals(2);
         z->setMinimum(0.01);
@@ -194,10 +195,57 @@ public:
 
         gridLayout_7->addWidget(z, 3, 1, 1, 1);
 
+        x = new QDoubleSpinBox(groupBox_5);
+        x->setObjectName(QString::fromUtf8("x"));
+        x->setWrapping(false);
+        x->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        x->setAccelerated(true);
+        x->setDecimals(2);
+        x->setMinimum(0.01);
+        x->setMaximum(10);
+        x->setSingleStep(0.01);
+        x->setValue(0.3);
+
+        gridLayout_7->addWidget(x, 0, 1, 1, 1);
+
+        label_11 = new QLabel(groupBox_5);
+        label_11->setObjectName(QString::fromUtf8("label_11"));
+
+        gridLayout_7->addWidget(label_11, 2, 0, 1, 1);
+
+        label_22 = new QLabel(groupBox_5);
+        label_22->setObjectName(QString::fromUtf8("label_22"));
+
+        gridLayout_7->addWidget(label_22, 5, 0, 1, 1);
+
+        label_10 = new QLabel(groupBox_5);
+        label_10->setObjectName(QString::fromUtf8("label_10"));
+
+        gridLayout_7->addWidget(label_10, 0, 0, 1, 1);
+
         label_12 = new QLabel(groupBox_5);
         label_12->setObjectName(QString::fromUtf8("label_12"));
 
         gridLayout_7->addWidget(label_12, 3, 0, 1, 1);
+
+        y = new QDoubleSpinBox(groupBox_5);
+        y->setObjectName(QString::fromUtf8("y"));
+        y->setWrapping(false);
+        y->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        y->setAccelerated(true);
+        y->setDecimals(2);
+        y->setMinimum(0.01);
+        y->setMaximum(10);
+        y->setSingleStep(0.01);
+        y->setValue(0.3);
+
+        gridLayout_7->addWidget(y, 2, 1, 1, 1);
+
+        cube = new QCheckBox(groupBox_5);
+        cube->setObjectName(QString::fromUtf8("cube"));
+        cube->setChecked(false);
+
+        gridLayout_7->addWidget(cube, 5, 1, 1, 1);
 
 
         verticalLayout->addWidget(groupBox_5);
@@ -224,6 +272,7 @@ public:
         inter_gravity = new QDoubleSpinBox(groupBox_3);
         inter_gravity->setObjectName(QString::fromUtf8("inter_gravity"));
         inter_gravity->setWrapping(false);
+        inter_gravity->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         inter_gravity->setAccelerated(true);
         inter_gravity->setDecimals(2);
         inter_gravity->setMinimum(0.01);
@@ -252,6 +301,7 @@ public:
         earth_gravity = new QDoubleSpinBox(groupBox_3);
         earth_gravity->setObjectName(QString::fromUtf8("earth_gravity"));
         earth_gravity->setWrapping(false);
+        earth_gravity->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         earth_gravity->setAccelerated(true);
         earth_gravity->setDecimals(2);
         earth_gravity->setMinimum(0.01);
@@ -269,6 +319,7 @@ public:
         e_modul = new QDoubleSpinBox(groupBox_3);
         e_modul->setObjectName(QString::fromUtf8("e_modul"));
         e_modul->setWrapping(false);
+        e_modul->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         e_modul->setAccelerated(true);
         e_modul->setDecimals(2);
         e_modul->setMinimum(0.01);
@@ -281,6 +332,7 @@ public:
         air_resistance = new QDoubleSpinBox(groupBox_3);
         air_resistance->setObjectName(QString::fromUtf8("air_resistance"));
         air_resistance->setWrapping(false);
+        air_resistance->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         air_resistance->setAccelerated(true);
         air_resistance->setDecimals(2);
         air_resistance->setMinimum(0.01);
@@ -293,6 +345,7 @@ public:
         poissons_ratio = new QDoubleSpinBox(groupBox_3);
         poissons_ratio->setObjectName(QString::fromUtf8("poissons_ratio"));
         poissons_ratio->setWrapping(false);
+        poissons_ratio->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         poissons_ratio->setAccelerated(true);
         poissons_ratio->setDecimals(2);
         poissons_ratio->setMinimum(-1);
@@ -310,6 +363,7 @@ public:
         elasticity = new QDoubleSpinBox(groupBox_3);
         elasticity->setObjectName(QString::fromUtf8("elasticity"));
         elasticity->setWrapping(false);
+        elasticity->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         elasticity->setAccelerated(true);
         elasticity->setDecimals(2);
         elasticity->setMinimum(0);
@@ -324,12 +378,13 @@ public:
 
         Calculations->setWidget(dockWidgetContents);
 #ifndef QT_NO_SHORTCUT
-        label_6->setBuddy(count);
-        label_18->setBuddy(radius_max);
-        label_17->setBuddy(one_size);
+        label_7->setBuddy(count);
         label_5->setBuddy(radius_min);
-        label_10->setBuddy(x);
+        label_6->setBuddy(count);
+        label_17->setBuddy(one_size);
+        label_18->setBuddy(radius_max);
         label_11->setBuddy(y);
+        label_10->setBuddy(x);
         label_12->setBuddy(z);
         label_15->setBuddy(air_resistance);
         label_16->setBuddy(wall_resistance);
@@ -350,23 +405,37 @@ public:
     {
         Calculations->setWindowTitle(QApplication::translate("Calculations", "Calculations", 0, QApplication::UnicodeUTF8));
         groupBox_2->setTitle(QApplication::translate("Calculations", "Objects", 0, QApplication::UnicodeUTF8));
-        label_6->setText(QApplication::translate("Calculations", "Object Count", 0, QApplication::UnicodeUTF8));
-        label_18->setText(QApplication::translate("Calculations", "Radius max.", 0, QApplication::UnicodeUTF8));
+        label_7->setText(QApplication::translate("Calculations", "Visible objects", 0, QApplication::UnicodeUTF8));
+        label_5->setText(QApplication::translate("Calculations", "Radius min.", 0, QApplication::UnicodeUTF8));
+        radius_max->setSuffix(QApplication::translate("Calculations", " m", 0, QApplication::UnicodeUTF8));
+        radius_min->setSuffix(QApplication::translate("Calculations", " m", 0, QApplication::UnicodeUTF8));
+        label_6->setText(QApplication::translate("Calculations", "Object count", 0, QApplication::UnicodeUTF8));
         label_17->setText(QApplication::translate("Calculations", "One size", 0, QApplication::UnicodeUTF8));
         one_size->setText(QApplication::translate("Calculations", "yes", 0, QApplication::UnicodeUTF8));
-        label_5->setText(QApplication::translate("Calculations", "Radius min.", 0, QApplication::UnicodeUTF8));
+        label_18->setText(QApplication::translate("Calculations", "Radius max.", 0, QApplication::UnicodeUTF8));
+        label_28->setText(QApplication::translate("Calculations", "Wireframe", 0, QApplication::UnicodeUTF8));
+        wireframe->setText(QApplication::translate("Calculations", "yes", 0, QApplication::UnicodeUTF8));
         groupBox_5->setTitle(QApplication::translate("Calculations", "Size", 0, QApplication::UnicodeUTF8));
-        label_10->setText(QApplication::translate("Calculations", "X", 0, QApplication::UnicodeUTF8));
+        z->setSuffix(QApplication::translate("Calculations", " m", 0, QApplication::UnicodeUTF8));
+        x->setSuffix(QApplication::translate("Calculations", " m", 0, QApplication::UnicodeUTF8));
         label_11->setText(QApplication::translate("Calculations", "Y", 0, QApplication::UnicodeUTF8));
+        label_22->setText(QApplication::translate("Calculations", "Show cube", 0, QApplication::UnicodeUTF8));
+        label_10->setText(QApplication::translate("Calculations", "X", 0, QApplication::UnicodeUTF8));
         label_12->setText(QApplication::translate("Calculations", "Z", 0, QApplication::UnicodeUTF8));
+        y->setSuffix(QApplication::translate("Calculations", " m", 0, QApplication::UnicodeUTF8));
+        cube->setText(QApplication::translate("Calculations", "yes", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("Calculations", "Forces", 0, QApplication::UnicodeUTF8));
         label_15->setText(QApplication::translate("Calculations", "Air resistance", 0, QApplication::UnicodeUTF8));
         label_16->setText(QApplication::translate("Calculations", "Wall resistance", 0, QApplication::UnicodeUTF8));
         label_19->setText(QApplication::translate("Calculations", "E modulus", 0, QApplication::UnicodeUTF8));
+        inter_gravity->setSuffix(QApplication::translate("Calculations", " x", 0, QApplication::UnicodeUTF8));
         label_14->setText(QApplication::translate("Calculations", "InterGravity", 0, QApplication::UnicodeUTF8));
         wall_resistance->setText(QApplication::translate("Calculations", "yes", 0, QApplication::UnicodeUTF8));
         label_20->setText(QApplication::translate("Calculations", "Poisson's ratio", 0, QApplication::UnicodeUTF8));
+        earth_gravity->setSuffix(QApplication::translate("Calculations", " m/s\302\262", 0, QApplication::UnicodeUTF8));
         label_13->setText(QApplication::translate("Calculations", "EarthGravity", 0, QApplication::UnicodeUTF8));
+        e_modul->setSuffix(QApplication::translate("Calculations", " x", 0, QApplication::UnicodeUTF8));
+        air_resistance->setSuffix(QApplication::translate("Calculations", " x", 0, QApplication::UnicodeUTF8));
         label_21->setText(QApplication::translate("Calculations", "Elasticity", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
@@ -378,4 +447,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // CALCULATIONSI15477_H
+#endif // CALCULATIONSJW4991_H

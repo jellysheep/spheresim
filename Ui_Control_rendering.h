@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'RenderingwZ4991.ui'
+** Form generated from reading UI file 'RenderingyH4991.ui'
 **
-** Created: Fri Feb 15 14:27:21 2013
+** Created: Fri Feb 15 15:51:20 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef RENDERINGWZ4991_H
-#define RENDERINGWZ4991_H
+#ifndef RENDERINGYH4991_H
+#define RENDERINGYH4991_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -35,8 +35,6 @@ public:
     QGroupBox *groupBox;
     QGridLayout *gridLayout_2;
     QLabel *label_24;
-    QLabel *label_28;
-    QCheckBox *wireframe;
     QLabel *label_22;
     QCheckBox *colours;
     QCheckBox *connect_trace;
@@ -46,6 +44,10 @@ public:
     QCheckBox *traces;
     QLabel *label_29;
     QCheckBox *reflections;
+    QDoubleSpinBox *trace_length;
+    QLabel *label_30;
+    QLabel *label_28;
+    QCheckBox *lights;
     QGroupBox *groupBox_7;
     QGridLayout *gridLayout_9;
     QDoubleSpinBox *z_rot;
@@ -56,6 +58,8 @@ public:
     QLabel *label_25;
     QPushButton *reset_view;
     QLabel *label_5;
+    QLabel *label_6;
+    QDoubleSpinBox *hue_rot;
     QGroupBox *groupBox_4;
     QGridLayout *gridLayout_6;
     QDoubleSpinBox *render_fps;
@@ -77,7 +81,7 @@ public:
     {
         if (Rendering->objectName().isEmpty())
             Rendering->setObjectName(QString::fromUtf8("Rendering"));
-        Rendering->resize(232, 587);
+        Rendering->resize(243, 643);
         QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -94,18 +98,7 @@ public:
         label_24 = new QLabel(groupBox);
         label_24->setObjectName(QString::fromUtf8("label_24"));
 
-        gridLayout_2->addWidget(label_24, 3, 0, 1, 1);
-
-        label_28 = new QLabel(groupBox);
-        label_28->setObjectName(QString::fromUtf8("label_28"));
-
-        gridLayout_2->addWidget(label_28, 4, 0, 1, 1);
-
-        wireframe = new QCheckBox(groupBox);
-        wireframe->setObjectName(QString::fromUtf8("wireframe"));
-        wireframe->setChecked(false);
-
-        gridLayout_2->addWidget(wireframe, 4, 1, 1, 1);
+        gridLayout_2->addWidget(label_24, 4, 0, 1, 1);
 
         label_22 = new QLabel(groupBox);
         label_22->setObjectName(QString::fromUtf8("label_22"));
@@ -122,7 +115,7 @@ public:
         connect_trace->setObjectName(QString::fromUtf8("connect_trace"));
         connect_trace->setChecked(true);
 
-        gridLayout_2->addWidget(connect_trace, 3, 1, 1, 1);
+        gridLayout_2->addWidget(connect_trace, 4, 1, 1, 1);
 
         label = new QLabel(groupBox);
         label->setObjectName(QString::fromUtf8("label"));
@@ -137,6 +130,7 @@ public:
         fps = new QDoubleSpinBox(groupBox);
         fps->setObjectName(QString::fromUtf8("fps"));
         fps->setWrapping(false);
+        fps->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         fps->setAccelerated(true);
         fps->setDecimals(1);
         fps->setMinimum(0.1);
@@ -162,6 +156,35 @@ public:
 
         gridLayout_2->addWidget(reflections, 5, 1, 1, 1);
 
+        trace_length = new QDoubleSpinBox(groupBox);
+        trace_length->setObjectName(QString::fromUtf8("trace_length"));
+        trace_length->setWrapping(false);
+        trace_length->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        trace_length->setAccelerated(true);
+        trace_length->setDecimals(1);
+        trace_length->setMinimum(0);
+        trace_length->setMaximum(100);
+        trace_length->setSingleStep(0.1);
+        trace_length->setValue(100);
+
+        gridLayout_2->addWidget(trace_length, 3, 1, 1, 1);
+
+        label_30 = new QLabel(groupBox);
+        label_30->setObjectName(QString::fromUtf8("label_30"));
+
+        gridLayout_2->addWidget(label_30, 3, 0, 1, 1);
+
+        label_28 = new QLabel(groupBox);
+        label_28->setObjectName(QString::fromUtf8("label_28"));
+
+        gridLayout_2->addWidget(label_28, 6, 0, 1, 1);
+
+        lights = new QCheckBox(groupBox);
+        lights->setObjectName(QString::fromUtf8("lights"));
+        lights->setChecked(false);
+
+        gridLayout_2->addWidget(lights, 6, 1, 1, 1);
+
 
         gridLayout->addWidget(groupBox, 0, 0, 1, 1);
 
@@ -172,6 +195,7 @@ public:
         z_rot = new QDoubleSpinBox(groupBox_7);
         z_rot->setObjectName(QString::fromUtf8("z_rot"));
         z_rot->setWrapping(false);
+        z_rot->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         z_rot->setAccelerated(true);
         z_rot->setDecimals(2);
         z_rot->setMinimum(-10);
@@ -184,6 +208,7 @@ public:
         y_rot = new QDoubleSpinBox(groupBox_7);
         y_rot->setObjectName(QString::fromUtf8("y_rot"));
         y_rot->setWrapping(false);
+        y_rot->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         y_rot->setAccelerated(true);
         y_rot->setDecimals(2);
         y_rot->setMinimum(-10);
@@ -196,6 +221,7 @@ public:
         x_rot = new QDoubleSpinBox(groupBox_7);
         x_rot->setObjectName(QString::fromUtf8("x_rot"));
         x_rot->setWrapping(false);
+        x_rot->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         x_rot->setAccelerated(true);
         x_rot->setDecimals(2);
         x_rot->setMinimum(-10);
@@ -230,8 +256,26 @@ public:
 
         gridLayout_9->addWidget(label_5, 4, 0, 1, 1);
 
+        label_6 = new QLabel(groupBox_7);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
 
-        gridLayout->addWidget(groupBox_7, 1, 0, 1, 1);
+        gridLayout_9->addWidget(label_6, 5, 0, 1, 1);
+
+        hue_rot = new QDoubleSpinBox(groupBox_7);
+        hue_rot->setObjectName(QString::fromUtf8("hue_rot"));
+        hue_rot->setWrapping(false);
+        hue_rot->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        hue_rot->setAccelerated(true);
+        hue_rot->setDecimals(2);
+        hue_rot->setMinimum(-10);
+        hue_rot->setMaximum(10);
+        hue_rot->setSingleStep(0.01);
+        hue_rot->setValue(0);
+
+        gridLayout_9->addWidget(hue_rot, 5, 1, 1, 1);
+
+
+        gridLayout->addWidget(groupBox_7, 2, 0, 1, 1);
 
         groupBox_4 = new QGroupBox(dockWidgetContents);
         groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
@@ -240,8 +284,10 @@ public:
         render_fps = new QDoubleSpinBox(groupBox_4);
         render_fps->setObjectName(QString::fromUtf8("render_fps"));
         render_fps->setFrame(true);
+        render_fps->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         render_fps->setReadOnly(true);
         render_fps->setButtonSymbols(QAbstractSpinBox::NoButtons);
+        render_fps->setDecimals(1);
         render_fps->setMaximum(1e+06);
         render_fps->setSingleStep(0.01);
 
@@ -265,9 +311,11 @@ public:
         calc_fps = new QDoubleSpinBox(groupBox_4);
         calc_fps->setObjectName(QString::fromUtf8("calc_fps"));
         calc_fps->setFrame(true);
+        calc_fps->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         calc_fps->setReadOnly(true);
         calc_fps->setButtonSymbols(QAbstractSpinBox::NoButtons);
-        calc_fps->setMaximum(1e+06);
+        calc_fps->setDecimals(1);
+        calc_fps->setMaximum(1e+07);
         calc_fps->setSingleStep(0.01);
 
         gridLayout_6->addWidget(calc_fps, 6, 1, 1, 1);
@@ -281,9 +329,11 @@ public:
         real_fps = new QDoubleSpinBox(groupBox_4);
         real_fps->setObjectName(QString::fromUtf8("real_fps"));
         real_fps->setFrame(true);
+        real_fps->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         real_fps->setReadOnly(true);
         real_fps->setButtonSymbols(QAbstractSpinBox::NoButtons);
-        real_fps->setMaximum(1e+06);
+        real_fps->setDecimals(1);
+        real_fps->setMaximum(9e+07);
         real_fps->setSingleStep(0.01);
 
         gridLayout_6->addWidget(real_fps, 7, 1, 1, 1);
@@ -291,11 +341,12 @@ public:
         calc_speed = new QDoubleSpinBox(groupBox_4);
         calc_speed->setObjectName(QString::fromUtf8("calc_speed"));
         calc_speed->setWrapping(false);
+        calc_speed->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         calc_speed->setAccelerated(true);
-        calc_speed->setDecimals(2);
+        calc_speed->setDecimals(3);
         calc_speed->setMinimum(0.01);
-        calc_speed->setMaximum(100);
-        calc_speed->setSingleStep(0.1);
+        calc_speed->setMaximum(1000);
+        calc_speed->setSingleStep(0.02);
         calc_speed->setValue(0.1);
 
         gridLayout_6->addWidget(calc_speed, 3, 1, 1, 1);
@@ -308,6 +359,7 @@ public:
         sizePolicy1.setHeightForWidth(frame_buffer->sizePolicy().hasHeightForWidth());
         frame_buffer->setSizePolicy(sizePolicy1);
         frame_buffer->setValue(24);
+        frame_buffer->setInvertedAppearance(false);
 
         gridLayout_6->addWidget(frame_buffer, 11, 1, 1, 1);
 
@@ -334,24 +386,26 @@ public:
         real_speed = new QDoubleSpinBox(groupBox_4);
         real_speed->setObjectName(QString::fromUtf8("real_speed"));
         real_speed->setFrame(true);
+        real_speed->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         real_speed->setReadOnly(true);
         real_speed->setButtonSymbols(QAbstractSpinBox::NoButtons);
-        real_speed->setMaximum(1e+06);
+        real_speed->setDecimals(3);
+        real_speed->setMaximum(100000);
         real_speed->setSingleStep(0.01);
 
         gridLayout_6->addWidget(real_speed, 4, 1, 1, 1);
 
 
-        gridLayout->addWidget(groupBox_4, 3, 0, 1, 1);
+        gridLayout->addWidget(groupBox_4, 4, 0, 1, 1);
 
         Rendering->setWidget(dockWidgetContents);
 #ifndef QT_NO_SHORTCUT
         label_24->setBuddy(connect_trace);
-        label_28->setBuddy(connect_trace);
         label_22->setBuddy(colours);
         label->setBuddy(fps);
         label_23->setBuddy(traces);
         label_29->setBuddy(connect_trace);
+        label_30->setBuddy(traces);
         label_27->setBuddy(z_rot);
         label_26->setBuddy(y_rot);
         label_25->setBuddy(x_rot);
@@ -376,31 +430,45 @@ public:
         Rendering->setWindowTitle(QApplication::translate("Rendering", "Rendering", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("Rendering", "Rendering", 0, QApplication::UnicodeUTF8));
         label_24->setText(QApplication::translate("Rendering", "Connect trace", 0, QApplication::UnicodeUTF8));
-        label_28->setText(QApplication::translate("Rendering", "Wireframe", 0, QApplication::UnicodeUTF8));
-        wireframe->setText(QApplication::translate("Rendering", "yes", 0, QApplication::UnicodeUTF8));
         label_22->setText(QApplication::translate("Rendering", "Colours", 0, QApplication::UnicodeUTF8));
         colours->setText(QApplication::translate("Rendering", "yes", 0, QApplication::UnicodeUTF8));
         connect_trace->setText(QApplication::translate("Rendering", "yes", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("Rendering", "FPS", 0, QApplication::UnicodeUTF8));
         label_23->setText(QApplication::translate("Rendering", "Traces", 0, QApplication::UnicodeUTF8));
+        fps->setSuffix(QApplication::translate("Rendering", " fps", 0, QApplication::UnicodeUTF8));
         traces->setText(QApplication::translate("Rendering", "yes", 0, QApplication::UnicodeUTF8));
         label_29->setText(QApplication::translate("Rendering", "Reflections", 0, QApplication::UnicodeUTF8));
         reflections->setText(QApplication::translate("Rendering", "yes", 0, QApplication::UnicodeUTF8));
+        trace_length->setSuffix(QApplication::translate("Rendering", " %", 0, QApplication::UnicodeUTF8));
+        label_30->setText(QApplication::translate("Rendering", "Trace length", 0, QApplication::UnicodeUTF8));
+        label_28->setText(QApplication::translate("Rendering", "Show lights", 0, QApplication::UnicodeUTF8));
+        lights->setText(QApplication::translate("Rendering", "yes", 0, QApplication::UnicodeUTF8));
         groupBox_7->setTitle(QApplication::translate("Rendering", "Auto rotation", 0, QApplication::UnicodeUTF8));
+        z_rot->setSuffix(QApplication::translate("Rendering", "\302\260", 0, QApplication::UnicodeUTF8));
+        y_rot->setSuffix(QApplication::translate("Rendering", "\302\260", 0, QApplication::UnicodeUTF8));
+        x_rot->setSuffix(QApplication::translate("Rendering", "\302\260", 0, QApplication::UnicodeUTF8));
         label_27->setText(QApplication::translate("Rendering", "Z axis", 0, QApplication::UnicodeUTF8));
         label_26->setText(QApplication::translate("Rendering", "Y axis", 0, QApplication::UnicodeUTF8));
         label_25->setText(QApplication::translate("Rendering", "X axis", 0, QApplication::UnicodeUTF8));
         reset_view->setText(QApplication::translate("Rendering", "Reset", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("Rendering", "Reset view", 0, QApplication::UnicodeUTF8));
+        label_6->setText(QApplication::translate("Rendering", "Hue rotation", 0, QApplication::UnicodeUTF8));
+        hue_rot->setSuffix(QApplication::translate("Rendering", "\302\260", 0, QApplication::UnicodeUTF8));
         groupBox_4->setTitle(QApplication::translate("Rendering", "General", 0, QApplication::UnicodeUTF8));
+        render_fps->setSuffix(QApplication::translate("Rendering", " fps", 0, QApplication::UnicodeUTF8));
         label_9->setText(QApplication::translate("Rendering", "Real calc. FPS", 0, QApplication::UnicodeUTF8));
         start->setText(QApplication::translate("Rendering", "Start", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("Rendering", "Calc. FPS", 0, QApplication::UnicodeUTF8));
+        calc_fps->setSuffix(QApplication::translate("Rendering", " fps", 0, QApplication::UnicodeUTF8));
         stop->setText(QApplication::translate("Rendering", "Stop", 0, QApplication::UnicodeUTF8));
+        real_fps->setSuffix(QApplication::translate("Rendering", " fps", 0, QApplication::UnicodeUTF8));
+        calc_speed->setSuffix(QApplication::translate("Rendering", " x", 0, QApplication::UnicodeUTF8));
+        frame_buffer->setFormat(QApplication::translate("Rendering", "%p %", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("Rendering", "Speed", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("Rendering", "Frame buffer", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("Rendering", "Render FPS", 0, QApplication::UnicodeUTF8));
         label_8->setText(QApplication::translate("Rendering", "Real speed", 0, QApplication::UnicodeUTF8));
+        real_speed->setSuffix(QApplication::translate("Rendering", " x", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
@@ -411,4 +479,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // RENDERINGWZ4991_H
+#endif // RENDERINGYH4991_H

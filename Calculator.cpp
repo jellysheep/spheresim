@@ -331,5 +331,7 @@ void Calculator::paintGL(bool readNewFrame){
 		//}
 		#endif
 	}
-	glWidget->drawLights();
+	#if _3D_
+		glWidget->drawLights();
+	#endif
 }

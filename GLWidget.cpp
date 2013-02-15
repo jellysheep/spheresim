@@ -90,7 +90,6 @@ void GLWidget::initializeGL() {
 	glEnable(GL_BLEND);
 	glEnable(GL_POINT_SMOOTH);
 	glEnable(GL_LINE_SMOOTH);
-	//~ glEnable(GL_POLYGON_SMOOTH);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(1,1,1,1);
 	
@@ -217,9 +216,9 @@ void GLWidget::initializeGL() {
 		glDisable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 	}
+	glLineWidth(1.5);
 	
 	glEndList();
-	glLineWidth(1.5);
 	glPointSize(1.5);
 }
 
@@ -363,6 +362,10 @@ void GLWidget::paintGL() {
 	
 	glPushMatrix();
 
+	
+	#if !_3D_
+		glDisable(GL_POLYGON_SMOOTH);
+	#endif
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glBegin(GL_QUADS);
@@ -379,6 +382,8 @@ void GLWidget::paintGL() {
 	#if _3D_
 		glEnable(GL_LIGHTING);
 		glEnable(GL_DEPTH_TEST);
+	#else
+		glEnable(GL_POLYGON_SMOOTH);
 	#endif
 	
 	glPopMatrix();//*/

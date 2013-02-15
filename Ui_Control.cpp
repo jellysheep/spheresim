@@ -68,7 +68,7 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	QObject::connect(calc->count, SIGNAL(valueChanged(int)), 
 		cal, SLOT(circleCountChanged(int)), Qt::QueuedConnection);
 		
-	QObject::connect(rend->wireframe, SIGNAL(toggled(bool)), 
+	QObject::connect(calc->wireframe, SIGNAL(toggled(bool)), 
 		this, SLOT(showWireframe(bool)), Qt::QueuedConnection);
 	QObject::connect(rend->reflections, SIGNAL(toggled(bool)), 
 		this, SLOT(showReflections(bool)), Qt::QueuedConnection);
@@ -105,7 +105,7 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	rend->x_rot->setValue(autoRotation.s[0]);
 	rend->y_rot->setValue(autoRotation.s[1]);
 	rend->z_rot->setValue(autoRotation.s[2]);
-	rend->wireframe->setChecked(wireframe);
+	calc->wireframe->setChecked(wireframe);
 	rend->reflections->setChecked(reflections);
 }
 
