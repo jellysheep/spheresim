@@ -14,10 +14,10 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	
 	setCentralWidget((QWidget*)glw);
 	
-	rendWg = new QDockWidget("Rendering",this);
+	rendWg = new CustomDockWidget("Rendering",this);
 	rendWg->setFeatures((QDockWidget::DockWidgetFeature)(QDockWidget::AllDockWidgetFeatures & ~QDockWidget::DockWidgetClosable));
 	rendWg->setAllowedAreas(Qt::AllDockWidgetAreas);
-	calcWg = new QDockWidget("Calculations",this);
+	calcWg = new CustomDockWidget("Calculations",this);
 	calcWg->setFeatures((QDockWidget::DockWidgetFeature)(QDockWidget::AllDockWidgetFeatures & ~QDockWidget::DockWidgetClosable));
 	calcWg->setAllowedAreas(Qt::AllDockWidgetAreas);
 	
@@ -25,6 +25,13 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	rend->setupUi(rendWg);
 	calc = new Ui::Calculations();
 	calc->setupUi(calcWg);
+	
+	QSize rendSize = rendWg->size();
+	rendSize.setHeight(5000);
+	rendWg->setMaximumSize(rendSize);
+	QSize calcSize = calcWg->size();
+	calcSize.setHeight(5000);
+	calcWg->setMaximumSize(calcSize);
 	
 	addDockWidget(Qt::RightDockWidgetArea, calcWg, Qt::Horizontal);
 	addDockWidget(Qt::RightDockWidgetArea, rendWg, Qt::Horizontal);
@@ -66,15 +73,21 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	QObject::connect(rend->reflections, SIGNAL(toggled(bool)), 
 		this, SLOT(showReflections(bool)), Qt::QueuedConnection);
 	
+	QObject::connect(rend->reset_view, SIGNAL(clicked()), 
+		cc glw, SLOT(resetView()), Qt::QueuedConnection);
+		
+	QObject::connect(calc->one_size, SIGNAL(toggled(bool)), 
+		this, SLOT(oneSphereSize(bool)), Qt::QueuedConnection);
+	QObject::connect(calc->radius_max, SIGNAL(valueChanged(double)), 
+		this, SLOT(maxSphereSize(double)), Qt::QueuedConnection);
+	QObject::connect(calc->radius_min, SIGNAL(valueChanged(double)), 
+		this, SLOT(minSphereSize(double)), Qt::QueuedConnection);
+	
 	rend->calc_speed->setValue(speed);
 	calc->count->setValue(circlesCount);
 	calc->radius_min->setValue(sphereSize.s[0]);
 	calc->radius_max->setValue(sphereSize.s[1]);
-	if(sphereSize.s[0] == sphereSize.s[1]){
-		calc->one_size->setChecked(true);
-	}else{
-		calc->one_size->setChecked(false);
-	}
+	calc->one_size->setChecked(sphereSize.s[0] == sphereSize.s[1]);
 	calc->x->setValue(boxSize.s[0]);
 	calc->y->setValue(boxSize.s[1]);
 	calc->z->setValue(boxSize.s[2]);
@@ -96,6 +109,19 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	rend->reflections->setChecked(reflections);
 }
 
+void Control::oneSphereSize(bool b){
+	if(b == true){
+		sphereSize.s[1] = sphereSize.s[0];
+		calc->radius_max->setValue(sphereSize.s[0]);
+	}
+}
+void Control::minSphereSize(double s){
+	sphereSize.s[0] = s;
+}
+void Control::maxSphereSize(double s){
+	sphereSize.s[1] = s;
+}
+
 void Control::updateGL(){
 	emit glw->timeToRender2();
 }
@@ -111,14 +137,38 @@ void Control::keyPressEvent(QKeyEvent* event){
 			break;
 		case Qt::Key_Escape:
 			break;
-		case Qt::Key_F:
+		case Qt::Key_H:
 			calcWg->setHidden(!calcWg->isHidden());
 			rendWg->setHidden(!rendWg->isHidden());
+			break;
+		case Qt::Key_F:
+			if(fullscreen){
+				showNormal();
+				showMaximized();
+			} else showFullScreen();
+			break;
+		case Qt::Key_R:
+			emit glw->resetView();
 			break;
 		default:
 			event->ignore();
 			break;
 	}
+}
+
+void Control::showMaximized(){
+	fullscreen = false;
+	QMainWindow::showMaximized();
+}
+
+void Control::showFullScreen(){
+	fullscreen = true;
+	QMainWindow::showFullScreen();
+}
+
+void Control::showNormal(){
+	fullscreen = false;
+	QMainWindow::showNormal();
 }
 
 void Control::toggleRunning(){

@@ -11,6 +11,12 @@
 
 class Calculator;
 
+struct ViewOptions {
+	scalar xRot, yRot, zRot;
+	scalar xRotCam, yRotCam;
+	scalar transX, transY, transZ;
+};
+
 class GLWidget : public QGLWidget, public FramesCounter {
 
 	Q_OBJECT // must include this if you use Qt signals/slots	 
@@ -22,11 +28,9 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void keyPressEvent(QKeyEvent *event);
-	scalar xRot,yRot,zRot;
-	scalar xRotCam,yRotCam;
+	ViewOptions curView;
 	vector3 rotation;
 	scalar translate;
-	scalar transX, transY, transZ;
 	Calculator* clTimer;
     QPoint lastPos;
     
@@ -41,6 +45,14 @@ protected:
 	void drawQuad(int i);
 	
 	void drawBoxSides();
+	
+	const static ViewOptions initView;
+	ViewOptions lastView, deltaView;
+	bool resettingView;
+	int resetCounter, resetCount;
+	QTimer *resetTimer;
+	void resetView(int ms);
+	scalar resetFact;
     
 public:
 	GLWidget(Calculator* ct, QWidget *parent = NULL);
@@ -69,6 +81,8 @@ public slots:
 	void timeToRender2();
 	void setRenderFps(double fps);
 	void updateTimer();
+	void resetView();
+	void resetViewTimer();
 
 signals:
 	void timeToRender_();

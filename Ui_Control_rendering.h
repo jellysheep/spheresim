@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'Renderingy15477.ui'
+** Form generated from reading UI file 'RenderingwZ4991.ui'
 **
-** Created: Thu Feb 14 12:34:16 2013
+** Created: Fri Feb 15 14:27:21 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef RENDERINGY15477_H
-#define RENDERINGY15477_H
+#ifndef RENDERINGWZ4991_H
+#define RENDERINGWZ4991_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -54,6 +54,8 @@ public:
     QLabel *label_27;
     QLabel *label_26;
     QLabel *label_25;
+    QPushButton *reset_view;
+    QLabel *label_5;
     QGroupBox *groupBox_4;
     QGridLayout *gridLayout_6;
     QDoubleSpinBox *render_fps;
@@ -75,7 +77,12 @@ public:
     {
         if (Rendering->objectName().isEmpty())
             Rendering->setObjectName(QString::fromUtf8("Rendering"));
-        Rendering->resize(232, 555);
+        Rendering->resize(232, 587);
+        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(Rendering->sizePolicy().hasHeightForWidth());
+        Rendering->setSizePolicy(sizePolicy);
         dockWidgetContents = new QWidget();
         dockWidgetContents->setObjectName(QString::fromUtf8("dockWidgetContents"));
         gridLayout = new QGridLayout(dockWidgetContents);
@@ -213,6 +220,16 @@ public:
 
         gridLayout_9->addWidget(label_25, 0, 0, 1, 1);
 
+        reset_view = new QPushButton(groupBox_7);
+        reset_view->setObjectName(QString::fromUtf8("reset_view"));
+
+        gridLayout_9->addWidget(reset_view, 4, 1, 1, 1);
+
+        label_5 = new QLabel(groupBox_7);
+        label_5->setObjectName(QString::fromUtf8("label_5"));
+
+        gridLayout_9->addWidget(label_5, 4, 0, 1, 1);
+
 
         gridLayout->addWidget(groupBox_7, 1, 0, 1, 1);
 
@@ -285,11 +302,11 @@ public:
 
         frame_buffer = new QProgressBar(groupBox_4);
         frame_buffer->setObjectName(QString::fromUtf8("frame_buffer"));
-        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(frame_buffer->sizePolicy().hasHeightForWidth());
-        frame_buffer->setSizePolicy(sizePolicy);
+        QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(frame_buffer->sizePolicy().hasHeightForWidth());
+        frame_buffer->setSizePolicy(sizePolicy1);
         frame_buffer->setValue(24);
 
         gridLayout_6->addWidget(frame_buffer, 11, 1, 1, 1);
@@ -325,7 +342,7 @@ public:
         gridLayout_6->addWidget(real_speed, 4, 1, 1, 1);
 
 
-        gridLayout->addWidget(groupBox_4, 2, 0, 1, 1);
+        gridLayout->addWidget(groupBox_4, 3, 0, 1, 1);
 
         Rendering->setWidget(dockWidgetContents);
 #ifndef QT_NO_SHORTCUT
@@ -373,6 +390,8 @@ public:
         label_27->setText(QApplication::translate("Rendering", "Z axis", 0, QApplication::UnicodeUTF8));
         label_26->setText(QApplication::translate("Rendering", "Y axis", 0, QApplication::UnicodeUTF8));
         label_25->setText(QApplication::translate("Rendering", "X axis", 0, QApplication::UnicodeUTF8));
+        reset_view->setText(QApplication::translate("Rendering", "Reset", 0, QApplication::UnicodeUTF8));
+        label_5->setText(QApplication::translate("Rendering", "Reset view", 0, QApplication::UnicodeUTF8));
         groupBox_4->setTitle(QApplication::translate("Rendering", "General", 0, QApplication::UnicodeUTF8));
         label_9->setText(QApplication::translate("Rendering", "Real calc. FPS", 0, QApplication::UnicodeUTF8));
         start->setText(QApplication::translate("Rendering", "Start", 0, QApplication::UnicodeUTF8));
@@ -392,4 +411,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // RENDERINGY15477_H
+#endif // RENDERINGWZ4991_H

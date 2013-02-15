@@ -6,25 +6,25 @@
 #include <cmath>
 #include "Calculator.h"
 
+const ViewOptions GLWidget::initView = {
+	#if _3D_
+		.xRot = 40, .yRot = 60, 
+	#else
+		.xRot = 0, .yRot = 0,
+	#endif
+	.zRot = 0,
+	.xRotCam = 0, .yRotCam = 0,
+	.transX = 0, .transY = 0, .transZ = 0};
+
 GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	setFocusPolicy(Qt::StrongFocus);
 	//setMouseTracking(true);
 	clTimer = ct;
 	rotation = (vector3){0,0,0};
-	#if _3D_
-		xRot = 40;
-		yRot = 60;
-	#else
-		xRot = 0;
-		yRot = 0;
-	#endif
-	zRot = 0;
-	xRotCam = 0;
-	yRotCam = 0;
-	transX = 0;
-	transY = 0;
-	transZ = 0;
+	curView = initView;
 	translate = 0;
+	resettingView = false;
+	
 	newFrame = false;
 	rotGrav = 0;
 	
@@ -35,6 +35,9 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	QObject::connect(rotationTimer, SIGNAL(timeout()), this, SLOT(timeToRender()), Qt::QueuedConnection);
 	rotationTimer->start();// */
 	QObject::connect(this, SIGNAL(timeToRender_()), this, SLOT(timeToRender()), Qt::DirectConnection);
+	
+	resetTimer = new QTimer(this);
+	connect(resetTimer, SIGNAL(timeout()), this, SLOT(resetViewTimer()));
 }
 
 void GLWidget::updateTimer() {
@@ -247,9 +250,9 @@ void GLWidget::timeToRender(){
 	newFrame = true;
 	
 	//#if _3D_
-		xRot += autoRotation.s[0]*16.0;
-		yRot += autoRotation.s[1]*16.0;
-		zRot += autoRotation.s[2]*16.0;
+		curView.xRot += autoRotation.s[0]*16.0;
+		curView.yRot += autoRotation.s[1]*16.0;
+		curView.zRot += autoRotation.s[2]*16.0;
 	//#endif
 	
 	/*
@@ -277,6 +280,58 @@ void GLWidget::timeToRender2(){
 	drawingFinished = true;
 }
 
+void shrinkAngleDiff(scalar& s){
+	while(s>+180) s-=360;
+	while(s<-180) s+=360;
+}
+
+void GLWidget::resetView(int ms){
+	if(resettingView) return;
+	resettingView = true;
+	lastView = curView;
+	deltaView.xRotCam = initView.xRotCam-curView.xRotCam;
+	shrinkAngleDiff(deltaView.xRotCam);
+	deltaView.yRotCam = initView.yRotCam-curView.yRotCam;
+	shrinkAngleDiff(deltaView.yRotCam);
+	deltaView.transX = initView.transX-curView.transX;
+	deltaView.transY = initView.transY-curView.transY;
+	deltaView.transZ = initView.transZ-curView.transZ;
+	deltaView.xRot = initView.xRot-curView.xRot;
+	shrinkAngleDiff(deltaView.xRot);
+	deltaView.yRot = initView.yRot-curView.yRot;
+	shrinkAngleDiff(deltaView.yRot);
+	deltaView.zRot = initView.zRot-curView.zRot;
+	shrinkAngleDiff(deltaView.zRot);
+	resetCount = ms/renderFps;
+	resetCounter = 0;
+	resetTimer->start(1000/renderFps);
+}
+
+void GLWidget::resetViewTimer(){
+	printf("counter: %3d count: %3d\n", resetCounter, resetCount);
+	resetCounter++;
+	scalar x = (resetCounter/(scalar)resetCount);
+	resetFact = 3*x*x - 2*x*x*x;
+	curView.xRotCam = lastView.xRotCam+resetFact*deltaView.xRotCam;
+	curView.yRotCam = lastView.yRotCam+resetFact*deltaView.yRotCam;
+	curView.transX = lastView.transX+resetFact*deltaView.transX;
+	curView.transY = lastView.transY+resetFact*deltaView.transY;
+	curView.transZ = lastView.transZ+resetFact*deltaView.transZ;
+	curView.xRot = lastView.xRot+resetFact*deltaView.xRot;
+	curView.yRot = lastView.yRot+resetFact*deltaView.yRot;
+	curView.zRot = lastView.zRot+resetFact*deltaView.zRot;
+	if(resetCounter>=resetCount){
+		curView = initView;
+		resetTimer->stop();
+		resettingView = false;
+	}
+	timeToRender2();
+}
+
+void GLWidget::resetView(){
+	resetView(2000);
+}
+
 void GLWidget::paintGL() {
 	//makeCurrent();
 	//printf("paintGL\n");
@@ -287,7 +342,7 @@ void GLWidget::paintGL() {
 	//glMatrixMode(GL_MODELVIEW);
 	//glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, -boxSize.s[2]/2);
 	//glTranslatef(0.0, 0.0, -10.0);
-	glTranslatef(0.0, 0.0, zRot/16.0);
+	glTranslatef(0.0, 0.0, curView.zRot/16.0);
 	//glTranslatef(0.f, 0.f, 1000.f);
 	//glRotatef(rotation.s[0] / 16.0, 1.0, 0.0, 0.0);
 	//glRotatef(rotation.s[1] / 16.0, 0.0, 1.0, 0.0);
@@ -340,19 +395,19 @@ void GLWidget::paintGL() {
 	glLoadIdentity();
 
 	//glRotatef(180.0, 0.0, 1.0, 0.0);
-	glRotatef(xRotCam, 1.0, 0.0, 0.0);
-	glRotatef(yRotCam, 0.0, 1.0, 0.0);
+	glRotatef(curView.xRotCam, 1.0, 0.0, 0.0);
+	glRotatef(curView.yRotCam, 0.0, 1.0, 0.0);
 	
 	
-	glTranslatef(-transX, -transY, -transZ);
+	glTranslatef(-curView.transX, -curView.transY, -curView.transZ);
 	
 	glTranslatef(0.f, 0.f, -500.f);
 	glTranslatef(0.f, 0.f, 280.f);
 	
 	
-	glRotatef(xRot, 1.0, 0.0, 0.0);
-	glRotatef(yRot, 0.0, 1.0, 0.0);
-	glRotatef(zRot, 0.0, 0.0, 1.0);
+	glRotatef(curView.xRot, 1.0, 0.0, 0.0);
+	glRotatef(curView.yRot, 0.0, 1.0, 0.0);
+	glRotatef(curView.zRot, 0.0, 0.0, 1.0);
 
 	
 	scalar scale = 80.0;
@@ -366,12 +421,12 @@ void GLWidget::paintGL() {
 	
 	
 	glRotatef(-rotGrav, 0.0, 0.0, 1.0);
-	//glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
+	//glRotatef(curView.zRot / 16.0, 0.0, 0.0, 1.0);
 	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (_3D_!=0?(-boxSize.s[2]/2):0));
 	#if _3D_
 		setLightPos();
 		//draw light bulbs
-		drawLights();
+		//drawLights();
 	#endif
 	
 	if(renderBool){
@@ -474,6 +529,9 @@ void GLWidget::drawQuad(int i){
 void GLWidget::reflect(){
 	static double reflection = 0.7;//0.95;
 	for(int i = 0; i<1; i++){
+		
+		/// Prepare stencil buffer for reflections:
+		
 		glEnable(GL_CULL_FACE);
 		glFrontFace(GL_CW);
 		
@@ -504,18 +562,21 @@ void GLWidget::reflect(){
 		glScalef(1.0, -1.0, 1.0);
 		setLightPos();
 		
+		/// Draw reflections to screen:
 		glCullFace(GL_FRONT);
-		if(i == 0)
+		if(i == 0){
 			clTimer->paintGL(true);
-		else
+		}else{
 			clTimer->paintGL(false);
+		}
 		glCullFace(GL_BACK);
 		glPopMatrix();
+		
 		setLightPos();
 
 		glDisable(GL_STENCIL_TEST);
 		
-		
+		/// Draw wall/floor to screen:
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -530,6 +591,7 @@ void GLWidget::reflect(){
 		glDisable(GL_CULL_FACE);
 	}
 	
+	/// Prepare stencil buffer for regular spheres:
 	glClear(GL_STENCIL_BUFFER_BIT);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -556,6 +618,7 @@ void GLWidget::reflect(){
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 
+	/// draw spheres to screen, but only where they do not overlap the floor/wall
 	/* Now, only render where stencil is set to 1. */
 	glStencilFunc(GL_NOTEQUAL, 1, 0xffffffff);  /* draw if stencil ==1 */
 	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
@@ -579,23 +642,23 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	int dy = event->y() - lastPos.y();
 
 	if (event->buttons() & Qt::LeftButton) {
-		setXRotation(xRot + 8/16.0 * dy);
-		setYRotation(yRot + 8/16.0 * dx);
+		setXRotation(curView.xRot + 8/16.0 * dy);
+		setYRotation(curView.yRot + 8/16.0 * dx);
 	} else if ((event->buttons() & Qt::MiddleButton)&&(event->modifiers() & Qt::ControlModifier)) {
 		//translate / move forward
 		translate = -dy;
-		transX += translate*sin(yRotCam*M_PI/180.0)*cos(xRotCam*M_PI/180.0);
-		transY -= translate*sin(xRotCam*M_PI/180.0);
-		transZ -= translate*cos(yRotCam*M_PI/180.0)*cos(xRotCam*M_PI/180.0);
+		curView.transX += translate*sin(curView.yRotCam*M_PI/180.0)*cos(curView.xRotCam*M_PI/180.0);
+		curView.transY -= translate*sin(curView.xRotCam*M_PI/180.0);
+		curView.transZ -= translate*cos(curView.yRotCam*M_PI/180.0)*cos(curView.xRotCam*M_PI/180.0);
 	} else if ((event->buttons() & Qt::MiddleButton)&&(event->modifiers() & Qt::ShiftModifier)) {
-		transX += -dx*0.2*cos(yRotCam*M_PI/180.0);
-		transZ += -dx*0.2*sin(yRotCam*M_PI/180.0);
-		transY += dy*0.2;
+		curView.transX += -dx*0.2*cos(curView.yRotCam*M_PI/180.0);
+		curView.transZ += -dx*0.2*sin(curView.yRotCam*M_PI/180.0);
+		curView.transY += dy*0.2;
 	} else if (event->buttons() & Qt::MiddleButton) {
-		xRotCam += 8/16.0 * dy;
-		yRotCam += 8/16.0 * dx;
-		shrinkAngle(xRotCam);
-		shrinkAngle(yRotCam);
+		curView.xRotCam += 8/16.0 * dy;
+		curView.yRotCam += 8/16.0 * dx;
+		shrinkAngle(curView.xRotCam);
+		shrinkAngle(curView.yRotCam);
 	}
 	lastPos = event->pos();
 	timeToRender2();
@@ -632,16 +695,16 @@ static void qNormalizeAngle(scalar &angle)
 void GLWidget::setXRotation(scalar angle)
 {
 	qNormalizeAngle(angle);
-	if (angle != xRot) {
-		xRot = angle;
+	if (angle != curView.xRot) {
+		curView.xRot = angle;
 	}
 }
 
 void GLWidget::setYRotation(scalar angle)
 {
 	qNormalizeAngle(angle);
-	if (angle != yRot) {
-		yRot = angle;
+	if (angle != curView.yRot) {
+		curView.yRot = angle;
 	}
 }
 

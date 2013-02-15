@@ -5,7 +5,7 @@
 #include <QColor>
 
 #define _3D_ 1
-#define _double_ 0
+#define _double_ 1
 
 #if defined( __GNUC__ )
     #define CL_ALIGNED(_x)          __attribute__ ((aligned(_x)))

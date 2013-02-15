@@ -143,6 +143,7 @@ void Calculator::circleCountChanged(int i){
 	
 	if(run)start();
 	performingAction = false;
+	glWidget->timeToRender2();
 }
 
 #define onlyOneC 0
@@ -330,4 +331,5 @@ void Calculator::paintGL(bool readNewFrame){
 		//}
 		#endif
 	}
+	glWidget->drawLights();
 }
