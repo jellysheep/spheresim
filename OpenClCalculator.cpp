@@ -163,12 +163,14 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		cl_sphereSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector2), &sphereSize, &err);
 		cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &max_speed, &err);
 		cl_circlesCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &circlesCount, &err);
-		cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &E, &err);
+		scalar* E_ = new scalar(1000000.0*E);
+		cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), E_, &err);
 		cl_elastic = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &elastic, &err);
 		cl_gravity = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector), &gravity, &err);
 		cl_timeInterval = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &timeInterval, &err);
 		cl_poisson = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &poisson, &err);
-		cl_G = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &G, &err);
+		scalar* G_ = new scalar(G*G_fact);
+		cl_G = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), G_, &err);
 		cl_flags = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(int)*circlesCount, NULL, &err);
 
 		printf("Pushing data to the GPU\n");

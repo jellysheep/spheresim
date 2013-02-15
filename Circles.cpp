@@ -15,10 +15,10 @@ scalar speed = 1, speedCorrection = 1.0;
 scalar fps = 1000000, minFps = 800;
 scalar timeInterval = speed*speedCorrection/fps;
 
-scalar max_speed = 0.5;
-scalar E = 2*1000000*0.05;//((200)/1000000.0)/2; //Silikonkautschuk
+scalar max_speed = 0;//0.5;
+scalar E = 2*0.05;//((200)/1000000.0)/2; //Silikonkautschuk
 scalar poisson = 0.5; //Gummi
-scalar elastic = 0.5;//0.05;//0.9;//0.999;//0.9;
+scalar elastic = 0.9;//0.05;//0.9;//0.999;//0.9;
 scalar gravity_abs = 9.81;
 vector gravity = (vector){0,-gravity_abs
 	#if _3D_
@@ -38,12 +38,14 @@ bool useColorHSV = true;
 scalar hueStep = -0.15;
 scalar hueOffset;
 bool useTrace = true && (!manyCircles);
-long traceCount = renderFpsMax*5/sqrt(std::max(1.0,log((maxShowCirclesCount))));
+long traceCount = renderFpsMax*50/sqrt(std::max(1.0,log((maxShowCirclesCount))));
 bool connectTracePoints = true;
+scalar traceAmount = 1.0;
 int renderBufferCount = renderFpsMax;
 
 bool reflections = true && (min(circlesCount,maxShowCirclesCount)<=3000);
 bool wireframe = false;
+bool showCube = true, showLights = true;
 bool useSplitKernels = false;
 
 vector3 autoRotation = (vector3){0,0,0};

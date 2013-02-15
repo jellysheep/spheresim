@@ -74,8 +74,11 @@ protected:
     scalar timeInterval;
     
 	void circleCountChanged_subclass(int i);
+	void maxCircleCountChanged_subclass(int i);
 	
 	void initCircle(int i);
+	
+	scalar _E;
 
 public:
 	EigenCalculator();
@@ -87,6 +90,12 @@ public:
 public slots:
 	void boxSizeChanged();
 	void gravityChanged();
+	void updateG();
+	void updateAirResistance();
+	void updateWallResistance();
+	void updateEModul();
+	void updatePoisson();
+	void updateElasticity();
 };
 
 extern void start(EigenCalculator* clTimer);

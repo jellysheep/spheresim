@@ -72,6 +72,7 @@ public:
 	void drawLights();
 	
 	void setLightPos();
+	void updateGravity();
 
 public slots:
 	void setXRotation(scalar angle);

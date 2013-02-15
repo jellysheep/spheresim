@@ -54,6 +54,17 @@ public slots:
 	void oneSphereSize(bool b);
 	void maxSphereSize(double s);
 	void minSphereSize(double s);
+	void setShowCube(bool b);
+	void earthGravity(double g);
+	void interGravity(double g);
+	void setAirResistance(double a);
+	void setWallResistance(bool b);
+	void setEModul(double d);
+	void setPoisson(double d);
+	void setElasticity(double d);
+	void setHueStep(double d);
+	void setShowLights(bool b);
+	void setTraceAmount(double d);
 };
 
 #endif /* _UI_CONTROL_ */

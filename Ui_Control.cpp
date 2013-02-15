@@ -82,16 +82,41 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 		this, SLOT(maxSphereSize(double)), Qt::QueuedConnection);
 	QObject::connect(calc->radius_min, SIGNAL(valueChanged(double)), 
 		this, SLOT(minSphereSize(double)), Qt::QueuedConnection);
+	QObject::connect(calc->visible_count, SIGNAL(valueChanged(int)), 
+		cal, SLOT(maxCircleCountChanged(int)), Qt::QueuedConnection);
+	QObject::connect(calc->cube, SIGNAL(toggled(bool)), 
+		this, SLOT(setShowCube(bool)), Qt::QueuedConnection);
+	QObject::connect(calc->earth_gravity, SIGNAL(valueChanged(double)), 
+		this, SLOT(earthGravity(double)), Qt::QueuedConnection);
+	QObject::connect(calc->inter_gravity, SIGNAL(valueChanged(double)), 
+		this, SLOT(interGravity(double)), Qt::QueuedConnection);
+	QObject::connect(calc->air_resistance, SIGNAL(valueChanged(double)), 
+		this, SLOT(setAirResistance(double)), Qt::QueuedConnection);
+	QObject::connect(calc->wall_resistance, SIGNAL(toggled(bool)), 
+		this, SLOT(setWallResistance(bool)), Qt::QueuedConnection);
+	QObject::connect(calc->e_modul, SIGNAL(valueChanged(double)), 
+		this, SLOT(setEModul(double)), Qt::QueuedConnection);
+	QObject::connect(calc->poissons_ratio, SIGNAL(valueChanged(double)), 
+		this, SLOT(setPoisson(double)), Qt::QueuedConnection);
+	QObject::connect(calc->elasticity, SIGNAL(valueChanged(double)), 
+		this, SLOT(setElasticity(double)), Qt::QueuedConnection);
+	QObject::connect(rend->hue_rot, SIGNAL(valueChanged(double)), 
+		this, SLOT(setHueStep(double)), Qt::QueuedConnection);
+	QObject::connect(rend->lights, SIGNAL(toggled(bool)), 
+		this, SLOT(setShowLights(bool)), Qt::QueuedConnection);
+	QObject::connect(rend->trace_length, SIGNAL(valueChanged(double)), 
+		this, SLOT(setTraceAmount(double)), Qt::QueuedConnection);
 	
 	rend->calc_speed->setValue(speed);
 	calc->count->setValue(circlesCount);
+	calc->visible_count->setValue(maxShowCirclesCount);
 	calc->radius_min->setValue(sphereSize.s[0]);
 	calc->radius_max->setValue(sphereSize.s[1]);
 	calc->one_size->setChecked(sphereSize.s[0] == sphereSize.s[1]);
 	calc->x->setValue(boxSize.s[0]);
 	calc->y->setValue(boxSize.s[1]);
 	calc->z->setValue(boxSize.s[2]);
-	calc->earth_gravity->setValue(gravity.s[0]);
+	calc->earth_gravity->setValue(gravity_abs);
 	calc->inter_gravity->setValue(G_fact);
 	calc->air_resistance->setValue(airResistance);
 	calc->wall_resistance->setChecked(wallResistance);
@@ -107,6 +132,57 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	rend->z_rot->setValue(autoRotation.s[2]);
 	calc->wireframe->setChecked(wireframe);
 	rend->reflections->setChecked(reflections);
+	calc->cube->setChecked(showCube);
+	rend->hue_rot->setValue(hueStep);
+	rend->lights->setChecked(showLights);
+	rend->trace_length->setValue(traceAmount);
+}
+
+void Control::setTraceAmount(double d){
+	traceAmount = d;
+}
+
+void Control::setShowLights(bool b){
+	showLights = b;
+}
+
+void Control::setHueStep(double d){
+	hueStep = d;
+}
+
+void Control::setElasticity(double d){
+	elastic = d;
+	cal->updateElasticity();
+}
+
+void Control::setPoisson(double d){
+	poisson = d;
+	cal->updatePoisson();
+}
+
+void Control::setEModul(double d){
+	E = d;
+	cal->updateEModul();
+}
+
+void Control::setWallResistance(bool b){
+	wallResistance = b;
+	cal->updateWallResistance();
+}
+
+void Control::setAirResistance(double a){
+	airResistance = a;
+	cal->updateAirResistance();
+}
+
+void Control::interGravity(double g){
+	G_fact = g;
+	cal->updateG();
+}
+
+void Control::earthGravity(double g){
+	gravity_abs = g;
+	glw->updateGravity();
 }
 
 void Control::oneSphereSize(bool b){
@@ -247,5 +323,9 @@ void Control::showWireframe(bool b){
 }
 void Control::showReflections(bool b){
 	reflections = b;
+	updateGL();
+}
+void Control::setShowCube(bool b){
+	showCube = b;
 	updateGL();
 }

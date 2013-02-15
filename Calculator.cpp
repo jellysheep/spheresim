@@ -124,6 +124,16 @@ void Calculator::run(){
 	hasStopped = true;
 }
 
+void Calculator::maxCircleCountChanged(int i){
+	if(performingAction) return;
+	performingAction = true;
+	
+	maxCircleCountChanged_subclass(i);
+	maxShowCirclesCount = i;
+	performingAction = false;
+	glWidget->timeToRender2();
+}
+
 void Calculator::circleCountChanged(int i){
 	if(performingAction) return;
 	performingAction = true;
@@ -170,10 +180,12 @@ void Calculator::paintGL(bool readNewFrame){
 	}
 
 	// Draw a cube
-	glPushMatrix();
-	glScalef(boxSize.s[0], boxSize.s[1], boxSize.s[2]);
-	glCallList(glWidget->displayList+1);
-	glPopMatrix();
+	if(showCube){
+		glPushMatrix();
+		glScalef(boxSize.s[0], boxSize.s[1], boxSize.s[2]);
+		glCallList(glWidget->displayList+1);
+		glPopMatrix();
+	}
 	
 	scalar r,x,y,z;
 	
@@ -204,6 +216,7 @@ void Calculator::paintGL(bool readNewFrame){
 	}
 	
 	if(useTrace){
+		int traceCountNew = (int)(traceAmount/100.0*traceCount);
 		glDisable(GL_LIGHTING);
 		for(i=0; i < readNum_render; i++)
 		{
@@ -233,15 +246,15 @@ void Calculator::paintGL(bool readNewFrame){
 			else
 				glBegin(GL_POINTS);
 			k = 0;
-			for(h = (ce->traceFull?((ce->traceCount+1)%traceCount):0); h!=ce->traceCount; h=((h+1)%traceCount)){
-				glColor4f(color->redF(),color->greenF(),color->blueF(),std::pow((k++)*1.0/traceCount,0.5)/2);
+			for(h = (ce->traceFull?((traceCount+ce->traceCount+1-traceCountNew)%traceCount):std::max(0,ce->traceCount-traceCountNew)); h!=ce->traceCount; h=((h+1)%traceCount)){
+				glColor4f(color->redF(),color->greenF(),color->blueF(),std::pow((k++)*1.0/traceCountNew,0.5)/2);
 				#if _3D_
 					glVertex3d(ce->trace[h].s[0], ce->trace[h].s[1], ce->trace[h].s[2]);
 				#else
 					glVertex2d(ce->trace[h].s[0], ce->trace[h].s[1]);
 				#endif
 			}
-			glColor4f(color->redF(),color->greenF(),color->blueF(),std::pow((k++)*1.0/traceCount,0.5)/2);
+			glColor4f(color->redF(),color->greenF(),color->blueF(),std::pow((k++)*1.0/traceCountNew,0.5)/2);
 			#if _3D_
 				glVertex3d(x,y,z);
 			#else
@@ -332,6 +345,8 @@ void Calculator::paintGL(bool readNewFrame){
 		#endif
 	}
 	#if _3D_
-		glWidget->drawLights();
+		if(showLights){
+			glWidget->drawLights();
+		}
 	#endif
 }

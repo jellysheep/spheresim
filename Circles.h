@@ -154,10 +154,12 @@ extern scalar hueOffset;
 extern bool useTrace;
 extern long traceCount;
 extern bool connectTracePoints;
+extern scalar traceAmount;
 extern int renderBufferCount;
 
 extern bool reflections;
 extern bool wireframe;
+extern bool showCube, showLights;
 extern bool useSplitKernels;
 
 extern vector3 autoRotation;

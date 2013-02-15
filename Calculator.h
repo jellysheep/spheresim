@@ -45,6 +45,7 @@ protected:
 	volatile bool running, hasStopped;
     
 	virtual void circleCountChanged_subclass(int i)=0;
+	virtual void maxCircleCountChanged_subclass(int i)=0;
 	
 	int lightTarget;
 	void initCeBuffer(int i);
@@ -100,6 +101,20 @@ public slots:
 	virtual void gravityChanged()=0;
 	
 	virtual void circleCountChanged(int i);
+	
+	virtual void maxCircleCountChanged(int i);
+    
+    virtual void updateG()=0;
+    
+    virtual void updateAirResistance()=0;
+    
+    virtual void updateWallResistance()=0;
+    
+    virtual void updateEModul()=0;
+    
+    virtual void updatePoisson()=0;
+    
+    virtual void updateElasticity()=0;
 };
 
 #endif

@@ -256,15 +256,19 @@ void GLWidget::timeToRender(){
 	
 	/*
 	rotGrav += 0.2;
-	gravity.s[0] = cos(M_PI/180.0*(rotGrav+90))*gravity_abs;
-	gravity.s[1] = sin(M_PI/180.0*(rotGrav+90))*gravity_abs;
+	updateGravity();
+	//*/
+	
+	timeToRender2();
+}
+
+void GLWidget::updateGravity(){
+	gravity.s[0] = cos(M_PI/180.0*(rotGrav-90))*gravity_abs;
+	gravity.s[1] = sin(M_PI/180.0*(rotGrav-90))*gravity_abs;
 	#if _3D_
 		gravity.s[2] = 0;
 	#endif
 	emit clTimer->gravityChanged();
-	//*/
-	
-	timeToRender2();
 }
 
 void GLWidget::timeToRender2(){
@@ -369,15 +373,15 @@ void GLWidget::paintGL() {
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glBegin(GL_QUADS);
-	float f = -1, col;
-	col = 0.9;
+	float f = -1, col, x=5, y=0.47;
+	col = 0.99;
 	glColor3f(col,col,col);
-	glVertex3f(-1.0, 1.0, f);
-	glVertex3f(1.0,1.0, f);
-	col = 0.1;
+	glVertex3f(-x, y, f);
+	glVertex3f( x, y, f);
+	col = 0.7;
 	glColor3f(col,col,col);
-	glVertex3f(1.0,-1.0, f);
-	glVertex3f(-1.0,-1.0, f);
+	glVertex3f( x,-y, f);
+	glVertex3f(-x,-y, f);
 	glEnd();
 	#if _3D_
 		glEnable(GL_LIGHTING);
@@ -422,9 +426,6 @@ void GLWidget::paintGL() {
 	glScalef(scale,scale,scale);
 
 	
-	
-	
-	
 	glRotatef(-rotGrav, 0.0, 0.0, 1.0);
 	//glRotatef(curView.zRot / 16.0, 0.0, 0.0, 1.0);
 	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (_3D_!=0?(-boxSize.s[2]/2):0));
@@ -436,7 +437,7 @@ void GLWidget::paintGL() {
 	
 	if(renderBool){
 		#if _3D_
-		if(reflections){
+		if(reflections && showCube && wallResistance){
 			reflect();
 		}else
 		#endif
@@ -475,7 +476,7 @@ void GLWidget::drawBoxSides(){
 	float opacity = 0.1;
 	glColor4f(0.0, 0.0, 0.0, opacity);
 	glBegin(GL_QUADS);
-		double y = -0.01;
+		double y = -0.005;
 		//~ glColor4f(1,0,0,opacity);
 		glNormal3d(0,-1,0);
 		glVertex3d(y,y,y);
@@ -533,6 +534,8 @@ void GLWidget::drawQuad(int i){
 
 void GLWidget::reflect(){
 	static double reflection = 0.7;//0.95;
+	bool b = showLights;
+	showLights = true;
 	for(int i = 0; i<1; i++){
 		
 		/// Prepare stencil buffer for reflections:
@@ -595,6 +598,7 @@ void GLWidget::reflect(){
 		// */
 		glDisable(GL_CULL_FACE);
 	}
+	showLights = b;
 	
 	/// Prepare stencil buffer for regular spheres:
 	glClear(GL_STENCIL_BUFFER_BIT);

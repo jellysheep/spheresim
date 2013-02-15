@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'Calculationsjw4991.ui'
+** Form generated from reading UI file 'Calculationst16379.ui'
 **
-** Created: Fri Feb 15 15:51:11 2013
+** Created: Fri Feb 15 17:39:07 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef CALCULATIONSJW4991_H
-#define CALCULATIONSJW4991_H
+#ifndef CALCULATIONST16379_H
+#define CALCULATIONST16379_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -77,7 +77,7 @@ public:
     {
         if (Calculations->objectName().isEmpty())
             Calculations->setObjectName(QString::fromUtf8("Calculations"));
-        Calculations->resize(251, 556);
+        Calculations->resize(245, 594);
         dockWidgetContents = new QWidget();
         dockWidgetContents->setObjectName(QString::fromUtf8("dockWidgetContents"));
         verticalLayout = new QVBoxLayout(dockWidgetContents);
@@ -304,7 +304,7 @@ public:
         earth_gravity->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         earth_gravity->setAccelerated(true);
         earth_gravity->setDecimals(2);
-        earth_gravity->setMinimum(0.01);
+        earth_gravity->setMinimum(-100);
         earth_gravity->setMaximum(100);
         earth_gravity->setSingleStep(0.1);
         earth_gravity->setValue(9.81);
@@ -323,9 +323,9 @@ public:
         e_modul->setAccelerated(true);
         e_modul->setDecimals(2);
         e_modul->setMinimum(0.01);
-        e_modul->setMaximum(1e+06);
-        e_modul->setSingleStep(0.1);
-        e_modul->setValue(50000);
+        e_modul->setMaximum(1000);
+        e_modul->setSingleStep(0.02);
+        e_modul->setValue(0.1);
 
         gridLayout_5->addWidget(e_modul, 4, 1, 1, 1);
 
@@ -349,7 +349,7 @@ public:
         poissons_ratio->setAccelerated(true);
         poissons_ratio->setDecimals(2);
         poissons_ratio->setMinimum(-1);
-        poissons_ratio->setMaximum(0.5);
+        poissons_ratio->setMaximum(1);
         poissons_ratio->setSingleStep(0.1);
         poissons_ratio->setValue(0.5);
 
@@ -434,7 +434,7 @@ public:
         label_20->setText(QApplication::translate("Calculations", "Poisson's ratio", 0, QApplication::UnicodeUTF8));
         earth_gravity->setSuffix(QApplication::translate("Calculations", " m/s\302\262", 0, QApplication::UnicodeUTF8));
         label_13->setText(QApplication::translate("Calculations", "EarthGravity", 0, QApplication::UnicodeUTF8));
-        e_modul->setSuffix(QApplication::translate("Calculations", " x", 0, QApplication::UnicodeUTF8));
+        e_modul->setSuffix(QApplication::translate("Calculations", " GPa", 0, QApplication::UnicodeUTF8));
         air_resistance->setSuffix(QApplication::translate("Calculations", " x", 0, QApplication::UnicodeUTF8));
         label_21->setText(QApplication::translate("Calculations", "Elasticity", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
@@ -447,4 +447,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // CALCULATIONSJW4991_H
+#endif // CALCULATIONST16379_H
