@@ -653,17 +653,17 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 	if (event->buttons() & Qt::LeftButton) {
 		setXRotation(curView.xRot + 8/16.0 * dy);
 		setYRotation(curView.yRot + 8/16.0 * dx);
-	} else if ((event->buttons() & Qt::MiddleButton)&&(event->modifiers() & Qt::ControlModifier)) {
+	} else if ((event->buttons() & (Qt::MiddleButton|Qt::RightButton))&&(event->modifiers() & Qt::ControlModifier)) {
 		//translate / move forward
 		translate = -dy;
 		curView.transX += translate*sin(curView.yRotCam*M_PI/180.0)*cos(curView.xRotCam*M_PI/180.0);
 		curView.transY -= translate*sin(curView.xRotCam*M_PI/180.0);
 		curView.transZ -= translate*cos(curView.yRotCam*M_PI/180.0)*cos(curView.xRotCam*M_PI/180.0);
-	} else if ((event->buttons() & Qt::MiddleButton)&&(event->modifiers() & Qt::ShiftModifier)) {
+	} else if ((event->buttons() & (Qt::MiddleButton|Qt::RightButton))&&(event->modifiers() & Qt::ShiftModifier)) {
 		curView.transX += -dx*0.2*cos(curView.yRotCam*M_PI/180.0);
 		curView.transZ += -dx*0.2*sin(curView.yRotCam*M_PI/180.0);
 		curView.transY += dy*0.2;
-	} else if (event->buttons() & Qt::MiddleButton) {
+	} else if (event->buttons() & (Qt::MiddleButton|Qt::RightButton)) {
 		curView.xRotCam += 8/16.0 * dy;
 		curView.yRotCam += 8/16.0 * dx;
 		shrinkAngle(curView.xRotCam);
