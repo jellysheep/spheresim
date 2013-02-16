@@ -2,8 +2,9 @@
 #include "Circles.h"
 #include "Calculator.h"
 #include "GLWidget.h"
-#include <QtGui>
-#include <Qt/qdockwidget.h>
+//#include <QtGui>
+#include <QtGui/QDockWidget>
+#include "PlotWidget.h"
 
 #define cc (const QObject*)
 //const-cast
@@ -11,15 +12,22 @@
 
 Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(g),cal(c),sv(s){
 	setDockNestingEnabled(true);
+	setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+	setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+	setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+	setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
 	
 	setCentralWidget((QWidget*)glw);
 	
-	rendWg = new CustomDockWidget("Rendering",this);
+	rendWg = new QDockWidget("Rendering",this);
 	rendWg->setFeatures((QDockWidget::DockWidgetFeature)(QDockWidget::AllDockWidgetFeatures & ~QDockWidget::DockWidgetClosable));
 	rendWg->setAllowedAreas(Qt::AllDockWidgetAreas);
-	calcWg = new CustomDockWidget("Calculations",this);
+	calcWg = new QDockWidget("Calculations",this);
 	calcWg->setFeatures((QDockWidget::DockWidgetFeature)(QDockWidget::AllDockWidgetFeatures & ~QDockWidget::DockWidgetClosable));
 	calcWg->setAllowedAreas(Qt::AllDockWidgetAreas);
+	graphWg = new PlotWidget("Force graph",this);
+	graphWg->setFeatures((QDockWidget::DockWidgetFeature)(QDockWidget::AllDockWidgetFeatures & ~QDockWidget::DockWidgetClosable));
+	graphWg->setAllowedAreas(Qt::AllDockWidgetAreas);
 	
 	rend = new Ui::Rendering();
 	rend->setupUi(rendWg);
@@ -35,6 +43,7 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	
 	addDockWidget(Qt::RightDockWidgetArea, calcWg, Qt::Horizontal);
 	addDockWidget(Qt::RightDockWidgetArea, rendWg, Qt::Horizontal);
+	addDockWidget(Qt::BottomDockWidgetArea, graphWg, Qt::Horizontal);
 	
 	QObject::connect((const QObject*)sv, SIGNAL(fpsChanged(scalar,scalar,scalar,scalar)), 
 		this, SLOT(fpsChanged(scalar,scalar,scalar,scalar)), Qt::QueuedConnection);

@@ -45,51 +45,51 @@
 
 typedef struct Circle
 {
-    vector pos, oldPos;
-    vector speed;
-    vector force;
-    scalar sphereSize,mass,poisson,E;
-    //float x[3];  //padding
+	vector pos, oldPos;
+	vector speed;
+	vector force;
+	scalar sphereSize,mass,poisson,E;
+	//float x[3];  //padding
 } Circle;
 
 uint GetUint(uint* m_z, uint* m_w, uint gid)
 {
 	uint z = *m_z;
-    z = 36969 * (z & 65535) + (z >> 16);
-    *m_z = z;
-    uint w = *m_w;
-    w = 18000 * (w & 65535) + (w >> 16);
-    *m_w = w;
-    return (z << 16) + w;
+	z = 36969 * (z & 65535) + (z >> 16);
+	*m_z = z;
+	uint w = *m_w;
+	w = 18000 * (w & 65535) + (w >> 16);
+	*m_w = w;
+	return (z << 16) + w;
 }
 uint gGetUint(__global uint* m_z, __global uint* m_w, uint gid)
 {
 	uint z = *m_z;
-    z = 36969 * (z & 65535) + (z >> 16);
-    *m_z = z;
-    uint w = *m_w;
-    w = 18000 * (w & 65535) + (w >> 16);
-    *m_w = w;
-    return (z << 16) + w;
+	z = 36969 * (z & 65535) + (z >> 16);
+	*m_z = z;
+	uint w = *m_w;
+	w = 18000 * (w & 65535) + (w >> 16);
+	*m_w = w;
+	return (z << 16) + w;
 }
 
 scalar uGetUniform(uint* m_z, uint* m_w, uint gid)
 {
-    // 0 <= u < 2^32
-    uint u = GetUint(m_z, m_w, gid);
-    // The magic number below is 1/(2^32 + 2).
-    // The result is strictly between 0 and 1.
-    return (u + 1.0) //* 2.328306435454494e-10;
+	// 0 <= u < 2^32
+	uint u = GetUint(m_z, m_w, gid);
+	// The magic number below is 1/(2^32 + 2).
+	// The result is strictly between 0 and 1.
+	return (u + 1.0) //* 2.328306435454494e-10;
 		* 2328306435454494 * pow_(10.0,-25.0);
 }
 
 scalar GetUniform(uint* m_z, uint* m_w, uint gid)
 {
-    // 0 <= u < 2^32
-    uint u = GetUint(m_z, m_w, gid);
-    // The magic number below is 1/(2^32 + 2).
-    // The result is strictly between -1 and 1.
-    return ((u + 1.0) //* 2.328306435454494e-10
+	// 0 <= u < 2^32
+	uint u = GetUint(m_z, m_w, gid);
+	// The magic number below is 1/(2^32 + 2).
+	// The result is strictly between -1 and 1.
+	return ((u + 1.0) //* 2.328306435454494e-10
 		* 2328306435454494 * pow_(10.0,-25.0) 
 		* 2)-1;
 }
@@ -99,22 +99,22 @@ __kernel void randomFill(__global struct Circle* circle, __global uint* z, __glo
 						__global vector3* boxSize, __global scalar* max_speed,
 						__global vector* sphereSize, __global scalar* poisson,
 						__global scalar* E, __global uint* num, __global int* flags){
-    int gid = get_global_id(0);
-    flags[gid] = 0;
-    vector3 s = *boxSize;
-    vector s2 = *sphereSize;
-    uint m_z_ = 0;//(*z) + (gid*s.s0*1000000);
-    uint m_w_ = 0;//(*w) + (gid*s2.s0*100000000);
-    uint n = *num;
-    for(int i = 0; i<n; i++){
+	int gid = get_global_id(0);
+	flags[gid] = 0;
+	vector3 s = *boxSize;
+	vector s2 = *sphereSize;
+	uint m_z_ = 0;//(*z) + (gid*s.s0*1000000);
+	uint m_w_ = 0;//(*w) + (gid*s2.s0*100000000);
+	uint n = *num;
+	for(int i = 0; i<n; i++){
 		if(i == gid){
 			m_z_ = gGetUint(z,w,gid);
 			m_w_ = gGetUint(z,w,gid);
 		}
 		barrier(CLK_GLOBAL_MEM_FENCE);
 	}
-    uint* m_z = &m_z_;
-    uint* m_w = &m_w_;
+	uint* m_z = &m_z_;
+	uint* m_w = &m_w_;
 	circle[gid].size = s2.s0+((s2.s1-s2.s0)*uGetUniform(m_z, m_w, gid));
 #ifndef M_PI
 	float M_PI = 314/100.0f;
@@ -162,8 +162,8 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 	#if heun
 		pos = c->pos + c->speed*(delta_t*step) + c->force/c->mass*(delta_t*step*delta_t*step)/2.0f;
 	#endif
-    
-    vector d_pos, d_n;
+	
+	vector d_pos, d_n;
 	scalar both_r, d, d_, R, E_, force_;
 	//*
 	int n = *num, n2 = 0;
@@ -244,10 +244,10 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 			c2->fy += htc_dy/htc_d*htc_f_2;// */
 		}
 	}// */
-    
-    //*
-    scalar htw_d_d, fact = 1.0f;
-    if ((htw_d_d = (c->size - pos.s0))>0) {
+	
+	//*
+	scalar htw_d_d, fact = 1.0f;
+	if ((htw_d_d = (c->size - pos.s0))>0) {
 		//c->speed.s0 = fabs(c->speed.s0);
 		if(c->speed.s0 > 0)fact = reduced;
 		d_ = htw_d_d;
@@ -267,7 +267,7 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 		//circle[id].force.s0 -= c->size*htw_d_d*c->E*fact;
 	}
 	fact = 1.0f;
-    if ((htw_d_d = (c->size - pos.s1))>0) {
+	if ((htw_d_d = (c->size - pos.s1))>0) {
 		//c->speed.s1 = fabs(c->speed.s1);
 		if(c->speed.s1 > 0)fact = reduced;
 		d_ = htw_d_d;
@@ -288,7 +288,7 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 	}
 #if _3D_
 	fact = 1.0f;
-    if ((htw_d_d = (c->size - pos.s2))>0) {
+	if ((htw_d_d = (c->size - pos.s2))>0) {
 		if(c->speed.s2 > 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c->size;
@@ -309,28 +309,28 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 	// */
 	
 	// Luftwiderstand:
-    //circle[id].force -= 0.001*circle[id].speed*fabs(length(circle[id].speed));
-    //0.00001*normalize(circle[id].speed)*pow_(length(circle[id].speed),2);
-    
-    /*circle[id].pos += c->speed;
-    force = circle[id].force;
-    circle[id].speed += force;
-    circle[id].force -= force;*/
-    
-    force = c->force;
+	//circle[id].force -= 0.001*circle[id].speed*fabs(length(circle[id].speed));
+	//0.00001*normalize(circle[id].speed)*pow_(length(circle[id].speed),2);
+	
+	/*circle[id].pos += c->speed;
+	force = circle[id].force;
+	circle[id].speed += force;
+	circle[id].force -= force;*/
+	
+	force = c->force;
 	
 	
 	// Gravitation nach unten:
 	//circle[id].force -= gravity*circle[id].mass;
-    acceleration = force / c->mass;
+	acceleration = force / c->mass;
 	acceleration -= gravity;
 	
-    c->pos += c->speed*delta_t;
-    #if _v_nicht_const_
+	c->pos += c->speed*delta_t;
+	#if _v_nicht_const_
 		c->pos += acceleration*(delta_t*delta_t)/2.0f;
 	#endif
 	c->speed += acceleration*delta_t;
-    c->force -= force;
+	c->force -= force;
 }
 
 #define addForce(i,f) {						\
@@ -344,7 +344,7 @@ void GetSemaphor_old(__global int * semaphor) {
    while(occupied == 1)
    //for(int i = 0; i<1000 && occupied > 0; i++)
    {
-     occupied = atomic_xchg(semaphor, 1);
+	 occupied = atomic_xchg(semaphor, 1);
    }
 }
 #define addForce2(i,f) {						\
@@ -487,12 +487,12 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 	int id = get_global_id(0);
 	
 	__global struct Circle* c = &circle[id];
-    
+	
 	scalar d_, R, E_, force_;
-    
-    //*
-    scalar htw_d_d, fact = 1.0f;
-    if ((htw_d_d = (c->size - c->pos.s0))>0) {
+	
+	//*
+	scalar htw_d_d, fact = 1.0f;
+	if ((htw_d_d = (c->size - c->pos.s0))>0) {
 		//c->speed.s0 = fabs(c->speed.s0);
 		if(c->speed.s0 > 0)fact = reduced;
 		d_ = htw_d_d;
@@ -512,7 +512,7 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 		//circle[id].force.s0 -= c->size*htw_d_d*c->E*fact;
 	}
 	fact = 1.0f;
-    if ((htw_d_d = (c->size - c->pos.s1))>0) {
+	if ((htw_d_d = (c->size - c->pos.s1))>0) {
 		//c->speed.s1 = fabs(c->speed.s1);
 		if(c->speed.s1 > 0)fact = reduced;
 		d_ = htw_d_d;
@@ -533,7 +533,7 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 	}
 #if _3D_
 	fact = 1.0f;
-    if ((htw_d_d = (c->size - c->pos.s2))>0) {
+	if ((htw_d_d = (c->size - c->pos.s2))>0) {
 		if(c->speed.s2 > 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c->size;
@@ -563,24 +563,24 @@ __kernel void moveStep3_updatePositions(__global struct Circle* circle,
 	int id = get_global_id(0);
 	
 	__global struct Circle* c = &circle[id];
-    
+	
 	// */
 	
 	// Luftwiderstand:
-    //circle[id].force -= 0.001*circle[id].speed*fabs(length(circle[id].speed));
-    //0.00001*normalize(circle[id].speed)*pow_(length(circle[id].speed),2);
-    
-    /*circle[id].pos += c->speed;
-    force = circle[id].force;
-    circle[id].speed += force;
-    circle[id].force -= force;*/
-    
-    force = c->force;
+	//circle[id].force -= 0.001*circle[id].speed*fabs(length(circle[id].speed));
+	//0.00001*normalize(circle[id].speed)*pow_(length(circle[id].speed),2);
+	
+	/*circle[id].pos += c->speed;
+	force = circle[id].force;
+	circle[id].speed += force;
+	circle[id].force -= force;*/
+	
+	force = c->force;
 	
 	
 	// Gravitation nach unten:
 	//circle[id].force -= gravity*circle[id].mass;
-    acceleration = force / c->mass;
+	acceleration = force / c->mass;
 	acceleration -= gravity;
 	
 	#if leapfrog

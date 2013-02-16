@@ -14,7 +14,7 @@ class Calculator : public QThread, public FramesCounter{
 protected:
 	GLWidget* glWidget;
 	
-    static char hex(int i){
+	static char hex(int i){
 		if(i<0 || i>15){
 			return '0';
 		}else if(i<10){
@@ -30,20 +30,20 @@ protected:
 			fprintf(file, "%c%c", hex(c[i]/16), hex(c[i]%16));
 		}
 	}
-    
-    void run();
-    
-    virtual void doStep()=0;
-    virtual void saveFrame()=0;
-    
-    virtual void save()=0;
 	
-    long elapsedFrames;
-    int readNum_save, readNum_render, bufferReadIndex, bufferWriteIndex;
+	void run();
+	
+	virtual void doStep()=0;
+	virtual void saveFrame()=0;
+	
+	virtual void save()=0;
+	
+	long elapsedFrames;
+	int readNum_save, readNum_render, bufferReadIndex, bufferWriteIndex;
 	
 	bool newFrame;
 	volatile bool running, hasStopped;
-    
+	
 	virtual void circleCountChanged_subclass(int i)=0;
 	virtual void maxCircleCountChanged_subclass(int i)=0;
 	
@@ -57,7 +57,7 @@ public:
 	void set(GLWidget* w);
 	
 	virtual void paintGL(bool readNewFrame);
-    
+	
 	virtual void fpsChanged(scalar timeInterval)=0;
 	
 	scalar getFrameBufferLoad();
@@ -70,11 +70,11 @@ public:
 		newFrame = b;
 	}
 	
-    CircleExtension* ceBuffer;
-    
-    bool isRunning();
-    
-    virtual Circle* getCircle(int i)=0;
+	CircleExtension* ceBuffer;
+	
+	bool isRunning();
+	
+	virtual Circle* getCircle(int i)=0;
 	
 public slots:
 	void start(){
@@ -95,26 +95,26 @@ public slots:
 		while(hasStopped == false);
 		printf("return from stop\n");
 	}
-    
-    virtual void boxSizeChanged()=0;
-    
+	
+	virtual void boxSizeChanged()=0;
+	
 	virtual void gravityChanged()=0;
 	
 	virtual void circleCountChanged(int i);
 	
 	virtual void maxCircleCountChanged(int i);
-    
-    virtual void updateG()=0;
-    
-    virtual void updateAirResistance()=0;
-    
-    virtual void updateWallResistance()=0;
-    
-    virtual void updateEModul()=0;
-    
-    virtual void updatePoisson()=0;
-    
-    virtual void updateElasticity()=0;
+	
+	virtual void updateG()=0;
+	
+	virtual void updateAirResistance()=0;
+	
+	virtual void updateWallResistance()=0;
+	
+	virtual void updateEModul()=0;
+	
+	virtual void updatePoisson()=0;
+	
+	virtual void updateElasticity()=0;
 };
 
 #endif

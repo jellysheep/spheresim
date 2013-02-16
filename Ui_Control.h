@@ -10,14 +10,7 @@ class GLWidget;
 class Calculator;
 class StatusViewer;
 class QDockWidget;
-
-class CustomDockWidget : public QDockWidget {
-public:
-	CustomDockWidget(const char* c, QWidget* w):QDockWidget(c,w){}
-	QSize sizeHint() const {
-		return QSize(10,10);
-	}
-};
+class PlotWidget;
 
 class Control : public QMainWindow {
 	Q_OBJECT
@@ -27,7 +20,8 @@ protected:
 	StatusViewer* sv;
 	Ui::Rendering* rend;
 	Ui::Calculations* calc;
-	CustomDockWidget *rendWg, *calcWg;
+	QDockWidget *rendWg, *calcWg;
+	PlotWidget *graphWg;
 	void updateGL();
 	bool fullscreen;
 public:

@@ -27,19 +27,19 @@ MACRO (CHECK_C_COMPILER_FLAG _FLAG _RESULT)
    SET(SAFE_CMAKE_REQUIRED_DEFINITIONS "${CMAKE_REQUIRED_DEFINITIONS}")
    SET(CMAKE_REQUIRED_DEFINITIONS "${_FLAG}")
    CHECK_C_SOURCE_COMPILES("int main() { return 0;}" ${_RESULT}
-     # Some compilers do not fail with a bad flag
-     FAIL_REGEX "error: bad value (.*) for .* switch"       # GNU
-     FAIL_REGEX "argument unused during compilation"        # clang
-     FAIL_REGEX "is valid for .* but not for C"             # GNU
-     FAIL_REGEX "unrecognized .*option"                     # GNU
-     FAIL_REGEX "ignored for target"                        # GNU
-     FAIL_REGEX "ignoring unknown option"                   # MSVC
-     FAIL_REGEX "[Uu]nknown option"                         # HP
-     FAIL_REGEX "[Ww]arning: [Oo]ption"                     # SunPro
-     FAIL_REGEX "command option .* is not recognized"       # XL
-     FAIL_REGEX "WARNING: unknown flag:"                    # Open64
-     FAIL_REGEX " #10159: "                                 # ICC
-     )
+	 # Some compilers do not fail with a bad flag
+	 FAIL_REGEX "error: bad value (.*) for .* switch"	   # GNU
+	 FAIL_REGEX "argument unused during compilation"		# clang
+	 FAIL_REGEX "is valid for .* but not for C"			 # GNU
+	 FAIL_REGEX "unrecognized .*option"					 # GNU
+	 FAIL_REGEX "ignored for target"						# GNU
+	 FAIL_REGEX "ignoring unknown option"				   # MSVC
+	 FAIL_REGEX "[Uu]nknown option"						 # HP
+	 FAIL_REGEX "[Ww]arning: [Oo]ption"					 # SunPro
+	 FAIL_REGEX "command option .* is not recognized"	   # XL
+	 FAIL_REGEX "WARNING: unknown flag:"					# Open64
+	 FAIL_REGEX " #10159: "								 # ICC
+	 )
    SET (CMAKE_REQUIRED_DEFINITIONS "${SAFE_CMAKE_REQUIRED_DEFINITIONS}")
 ENDMACRO (CHECK_C_COMPILER_FLAG)
 

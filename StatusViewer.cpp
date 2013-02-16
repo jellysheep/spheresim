@@ -23,7 +23,7 @@ void StatusViewer::run() {
 		
 		printf("\nStatusViewer: \n");
 		scalar factor = getElapsedNS()/1000000000.0;
-		printf("Elapsed:    %8.2f seconds\n", factor);
+		printf("Elapsed:	%8.2f seconds\n", factor);
 		
 		scalar glWidgetFrames = glWidget->popFramesCounter() / factor;
 		if(lastGlWidgetFrames == 0){
@@ -32,7 +32,7 @@ void StatusViewer::run() {
 			lastGlWidgetFrames *= (1-f);
 			lastGlWidgetFrames += f*glWidgetFrames;
 		}
-		printf("GlWidget:   %8.2f fps       [now: %8.2f fps]\n", lastGlWidgetFrames, glWidgetFrames);
+		printf("GlWidget:   %8.2f fps	   [now: %8.2f fps]\n", lastGlWidgetFrames, glWidgetFrames);
 		
 		scalar frameBufferLoad = clTimer->getFrameBufferLoad();
 		//printf("frameBufferLoad:  %6.4f\n", frameBufferLoad);
@@ -44,7 +44,7 @@ void StatusViewer::run() {
 			lastCalculatorFrames *= (1-f);
 			lastCalculatorFrames += f*clTimerFrames;
 		}
-		printf("Calculator:    %8.2f fps       [now: %8.2f fps]\n", lastCalculatorFrames, clTimerFrames);
+		printf("Calculator:	%8.2f fps	   [now: %8.2f fps]\n", lastCalculatorFrames, clTimerFrames);
 			
 		if(clTimer->isRunning()){
 			double nextCalculatorFrames = clTimerFrames;

@@ -8,13 +8,13 @@
 #define _double_ 1
 
 #if defined( __GNUC__ )
-    #define CL_ALIGNED(_x)          __attribute__ ((aligned(_x)))
+	#define CL_ALIGNED(_x)		  __attribute__ ((aligned(_x)))
 #elif defined( _WIN32) && (_MSC_VER)
-    /* Alignment keys neutered on windows because MSVC can't swallow function arguments with alignment requirements     */
-    /* http://msdn.microsoft.com/en-us/library/373ak2y1%28VS.71%29.aspx                                                 */
-    /* #include <crtdefs.h>                                                                                             */
-    /* #define CL_ALIGNED(_x)          _CRT_ALIGN(_x)                                                                   */
-    #define CL_ALIGNED(_x)
+	/* Alignment keys neutered on windows because MSVC can't swallow function arguments with alignment requirements	 */
+	/* http://msdn.microsoft.com/en-us/library/373ak2y1%28VS.71%29.aspx												 */
+	/* #include <crtdefs.h>																							 */
+	/* #define CL_ALIGNED(_x)		  _CRT_ALIGN(_x)																   */
+	#define CL_ALIGNED(_x)
 #else
    #warning  Need to implement some method to align data here
    #define  CL_ALIGNED(_x)
@@ -22,7 +22,7 @@
 
 typedef union
 {
-    float  CL_ALIGNED(8) s[2];
+	float  CL_ALIGNED(8) s[2];
 #if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
    __extension__ struct{ float  x, y; };
    __extension__ struct{ float  s0, s1; };
@@ -32,7 +32,7 @@ typedef union
 
 typedef union
 {
-    float  CL_ALIGNED(16) s[4];
+	float  CL_ALIGNED(16) s[4];
 #if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
    __extension__ struct{ float   x, y, z, w; };
    __extension__ struct{ float   s0, s1, s2, s3; };
@@ -44,7 +44,7 @@ typedef  float4  float3;
 
 typedef union
 {
-    double  CL_ALIGNED(16) s[2];
+	double  CL_ALIGNED(16) s[2];
 #if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
    __extension__ struct{ double  x, y; };
    __extension__ struct{ double s0, s1; };
@@ -54,7 +54,7 @@ typedef union
 
 typedef union
 {
-    double  CL_ALIGNED(32) s[4];
+	double  CL_ALIGNED(32) s[4];
 #if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
    __extension__ struct{ double  x, y, z, w; };
    __extension__ struct{ double  s0, s1, s2, s3; };

@@ -58,21 +58,21 @@ protected:
 	
 	void save();
 		
-    eVector** renderBuffer;
-    Circle* circles;
-    eVector *circlesOldPos, *circlesPos, *circlesSpeed, *circlesForce;
-    scalar** both_r;
-    int gridSteps;
-    scalar gridWidth;
-    int **gridIndex;
-    
-    void doStep();
-    void saveFrame();
-    
-    Circle c;
-    
-    scalar timeInterval;
-    
+	eVector** renderBuffer;
+	Circle* circles;
+	eVector *circlesOldPos, *circlesPos, *circlesSpeed, *circlesForce;
+	scalar** both_r;
+	int gridSteps;
+	scalar gridWidth;
+	int **gridIndex;
+	
+	void doStep();
+	void saveFrame();
+	
+	Circle c;
+	
+	scalar timeInterval;
+	
 	void circleCountChanged_subclass(int i);
 	void maxCircleCountChanged_subclass(int i);
 	

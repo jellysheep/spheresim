@@ -32,14 +32,14 @@ protected:
 	vector3 rotation;
 	scalar translate;
 	Calculator* clTimer;
-    QPoint lastPos;
-    
-    scalar rotGrav;
-    
-    GLfloat** LightPosition;
-    
-    void normalize(GLfloat *a);
-    void drawtri(GLfloat *a, GLfloat *b, GLfloat *c, int div, float r);
+	QPoint lastPos;
+	
+	scalar rotGrav;
+	
+	GLfloat** LightPosition;
+	
+	void normalize(GLfloat *a);
+	void drawtri(GLfloat *a, GLfloat *b, GLfloat *c, int div, float r);
 	
 	void reflect();
 	void drawQuad(int i);
@@ -53,19 +53,19 @@ protected:
 	QTimer *resetTimer;
 	void resetView(int ms);
 	scalar resetFact;
-    
+	
 public:
 	GLWidget(Calculator* ct, QWidget *parent = NULL);
 	QSize minimumSizeHint() const;
 	QSize sizeHint() const;
 	bool drawingFinished;
-    QTimer* rotationTimer;
-    bool newFrame;
-    
-    void drawsphere(int ndiv, float radius);
-    void drawsphere2(float radius);
-    void drawCircleF(float radius);
-    void drawCircleF2(float radius);
+	QTimer* rotationTimer;
+	bool newFrame;
+	
+	void drawsphere(int ndiv, float radius);
+	void drawsphere2(float radius);
+	void drawCircleF(float radius);
+	void drawCircleF2(float radius);
 	
 	unsigned int displayList;
 	

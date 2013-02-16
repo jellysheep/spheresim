@@ -50,14 +50,14 @@ protected:
 	bool eventsFull;
 	cl::Event* events;
 	FILE * file;
-    bool circlesBufferUsed;
-    
-    Circle** c_CPU_render;
-    Circle* c_CPU_save[2];
-    Circle* circlesBuffer;
-    
-    void doStep();
-    void saveFrame();
+	bool circlesBufferUsed;
+	
+	Circle** c_CPU_render;
+	Circle* c_CPU_save[2];
+	Circle* circlesBuffer;
+	
+	void doStep();
+	void saveFrame();
 
 public:
 	OpenClCalculator();

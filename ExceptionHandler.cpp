@@ -18,19 +18,19 @@
 
 /* This structure mirrors the one found in /usr/include/asm/ucontext.h */
 typedef struct _sig_ucontext {
-	unsigned long     uc_flags;
+	unsigned long	 uc_flags;
 	struct ucontext   *uc_link;
-	stack_t           uc_stack;
+	stack_t		   uc_stack;
 	struct sigcontext uc_mcontext;
-	sigset_t          uc_sigmask;
+	sigset_t		  uc_sigmask;
 } sig_ucontext_t;
 
 void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext)
 {
-	void *             array[50];
-	void *             caller_address;
-	char **            messages;
-	int                sphereSize, i;
+	void *			 array[50];
+	void *			 caller_address;
+	char **			messages;
+	int				sphereSize, i;
 	sig_ucontext_t *   uc;
 
 	uc = (sig_ucontext_t *)ucontext;
