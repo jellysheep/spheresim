@@ -172,7 +172,11 @@ void GLWidget::initializeGL() {
 	displayList = glGenLists(2);
 	glNewList(displayList,GL_COMPILE);
 	#if _3D_
-		drawsphere(2,1.f);
+		#if fastSphereRender
+			drawsphere(1,1.f);
+		#else
+			drawsphere(2,1.f);
+		#endif
 	#else
 		drawCircleF(1.f);
 	#endif
@@ -685,7 +689,7 @@ void GLWidget::keyPressEvent(QKeyEvent* event) {
 
 QSize GLWidget::minimumSizeHint() const
 {
-	return QSize(300, 300);
+	return QSize(100, 100);
 }
 
 QSize GLWidget::sizeHint() const

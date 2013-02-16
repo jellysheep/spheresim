@@ -54,6 +54,8 @@ int main(int argc, char *argv[]) {
 		win->setDockNestingEnabled(true);
 		printf("Control initialized!\n");
 		
+		clTimer->set(win->getPlotWidget());
+		
 		//win->show();
 		win->showMaximized();
 		

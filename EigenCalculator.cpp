@@ -245,6 +245,12 @@ void EigenCalculator::doStep(){
 	}
 	
 	if(wallResistance){
+		if(forceCounter == 0){
+			for(int i = 0; i<numWalls; i++){
+				curWallForces[i] = 0;
+			}
+		}
+		forceCounter++;
 		//parallelFor
 		for(int i = 0; i<circlesCount; i++){
 			scalar d_, R, _E_, force_;
@@ -256,6 +262,7 @@ void EigenCalculator::doStep(){
 				_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
 				force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
 				circlesForce[i](0) += force_*fact;
+				curWallForces[0] += force_*fact;
 			}else if ((htw_d_d = (circles[i].size + circlesPos[i](0) - boxSize.s0))>0) {
 				if(circlesSpeed[i](0) < 0)fact = elastic;
 				d_ = htw_d_d;
@@ -263,6 +270,7 @@ void EigenCalculator::doStep(){
 				_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
 				force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
 				circlesForce[i](0) -= force_*fact;
+				curWallForces[1] += force_*fact;
 			}
 			fact = 1.0f;
 			if ((htw_d_d = (circles[i].size - circlesPos[i](1)))>0) {
@@ -272,6 +280,7 @@ void EigenCalculator::doStep(){
 				_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
 				force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
 				circlesForce[i](1) += force_*fact;
+				curWallForces[2] += force_*fact;
 			}else if ((htw_d_d = (circles[i].size + circlesPos[i](1) - boxSize.s1))>0) {
 				if(circlesSpeed[i](1) < 0)fact = elastic;
 				d_ = htw_d_d;
@@ -279,6 +288,7 @@ void EigenCalculator::doStep(){
 				_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
 				force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
 				circlesForce[i](1) -= force_*fact;
+				curWallForces[3] += force_*fact;
 			}
 			#if _3D_
 				fact = 1.0f;
@@ -289,6 +299,7 @@ void EigenCalculator::doStep(){
 					_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
 					force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
 					circlesForce[i](2) += force_*fact;
+					curWallForces[4] += force_*fact;
 				}else if ((htw_d_d = (circles[i].size + circlesPos[i](2) - boxSize.s2))>0) {
 					if(circlesSpeed[i](2) < 0)fact = elastic;
 					d_ = htw_d_d;
@@ -296,6 +307,7 @@ void EigenCalculator::doStep(){
 					_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
 					force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
 					circlesForce[i](2) -= force_*fact;
+					curWallForces[5] += force_*fact;
 				}
 			#endif
 		}

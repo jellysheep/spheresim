@@ -29,6 +29,9 @@ public:
 	void showMaximized();
 	void showNormal();
 	void showFullScreen();
+	PlotWidget* getPlotWidget(){
+		return graphWg;
+	}
 public slots:
 	void fpsChanged(scalar glFps, scalar calFps, scalar fbLoad, scalar realSpeed);
 	void xAutoRot(double angle);

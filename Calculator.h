@@ -8,6 +8,7 @@
 #include <cstdlib>
 
 class GLWidget;
+class PlotWidget;
 
 class Calculator : public QThread, public FramesCounter{
 	Q_OBJECT
@@ -51,6 +52,11 @@ protected:
 	void initCeBuffer(int i);
 	bool performingAction;
 	
+	PlotWidget* plotWg;
+	int numWalls;
+	int forceCounter, forceCounter2;
+	scalar **wallForces, *curWallForces;
+	
 public:
 	Calculator();
 	
@@ -75,6 +81,8 @@ public:
 	bool isRunning();
 	
 	virtual Circle* getCircle(int i)=0;
+	
+	void set(PlotWidget* plotWg);
 	
 public slots:
 	void start(){

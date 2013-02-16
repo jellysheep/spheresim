@@ -25,7 +25,7 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	calcWg = new QDockWidget("Calculations",this);
 	calcWg->setFeatures((QDockWidget::DockWidgetFeature)(QDockWidget::AllDockWidgetFeatures & ~QDockWidget::DockWidgetClosable));
 	calcWg->setAllowedAreas(Qt::AllDockWidgetAreas);
-	graphWg = new PlotWidget("Force graph",this);
+	graphWg = new PlotWidget("Wall force graph",this);
 	graphWg->setFeatures((QDockWidget::DockWidgetFeature)(QDockWidget::AllDockWidgetFeatures & ~QDockWidget::DockWidgetClosable));
 	graphWg->setAllowedAreas(Qt::AllDockWidgetAreas);
 	

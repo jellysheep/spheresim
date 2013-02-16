@@ -4,8 +4,10 @@
 #include <exception>
 #include <cmath>
 #include <cstring>
+#include "PlotWidget.h"
 
 Calculator::Calculator(){
+	
 	performingAction = false;
 	hasStopped = true;
 	running = false;
@@ -24,6 +26,22 @@ Calculator::Calculator(){
 	ceBuffer = new CircleExtension[circlesCount];
 	for(int i = 0; i<circlesCount; i++){
 		initCeBuffer(i);
+	}
+	
+	plotWg = NULL;
+	forceCounter = 0;
+	forceCounter2 = 0;
+	numWalls = 6;
+	wallForces = new scalar*[renderBufferCount];
+	for(int i = 0; i<renderBufferCount; i++){
+		wallForces[i] = new scalar[numWalls];
+		for(int j = 0; j<numWalls; j++){
+			wallForces[i][j] = 0;
+		}
+	}
+	curWallForces = new scalar[numWalls];
+	for(int j = 0; j<numWalls; j++){
+		curWallForces[j] = 0;
 	}
 }
 
@@ -107,6 +125,17 @@ void Calculator::run(){
 						printf("frame buffer full: %3d | %3d\r",bufferReadIndex,bufferWriteIndex);
 					}else{
 						saveFrame();
+						if(++forceCounter2 >= 20){
+							forceCounter2 = 0;
+							for(int i = 0; i<numWalls; i++){
+								wallForces[bufferWriteIndex][i] = curWallForces[i]/(scalar)forceCounter;
+							}
+							forceCounter = 0;
+						}else{
+							for(int i = 0; i<numWalls; i++){
+								wallForces[bufferWriteIndex][i] = wallForces[(renderBufferCount-1+bufferWriteIndex)%renderBufferCount][i];
+							}
+						}
 						bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 					
 					
@@ -156,6 +185,10 @@ void Calculator::circleCountChanged(int i){
 	glWidget->timeToRender2();
 }
 
+void Calculator::set(PlotWidget* plw){
+	plotWg = plw;
+}
+
 #define onlyOneC 0
 void Calculator::paintGL(bool readNewFrame){
 	// Apply some transformations
@@ -171,7 +204,11 @@ void Calculator::paintGL(bool readNewFrame){
 			if(((bufferReadIndex+2)%renderBufferCount) == bufferWriteIndex){
 				printf("frame buffer empty: %3d | %3d\r",bufferReadIndex,bufferWriteIndex);
 			}else{
+				// new buffer content
 				bufferReadIndex = (bufferReadIndex+1)%renderBufferCount;
+				// new point for plot
+				if(forceCounter2==0)
+					plotWg->addValue(wallForces[bufferReadIndex][0]);
 			}
 		}
 		if(bufferReadIndex == bufferWriteIndex){
