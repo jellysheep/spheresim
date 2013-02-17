@@ -16,12 +16,12 @@ protected:
 	const static int numSamples;
 	QwtPlot *plot;
 	QwtPlotGrid *grid;
-	QwtPlotCurve *curve;
-	QwtSymbol *symbol;
-    QwtSplineCurveFitter* fitter;
-    QVector<double> xData, yData;
+	QwtPlotCurve *curve1, *curve2;
+	QwtSymbol *symbol1, *symbol2;
+	QwtSplineCurveFitter* fitter;
+	QVector<double> xData1, yData1, xData2, yData2;
 public:
 	PlotWidget(const char* str, QWidget* parent=NULL);
 public slots:
-	void addValue(double v);
+	void addValue(double v, double w);
 };

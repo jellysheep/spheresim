@@ -1,7 +1,6 @@
 
-#include "EigenCalculator.h"
-
 #include "Ui_Control.h"
+#include "Dialog.h"
 
 #include "ExceptionHandler.h"
 
@@ -17,7 +16,6 @@
 #endif
 
 #include "GLWidget.h"
-#include "OpenClCalculator.h"
 #include "CirclesHolder.h"
 #include "StatusViewer.h"
 
@@ -31,12 +29,14 @@ int main(int argc, char *argv[]) {
 
 	QApplication app(argc, argv);
 	
-	QApplication::setStyle(QStyleFactory::create("Plastique"));
+	app.setStyle(QStyleFactory::create("Plastique"));
 	
 	qRegisterMetaType<scalar>("scalar");
 	
 	//Calculator* clTimer = new OpenClCalculator();
-	Calculator* clTimer = new EigenCalculator();
+	//Calculator* clTimer = new EigenCalculator();
+	Calculator* clTimer = Dialog().getCalculator();
+	if(clTimer == NULL) exit(0);
 	printf("Calculator initialized!\n");
 	
 	#if PROFILING == 0
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 		clTimer->set(&window);
 		
 		StatusViewer statusViewer(&window, clTimer);
-		statusViewer.start();
+		//statusViewer.start();
 		printf("StatusViewer initialized!\n");
 		
 		Control* win = new Control(&window, clTimer, &statusViewer);
@@ -64,6 +64,8 @@ int main(int argc, char *argv[]) {
 		clTimer->start();
 		
 	#endif
+	
+	//QApplication::setQuitOnLastWindowClosed(false);
 	
 	return app.exec();
 }

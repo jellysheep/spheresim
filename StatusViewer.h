@@ -4,6 +4,7 @@
 //#include <QObject>
 //#include <QTimer>
 #include <QThread>
+#include <QTimer>
 #include "NanosecondTimer.h"
 #include "Circles.h"
 class GLWidget;
@@ -20,6 +21,8 @@ protected:
 	Control* ctl;
 	scalar lastGlWidgetFrames, lastCalculatorFrames;
 	const static scalar f = 0.5;
+	bool running;
+	QTimer* statusTimer;
 
 public:
 	StatusViewer(GLWidget* glw, Calculator* clt);
@@ -28,6 +31,10 @@ public:
 
 signals:
 	void fpsChanged(scalar glFps, scalar calFps, scalar fbLoad, scalar realSpeed);
+	
+public slots:
+	void stop();
+	void updateTimer();
 
 };
 

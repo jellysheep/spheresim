@@ -1,3 +1,4 @@
+#ifdef ENGINE_CPP
 
 #include "EigenCalculator.h"
 
@@ -123,6 +124,11 @@ void EigenCalculator::initCircle(int i){
 	#endif
 	circlesOldPos[i] = circlesPos[i];
 	circles[i].mass = 4.0/3.0*pow(circles[i].size,3)*M_PI  *950; //Kautschuk
+}
+
+void EigenCalculator::updateSphereSize(){
+	gridWidth = sphereSize.s0;
+	gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
 }
 
 
@@ -467,3 +473,5 @@ void EigenCalculator::maxCircleCountChanged_subclass(int i){
 	}
 	readNum_render = readNum_render_new;
 }
+
+#endif

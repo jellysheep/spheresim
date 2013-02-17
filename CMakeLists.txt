@@ -8,6 +8,8 @@ SET( CMAKE_INCLUDE_PATH ${SphereSim_SOURCE_DIR}/cmake)
 SET( CMAKE_CXX_COMPILER "ccache" )
 SET( CMAKE_CXX_COMPILER_ARG1 "g++" )
 
+ADD_DEFINITIONS(-DENGINE_OPENCL -DENGINE_CPP -DENGINE_READ)
+
 #set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-fopenmp -msse2 -Ofast")
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fopenmp -g -msse2 -O2") # 
 INCLUDE ("OptimizeForArchitecture")
@@ -36,8 +38,8 @@ INCLUDE_DIRECTORIES(
 
 SET(QT_USE_QTOPENGL TRUE)
 
-SET(SphereSim_SOURCES main.cpp 	GLWidget.cpp	OpenClCalculator.cpp 	StatusViewer.cpp	Circles.cpp	ExponentialSlider.cpp	ExponentialInput.cpp	Ui_Control.cpp	Calculator.cpp	EigenCalculator.cpp	ExceptionHandler.cpp	PlotWidget.cpp)
-SET(SphereSim_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Circles.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	Calculator.h	EigenCalculator.h	ExceptionHandler.h		PlotWidget.h	NanosecondTimer.h FramesCounter.h)
+SET(SphereSim_SOURCES main.cpp 	GLWidget.cpp	OpenClCalculator.cpp 	StatusViewer.cpp	Circles.cpp	ExponentialSlider.cpp	ExponentialInput.cpp	Ui_Control.cpp	Calculator.cpp	EigenCalculator.cpp	ExceptionHandler.cpp	PlotWidget.cpp	Dialog.cpp)
+SET(SphereSim_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Circles.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	Calculator.h	EigenCalculator.h	ExceptionHandler.h		PlotWidget.h	Dialog.h	NanosecondTimer.h FramesCounter.h)
 
 QT4_WRAP_CPP(SphereSim_HEADERS_MOC ${SphereSim_HEADERS})
 

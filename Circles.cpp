@@ -3,7 +3,7 @@
 #include <cmath>
 #include <algorithm>
 
-int circlesCount = 500;
+int circlesCount = 256;
 int maxShowCirclesCount = 2000;
 bool manyCircles = (min(circlesCount,maxShowCirclesCount)>20);
 
@@ -38,6 +38,7 @@ bool useColorHSV = true;
 scalar hueStep = -0.15;
 scalar hueOffset;
 bool useTrace = true && (!manyCircles);
+char* filename = "save.sps";
 long traceCount = renderFpsMax*50/sqrt(std::max(1.0,log((maxShowCirclesCount))));
 bool connectTracePoints = true;
 scalar traceAmount = 1.0;

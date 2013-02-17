@@ -44,7 +44,7 @@ protected:
 	void reflect();
 	void drawQuad(int i);
 	
-	void drawBoxSides();
+	void drawBoxSides(bool fillSides=true);
 	
 	const static ViewOptions initView;
 	ViewOptions lastView, deltaView;

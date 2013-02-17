@@ -1,3 +1,5 @@
+#ifdef ENGINE_OPENCL
+
 #ifndef _OPENCL_CALCULATOR_H_
 #define _OPENCL_CALCULATOR_H_
 
@@ -58,6 +60,9 @@ protected:
 	
 	void doStep();
 	void saveFrame();
+	
+	void circleCountChanged_subclass(int i);
+	void maxCircleCountChanged_subclass(int i);
 
 public:
 	OpenClCalculator();
@@ -69,9 +74,17 @@ public:
 public slots:
 	void boxSizeChanged();
 	void gravityChanged();
+	void updateG();
+	void updateAirResistance();
+	void updateWallResistance();
+	void updateEModul();
+	void updatePoisson();
+	void updateElasticity();
+	void updateSphereSize();
 };
 
 extern void start(OpenClCalculator* clTimer);
 
 #endif  /* _OPENCL_CALCULATOR_H_ */
 
+#endif

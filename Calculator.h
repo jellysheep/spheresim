@@ -7,6 +7,11 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+using namespace std;
+
 class GLWidget;
 class PlotWidget;
 
@@ -40,7 +45,7 @@ protected:
 	virtual void save()=0;
 	
 	long elapsedFrames;
-	int readNum_save, readNum_render, bufferReadIndex, bufferWriteIndex;
+	int readNum_render, bufferReadIndex, bufferWriteIndex;
 	
 	bool newFrame;
 	volatile bool running, hasStopped;
@@ -55,7 +60,10 @@ protected:
 	PlotWidget* plotWg;
 	int numWalls;
 	int forceCounter, forceCounter2;
+	bool bufferFilled, plotNext;
 	scalar **wallForces, *curWallForces;
+	
+	fstream f;
 	
 public:
 	Calculator();
@@ -83,6 +91,9 @@ public:
 	virtual Circle* getCircle(int i)=0;
 	
 	void set(PlotWidget* plotWg);
+	
+	void initFileSave();
+	void stopFileSave();
 	
 public slots:
 	void start(){
@@ -123,6 +134,8 @@ public slots:
 	virtual void updatePoisson()=0;
 	
 	virtual void updateElasticity()=0;
+	
+	virtual void updateSphereSize()=0;
 };
 
 #endif

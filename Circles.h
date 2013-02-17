@@ -142,6 +142,7 @@ extern scalar elastic;
 extern scalar gravity_abs;
 extern vector gravity;
 extern bool saveBool, renderBool;
+extern char* filename;
 extern int edges;
 extern scalar step;
 extern scalar G;

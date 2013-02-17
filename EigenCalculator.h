@@ -1,3 +1,5 @@
+#ifdef ENGINE_CPP
+
 #ifndef _EIGEN_CALCULATOR_H_
 #define _EIGEN_CALCULATOR_H_
 
@@ -96,9 +98,11 @@ public slots:
 	void updateEModul();
 	void updatePoisson();
 	void updateElasticity();
+	void updateSphereSize();
 };
 
 extern void start(EigenCalculator* clTimer);
 
 #endif  /* _EIGEN_CALCULATOR_H_ */
 
+#endif

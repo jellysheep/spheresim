@@ -8,6 +8,9 @@
 
 Calculator::Calculator(){
 	
+	QObject::connect(this, SIGNAL(destroyed()), 
+		this, SLOT(stop()), Qt::DirectConnection);
+	
 	performingAction = false;
 	hasStopped = true;
 	running = false;
@@ -43,6 +46,24 @@ Calculator::Calculator(){
 	for(int j = 0; j<numWalls; j++){
 		curWallForces[j] = 0;
 	}
+	bufferFilled = false;
+	plotNext = false;
+}
+
+void Calculator::initFileSave(){
+	f.open(filename, fstream::out|fstream::trunc);
+	f<<_3D_<<" ";
+	f<<boxSize.s0<<" ";
+	f<<boxSize.s1<<" ";
+	#if _3D_
+		f<<boxSize.s2<<" ";
+	#endif
+	f<<dec<<num<<"\n";
+	f.close();
+}
+
+void Calculator::stopFileSave(){
+	
 }
 
 int norm(int i){
@@ -115,8 +136,9 @@ void Calculator::run(){
 			}
 			frameCounter++;
 			
+			elapsedFrames++;
+			
 			if(renderBool){
-				elapsedFrames++;
 				//printf("fps: %8f renderFps: %8d\n", fps, renderFps);
 				//printf("elapsed frames: %8d frames to elapse: %8f\n", elapsedFrames, (float)(fps/renderFps));
 				//printf("frames: (%d/%d)=%d | %d\n", (int)fps, (int)renderFps, (int)(fps/renderFps), elapsedFrames);
@@ -126,11 +148,13 @@ void Calculator::run(){
 					}else{
 						saveFrame();
 						if(++forceCounter2 >= 20){
+							bufferFilled = true;
 							forceCounter2 = 0;
 							for(int i = 0; i<numWalls; i++){
 								wallForces[bufferWriteIndex][i] = curWallForces[i]/(scalar)forceCounter;
 							}
 							forceCounter = 0;
+							plotNext = true;
 						}else{
 							for(int i = 0; i<numWalls; i++){
 								wallForces[bufferWriteIndex][i] = wallForces[(renderBufferCount-1+bufferWriteIndex)%renderBufferCount][i];
@@ -207,8 +231,10 @@ void Calculator::paintGL(bool readNewFrame){
 				// new buffer content
 				bufferReadIndex = (bufferReadIndex+1)%renderBufferCount;
 				// new point for plot
-				if(forceCounter2==0)
-					plotWg->addValue(wallForces[bufferReadIndex][0]);
+				if(plotNext && bufferFilled){
+					plotNext = false;
+					plotWg->addValue(wallForces[bufferReadIndex][0], wallForces[bufferReadIndex][1]);
+				}
 			}
 		}
 		if(bufferReadIndex == bufferWriteIndex){

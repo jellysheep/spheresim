@@ -48,7 +48,7 @@ typedef struct Circle
 	vector pos, oldPos;
 	vector speed;
 	vector force;
-	scalar sphereSize,mass,poisson,E;
+	scalar size,mass,poisson,E;
 	//float x[3];  //padding
 } Circle;
 

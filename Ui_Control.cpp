@@ -115,6 +115,11 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 		this, SLOT(setShowLights(bool)), Qt::QueuedConnection);
 	QObject::connect(rend->trace_length, SIGNAL(valueChanged(double)), 
 		this, SLOT(setTraceAmount(double)), Qt::QueuedConnection);
+		
+	QObject::connect(calc->render, SIGNAL(toggled(bool)), 
+		this, SLOT(setRender(bool)), Qt::QueuedConnection);
+	QObject::connect(calc->save, SIGNAL(toggled(bool)), 
+		this, SLOT(setSave(bool)), Qt::QueuedConnection);
 	
 	rend->calc_speed->setValue(speed);
 	calc->count->setValue(circlesCount);
@@ -147,12 +152,25 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	rend->trace_length->setValue(traceAmount);
 }
 
+void Control::setRender(bool b){
+	renderBool = b;
+}
+
+void Control::setSave(bool b){
+	if(b == true){
+		cal->initFileSave();
+	}else{
+		cal->stopFileSave();
+	}
+}
+
 void Control::setTraceAmount(double d){
 	traceAmount = d;
 }
 
 void Control::setShowLights(bool b){
 	showLights = b;
+	updateGL();
 }
 
 void Control::setHueStep(double d){
@@ -202,6 +220,10 @@ void Control::oneSphereSize(bool b){
 }
 void Control::minSphereSize(double s){
 	sphereSize.s[0] = s;
+	if(calc->one_size->isChecked()){
+		sphereSize.s[1] = s;
+	}
+	cal->updateSphereSize();
 }
 void Control::maxSphereSize(double s){
 	sphereSize.s[1] = s;
@@ -223,13 +245,19 @@ void Control::keyPressEvent(QKeyEvent* event){
 		case Qt::Key_Escape:
 			break;
 		case Qt::Key_H:
-			calcWg->setHidden(!calcWg->isHidden());
-			rendWg->setHidden(!rendWg->isHidden());
+			if(event->modifiers() & Qt::ShiftModifier){
+				graphWg->setHidden(!graphWg->isHidden());
+			}else{
+				calcWg->setHidden(!calcWg->isHidden());
+				rendWg->setHidden(!rendWg->isHidden());
+			}
 			break;
 		case Qt::Key_F:
 			if(fullscreen){
 				showNormal();
 				showMaximized();
+				//setMaximumHeight(641);
+				//resize(2099-4-6,641);
 			} else showFullScreen();
 			break;
 		case Qt::Key_R:

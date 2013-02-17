@@ -1,3 +1,4 @@
+#ifdef ENGINE_OPENCL
 
 #include "OpenClCalculator.h"
 
@@ -249,9 +250,9 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 			fprintf(file, "%u\n", circlesCount);
 			fclose(file);
 			
-			readNum_save = min(1000,circlesCount/2);
-			c_CPU_save[0] = new Circle[readNum_save];
-			c_CPU_save[1] = new Circle[readNum_save];
+			//~ readNum_save = min(1000,circlesCount/2);
+			//~ c_CPU_save[0] = new Circle[readNum_save];
+			//~ c_CPU_save[1] = new Circle[readNum_save];
 		}
 			
 		long long ns = NanosecondTimer::getNS();
@@ -361,14 +362,14 @@ void OpenClCalculator::save(){
 	file = fopen("save.txt","a");
 	int j = 0;
 	int offset = 0;
-	err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum_save), c_CPU_save[j=((j+1)%2)], NULL, &event);
-	offset+=readNum_save;
-	for(; offset<circlesCount; offset+=readNum_save){
+	err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum_render), c_CPU_save[j=((j+1)%2)], NULL, &event);
+	offset+=readNum_render;
+	for(; offset<circlesCount; offset+=readNum_render){
 		event.wait();
-		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum_save), c_CPU_save[j=((j+1)%2)], NULL, &event);
+		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum_render), c_CPU_save[j=((j+1)%2)], NULL, &event);
 		//queue.finish();
 
-		for(int i=0; i < min((circlesCount-offset),readNum_save); i++)
+		for(int i=0; i < min((circlesCount-offset),readNum_render); i++)
 		{
 			add(file, c_CPU_save[j][i].size);
 			fprintf(file," ");
@@ -392,7 +393,7 @@ Circle* OpenClCalculator::getCircle(int i){
 void OpenClCalculator::doStep(){
 	if(useSplitKernels){
 		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(16,16), NULL, &events[eventCounter]);
-		//err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(circlesCount,1), NULL, &events[eventCounter]);
+		//err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(1,1), NULL, &events[eventCounter]);
 		err = queue.enqueueNDRangeKernel(moveStep_addWallForces_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+1]); 
 		err = queue.enqueueNDRangeKernel(moveStep_updatePositions_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+2]); 
 		eventCounter++;
@@ -430,6 +431,34 @@ void OpenClCalculator::doStep(){
 
 void OpenClCalculator::saveFrame(){
 	err = queue.enqueueReadBuffer(cl_circles, CL_FALSE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);
+}
+
+void OpenClCalculator::circleCountChanged_subclass(int i){
+	
+}
+void OpenClCalculator::maxCircleCountChanged_subclass(int i){
+	
+}
+void OpenClCalculator::updateG(){
+	
+}
+void OpenClCalculator::updateAirResistance(){
+	
+}
+void OpenClCalculator::updateWallResistance(){
+	
+}
+void OpenClCalculator::updateEModul(){
+	
+}
+void OpenClCalculator::updatePoisson(){
+	
+}
+void OpenClCalculator::updateElasticity(){
+	
+}
+void OpenClCalculator::updateSphereSize(){
+	
 }
 
 char* OpenClCalculator::file_contents(const char *filename, int *length)
@@ -531,3 +560,5 @@ const char* OpenClCalculator::oclErrorString(cl_int error)
 
 	return (index >= 0 && index < errorCount) ? errorString[index] : "";
 }
+
+#endif

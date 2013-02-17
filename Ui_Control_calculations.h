@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'Calculationst16379.ui'
+** Form generated from reading UI file 'CalculationsPE3225.ui'
 **
-** Created: Fri Feb 15 17:39:07 2013
+** Created: Sun Feb 17 09:08:25 2013
 **	  by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef CALCULATIONST16379_H
-#define CALCULATIONST16379_H
+#ifndef CALCULATIONSPE3225_H
+#define CALCULATIONSPE3225_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -46,6 +46,8 @@ public:
 	QLabel *label_18;
 	QLabel *label_28;
 	QCheckBox *wireframe;
+	QCheckBox *render;
+	QCheckBox *save;
 	QGroupBox *groupBox_5;
 	QGridLayout *gridLayout_7;
 	QDoubleSpinBox *z;
@@ -174,6 +176,16 @@ public:
 		wireframe->setChecked(false);
 
 		gridLayout->addWidget(wireframe, 5, 1, 1, 1);
+
+		render = new QCheckBox(groupBox_2);
+		render->setObjectName(QString::fromUtf8("render"));
+
+		gridLayout->addWidget(render, 6, 0, 1, 1);
+
+		save = new QCheckBox(groupBox_2);
+		save->setObjectName(QString::fromUtf8("save"));
+
+		gridLayout->addWidget(save, 6, 1, 1, 1);
 
 
 		verticalLayout->addWidget(groupBox_2);
@@ -415,6 +427,8 @@ public:
 		label_18->setText(QApplication::translate("Calculations", "Radius max.", 0, QApplication::UnicodeUTF8));
 		label_28->setText(QApplication::translate("Calculations", "Wireframe", 0, QApplication::UnicodeUTF8));
 		wireframe->setText(QApplication::translate("Calculations", "yes", 0, QApplication::UnicodeUTF8));
+		render->setText(QApplication::translate("Calculations", "Render", 0, QApplication::UnicodeUTF8));
+		save->setText(QApplication::translate("Calculations", "Save", 0, QApplication::UnicodeUTF8));
 		groupBox_5->setTitle(QApplication::translate("Calculations", "Size", 0, QApplication::UnicodeUTF8));
 		z->setSuffix(QApplication::translate("Calculations", " m", 0, QApplication::UnicodeUTF8));
 		x->setSuffix(QApplication::translate("Calculations", " m", 0, QApplication::UnicodeUTF8));
@@ -447,4 +461,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // CALCULATIONST16379_H
+#endif // CALCULATIONSPE3225_H

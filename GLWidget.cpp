@@ -38,6 +38,10 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	
 	resetTimer = new QTimer(this);
 	connect(resetTimer, SIGNAL(timeout()), this, SLOT(resetViewTimer()));
+	
+	
+	QObject::connect(this, SIGNAL(destroyed()), 
+		rotationTimer, SLOT(stop()), Qt::DirectConnection);
 }
 
 void GLWidget::updateTimer() {
@@ -183,7 +187,7 @@ void GLWidget::initializeGL() {
 	glEndList();
 	glNewList(displayList+1,GL_COMPILE);
 	glLineWidth(1.0);
-	glColor3d(0,0.5,0.3);
+	glColor3d(0.5,0.9,0.7);
 	glBegin(GL_LINE_LOOP);
 	glVertex3d(0,0,0);
 	glVertex3d(1,0,0);
@@ -209,6 +213,7 @@ void GLWidget::initializeGL() {
 		glVertex3d(0,1,0);
 		glVertex3d(0,1,1);
 		glEnd();
+		drawBoxSides(false);
 		
 		glEnable(GL_CULL_FACE);
 		glFrontFace(GL_CCW);  
@@ -476,9 +481,14 @@ void GLWidget::setLightPos(){
 	glLightfv(GL_LIGHT3, GL_POSITION,LightPosition[3]);
 }
 
-void GLWidget::drawBoxSides(){
+void GLWidget::drawBoxSides(bool fillSides){
 	float opacity = 0.1;
-	glColor4f(0.0, 0.0, 0.0, opacity);
+	if(fillSides){
+		glColor4f(0.0, 0.0, 0.0, opacity);
+		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+	}else
+		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	
 	glBegin(GL_QUADS);
 		double y = -0.005;
 		//~ glColor4f(1,0,0,opacity);
@@ -523,6 +533,7 @@ void GLWidget::drawBoxSides(){
 		glVertex3d(1-y,1-y,1-y);
 		glVertex3d(1-y,y,1-y);
 	glEnd();
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 }
 
 void GLWidget::drawQuad(int i){

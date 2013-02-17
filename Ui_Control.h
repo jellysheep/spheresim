@@ -62,6 +62,8 @@ public slots:
 	void setHueStep(double d);
 	void setShowLights(bool b);
 	void setTraceAmount(double d);
+	void setRender(bool b);
+	void setSave(bool b);
 };
 
 #endif /* _UI_CONTROL_ */
