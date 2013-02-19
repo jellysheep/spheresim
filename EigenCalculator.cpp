@@ -12,9 +12,9 @@ using namespace std;
 #define fixSun 0
 
 EigenCalculator::EigenCalculator():Calculator(){
-	omp_set_num_threads(1);
+	//omp_set_num_threads(8);
 	srand(1);
-	srand(NanosecondTimer::getNS());
+	//srand(NanosecondTimer::getNS());
 	
 	_E = E*1000000.0;
 		
@@ -41,7 +41,7 @@ EigenCalculator::EigenCalculator():Calculator(){
 	printf("Grid steps: %5d\n", gridSteps);
 	gridIndex = new int*[circlesCount];
 	
-	parallelFor
+	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
 		
 		both_r[i] = new scalar[circlesCount];
@@ -49,7 +49,7 @@ EigenCalculator::EigenCalculator():Calculator(){
 		initCircle(i);
 		
 	}
-	parallelFor
+	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
 		for(int j = 0; j<circlesCount; j++){
 			both_r[i][j] = circles[i].size + circles[j].size;
