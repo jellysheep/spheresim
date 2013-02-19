@@ -3,8 +3,8 @@
 
 #include "Dialog_inner.h"
 #include "Circles.h"
-#include "Calculator.h"
 #include <QDialog>
+#include "Calculator.h"
 
 class Dialog : public QDialog {
 	Q_OBJECT

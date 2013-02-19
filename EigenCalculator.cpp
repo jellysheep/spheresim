@@ -7,11 +7,12 @@ using namespace std;
 
 #include "NanosecondTimer.h"
 
-#define parallelFor _Pragma("omp parallel for if(circlesCount>500)")
+#define parallelFor _Pragma("omp parallel for if(circlesCount>1000)")
 
 #define fixSun 0
 
 EigenCalculator::EigenCalculator():Calculator(){
+	omp_set_num_threads(1);
 	srand(1);
 	srand(NanosecondTimer::getNS());
 	
@@ -32,7 +33,11 @@ EigenCalculator::EigenCalculator():Calculator(){
 	both_r = new scalar*[circlesCount];
 	
 	gridWidth = sphereSize.s0;
-	gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
+	#if _3D_
+		gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
+	#else
+		gridSteps = (int)(max(boxSize.s0, boxSize.s1)/gridWidth);
+	#endif
 	printf("Grid steps: %5d\n", gridSteps);
 	gridIndex = new int*[circlesCount];
 	
@@ -137,14 +142,29 @@ void EigenCalculator::save(){
 }
 
 #define _G_ 1
+#define newFor 0
+#define joinFors 1
 void EigenCalculator::doStep(){
+	if(forceCounter == 0){
+		for(int i = 0; i<numWalls; i++){
+			curWallForces[i] = 0;
+		}
+	}
+	forceCounter++;
+	int x = (int)ceil((circlesCount-1)/2.0);
 	parallelFor
 	for(int i = 0; i<circlesCount; i++){
 		eVector force;
 		
 		eVector d_pos, d_n;
 		scalar *both_r_ = &this->both_r[i][0], d, d_, R, _E_;
+	#if newFor
+		int j;
+		for(int a = 0; a<x; a++){
+			j = (i+a+1)%circlesCount;
+	#else
 		for(int j = i+1; j<circlesCount; j++){
+	#endif
 			
 			//#define c2 circle[i]
 			//both_r = circles[i].size + circles[j].size;
@@ -237,30 +257,28 @@ void EigenCalculator::doStep(){
 				}
 				//printf("id: %d id2: %d index1: %d index2: %d\n", id, id2, indices[id], indices[id2]);
 				//GetSemaphor(&flags[id]);
-				circlesForce[i] -= force;
+				#pragma atomic
+					circlesForce[i] -= force;
 				//ReleaseSemaphor(&flags[id]);
 				//addForce2(id,-force);
 				//GetSemaphor(&flags[id2]);
-				circlesForce[j] += force;
+				#pragma atomic
+					circlesForce[j] += force;
 				//ReleaseSemaphor(&flags[id2]);
 				//addForce2(id2,force);
 				// */
 				//printf("now: id: %d id2: %d index1: %d index2: %d\n", id, id2, indices[id], indices[id2]);
 			}
 		}
+#if joinFors==0
 	}
 	
 	if(wallResistance){
-		if(forceCounter == 0){
-			for(int i = 0; i<numWalls; i++){
-				curWallForces[i] = 0;
-			}
-		}
-		forceCounter++;
 		//parallelFor
 		for(int i = 0; i<circlesCount; i++){
-			scalar d_, R, _E_, force_;
-			scalar htw_d_d, fact = 1.0f;
+			scalar d_, R, _E_;
+#endif
+			scalar force_, htw_d_d, fact = 1.0f;
 			if ((htw_d_d = (circles[i].size - circlesPos[i](0)))>0) {
 				if(circlesSpeed[i](0) > 0)fact = elastic;
 				d_ = htw_d_d;
@@ -316,15 +334,18 @@ void EigenCalculator::doStep(){
 					curWallForces[5] += force_*fact;
 				}
 			#endif
+#if joinFors==0
 		}
 	}
 	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
+		eVector force;
+#endif
 		#if fixSun
 			if(i==0)continue;
 		#endif
 		EIGEN_ASM_COMMENT("begin");
-		eVector force = circlesForce[i];
+		force = circlesForce[i];
 		eVector acceleration = force / circles[i].mass;
 		acceleration(0) += gravity.s0;
 		acceleration(1) += gravity.s1;

@@ -7,10 +7,10 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-using namespace std;
+//~ #include <iostream>
+//~ #include <iomanip>
+//~ #include <fstream>
+//~ using namespace std;
 
 class GLWidget;
 class PlotWidget;
@@ -63,7 +63,7 @@ protected:
 	bool bufferFilled, plotNext;
 	scalar **wallForces, *curWallForces;
 	
-	fstream f;
+	//~ fstream f;
 	
 public:
 	Calculator();

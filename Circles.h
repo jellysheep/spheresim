@@ -4,8 +4,8 @@
 
 #include <QColor>
 
-#define _3D_ 1
-#define _double_ 0
+#define _3D_ 0
+#define _double_ 1
 
 #define fastSphereRender 1
 

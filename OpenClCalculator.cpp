@@ -392,7 +392,7 @@ Circle* OpenClCalculator::getCircle(int i){
 
 void OpenClCalculator::doStep(){
 	if(useSplitKernels){
-		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(16,16), NULL, &events[eventCounter]);
+		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(1,1), NULL, &events[eventCounter]);
 		//err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(1,1), NULL, &events[eventCounter]);
 		err = queue.enqueueNDRangeKernel(moveStep_addWallForces_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+1]); 
 		err = queue.enqueueNDRangeKernel(moveStep_updatePositions_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+2]); 

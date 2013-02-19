@@ -51,15 +51,15 @@ Calculator::Calculator(){
 }
 
 void Calculator::initFileSave(){
-	f.open(filename, fstream::out|fstream::trunc);
-	f<<_3D_<<" ";
-	f<<boxSize.s0<<" ";
-	f<<boxSize.s1<<" ";
-	#if _3D_
-		f<<boxSize.s2<<" ";
-	#endif
-	f<<dec<<num<<"\n";
-	f.close();
+	//~ f.open(filename, fstream::out|fstream::trunc);
+	//~ f<<_3D_<<" ";
+	//~ f<<boxSize.s0<<" ";
+	//~ f<<boxSize.s1<<" ";
+	//~ #if _3D_
+		//~ f<<boxSize.s2<<" ";
+	//~ #endif
+	//~ f<<dec<<num<<"\n";
+	//~ f.close();
 }
 
 void Calculator::stopFileSave(){
@@ -290,18 +290,18 @@ void Calculator::paintGL(bool readNewFrame){
 			r = c->size;
 			x = c->pos.s[0];
 			y = c->pos.s[1];
-#if _3D_
-			z = c->pos.s[2];
-#else
-			z = 0;
-#endif
+			#if _3D_
+				z = c->pos.s[2];
+			#else
+				z = 0;
+			#endif
 			ce = &ceBuffer[i];
 			if(useColorsBool)
 				color = &ce->color;
 			ce->trace[ce->traceCount] = (vector){x,y
-#if _3D_
+			#if _3D_
 				,z
-#endif
+			#endif
 				};
 			glColor4f(color->redF(),color->greenF(),color->blueF(),0);
 			if(connectTracePoints)
@@ -309,7 +309,8 @@ void Calculator::paintGL(bool readNewFrame){
 			else
 				glBegin(GL_POINTS);
 			k = 0;
-			for(h = (ce->traceFull?((traceCount+ce->traceCount+1-traceCountNew)%traceCount):std::max(0,ce->traceCount-traceCountNew)); h!=ce->traceCount; h=((h+1)%traceCount)){
+			for(h = (ce->traceFull?((traceCount+ce->traceCount+1-traceCountNew)%traceCount):std::max(0,ce->traceCount-traceCountNew)); 
+					h!=ce->traceCount; h=((h+1)%traceCount)){
 				glColor4f(color->redF(),color->greenF(),color->blueF(),std::pow((k++)*1.0/traceCountNew,0.5)/2);
 				#if _3D_
 					glVertex3d(ce->trace[h].s[0], ce->trace[h].s[1], ce->trace[h].s[2]);
@@ -351,24 +352,16 @@ void Calculator::paintGL(bool readNewFrame){
 		{
 			color = &ceBuffer[i].color;
 		}
-		//color = 102+(102*256)+(102*256*256);
-		//printf("Circle (r=%3f): (%4f|%4f|%4f) (%4f|%4f|%4f) (%4f|%4f|%4f)\n",r,x,y,z,c.speed.s[0],c.speed.s[1],0,c.force.s[0],c.force.s[1],0);
-		//printf("Circle (r=%3f): (%4f|%4f|%4f)\n",r,x,y,z);
-		//if(_3D_==0)
-		//{
 		#if !_3D_
 			glPushMatrix();
 			glTranslated(x,y,z);
 			glScalef(r,r,r);
 			#if onlyOneC
 				if(i==cCount-1)
-					//glColor3bv((byte*)&color);
 					glWidget->drawCircleF2(r,color->redF(),color->greenF(),color->blueF());
 				else
 					glWidget->drawCircleF2(r, 0.05, 0.05, 0.05);
 			#else
-				//glColor3bv((GLbyte*)&color);
-				
 				glBegin(GL_TRIANGLE_FAN);
 				#if onlyOneC
 					if(i==cCount-1)
@@ -384,27 +377,20 @@ void Calculator::paintGL(bool readNewFrame){
 				glWidget->drawCircleF2(1.f); 
 			#endif
 			glPopMatrix();
-
-		//}else{ //3D
 		#else
 			#if onlyOneC
 				if(i==cCount-1)
-					//glColor3bv((byte*)&color);
 					glColor3f(color->redF(),color->greenF(),color->blueF()); 
 				else
 					glColor3d(0.05, 0.05, 0.05);
 			#else
-				//glColor3bv((GLbyte*)&color);
 				glColor3f(color->redF(),color->greenF(),color->blueF()); 
 			#endif
 			glPushMatrix();
 			glTranslated(x,y,z);
 			glScalef(r,r,r);
-			//glWidget->drawsphere(1,r);
 			glWidget->drawsphere2(r);
-			//glTranslated(-x,-y,-z);
 			glPopMatrix();
-		//}
 		#endif
 	}
 	#if _3D_

@@ -35,11 +35,13 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	calc->setupUi(calcWg);
 	
 	QSize rendSize = rendWg->size();
-	rendSize.setHeight(5000);
-	rendWg->setMaximumSize(rendSize);
+	rendSize.setHeight(641);
+	rendSize.setWidth(339);
+	rendWg->setFixedSize(rendSize);
 	QSize calcSize = calcWg->size();
-	calcSize.setHeight(5000);
-	calcWg->setMaximumSize(calcSize);
+	calcSize.setHeight(641);
+	calcSize.setWidth(339);
+	calcWg->setFixedSize(calcSize);
 	
 	addDockWidget(Qt::RightDockWidgetArea, calcWg, Qt::Horizontal);
 	addDockWidget(Qt::RightDockWidgetArea, rendWg, Qt::Horizontal);
@@ -256,8 +258,8 @@ void Control::keyPressEvent(QKeyEvent* event){
 			if(fullscreen){
 				showNormal();
 				showMaximized();
-				//setMaximumHeight(641);
-				//resize(2099-4-6,641);
+				setMaximumHeight(641);
+				resize(2099-4-6,641);
 			} else showFullScreen();
 			break;
 		case Qt::Key_R:

@@ -11,7 +11,7 @@ SET( CMAKE_CXX_COMPILER_ARG1 "g++" )
 ADD_DEFINITIONS(-DENGINE_OPENCL -DENGINE_CPP -DENGINE_READ)
 
 #set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-fopenmp -msse2 -Ofast")
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fopenmp -g -msse2 -O2") # 
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fopenmp -g -msse2 -msse -msse3 -msse4 -Ofast") # 
 INCLUDE ("OptimizeForArchitecture")
 OptimizeForArchitecture ()
 
