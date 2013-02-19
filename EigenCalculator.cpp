@@ -7,13 +7,13 @@ using namespace std;
 
 #include "NanosecondTimer.h"
 
-#define parallelFor _Pragma("omp parallel for if(circlesCount>1000)")
+#define parallelFor _Pragma("omp parallel for if(circlesCount>500)")
 
 #define fixSun 0
 
 EigenCalculator::EigenCalculator():Calculator(){
 	//omp_set_num_threads(8);
-	srand(1);
+	srand(2);
 	//srand(NanosecondTimer::getNS());
 	
 	_E = E*1000000.0;

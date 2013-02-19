@@ -3,7 +3,7 @@
 #include <cmath>
 #include <algorithm>
 
-int circlesCount = 2000;
+int circlesCount = 100;
 int maxShowCirclesCount = 5000;
 bool manyCircles = (min(circlesCount,maxShowCirclesCount)>20);
 
