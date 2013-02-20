@@ -32,7 +32,7 @@ EigenCalculator::EigenCalculator():Calculator(){
 	circlesForce = new eVector[circlesCount];
 	both_r = new scalar*[circlesCount];
 	
-	gridWidth = sphereSize.s0;
+	gridWidth = 2*sphereSize.s1;
 	#if _3D_
 		gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
 	#else
@@ -40,6 +40,23 @@ EigenCalculator::EigenCalculator():Calculator(){
 	#endif
 	printf("Grid steps: %5d\n", gridSteps);
 	gridIndex = new int*[circlesCount];
+	
+	posX = new Pos[circlesCount];
+	posY = new Pos[circlesCount];
+	#if _3D_
+		posZ = new Pos[circlesCount];
+	#endif
+	//parallelFor
+	for(int i = 0; i<circlesCount; i++){
+		posX[i].posOfCircle = i;
+		posX[i].circleAtPos = i;
+		posY[i].posOfCircle = i;
+		posY[i].circleAtPos = i;
+		#if _3D_
+			posZ[i].posOfCircle = i;
+			posZ[i].circleAtPos = i;
+		#endif
+	}
 	
 	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
@@ -132,7 +149,7 @@ void EigenCalculator::initCircle(int i){
 }
 
 void EigenCalculator::updateSphereSize(){
-	gridWidth = sphereSize.s0;
+	gridWidth = 2*sphereSize.s1;
 	gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
 }
 
@@ -144,14 +161,71 @@ void EigenCalculator::save(){
 #define _G_ 1
 #define newFor 0
 #define joinFors 1
-void EigenCalculator::doStep(){
-	if(forceCounter == 0){
-		for(int i = 0; i<numWalls; i++){
-			curWallForces[i] = 0;
+
+void EigenCalculator::calcWallResistance(){
+	//parallelFor
+	for(int i = 0; i<circlesCount; i++){
+		scalar d_, R, _E_;
+		scalar force_, htw_d_d, fact = 1.0f;
+		if ((htw_d_d = (circles[i].size - circlesPos[i](0)))>0) {
+			if(circlesSpeed[i](0) > 0)fact = elastic;
+			d_ = htw_d_d;
+			R = circles[i].size;
+			_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
+			force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
+			circlesForce[i](0) += force_*fact;
+			curWallForces[0] += force_*fact;
+		}else if ((htw_d_d = (circles[i].size + circlesPos[i](0) - boxSize.s0))>0) {
+			if(circlesSpeed[i](0) < 0)fact = elastic;
+			d_ = htw_d_d;
+			R = circles[i].size;
+			_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
+			force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
+			circlesForce[i](0) -= force_*fact;
+			curWallForces[1] += force_*fact;
 		}
+		fact = 1.0f;
+		if ((htw_d_d = (circles[i].size - circlesPos[i](1)))>0) {
+			if(circlesSpeed[i](1) > 0)fact = elastic;
+			d_ = htw_d_d;
+			R = circles[i].size;
+			_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
+			force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
+			circlesForce[i](1) += force_*fact;
+			curWallForces[2] += force_*fact;
+		}else if ((htw_d_d = (circles[i].size + circlesPos[i](1) - boxSize.s1))>0) {
+			if(circlesSpeed[i](1) < 0)fact = elastic;
+			d_ = htw_d_d;
+			R = circles[i].size;
+			_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
+			force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
+			circlesForce[i](1) -= force_*fact;
+			curWallForces[3] += force_*fact;
+		}
+		#if _3D_
+			fact = 1.0f;
+			if ((htw_d_d = (circles[i].size - circlesPos[i](2)))>0) {
+				if(circlesSpeed[i](2) > 0)fact = elastic;
+				d_ = htw_d_d;
+				R = circles[i].size;
+				_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
+				force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
+				circlesForce[i](2) += force_*fact;
+				curWallForces[4] += force_*fact;
+			}else if ((htw_d_d = (circles[i].size + circlesPos[i](2) - boxSize.s2))>0) {
+				if(circlesSpeed[i](2) < 0)fact = elastic;
+				d_ = htw_d_d;
+				R = circles[i].size;
+				_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
+				force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
+				circlesForce[i](2) -= force_*fact;
+				curWallForces[5] += force_*fact;
+			}
+		#endif
 	}
-	forceCounter++;
-	int x = (int)ceil((circlesCount-1)/2.0);
+}
+
+void EigenCalculator::calcBallResistance(){
 	parallelFor
 	for(int i = 0; i<circlesCount; i++){
 		eVector force;
@@ -170,14 +244,6 @@ void EigenCalculator::doStep(){
 			//both_r = circles[i].size + circles[j].size;
 			//both_r = this->both_r[i][j];
 			
-			/*d_pos(0) = circlesPos[j](0)-circlesPos[i](0);
-			if(abs(d_pos(0))>*both_r) continue;
-			d_pos(1) = circlesPos[j](1)-circlesPos[i](1);
-			if(abs(d_pos(1))>*both_r) continue;
-			d_pos(2) = circlesPos[j](2)-circlesPos[i](2);
-			if(abs(d_pos(2))>*both_r) continue;
-			//*/
-			
 			#if _G_
 			if(G==0)
 			#endif
@@ -189,158 +255,67 @@ void EigenCalculator::doStep(){
 				#endif
 			}
 			
-			both_r_ = &both_r[i][j];
-			d_pos = circlesPos[j]-circlesPos[i];
-			
-			/*
-			#if _G_==0
-			if(G == 0)
-			{
-				if(d_pos(0)>both_r||d_pos(0)<-both_r||d_pos(1)>both_r||d_pos(1)<-both_r
-					#if _3D_
-					||d_pos(2)>both_r||d_pos(2)<-both_r
-					#endif
-					){
-					continue;
-				}
-			}
-			#endif
-			// */
-			
-			//d_pos.s2 = 0;
-			d = d_pos.norm();
-			d = max(d,(scalar)0.00005f);
-			
-			/*
-			d_n = d_pos/d;
-			force = 10000000000000000000000000.0*pow_(d,12) *d_n;
-			circles[i].force -= force;
-			circles[j].force += force;
-			force = 1000000000000.0*pow_(d,6) *d_n;
-			circles[i].force += force;
-			circles[j].force -= force;
-			return;*/
-			
-			#if _G_
-			if(G!=0)
-			{
-				d_n = d_pos/d;
-				// bzw. normalize(d_pos);
-				// Gravitation:
-				force = G*G_fact*circles[i].mass*circles[j].mass/pow(max(d,(scalar)circles[i].size/10),2) *d_n;
-				circlesForce[i] += force;
-				
-				circlesForce[j] -= force;
-			}
-			#endif
-			
-			// Abstossung:
-			if (d < *both_r_) {
-				//*
-				//#if _G_==0
-				if(G == 0)
-				{
-					d_n = d_pos/d; // bzw. normalize(d_pos);
-				}
-				//#endif
-				// */
-				// nach Kontaktmechanik mit Poisson-Zahlen:
-				d_ = *both_r_ - d;
-				//*
-				R = 1/((1/circles[i].size)+(1/circles[j].size));
-				//_E_ = 1/(((1-circles[i].poisson*circles[i].poisson)/(_E))+((1-circles[j].poisson*circles[j].poisson)/(_E)));
-				_E_ = 1/(((1-(poisson*poisson))/(_E))+((1-(poisson*poisson))/(_E)));
-				force = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3)) *d_n;
-				//printf("Stoss! r: %5f m: %5f d: %5f R: %5f E*: %5f F: %5f\n", circles[i].size, circles[i].mass, d_, R, _E_, force.norm());
-				if(elastic!=1 && d_pos.dot((circlesSpeed[i]-circlesSpeed[j])/d)<0){ //Skalarprodukt
-					force *= elastic;
-				}
-				//printf("id: %d id2: %d index1: %d index2: %d\n", id, id2, indices[id], indices[id2]);
-				//GetSemaphor(&flags[id]);
-				#pragma atomic
-					circlesForce[i] -= force;
-				//ReleaseSemaphor(&flags[id]);
-				//addForce2(id,-force);
-				//GetSemaphor(&flags[id2]);
-				#pragma atomic
-					circlesForce[j] += force;
-				//ReleaseSemaphor(&flags[id2]);
-				//addForce2(id2,force);
-				// */
-				//printf("now: id: %d id2: %d index1: %d index2: %d\n", id, id2, indices[id], indices[id2]);
-			}
+			collideBalls(i,j);
 		}
-#if joinFors==0
 	}
+}
+
+void EigenCalculator::collideBalls(int i, int j){
+	scalar both_r_ = both_r[i][j];
+	eVector d_pos = circlesPos[j]-circlesPos[i];
 	
-	if(wallResistance){
-		//parallelFor
-		for(int i = 0; i<circlesCount; i++){
-			scalar d_, R, _E_;
-#endif
-			scalar force_, htw_d_d, fact = 1.0f;
-			if ((htw_d_d = (circles[i].size - circlesPos[i](0)))>0) {
-				if(circlesSpeed[i](0) > 0)fact = elastic;
-				d_ = htw_d_d;
-				R = circles[i].size;
-				_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
-				force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
-				circlesForce[i](0) += force_*fact;
-				curWallForces[0] += force_*fact;
-			}else if ((htw_d_d = (circles[i].size + circlesPos[i](0) - boxSize.s0))>0) {
-				if(circlesSpeed[i](0) < 0)fact = elastic;
-				d_ = htw_d_d;
-				R = circles[i].size;
-				_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
-				force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
-				circlesForce[i](0) -= force_*fact;
-				curWallForces[1] += force_*fact;
-			}
-			fact = 1.0f;
-			if ((htw_d_d = (circles[i].size - circlesPos[i](1)))>0) {
-				if(circlesSpeed[i](1) > 0)fact = elastic;
-				d_ = htw_d_d;
-				R = circles[i].size;
-				_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
-				force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
-				circlesForce[i](1) += force_*fact;
-				curWallForces[2] += force_*fact;
-			}else if ((htw_d_d = (circles[i].size + circlesPos[i](1) - boxSize.s1))>0) {
-				if(circlesSpeed[i](1) < 0)fact = elastic;
-				d_ = htw_d_d;
-				R = circles[i].size;
-				_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
-				force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
-				circlesForce[i](1) -= force_*fact;
-				curWallForces[3] += force_*fact;
-			}
-			#if _3D_
-				fact = 1.0f;
-				if ((htw_d_d = (circles[i].size - circlesPos[i](2)))>0) {
-					if(circlesSpeed[i](2) > 0)fact = elastic;
-					d_ = htw_d_d;
-					R = circles[i].size;
-					_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
-					force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
-					circlesForce[i](2) += force_*fact;
-					curWallForces[4] += force_*fact;
-				}else if ((htw_d_d = (circles[i].size + circlesPos[i](2) - boxSize.s2))>0) {
-					if(circlesSpeed[i](2) < 0)fact = elastic;
-					d_ = htw_d_d;
-					R = circles[i].size;
-					_E_ = 1/(((1-poisson*poisson)/_E)+((1-poisson*poisson)/_E));
-					force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
-					circlesForce[i](2) -= force_*fact;
-					curWallForces[5] += force_*fact;
-				}
-			#endif
-#if joinFors==0
-		}
+	//d_pos.s2 = 0;
+	scalar d = d_pos.norm();
+	d = max(d,(scalar)0.00005f);
+	
+	eVector d_n, force;
+	
+	#if _G_
+	if(G!=0)
+	{
+		d_n = d_pos/d;
+		// bzw. normalize(d_pos);
+		// Gravitation:
+		force = G*G_fact*circles[i].mass*circles[j].mass/pow(max(d,(scalar)circles[i].size/10),2) *d_n;
+		circlesForce[i] += force;
+		
+		circlesForce[j] -= force;
 	}
+	#endif
+	
+	// Abstossung:
+	if (d < both_r_) {
+		
+		scalar d_, R, _E_;
+		//*
+		//#if _G_==0
+		if(G == 0)
+		{
+			d_n = d_pos/d; // bzw. normalize(d_pos);
+		}
+		//#endif
+		// */
+		// nach Kontaktmechanik mit Poisson-Zahlen:
+		d_ = both_r_ - d;
+		//*
+		R = 1/((1/circles[i].size)+(1/circles[j].size));
+		//_E_ = 1/(((1-circles[i].poisson*circles[i].poisson)/(_E))+((1-circles[j].poisson*circles[j].poisson)/(_E)));
+		_E_ = 1/(((1-(poisson*poisson))/(_E))+((1-(poisson*poisson))/(_E)));
+		force = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3)) *d_n;
+		//printf("Stoss! r: %5f m: %5f d: %5f R: %5f E*: %5f F: %5f\n", circles[i].size, circles[i].mass, d_, R, _E_, force.norm());
+		if(elastic!=1 && d_pos.dot((circlesSpeed[i]-circlesSpeed[j])/d)<0){ //Skalarprodukt
+			force *= elastic;
+		}
+		#pragma atomic
+			circlesForce[i] -= force;
+		#pragma atomic
+			circlesForce[j] += force;
+	}
+}
+void EigenCalculator::sumUpForces(){
 	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
 		eVector force;
-#endif
 		#if fixSun
 			if(i==0)continue;
 		#endif
@@ -370,6 +345,76 @@ void EigenCalculator::doStep(){
 		
 		EIGEN_ASM_COMMENT("end");
 	}
+}
+
+void EigenCalculator::sort(Pos* p, int dim){
+	scalar temp;
+	int j, cid; //circle ID
+
+	for (int i=1; i < circlesCount; i++){
+		cid = p[i].circleAtPos;
+		temp = circlesPos[cid](dim);
+		j = i-1;
+
+		while (j >= 0 && circlesPos[p[j].circleAtPos](dim) > temp){
+			p[j+1].circleAtPos = p[j].circleAtPos;
+			j--;
+		}
+
+		p[j+1].circleAtPos = cid;
+	}
+}
+
+void EigenCalculator::calcSortedBallResistance(){
+	sort(posX, 0);
+	/*
+	for(int pid = 0; pid<circlesCount; pid++){ // pos. ID
+		printf("%3d ", posX[pid].circleAtPos);
+	}
+	printf("\n"); // */
+
+	/// Kugeln kollidieren nur mit denen, die rechts davon liegen.
+	/// Dadurch werden doppelt berechnete Kollisionen vermieden.
+	
+	//parallelFor
+	for(int pid = 0; pid<circlesCount; pid++){ // pos. ID
+		int i = posX[pid].circleAtPos, j; //circle IDs
+		posX[i].posOfCircle = pid;
+		for(int pid2 = pid+1; pid2<circlesCount; pid2++){
+			j = posX[pid2].circleAtPos;
+			if(abs(gridIndex[i][0]-gridIndex[j][0]) <=1){
+			//if(circlesPos[j][0]-circlesPos[i][0] < both_r[i][j]){
+				if(abs(gridIndex[i][1]-gridIndex[j][1]) <=1
+				#if _3D_
+					&& abs(gridIndex[i][2]-gridIndex[j][2]) <=1
+				#endif
+				){
+					collideBalls(i, j);
+				}
+			}else{
+				break;
+			}
+		}
+	}
+}
+
+void EigenCalculator::doStep(){
+	if(forceCounter == 0){
+		for(int i = 0; i<numWalls; i++){
+			curWallForces[i] = 0;
+		}
+	}
+	forceCounter++;
+	int x = (int)ceil((circlesCount-1)/2.0);
+	
+	//calcBallResistance();
+	calcSortedBallResistance();
+	
+	if(wallResistance){
+		calcWallResistance();
+	}
+	
+	sumUpForces();
 }
 
 void EigenCalculator::updateG(){
@@ -423,30 +468,67 @@ void EigenCalculator::gravityChanged(){
 }
 
 void EigenCalculator::circleCountChanged_subclass(int i){
-	//circles
+	///circles
 	circles = newCopy<Circle>(circles, circlesCount, i);
-	//circlesOldPos
+	///circlesOldPos
 	circlesOldPos = newCopy<eVector>(circlesOldPos, circlesCount, i);
-	//circlesPos
+	///circlesPos
 	circlesPos = newCopy<eVector>(circlesPos, circlesCount, i);
-	//circlesSpeed
+	///circlesSpeed
 	circlesSpeed = newCopy<eVector>(circlesSpeed, circlesCount, i);
-	//circlesForce
+	///circlesForce
 	circlesForce = newCopy<eVector>(circlesForce, circlesCount, i);
-	//gridIndex
+	///gridIndex
 	gridIndex = newCopy<int*>(gridIndex, circlesCount, i);
-	//renderBuffer
+	///position indexes
+	posX = newCopy<Pos>(posX, circlesCount, i);
+	posY = newCopy<Pos>(posY, circlesCount, i);
+	#if _3D_
+		posZ = newCopy<Pos>(posZ, circlesCount, i);
+	#endif
+	if(i<(circlesCount/2)){
+		for(int j = i; j<circlesCount; j++){
+			posX[posX[j].posOfCircle].circleAtPos = posX[j].circleAtPos;
+			posX[posY[j].posOfCircle].circleAtPos = posY[j].circleAtPos;
+			#if _3D_
+				posX[posZ[j].posOfCircle].circleAtPos = posZ[j].circleAtPos;
+			#endif
+		}
+	}else{
+		for(int j = 0; j<i; j++){
+			posX[j].circleAtPos = j;
+			posX[j].posOfCircle = j;
+			posY[j].circleAtPos = j;
+			posY[j].posOfCircle = j;
+			#if _3D_
+				posZ[j].circleAtPos = j;
+				posZ[j].posOfCircle = j;
+			#endif
+		}
+	}
+	//parallelFor
+	for(int j = circlesCount; j<i; j++){
+		posX[j].circleAtPos = j;
+		posX[j].posOfCircle = j;
+		posY[j].circleAtPos = j;
+		posY[j].posOfCircle = j;
+		#if _3D_
+			posZ[j].circleAtPos = j;
+			posZ[j].posOfCircle = j;
+		#endif
+	}
+	///renderBuffer
 	int readNum_render_new = min(maxShowCirclesCount,i);
 	if(readNum_render_new>readNum_render)
 	{
-		parallelFor
+		//parallelFor
 		for(int j = 0; j<renderBufferCount; j++){
 			renderBuffer[j] = newCopy<eVector>(renderBuffer[j], readNum_render, readNum_render_new);
 		}
 	}
 	readNum_render = readNum_render_new;
 	
-	parallelFor
+	//parallelFor
 	for(int j = circlesCount; j<i; j++){
 		if(j<readNum_render){
 			for(int k = bufferReadIndex; k!=bufferWriteIndex; k=(k+1)%renderBufferCount){
@@ -457,7 +539,7 @@ void EigenCalculator::circleCountChanged_subclass(int i){
 		initCircle(j);
 	}
 	//bufferReadIndex = (readNum_render+bufferWriteIndex-1)%readNum_render;
-	//both_r
+	///both_r
 	both_r = newCopy<scalar*>(both_r, circlesCount, i);
 	parallelFor
 	for(int j = 0; j<i; j++){

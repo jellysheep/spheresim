@@ -52,6 +52,10 @@ using namespace Eigen;
 	#endif
 #endif
 
+struct Pos {
+	int posOfCircle, circleAtPos;
+};
+
 class EigenCalculator: public Calculator {
 
 	Q_OBJECT // must include this if you use Qt signals/slots
@@ -81,6 +85,16 @@ protected:
 	void initCircle(int i);
 	
 	scalar _E;
+	
+	void calcWallResistance();
+	void calcBallResistance();
+	void sumUpForces();
+	
+	void collideBalls(int i, int j);
+	
+	Pos *posX, *posY, *posZ;
+	void sort(Pos* p, int dim);
+	void calcSortedBallResistance();
 
 public:
 	EigenCalculator();

@@ -35,13 +35,15 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	calc->setupUi(calcWg);
 	
 	QSize rendSize = rendWg->size();
-	rendSize.setHeight(641);
-	rendSize.setWidth(339);
-	rendWg->setFixedSize(rendSize);
+	rendSize.setHeight(5000);
+	//rendSize.setHeight(641);
+	//rendSize.setWidth(339);
+	rendWg->setMaximumSize(rendSize);
 	QSize calcSize = calcWg->size();
-	calcSize.setHeight(641);
-	calcSize.setWidth(339);
-	calcWg->setFixedSize(calcSize);
+	calcSize.setHeight(5000);
+	//calcSize.setHeight(641);
+	//calcSize.setWidth(339);
+	calcWg->setMaximumSize(calcSize);
 	
 	addDockWidget(Qt::RightDockWidgetArea, calcWg, Qt::Horizontal);
 	addDockWidget(Qt::RightDockWidgetArea, rendWg, Qt::Horizontal);
@@ -224,6 +226,7 @@ void Control::minSphereSize(double s){
 	sphereSize.s[0] = s;
 	if(calc->one_size->isChecked()){
 		sphereSize.s[1] = s;
+		calc->radius_max->setValue(s);
 	}
 	cal->updateSphereSize();
 }

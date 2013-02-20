@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 		
 		clTimer->set(win->getPlotWidget());
 		
-		//win->show();
+		win->show();
 		win->showMaximized();
 		
 	#else

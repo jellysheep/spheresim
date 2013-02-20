@@ -4,23 +4,28 @@
 #include "OpenClCalculator.h"
 
 Dialog::Dialog(){
-	selected = false;
-	dlg = new Ui::Dialog();
-	dlg->setupUi(this);
-	#ifdef ENGINE_CPP
-		dlg->cpp->setEnabled(true);
+	#if 1
+		calc = new EigenCalculator();
+		selected = true;
+	#else
+		selected = false;
+		dlg = new Ui::Dialog();
+		dlg->setupUi(this);
+		#ifdef ENGINE_CPP
+			dlg->cpp->setEnabled(true);
+		#endif
+		#ifdef ENGINE_OPENCL
+			dlg->opencl->setEnabled(true);
+		#endif
+		#ifdef ENGINE_READ
+			dlg->read->setEnabled(true);
+		#endif
+		QObject::connect(this, SIGNAL(accepted()), 
+			this, SLOT(accepted_()), Qt::DirectConnection);
+		QObject::connect(this, SIGNAL(rejected()), 
+			this, SLOT(rejected_()), Qt::DirectConnection);
+		exec();
 	#endif
-	#ifdef ENGINE_OPENCL
-		dlg->opencl->setEnabled(true);
-	#endif
-	#ifdef ENGINE_READ
-		dlg->read->setEnabled(true);
-	#endif
-	QObject::connect(this, SIGNAL(accepted()), 
-		this, SLOT(accepted_()), Qt::DirectConnection);
-	QObject::connect(this, SIGNAL(rejected()), 
-		this, SLOT(rejected_()), Qt::DirectConnection);
-	exec();
 }
 
 void Dialog::accepted_(){
