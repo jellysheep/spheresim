@@ -70,13 +70,13 @@ void Calculator::initFileSave(){
 	f.open(filename, std::fstream::out|std::fstream::trunc);
 	f<<"# 3D:\n";
 	addHex(f, _3D_);
-	f<<"# boxSize:\n";
+	f<<"# boxSize (x,y"<<(_3D_==1?",z":"")<<"):\n";
 	addHex(f, boxSize.s0);
 	addHex(f, boxSize.s1);
 	#if _3D_
 		addHex(f, boxSize.s2);
 	#endif
-	f<<"# number:\n";
+	f<<"# sphere count:\n";
 	addHex(f, circlesCount);
 	//~ f.close();
 }
