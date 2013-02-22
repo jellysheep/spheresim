@@ -6,6 +6,9 @@
 #include <cstring>
 #include "PlotWidget.h"
 
+#include <iostream>
+#include <iomanip>
+
 Calculator::Calculator(){
 	
 	QObject::connect(this, SIGNAL(destroyed()), 
@@ -49,36 +52,37 @@ Calculator::Calculator(){
 	bufferFilled = false;
 	plotNext = false;
 }
-
-void Calculator::addHex(FILE* file, double d){
-	unsigned long long* c = (unsigned long long*)&d;
-	//always write double values
-	fprintf(file, "%llX%llX", c[0], c[1]);
-}
+/*
 double Calculator::readHex(FILE* file){
 	double d;
 	unsigned long long* c = (unsigned long long*)&d;
 	//always read double values
 	fscanf(file, "%llX%llX", c[0], c[1]);
 	return d;
+}*/
+void Calculator::addHex(std::fstream &f, double d){
+	f<<'h'<<std::hex<<*((unsigned long long*)&d)<<'\n';
 }
-
+void Calculator::addHex(std::fstream &f, int i){
+	f<<'h'<<std::hex<<i<<'\n';
+}
 void Calculator::initFileSave(){
-	f.open("save.txt", std::fstream::out|std::fstream::trunc);
-	//setvbuf (f , NULL, _IOFBF, 1024);
-	//~ f.open(filename, fstream::out|fstream::trunc);
-	//~ f<<_3D_<<" ";
-	//~ f<<boxSize.s0<<" ";
-	//~ f<<boxSize.s1<<" ";
-	//~ #if _3D_
-		//~ f<<boxSize.s2<<" ";
-	//~ #endif
-	//~ f<<dec<<num<<"\n";
+	f.open(filename, std::fstream::out|std::fstream::trunc);
+	f<<"# 3D:\n";
+	addHex(f, _3D_);
+	f<<"# boxSize:\n";
+	addHex(f, boxSize.s0);
+	addHex(f, boxSize.s1);
+	#if _3D_
+		addHex(f, boxSize.s2);
+	#endif
+	f<<"# number:\n";
+	addHex(f, circlesCount);
 	//~ f.close();
 }
 
 void Calculator::stopFileSave(){
-	
+	f.close();
 }
 
 int norm(int i){
@@ -263,6 +267,11 @@ void Calculator::paintGL(bool readNewFrame){
 		glScalef(boxSize.s[0], boxSize.s[1], boxSize.s[2]);
 		glCallList(glWidget->displayList+1);
 		glPopMatrix();
+	}
+	if(wireframe){
+		glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+	}else{
+		glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	}
 	
 	scalar r,x,y,z;

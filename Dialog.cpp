@@ -2,10 +2,12 @@
 #include "EigenCalculator.h"
 #include "Dialog.h"
 #include "OpenClCalculator.h"
+#include "FileCalculator.h"
 
 Dialog::Dialog(){
 	#if 1
-		calc = new EigenCalculator();
+		//calc = new EigenCalculator();
+		calc = new FileCalculator();
 		selected = true;
 	#else
 		selected = false;
@@ -34,7 +36,7 @@ void Dialog::accepted_(){
 	}else if(dlg->opencl->isChecked()){
 		calc = new OpenClCalculator();
 	}else if(dlg->read->isChecked()){
-		calc = new EigenCalculator();
+		calc = new FileCalculator();
 	}else{
 		calc = NULL;
 	}

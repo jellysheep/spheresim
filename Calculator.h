@@ -7,8 +7,6 @@
 #include <cstdio>
 #include <cstdlib>
 
-#include <iostream>
-#include <iomanip>
 #include <fstream>
 
 class GLWidget;
@@ -19,8 +17,8 @@ class Calculator : public QThread, public FramesCounter{
 protected:
 	GLWidget* glWidget;
 	
-	static void addHex(FILE* file, double d);
-	static double readHex(FILE* file);
+	static void addHex(std::fstream &f, double d);
+	static void addHex(std::fstream &f, int i);
 	
 	void run();
 	

@@ -48,6 +48,7 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	addDockWidget(Qt::RightDockWidgetArea, calcWg, Qt::Horizontal);
 	addDockWidget(Qt::RightDockWidgetArea, rendWg, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, graphWg, Qt::Horizontal);
+	graphWg->setHidden(!showGraph);
 	
 	QObject::connect((const QObject*)sv, SIGNAL(fpsChanged(scalar,scalar,scalar,scalar)), 
 		this, SLOT(fpsChanged(scalar,scalar,scalar,scalar)), Qt::QueuedConnection);
@@ -97,7 +98,7 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 		this, SLOT(minSphereSize(double)), Qt::QueuedConnection);
 	QObject::connect(calc->visible_count, SIGNAL(valueChanged(int)), 
 		cal, SLOT(maxCircleCountChanged(int)), Qt::QueuedConnection);
-	QObject::connect(calc->cube, SIGNAL(toggled(bool)), 
+	QObject::connect(rend->cube, SIGNAL(toggled(bool)), 
 		this, SLOT(setShowCube(bool)), Qt::QueuedConnection);
 	QObject::connect(calc->earth_gravity, SIGNAL(valueChanged(double)), 
 		this, SLOT(earthGravity(double)), Qt::QueuedConnection);
@@ -150,7 +151,7 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	rend->z_rot->setValue(autoRotation.s[2]);
 	calc->wireframe->setChecked(wireframe);
 	rend->reflections->setChecked(reflections);
-	calc->cube->setChecked(showCube);
+	rend->cube->setChecked(showCube);
 	rend->hue_rot->setValue(hueStep);
 	rend->lights->setChecked(showLights);
 	rend->trace_length->setValue(traceAmount);
@@ -252,6 +253,7 @@ void Control::keyPressEvent(QKeyEvent* event){
 		case Qt::Key_H:
 			if(event->modifiers() & Qt::ShiftModifier){
 				graphWg->setHidden(!graphWg->isHidden());
+				showGraph = !graphWg->isHidden();
 			}else{
 				calcWg->setHidden(!calcWg->isHidden());
 				rendWg->setHidden(!rendWg->isHidden());

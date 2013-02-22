@@ -371,11 +371,11 @@ void OpenClCalculator::save(){
 
 		for(int i=0; i < std::min((circlesCount-offset),readNum_render); i++)
 		{
-			addHex(file, c_CPU_save[j][i].size);
+			/*addHex(file, c_CPU_save[j][i].size);
 			fprintf(file," ");
 			addHex(file, c_CPU_save[j][i].pos.s[0]);
 			fprintf(file," ");
-			addHex(file, c_CPU_save[j][i].pos.s[1]);
+			addHex(file, c_CPU_save[j][i].pos.s[1]);*/
 			//#if _3D_
 			//	f<<" ";
 			//	add(f, c_CPU_save[j][i].pos.s[2]);

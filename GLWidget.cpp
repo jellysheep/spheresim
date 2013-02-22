@@ -8,13 +8,19 @@
 
 const ViewOptions GLWidget::initView = {
 	#if _3D_
-		.xRot = 40, .yRot = 60, 
+		.xRot = 0, .yRot = 60, 
 	#else
 		.xRot = 0, .yRot = 0,
 	#endif
 	.zRot = 0,
-	.xRotCam = 0, .yRotCam = 0,
-	.transX = 0, .transY = 0, .transZ = 0};
+	#if _3D_
+		.xRotCam = 20, .yRotCam = 0,
+		.transX = 0, .transY = 80, .transZ = 0
+	#else
+		.xRotCam = 0, .yRotCam = 0,
+		.transX = 0, .transY = 0, .transZ = 0
+	#endif
+	};
 
 GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	setFocusPolicy(Qt::StrongFocus);
@@ -320,7 +326,7 @@ void GLWidget::resetView(int ms){
 }
 
 void GLWidget::resetViewTimer(){
-	printf("counter: %3d count: %3d\n", resetCounter, resetCount);
+	//printf("counter: %3d count: %3d\n", resetCounter, resetCount);
 	resetCounter++;
 	scalar x = (resetCounter/(scalar)resetCount);
 	resetFact = 3*x*x - 2*x*x*x;
@@ -550,7 +556,7 @@ void GLWidget::drawQuad(int i){
 void GLWidget::reflect(){
 	static double reflection = 0.7;//0.95;
 	bool b = showLights;
-	showLights = true;
+	//showLights = true;
 	for(int i = 0; i<1; i++){
 		
 		/// Prepare stencil buffer for reflections:

@@ -48,7 +48,7 @@ PlotWidget::PlotWidget(const char* str, QWidget* parent):QDockWidget(str,parent)
 	curve1->setCurveAttribute(QwtPlotCurve::Fitted, true);
 	
 	symbol1 = new QwtSymbol(QwtSymbol::Ellipse, 
-		QBrush(Qt::red), QPen(Qt::red, 2), QSize(1.5, 1.5));
+		QBrush(Qt::blue), QPen(Qt::blue, 2), QSize(1.5, 1.5));
 	curve1->setSymbol(symbol1);
 	curve1->setSamples(xData1,yData1);
 	curve1->attach(plot);
@@ -63,7 +63,7 @@ PlotWidget::PlotWidget(const char* str, QWidget* parent):QDockWidget(str,parent)
 	curve2->setCurveAttribute(QwtPlotCurve::Fitted, true);
 	
 	symbol2 = new QwtSymbol(QwtSymbol::Ellipse, 
-		QBrush(Qt::blue), QPen(Qt::blue, 2), QSize(1.5, 1.5));
+		QBrush(Qt::red), QPen(Qt::red, 2), QSize(1.5, 1.5));
 	curve2->setSymbol(symbol2);
 	curve2->setSamples(xData2,yData2);
 	curve2->attach(plot);

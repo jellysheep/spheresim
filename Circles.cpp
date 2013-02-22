@@ -46,8 +46,9 @@ int renderBufferCount = renderFpsMax;
 
 bool reflections = true && (std::min(circlesCount,maxShowCirclesCount)<=3000);
 bool wireframe = false;
-bool showCube = true, showLights = true;
+bool showCube = true, showLights = false;
 bool useSplitKernels = true;
+bool showGraph = true;
 
 vector3 autoRotation = (vector3){0,0,0};
 
