@@ -90,7 +90,7 @@ void StatusViewer::updateTimer(){
 		}
 	}
 		
-	emit fpsChanged(glWidgetFrames, clTimerFrames, frameBufferLoad, speed*min(1.0,clTimerFrames/(speed*minFps)));
+	emit fpsChanged(glWidgetFrames, clTimerFrames, frameBufferLoad, speed*std::min(1.0,clTimerFrames/(speed*minFps)));
 }
 
 void StatusViewer::stop(){

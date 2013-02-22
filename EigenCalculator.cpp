@@ -312,6 +312,8 @@ void EigenCalculator::collideBalls(int i, int j){
 			circlesForce[j] += force;
 	}
 }
+
+#define sqr(x) ((x)*(x))
 void EigenCalculator::sumUpForces(){
 	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
@@ -320,6 +322,7 @@ void EigenCalculator::sumUpForces(){
 			if(i==0)continue;
 		#endif
 		EIGEN_ASM_COMMENT("begin");
+		circlesForce[i] -= airResistance*(0.47*M_PI*sqr(circles[i].size))*0.5*circlesSpeed[i]*std::abs(circlesSpeed[i].norm());
 		force = circlesForce[i];
 		eVector acceleration = force / circles[i].mass;
 		acceleration(0) += gravity.s0;
@@ -376,7 +379,7 @@ void EigenCalculator::calcSortedBallResistance(){
 	/// Kugeln kollidieren nur mit denen, die rechts davon liegen.
 	/// Dadurch werden doppelt berechnete Kollisionen vermieden.
 	
-	//parallelFor
+	parallelFor
 	for(int pid = 0; pid<circlesCount; pid++){ // pos. ID
 		int i = posX[pid].circleAtPos, j; //circle IDs
 		posX[i].posOfCircle = pid;
@@ -486,6 +489,7 @@ void EigenCalculator::circleCountChanged_subclass(int i){
 	#if _3D_
 		posZ = newCopy<Pos>(posZ, circlesCount, i);
 	#endif
+	/*
 	if(i<(circlesCount/2)){
 		for(int j = i; j<circlesCount; j++){
 			posX[posX[j].posOfCircle].circleAtPos = posX[j].circleAtPos;
@@ -494,7 +498,8 @@ void EigenCalculator::circleCountChanged_subclass(int i){
 				posX[posZ[j].posOfCircle].circleAtPos = posZ[j].circleAtPos;
 			#endif
 		}
-	}else{
+	}else // */
+	{
 		for(int j = 0; j<i; j++){
 			posX[j].circleAtPos = j;
 			posX[j].posOfCircle = j;

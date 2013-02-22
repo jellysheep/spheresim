@@ -167,7 +167,7 @@ extern bool useSplitKernels;
 
 extern vector3 autoRotation;
 
-#define min(a,b) (((a)<(b))?(a):(b))
+//#define min(a,b) (((a)<(b))?(a):(b))
 
 
 

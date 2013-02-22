@@ -50,7 +50,22 @@ Calculator::Calculator(){
 	plotNext = false;
 }
 
+void Calculator::addHex(FILE* file, double d){
+	unsigned long long* c = (unsigned long long*)&d;
+	//always write double values
+	fprintf(file, "%llX%llX", c[0], c[1]);
+}
+double Calculator::readHex(FILE* file){
+	double d;
+	unsigned long long* c = (unsigned long long*)&d;
+	//always read double values
+	fscanf(file, "%llX%llX", c[0], c[1]);
+	return d;
+}
+
 void Calculator::initFileSave(){
+	f.open("save.txt", std::fstream::out|std::fstream::trunc);
+	//setvbuf (f , NULL, _IOFBF, 1024);
 	//~ f.open(filename, fstream::out|fstream::trunc);
 	//~ f<<_3D_<<" ";
 	//~ f<<boxSize.s0<<" ";

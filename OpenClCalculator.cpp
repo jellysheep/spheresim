@@ -264,7 +264,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		if(renderBool){
 			//c_CPU_render[0] = new Circle[readNum_render];
 			//c_CPU_render[1] = new Circle[readNum_render];
-			readNum_render = min(maxShowCirclesCount,circlesCount);
+			readNum_render = std::min(maxShowCirclesCount,circlesCount);
 			c_CPU_render = new Circle*[renderBufferCount];
 			for(int i = 0; i<renderBufferCount; i++){
 				c_CPU_render[i] = new Circle[readNum_render];
@@ -362,20 +362,20 @@ void OpenClCalculator::save(){
 	file = fopen("save.txt","a");
 	int j = 0;
 	int offset = 0;
-	err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum_render), c_CPU_save[j=((j+1)%2)], NULL, &event);
+	err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*std::min((circlesCount-offset),readNum_render), c_CPU_save[j=((j+1)%2)], NULL, &event);
 	offset+=readNum_render;
 	for(; offset<circlesCount; offset+=readNum_render){
 		event.wait();
-		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum_render), c_CPU_save[j=((j+1)%2)], NULL, &event);
+		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*std::min((circlesCount-offset),readNum_render), c_CPU_save[j=((j+1)%2)], NULL, &event);
 		//queue.finish();
 
-		for(int i=0; i < min((circlesCount-offset),readNum_render); i++)
+		for(int i=0; i < std::min((circlesCount-offset),readNum_render); i++)
 		{
-			add(file, c_CPU_save[j][i].size);
+			addHex(file, c_CPU_save[j][i].size);
 			fprintf(file," ");
-			add(file, c_CPU_save[j][i].pos.s[0]);
+			addHex(file, c_CPU_save[j][i].pos.s[0]);
 			fprintf(file," ");
-			add(file, c_CPU_save[j][i].pos.s[1]);
+			addHex(file, c_CPU_save[j][i].pos.s[1]);
 			//#if _3D_
 			//	f<<" ";
 			//	add(f, c_CPU_save[j][i].pos.s[2]);

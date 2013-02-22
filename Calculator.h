@@ -7,10 +7,9 @@
 #include <cstdio>
 #include <cstdlib>
 
-//~ #include <iostream>
-//~ #include <iomanip>
-//~ #include <fstream>
-//~ using namespace std;
+#include <iostream>
+#include <iomanip>
+#include <fstream>
 
 class GLWidget;
 class PlotWidget;
@@ -20,22 +19,8 @@ class Calculator : public QThread, public FramesCounter{
 protected:
 	GLWidget* glWidget;
 	
-	static char hex(int i){
-		if(i<0 || i>15){
-			return '0';
-		}else if(i<10){
-			return '0'+i;
-		}else{
-			return 'A'+(i-10);
-		}
-	}
-	static void add(FILE* file, double d){
-		unsigned char* c = (unsigned char*)&d;
-		unsigned int x = 0;
-		for(int i = 0; i<8; i++){
-			fprintf(file, "%c%c", hex(c[i]/16), hex(c[i]%16));
-		}
-	}
+	static void addHex(FILE* file, double d);
+	static double readHex(FILE* file);
 	
 	void run();
 	
@@ -63,7 +48,7 @@ protected:
 	bool bufferFilled, plotNext;
 	scalar **wallForces, *curWallForces;
 	
-	//~ fstream f;
+	std::fstream f;
 	
 public:
 	Calculator();
