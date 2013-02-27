@@ -444,10 +444,21 @@ void EigenCalculator::updateElasticity(){
 	//nothing to do
 }
 
-void EigenCalculator::saveFrame(){
+bool EigenCalculator::saveFrame(){
 	for(int i = 0; i<readNum_render; i++){
 		renderBuffer[bufferWriteIndex][i] = circlesOldPos[i];
 	}
+	return true;
+}
+
+Circle* EigenCalculator::getDirectCircle(int i){
+	if(renderBuffer[bufferWriteIndex][i]==eVector::Zero()) return NULL;
+	circles[i].pos.s0 = renderBuffer[bufferWriteIndex][i](0);
+	circles[i].pos.s1 = renderBuffer[bufferWriteIndex][i](1);
+	#if _3D_
+		circles[i].pos.s2 = renderBuffer[bufferWriteIndex][i](2);
+	#endif
+	return &circles[i];
 }
 
 Circle* EigenCalculator::getCircle(int i){

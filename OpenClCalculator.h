@@ -59,7 +59,7 @@ protected:
 	Circle* circlesBuffer;
 	
 	void doStep();
-	void saveFrame();
+	bool saveFrame();
 	
 	void circleCountChanged_subclass(int i);
 	void maxCircleCountChanged_subclass(int i);
@@ -68,6 +68,7 @@ public:
 	OpenClCalculator();
 	
 	Circle* getCircle(int i);
+	Circle* getDirectCircle(int i);
 	
 	void fpsChanged(scalar timeInterval);
 	

@@ -11,6 +11,8 @@
 
 Calculator::Calculator(){
 	
+	glWidget = NULL;
+	
 	QObject::connect(this, SIGNAL(destroyed()), 
 		this, SLOT(stop()), Qt::DirectConnection);
 	
@@ -60,28 +62,91 @@ double Calculator::readHex(FILE* file){
 	fscanf(file, "%llX%llX", c[0], c[1]);
 	return d;
 }*/
-void Calculator::addHex(std::fstream &f, double d){
-	f<<'h'<<std::hex<<*((unsigned long long*)&d)<<'\n';
+void Calculator::addHex(std::ostream &f, double d, bool newLine=true){
+	addHex(f, (float)d, newLine);
 }
-void Calculator::addHex(std::fstream &f, int i){
-	f<<'h'<<std::hex<<i<<'\n';
+void Calculator::addHex(std::ostream &f, float fl, bool newLine=true){
+	if(newLine) f<<"\nh";
+	else f<<' ';
+	f<<std::hex<<*((unsigned long int*)&fl);
+}
+void Calculator::addHex(std::ostream &f, int i, bool newLine=true){
+	if(newLine) f<<"\nh";
+	else f<<' ';
+	f<<std::hex<<i;
 }
 void Calculator::initFileSave(){
-	f.open(filename, std::fstream::out|std::fstream::trunc);
-	f<<"# 3D:\n";
+	f.open((std::string(filename)+'.'+viewFileExtension).c_str(), std::fstream::out|std::fstream::trunc);
+	//magic number, identifying SphereSim files
+	f<<"# "<<viewFileExtension<<'\n';
+	f<<"# SphereSim"<<(_3D_==1?3:2)<<" View File\n\n";
+	f<<"# h=hexadecimal, d=decimal values in line\n";
+	f<<"\n# 3D:";
 	addHex(f, _3D_);
-	f<<"# boxSize (x,y"<<(_3D_==1?",z":"")<<"):\n";
+	f<<"\n# sphere count:";
+	addHex(f, circlesCount);
+	f<<"\n# max. display sphere count:";
+	addHex(f, maxShowCirclesCount);
+	
+	f<<"\n# box size (x,y"<<(_3D_==1?",z":"")<<"):";
 	addHex(f, boxSize.s0);
 	addHex(f, boxSize.s1);
 	#if _3D_
 		addHex(f, boxSize.s2);
 	#endif
-	f<<"# sphere count:\n";
-	addHex(f, circlesCount);
+	f<<"\n# sphere size (min,max):";
+	addHex(f, sphereSize.s0);
+	addHex(f, sphereSize.s1);
+	
+	f<<"\n# render fps max:";
+	addHex(f, renderFpsMax);
+	f<<"\n# render fps:";
+	addHex(f, renderFps);
+	
+	f<<"\n# speed:";
+	addHex(f, speed);
+	f<<"\n# fps:";
+	addHex(f, fps);
+	f<<"\n# minFps:";
+	addHex(f, minFps);
+	
+	f<<"\n# initial max. speed:";
+	addHex(f, max_speed);
+	f<<"\n# E modulus:";
+	addHex(f, E);
+	f<<"\n# poisson's value:";
+	addHex(f, poisson);
+	f<<"\n# elasticity:";
+	addHex(f, elastic);
+	f<<"\n# gravity:";
+	addHex(f, gravity_abs);
+	f<<"\n# gravitation factor:";
+	addHex(f, G_fact);
+	f<<"\n# air resistance factor:";
+	addHex(f, airResistance);
+	f<<"\n# wall resistance:";
+	addHex(f, (wallResistance?1:0));
+	f<<"\n\n# sizes, masses and initial positions of the spheres (r,m,x,y"<<(_3D_==1?",z":"")<<"):";
+	Circle* c;
+	for(int i = 0; i<circlesCount; i++){
+		c = getCircle(i);
+		addHex(f, c->size);
+		addHex(f, c->mass, false);
+		addHex(f, c->pos.s0, false);
+		addHex(f, c->pos.s1, false);
+		#if _3D_
+			addHex(f, c->pos.s2, false);
+		#endif
+	}
+	f<<"\n\n# positions of the spheres (x,y"<<(_3D_==1?",z":"")<<"):";
+	saveBool = true;
 	//~ f.close();
 }
 
 void Calculator::stopFileSave(){
+	saveBool = false;
+	///wait for file savings...
+	f<<"\n\n# "<<viewFileExtension<<" end of file";
 	f.close();
 }
 
@@ -142,6 +207,22 @@ bool Calculator::isRunning(){
 	return running||!hasStopped;
 }
 
+void Calculator::saveFrameToFile(){
+	Circle* c;
+	for(int i = 0; i<readNum_render; i++){
+		c = getDirectCircle(i);
+		if(c == NULL){
+			c = new Circle();
+			//printf("NULL error!\n");
+		}
+		addHex(f, c->pos.s0);
+		addHex(f, c->pos.s1, false);
+		#if _3D_
+			addHex(f, c->pos.s2, false);
+		#endif
+	}
+}
+
 void Calculator::run(){
 	printf("OpenClCalculator running!\n");
 	int i = 0;
@@ -165,21 +246,23 @@ void Calculator::run(){
 					if(bufferReadIndex == ((bufferWriteIndex+1)%renderBufferCount)){
 						printf("frame buffer full: %3d | %3d\r",bufferReadIndex,bufferWriteIndex);
 					}else{
-						saveFrame();
-						if(++forceCounter2 >= 20){
-							bufferFilled = true;
-							forceCounter2 = 0;
-							for(int i = 0; i<numWalls; i++){
-								wallForces[bufferWriteIndex][i] = curWallForces[i]/(scalar)forceCounter;
+						if(saveFrame()){
+							if(saveBool) saveFrameToFile();
+							if(++forceCounter2 >= 20){
+								bufferFilled = true;
+								forceCounter2 = 0;
+								for(int i = 0; i<numWalls; i++){
+									wallForces[bufferWriteIndex][i] = curWallForces[i]/(scalar)forceCounter;
+								}
+								forceCounter = 0;
+								plotNext = true;
+							}else{
+								for(int i = 0; i<numWalls; i++){
+									wallForces[bufferWriteIndex][i] = wallForces[(renderBufferCount-1+bufferWriteIndex)%renderBufferCount][i];
+								}
 							}
-							forceCounter = 0;
-							plotNext = true;
-						}else{
-							for(int i = 0; i<numWalls; i++){
-								wallForces[bufferWriteIndex][i] = wallForces[(renderBufferCount-1+bufferWriteIndex)%renderBufferCount][i];
-							}
+							bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 						}
-						bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 					
 					
 						elapsedFrames = 0;
@@ -203,14 +286,14 @@ void Calculator::maxCircleCountChanged(int i){
 	maxCircleCountChanged_subclass(i);
 	maxShowCirclesCount = i;
 	performingAction = false;
-	glWidget->timeToRender2();
+	if(glWidget!=NULL) glWidget->timeToRender2();
 }
 
 void Calculator::circleCountChanged(int i){
 	if(performingAction) return;
-	performingAction = true;
 	printf("CirclesCount: %5d new: %5d\n", circlesCount, i);
-	//if(i == circlesCount) return;
+	if(i == circlesCount) return;
+	performingAction = true;
 	
 	bool run = isRunning();
 	if(run)stop();
@@ -225,7 +308,7 @@ void Calculator::circleCountChanged(int i){
 	
 	if(run)start();
 	performingAction = false;
-	glWidget->timeToRender2();
+	if(glWidget!=NULL) glWidget->timeToRender2();
 }
 
 void Calculator::set(PlotWidget* plw){

@@ -390,6 +390,10 @@ Circle* OpenClCalculator::getCircle(int i){
 	return &c_CPU_render[bufferReadIndex][i];
 }
 
+Circle* OpenClCalculator::getDirectCircle(int i){
+	return &c_CPU_render[bufferWriteIndex][i];
+}
+
 void OpenClCalculator::doStep(){
 	if(useSplitKernels){
 		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(1,1), NULL, &events[eventCounter]);
@@ -429,8 +433,9 @@ void OpenClCalculator::doStep(){
 	//queue.finish();
 }
 
-void OpenClCalculator::saveFrame(){
+bool OpenClCalculator::saveFrame(){
 	err = queue.enqueueReadBuffer(cl_circles, CL_FALSE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);
+	return true;
 }
 
 void OpenClCalculator::circleCountChanged_subclass(int i){

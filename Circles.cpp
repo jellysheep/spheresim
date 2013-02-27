@@ -38,7 +38,12 @@ bool useColorHSV = true;
 scalar hueStep = -0.15;
 scalar hueOffset;
 bool useTrace = true && (!manyCircles);
-char* filename = "save.sps";
+const char *filename = "save";
+#if _3D_
+	const char *viewFileExtension = "s3v", *startFileExtension = "s3s";
+#else
+	const char *viewFileExtension = "s2v", *startFileExtension = "s2s";
+#endif
 long traceCount = renderFpsMax*50/sqrt(std::max(1.0,log((maxShowCirclesCount))));
 bool connectTracePoints = true;
 scalar traceAmount = 1.0;
@@ -51,6 +56,8 @@ bool useSplitKernels = true;
 bool showGraph = true;
 
 vector3 autoRotation = (vector3){0,0,0};
+
+scalar calcSpeedFact;
 
 int rani(int i){
 	return rand()%(i+1);

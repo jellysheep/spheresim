@@ -59,13 +59,14 @@ void StatusViewer::updateTimer(){
 		double nextCalculatorFrames = clTimerFrames;
 		if(renderBool){
 			static scalar bufferLoadTarget = 0.65;
-			nextCalculatorFrames = lastCalculatorFrames*(1
+			calcSpeedFact = (1
 				//*
 				+0.05*(pow(16,pow((frameBufferLoad>bufferLoadTarget)?
 					(1-((1-frameBufferLoad)*0.5/(1-bufferLoadTarget))):
 					(frameBufferLoad*0.5/bufferLoadTarget),2)))*
 				sign(frameBufferLoad-bufferLoadTarget) // */
 				);
+			nextCalculatorFrames = lastCalculatorFrames*calcSpeedFact;
 			
 			printf("frameBuffer:%10.4f => Calculator:   %8.2f fps\n", frameBufferLoad, nextCalculatorFrames);
 			//renderFps = min((int)nextCalculatorFrames, renderFpsMax);

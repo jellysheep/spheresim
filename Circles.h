@@ -4,10 +4,10 @@
 
 #include <QColor>
 
-#define _3D_ 1
+#define _3D_ 0
 #define _double_ 1
 
-#define fastSphereRender 0
+#define fastSphereRender 1
 
 #if defined( __GNUC__ )
 	#define CL_ALIGNED(_x)		  __attribute__ ((aligned(_x)))
@@ -142,7 +142,8 @@ extern scalar elastic;
 extern scalar gravity_abs;
 extern vector gravity;
 extern bool saveBool, renderBool;
-extern char* filename;
+extern const char *filename;
+extern const char *viewFileExtension, *startFileExtension;
 extern int edges;
 extern scalar step;
 extern scalar G;
@@ -167,6 +168,8 @@ extern bool useSplitKernels;
 extern bool showGraph;
 
 extern vector3 autoRotation;
+
+extern scalar calcSpeedFact;
 
 //#define min(a,b) (((a)<(b))?(a):(b))
 

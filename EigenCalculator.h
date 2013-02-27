@@ -73,7 +73,7 @@ protected:
 	int **gridIndex;
 	
 	void doStep();
-	void saveFrame();
+	bool saveFrame();
 	
 	Circle c;
 	
@@ -100,6 +100,7 @@ public:
 	EigenCalculator();
 	
 	Circle* getCircle(int i);
+	Circle* getDirectCircle(int i);
 	
 	void fpsChanged(scalar timeInterval);
 	

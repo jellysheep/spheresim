@@ -17,13 +17,14 @@ class Calculator : public QThread, public FramesCounter{
 protected:
 	GLWidget* glWidget;
 	
-	static void addHex(std::fstream &f, double d);
-	static void addHex(std::fstream &f, int i);
+	static void addHex(std::ostream &f, float fl, bool newLine);
+	static void addHex(std::ostream &f, double d, bool newLine);
+	static void addHex(std::ostream &f, int i, bool newLine);
 	
 	void run();
 	
 	virtual void doStep()=0;
-	virtual void saveFrame()=0;
+	virtual bool saveFrame()=0;
 	
 	virtual void save()=0;
 	
@@ -73,6 +74,9 @@ public:
 	
 	virtual Circle* getCircle(int i)=0;
 	
+	///get latest circles (at 'write' position in buffer)
+	virtual Circle* getDirectCircle(int i)=0;
+	
 	void set(PlotWidget* plotWg);
 	
 	void initFileSave();
@@ -119,6 +123,8 @@ public slots:
 	virtual void updateElasticity()=0;
 	
 	virtual void updateSphereSize()=0;
+	
+	void saveFrameToFile();
 };
 
 #endif

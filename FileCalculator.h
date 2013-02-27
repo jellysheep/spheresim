@@ -17,10 +17,13 @@ class FileCalculator: public Calculator {
 
 protected:
 	
-	Circle** circlesBuffer;
+	//circles: current positions of file reading
+	//circles2: current positions to render
+	Circle *circles, *circles2;
+	vector** renderBuffer;
 	
 	void doStep();
-	void saveFrame();
+	bool saveFrame();
 	
 	void circleCountChanged_subclass(int i);
 	void maxCircleCountChanged_subclass(int i);
@@ -28,17 +31,20 @@ protected:
 	std::fstream f;
 	std::istringstream iss;
 	std::string line;
-	double readHexDouble();
-	double readDouble();
-	void saveInVar(scalar &s);
-	void saveInVar(int &i);
+	float readHexFloat();
+	float readFloat();
+	void saveInVar_(scalar &s);
+	void saveInVar_(int &i);
 	void readLine();
-	bool hexadec;
+	bool hexadec, eof, initialized;
+	
+	scalar interval;
 	
 public:
 	FileCalculator();
 	
 	Circle* getCircle(int i);
+	Circle* getDirectCircle(int i);
 	
 	void fpsChanged(scalar timeInterval);
 	
