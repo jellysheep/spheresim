@@ -166,6 +166,7 @@ extern bool wireframe;
 extern bool showCube, showLights;
 extern bool useSplitKernels;
 extern bool showGraph;
+extern int plotFps;
 
 extern vector3 autoRotation;
 

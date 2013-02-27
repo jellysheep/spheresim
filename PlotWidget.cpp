@@ -1,5 +1,6 @@
 
 #include "PlotWidget.h"
+#include "Circles.h"
 #include <QPolygon>
 #include <QPoint>
 #include <qwt/qwt_plot.h>
@@ -17,7 +18,7 @@ PlotWidget::PlotWidget(const char* str, QWidget* parent):QDockWidget(str,parent)
 	plot = new QwtPlot();
 	//plot->setTitle("Wall forces");
 	plot->setCanvasBackground(Qt::white);
-	plot->setAxisScale(QwtPlot::xBottom, 0.0, numSamples/3.0);
+	plot->setAxisScale(QwtPlot::xBottom, -numSamples*1.0/plotFps, 0.0);
 	//plot->setAxisScale(QwtPlot::yLeft, 0.0, 100.0);
 	QwtLogScaleEngine* engine = new QwtLogScaleEngine();
 	//double a = 10.0, b = 0.1, c = 100.0, d = 10.0;
@@ -79,7 +80,7 @@ void PlotWidget::addValue(double v, double w){
 	//printf("value: %5f\n", v);
 	
 	if(xData1.size()<numSamples){
-		xData1.prepend((numSamples-xData1.size())/3.0);
+		xData1.prepend((-xData1.size())*1.0/plotFps);
 	}
 	if(yData1.size()>=numSamples){
 		yData1.pop_front();
@@ -87,7 +88,7 @@ void PlotWidget::addValue(double v, double w){
 	yData1.append(v);
 	
 	if(xData2.size()<numSamples){
-		xData2.prepend((numSamples-xData2.size())/3.0);
+		xData2.prepend((-xData2.size())*1.0/plotFps);
 	}
 	if(yData2.size()>=numSamples){
 		yData2.pop_front();

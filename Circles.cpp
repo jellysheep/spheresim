@@ -54,6 +54,7 @@ bool wireframe = false;
 bool showCube = true, showLights = false;
 bool useSplitKernels = true;
 bool showGraph = true;
+int plotFps = 5;
 
 vector3 autoRotation = (vector3){0,0,0};
 

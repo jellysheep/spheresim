@@ -248,7 +248,7 @@ void Calculator::run(){
 					}else{
 						if(saveFrame()){
 							if(saveBool) saveFrameToFile();
-							if(++forceCounter2 >= 20){
+							if(++forceCounter2 >= (renderFpsMax/plotFps)){
 								bufferFilled = true;
 								forceCounter2 = 0;
 								for(int i = 0; i<numWalls; i++){
