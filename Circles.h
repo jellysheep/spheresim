@@ -141,7 +141,7 @@ extern scalar poisson;
 extern scalar elastic;
 extern scalar gravity_abs;
 extern vector gravity;
-extern bool saveBool, renderBool;
+extern bool saveBool, renderBool, playBool;
 extern const char *filename;
 extern const char *viewFileExtension, *startFileExtension;
 extern int edges;

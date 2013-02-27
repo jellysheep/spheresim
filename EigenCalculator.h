@@ -104,6 +104,8 @@ public:
 	
 	void fpsChanged(scalar timeInterval);
 	
+	scalar getTemperature();
+	
 public slots:
 	void boxSizeChanged();
 	void gravityChanged();

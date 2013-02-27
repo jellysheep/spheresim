@@ -451,6 +451,21 @@ bool EigenCalculator::saveFrame(){
 	return true;
 }
 
+#define k_b 1.3806488E-23
+scalar EigenCalculator::getTemperature(){
+	//1m : 65pm = 1.0E12 : 1
+	//950kg/m^3 : 1.25kg/m^3 = 760 : 1
+	const static double mass = 14*1.66E-27;
+	double E_kin = 0;
+	for(int i = 0; i<circlesCount; i++){
+		E_kin += 0.5*mass*pow(circlesSpeed[i].norm(),2);
+		//E_kin += 0.5*circles[i].mass*pow(circlesSpeed[i].norm(),2);
+	}
+	//printf("E_kin: %5f\n", E_kin);
+	double temp = 2.0/3.0 * E_kin/k_b;///(1.0E24*0.015*0.015);
+	return temp;
+}
+
 Circle* EigenCalculator::getDirectCircle(int i){
 	if(renderBuffer[bufferWriteIndex][i]==eVector::Zero()) return NULL;
 	circles[i].pos.s0 = renderBuffer[bufferWriteIndex][i](0);

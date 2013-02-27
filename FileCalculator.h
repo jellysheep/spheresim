@@ -50,6 +50,10 @@ public:
 	
 	void save();
 	
+	scalar getTemperature(){
+		return 0;
+	}
+	
 public slots:
 	void boxSizeChanged();
 	void gravityChanged();

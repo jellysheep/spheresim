@@ -5,9 +5,9 @@
 #include "FileCalculator.h"
 
 Dialog::Dialog(){
-	#if 1
-		//calc = new EigenCalculator();
-		calc = new FileCalculator();
+	#if 0
+		calc = new EigenCalculator();
+		//calc = new FileCalculator();
 		selected = true;
 	#else
 		selected = false;

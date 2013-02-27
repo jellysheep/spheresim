@@ -31,6 +31,7 @@ public:
 
 signals:
 	void fpsChanged(scalar glFps, scalar calFps, scalar fbLoad, scalar realSpeed);
+	void temperatureChanged(double temp);
 	
 public slots:
 	void stop();

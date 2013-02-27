@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'CalculationsIAX965.ui'
+** Form generated from reading UI file 'CalculationsB10264.ui'
 **
-** Created: Fri Feb 22 16:07:46 2013
+** Created: Wed Feb 27 16:53:22 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef CALCULATIONSIAX965_H
-#define CALCULATIONSIAX965_H
+#ifndef CALCULATIONSB10264_H
+#define CALCULATIONSB10264_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -75,7 +75,7 @@ public:
     {
         if (Calculations->objectName().isEmpty())
             Calculations->setObjectName(QString::fromUtf8("Calculations"));
-        Calculations->resize(245, 566);
+        Calculations->resize(262, 566);
         dockWidgetContents = new QWidget();
         dockWidgetContents->setObjectName(QString::fromUtf8("dockWidgetContents"));
         verticalLayout = new QVBoxLayout(dockWidgetContents);
@@ -380,6 +380,23 @@ public:
         label_13->setBuddy(earth_gravity);
         label_21->setBuddy(elasticity);
 #endif // QT_NO_SHORTCUT
+        QWidget::setTabOrder(count, visible_count);
+        QWidget::setTabOrder(visible_count, one_size);
+        QWidget::setTabOrder(one_size, wireframe);
+        QWidget::setTabOrder(wireframe, radius_min);
+        QWidget::setTabOrder(radius_min, radius_max);
+        QWidget::setTabOrder(radius_max, render);
+        QWidget::setTabOrder(render, save);
+        QWidget::setTabOrder(save, x);
+        QWidget::setTabOrder(x, y);
+        QWidget::setTabOrder(y, z);
+        QWidget::setTabOrder(z, earth_gravity);
+        QWidget::setTabOrder(earth_gravity, inter_gravity);
+        QWidget::setTabOrder(inter_gravity, air_resistance);
+        QWidget::setTabOrder(air_resistance, wall_resistance);
+        QWidget::setTabOrder(wall_resistance, e_modul);
+        QWidget::setTabOrder(e_modul, poissons_ratio);
+        QWidget::setTabOrder(poissons_ratio, elasticity);
 
         retranslateUi(Calculations);
         QObject::connect(one_size, SIGNAL(toggled(bool)), radius_max, SLOT(setDisabled(bool)));
@@ -433,4 +450,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // CALCULATIONSIAX965_H
+#endif // CALCULATIONSB10264_H

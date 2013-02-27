@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'RenderingJvc965.ui'
+** Form generated from reading UI file 'RenderingW10264.ui'
 **
-** Created: Fri Feb 22 16:08:06 2013
+** Created: Wed Feb 27 16:54:59 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef RENDERINGJVC965_H
-#define RENDERINGJVC965_H
+#ifndef RENDERINGW10264_H
+#define RENDERINGW10264_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -72,12 +72,14 @@ public:
     QLabel *label_4;
     QLabel *label_8;
     QDoubleSpinBox *real_speed;
+    QLabel *label_10;
+    QDoubleSpinBox *temp;
 
     void setupUi(QDockWidget *Rendering)
     {
         if (Rendering->objectName().isEmpty())
             Rendering->setObjectName(QString::fromUtf8("Rendering"));
-        Rendering->resize(243, 594);
+        Rendering->resize(260, 629);
         QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
@@ -372,6 +374,24 @@ public:
 
         gridLayout_6->addWidget(real_speed, 4, 1, 1, 1);
 
+        label_10 = new QLabel(groupBox_4);
+        label_10->setObjectName(QString::fromUtf8("label_10"));
+
+        gridLayout_6->addWidget(label_10, 5, 0, 1, 1);
+
+        temp = new QDoubleSpinBox(groupBox_4);
+        temp->setObjectName(QString::fromUtf8("temp"));
+        temp->setFrame(true);
+        temp->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        temp->setReadOnly(true);
+        temp->setButtonSymbols(QAbstractSpinBox::NoButtons);
+        temp->setDecimals(1);
+        temp->setMinimum(-300);
+        temp->setMaximum(1000);
+        temp->setSingleStep(0.01);
+
+        gridLayout_6->addWidget(temp, 5, 1, 1, 1);
+
 
         gridLayout->addWidget(groupBox_4, 4, 0, 1, 1);
 
@@ -387,7 +407,28 @@ public:
         label_2->setBuddy(calc_speed);
         label_4->setBuddy(render_fps);
         label_8->setBuddy(calc_fps);
+        label_10->setBuddy(calc_fps);
 #endif // QT_NO_SHORTCUT
+        QWidget::setTabOrder(fps, colours);
+        QWidget::setTabOrder(colours, lights);
+        QWidget::setTabOrder(lights, traces);
+        QWidget::setTabOrder(traces, connect_trace);
+        QWidget::setTabOrder(connect_trace, trace_length);
+        QWidget::setTabOrder(trace_length, cube);
+        QWidget::setTabOrder(cube, reflections);
+        QWidget::setTabOrder(reflections, x_rot);
+        QWidget::setTabOrder(x_rot, y_rot);
+        QWidget::setTabOrder(y_rot, z_rot);
+        QWidget::setTabOrder(z_rot, reset_view);
+        QWidget::setTabOrder(reset_view, hue_rot);
+        QWidget::setTabOrder(hue_rot, start);
+        QWidget::setTabOrder(start, stop);
+        QWidget::setTabOrder(stop, calc_speed);
+        QWidget::setTabOrder(calc_speed, real_speed);
+        QWidget::setTabOrder(real_speed, temp);
+        QWidget::setTabOrder(temp, calc_fps);
+        QWidget::setTabOrder(calc_fps, real_fps);
+        QWidget::setTabOrder(real_fps, render_fps);
 
         retranslateUi(Rendering);
         QObject::connect(start, SIGNAL(clicked(bool)), stop, SLOT(setDisabled(bool)));
@@ -438,6 +479,8 @@ public:
         label_4->setText(QApplication::translate("Rendering", "Render FPS", 0, QApplication::UnicodeUTF8));
         label_8->setText(QApplication::translate("Rendering", "Real speed", 0, QApplication::UnicodeUTF8));
         real_speed->setSuffix(QApplication::translate("Rendering", " x", 0, QApplication::UnicodeUTF8));
+        label_10->setText(QApplication::translate("Rendering", "Temperature", 0, QApplication::UnicodeUTF8));
+        temp->setSuffix(QApplication::translate("Rendering", " \302\260C", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
@@ -448,4 +491,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // RENDERINGJVC965_H
+#endif // RENDERINGW10264_H

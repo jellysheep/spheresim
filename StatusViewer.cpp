@@ -89,8 +89,10 @@ void StatusViewer::updateTimer(){
 			printf("ERROR! fpsChanged! \n");
 			printf("speed: %6f fps: %6f speedCorr.: 6%f\n", speed, fps, speedCorrection);
 		}
+		double temp = clTimer->getTemperature();
+		printf("Temperature: %f\n", temp);
+		emit temperatureChanged(temp);
 	}
-		
 	emit fpsChanged(glWidgetFrames, clTimerFrames, frameBufferLoad, speed*std::min(1.0,clTimerFrames/(speed*minFps)));
 }
 

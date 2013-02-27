@@ -48,6 +48,14 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	addDockWidget(Qt::RightDockWidgetArea, calcWg, Qt::Horizontal);
 	addDockWidget(Qt::RightDockWidgetArea, rendWg, Qt::Horizontal);
 	addDockWidget(Qt::BottomDockWidgetArea, graphWg, Qt::Horizontal);
+	if(playBool){
+		showGraph = false;
+		calc->groupBox_2->setEnabled(false);
+		calc->groupBox_5->setEnabled(false);
+		calc->groupBox_3->setEnabled(false);
+		rend->groupBox->setEnabled(false);
+		rend->groupBox_7->setEnabled(false);
+	}
 	graphWg->setHidden(!showGraph);
 	
 	QObject::connect((const QObject*)sv, SIGNAL(fpsChanged(scalar,scalar,scalar,scalar)), 
@@ -126,6 +134,9 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	QObject::connect(calc->save, SIGNAL(toggled(bool)), 
 		this, SLOT(setSave(bool)), Qt::QueuedConnection);
 	
+	QObject::connect((const QObject*)sv, SIGNAL(temperatureChanged(double)), 
+		this, SLOT(setTemperature(double)), Qt::QueuedConnection);
+	
 	rend->calc_speed->setValue(speed);
 	calc->count->setValue(circlesCount);
 	calc->visible_count->setValue(maxShowCirclesCount);
@@ -167,6 +178,10 @@ void Control::setSave(bool b){
 	}else{
 		cal->stopFileSave();
 	}
+}
+
+void Control::setTemperature(double temp){
+	rend->temp->setValue(temp);
 }
 
 void Control::setTraceAmount(double d){
@@ -252,8 +267,10 @@ void Control::keyPressEvent(QKeyEvent* event){
 			break;
 		case Qt::Key_H:
 			if(event->modifiers() & Qt::ShiftModifier){
-				graphWg->setHidden(!graphWg->isHidden());
-				showGraph = !graphWg->isHidden();
+				if(!playBool){
+					graphWg->setHidden(!graphWg->isHidden());
+					showGraph = !graphWg->isHidden();
+				}
 			}else{
 				calcWg->setHidden(!calcWg->isHidden());
 				rendWg->setHidden(!rendWg->isHidden());

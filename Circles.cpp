@@ -25,7 +25,7 @@ vector gravity = (vector){0,-gravity_abs
 	,0
 	#endif
 	};
-bool saveBool = false, renderBool = true;
+bool saveBool = false, renderBool = true, playBool = false;
 int edges = 2*(int)(std::max(4.0,4*log(sphereSize.s[1]/boxSize.s[0]*400)));
 scalar step = 2*M_PI/edges;
 scalar G = 0;//10*10000000000.0*6.67384e-11;

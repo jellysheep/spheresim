@@ -1,15 +1,13 @@
 #ifdef ENGINE_READ
 
-#include "FileCalculator.h"
+#include <QFileDialog>
 
-#include <iostream>
-using namespace std;
+#include "FileCalculator.h"
 
 #include "NanosecondTimer.h"
 
 #include <iomanip>
 #include <iostream>
-using namespace std;
 
 void FileCalculator::readLine(){
 	bool retry;
@@ -26,7 +24,7 @@ void FileCalculator::readLine(){
 		}
 		///remove comments
 		int i = line.find('#');
-		if(i!=string::npos){
+		if(i!=std::string::npos){
 			line.erase(line.find('#'));
 		}
 		//*
@@ -40,14 +38,14 @@ void FileCalculator::readLine(){
 		return;
 	}
 	//cout<<"line: "<<line<<"\n";
-	///decide between decimal and hexadecimal chars
+	///std::decide between std::decimal and hexadecimal chars
 	if(line[0] == 'h' || line[0] == 'H'){
 		hexadec = true;
-		//cout<<"hex.\n";
+		//cout<<"std::hex.\n";
 		line.erase(line.begin());
 	}else{
 		hexadec = false;
-		//cout<<"dec.\n";
+		//cout<<"std::dec.\n";
 	}
 	iss.clear();
 	iss.str(line);
@@ -58,7 +56,7 @@ float FileCalculator::readHexFloat(){
 	float f;
 	unsigned long int l = 0;
 	//cout<<"line: \""<<line<<"\"\n";
-	for(int _i = 0; !(iss>>hex>>l) && _i<5; _i++){
+	for(int _i = 0; !(iss>>std::hex>>l) && _i<5; _i++){
 		readLine();
 	}
 	f = *((float*)&l);
@@ -69,19 +67,19 @@ float FileCalculator::readFloat(){
 	iss.peek();
 	if(!iss) readLine();
 	if(hexadec){
-		//cout<<"reading hex...\n";
+		//cout<<"reading std::hex...\n";
 		return readHexFloat();
 	}
 	float f = 0;
-	//cout<<"reading dec...\n";
-	for(int _i = 0; !(iss>>(hexadec?hex:dec)>>f) && _i<5; _i++){
+	//cout<<"reading std::dec...\n";
+	for(int _i = 0; !(iss>>(hexadec?std::hex:std::dec)>>f) && _i<5; _i++){
 		readLine();
 	}
 	return f;
 }
 
 #define _read(stream,var)												\
-	for(int _i = 0; !(stream>>(hexadec?hex:dec)>>var) && _i<5; _i++){	\
+	for(int _i = 0; !(stream>>(hexadec?std::hex:std::dec)>>var) && _i<5; _i++){	\
 		readLine();														\
 	}
 
@@ -103,11 +101,32 @@ void FileCalculator::saveInVar_(int &i){
 	/*cout<<#x<<": "<<x<<"\n";*/	\
 }
 
+const char* getFileName(const char* c1, const char* c2){
+	return (std::string(c1)+'.'+c2).c_str();
+}
+
 FileCalculator::FileCalculator():Calculator(){
 	hexadec = false;
 	eof = false;
-	initialized;
-	f.open((std::string(filename)+'.'+viewFileExtension).c_str(), fstream::in);
+	
+	playBool = true;
+	
+	initialized = false;
+	
+	const char* file = getFileName(filename,viewFileExtension);
+	
+	const char* filter = (std::string("SphereSim View File (*.")+viewFileExtension+")").c_str();
+	QString str = QFileDialog::getOpenFileName(0, ("Open File"), "./", (filter));
+	if(str == ""){
+		std::cerr<<"File could not be opened!"<<std::endl;
+		circlesCount = 0;
+		exit(0);
+	}
+	file = (const char*) str.toStdString().c_str();
+	
+	printf("File: %s\n", file);
+
+	f.open(file, std::fstream::in);
 	bool b = true;
 	if (f.is_open())
 	{
@@ -116,9 +135,9 @@ FileCalculator::FileCalculator():Calculator(){
 		saveInVar(_3d);
 		if(_3d != _3D_){
 			if(_3d == 0){
-				cerr<<"You have to open this file with 2D viewer."<<endl;
+				std::cerr<<"You have to open this file with 2D viewer."<<std::endl;
 			}else{
-				cerr<<"You have to open this file with 3D viewer."<<endl;
+				std::cerr<<"You have to open this file with 3D viewer."<<std::endl;
 			}
 			return;
 		}
@@ -164,7 +183,7 @@ FileCalculator::FileCalculator():Calculator(){
 			#endif
 		}
 		
-		readNum_render = min(newMaxCirclesCount,newCirclesCount);
+		readNum_render = std::min(newMaxCirclesCount,newCirclesCount);
 		renderBuffer = new vector*[renderBufferCount];
 		for(int i = 0; i<renderBufferCount; i++){
 			renderBuffer[i] = new vector[readNum_render];
@@ -192,7 +211,7 @@ FileCalculator::FileCalculator():Calculator(){
 	}
 	else
 	{
-		cerr<<"File could not be opened!"<<endl;
+		std::cerr<<"File could not be opened!"<<std::endl;
 		circlesCount = 0;
 		exit(0);
 	}

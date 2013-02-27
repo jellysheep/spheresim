@@ -64,6 +64,7 @@ public slots:
 	void setTraceAmount(double d);
 	void setRender(bool b);
 	void setSave(bool b);
+	void setTemperature(double temp);
 };
 
 #endif /* _UI_CONTROL_ */

@@ -82,6 +82,8 @@ public:
 	void initFileSave();
 	void stopFileSave();
 	
+	virtual scalar getTemperature()=0;
+	
 public slots:
 	void start(){
 		printf("starting calculator... ");
