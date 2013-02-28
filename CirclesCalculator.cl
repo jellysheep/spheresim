@@ -49,6 +49,7 @@ typedef struct Circle
 	vector speed;
 	vector force;
 	scalar size,mass,poisson,E;
+	unsigned short fixed; // 0 or 1
 	//float x[3];  //padding
 } Circle;
 

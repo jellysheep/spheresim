@@ -47,7 +47,7 @@ protected:
 	bool bufferFilled, plotNext;
 	scalar **wallForces, *curWallForces;
 	
-	std::fstream f;
+	std::fstream f, f2;
 	
 public:
 	Calculator();
@@ -103,6 +103,12 @@ public slots:
 		while(hasStopped == false);
 		printf("return from stop\n");
 	}
+	void quit(){
+		stop();
+		if(saveBool){
+			stopFileSave();
+		}
+	}
 	
 	virtual void boxSizeChanged()=0;
 	
@@ -127,6 +133,8 @@ public slots:
 	virtual void updateSphereSize()=0;
 	
 	void saveFrameToFile();
+	
+	void saveConfig();
 };
 
 #endif

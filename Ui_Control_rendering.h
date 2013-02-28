@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'RenderingW10264.ui'
+** Form generated from reading UI file 'RenderingwZ1521.ui'
 **
-** Created: Wed Feb 27 16:54:59 2013
+** Created: Thu Feb 28 11:20:13 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef RENDERINGW10264_H
-#define RENDERINGW10264_H
+#ifndef RENDERINGWZ1521_H
+#define RENDERINGWZ1521_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -387,7 +387,7 @@ public:
         temp->setButtonSymbols(QAbstractSpinBox::NoButtons);
         temp->setDecimals(1);
         temp->setMinimum(-300);
-        temp->setMaximum(1000);
+        temp->setMaximum(10000);
         temp->setSingleStep(0.01);
 
         gridLayout_6->addWidget(temp, 5, 1, 1, 1);
@@ -480,7 +480,8 @@ public:
         label_8->setText(QApplication::translate("Rendering", "Real speed", 0, QApplication::UnicodeUTF8));
         real_speed->setSuffix(QApplication::translate("Rendering", " x", 0, QApplication::UnicodeUTF8));
         label_10->setText(QApplication::translate("Rendering", "Temperature", 0, QApplication::UnicodeUTF8));
-        temp->setSuffix(QApplication::translate("Rendering", " \302\260C", 0, QApplication::UnicodeUTF8));
+        temp->setPrefix(QString());
+        temp->setSuffix(QApplication::translate("Rendering", " K", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
@@ -491,4 +492,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // RENDERINGW10264_H
+#endif // RENDERINGWZ1521_H

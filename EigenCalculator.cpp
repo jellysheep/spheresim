@@ -93,6 +93,7 @@ void EigenCalculator::initCircle(int i){
 	circles[i].size = rans(sphereSize.s0, sphereSize.s1);
 	circles[i].E = E;
 	circles[i].poisson = poisson;
+	circles[i].fixed = 0;
 	
 	circlesPos[i](0) = circles[i].size+rans(boxSize.s0-2*circles[i].size);
 	circlesPos[i](1) = circles[i].size+rans(boxSize.s1-2*circles[i].size);
@@ -317,6 +318,7 @@ void EigenCalculator::collideBalls(int i, int j){
 void EigenCalculator::sumUpForces(){
 	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
+		if(circles[i].fixed == 1) return;
 		eVector force;
 		#if fixSun
 			if(i==0)continue;

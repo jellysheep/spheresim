@@ -136,6 +136,9 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	
 	QObject::connect((const QObject*)sv, SIGNAL(temperatureChanged(double)), 
 		this, SLOT(setTemperature(double)), Qt::QueuedConnection);
+		
+	QObject::connect(calc->saveConfig, SIGNAL(clicked()), 
+		cc cal, SLOT(saveConfig()), Qt::QueuedConnection);
 	
 	rend->calc_speed->setValue(speed);
 	calc->count->setValue(circlesCount);
@@ -280,8 +283,8 @@ void Control::keyPressEvent(QKeyEvent* event){
 			if(fullscreen){
 				showNormal();
 				showMaximized();
-				setMaximumHeight(641);
-				resize(2099-4-6,641);
+				//setMaximumHeight(641);
+				//resize(2099-4-6,641);
 			} else showFullScreen();
 			break;
 		case Qt::Key_R:

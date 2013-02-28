@@ -9,12 +9,14 @@
 #include <iostream>
 #include <iomanip>
 
+#include <QFileDialog>
+
 Calculator::Calculator(){
 	
 	glWidget = NULL;
 	
 	QObject::connect(this, SIGNAL(destroyed()), 
-		this, SLOT(stop()), Qt::DirectConnection);
+		this, SLOT(quit()), Qt::DirectConnection);
 	
 	performingAction = false;
 	hasStopped = true;
@@ -68,7 +70,7 @@ void Calculator::addHex(std::ostream &f, double d, bool newLine=true){
 void Calculator::addHex(std::ostream &f, float fl, bool newLine=true){
 	if(newLine) f<<"\nh";
 	else f<<' ';
-	f<<std::hex<<*((unsigned long int*)&fl);
+	f<<std::hex<<*((unsigned int*)&fl);
 }
 void Calculator::addHex(std::ostream &f, int i, bool newLine=true){
 	if(newLine) f<<"\nh";
@@ -76,7 +78,19 @@ void Calculator::addHex(std::ostream &f, int i, bool newLine=true){
 	f<<std::hex<<i;
 }
 void Calculator::initFileSave(){
-	f.open((std::string(filename)+'.'+viewFileExtension).c_str(), std::fstream::out|std::fstream::trunc);
+	const char* filter = (std::string("SphereSim View File (*.")+viewFileExtension+")").c_str();
+	QString str = QFileDialog::getSaveFileName(0, ("Save file"), (std::string("./save.")+viewFileExtension).c_str(), (filter));
+	if(str == ""){
+		std::cerr<<"File could not be opened!"<<std::endl;
+		circlesCount = 0;
+		//exit(0);
+		return;
+	}
+	const char* file = (const char*) str.toStdString().c_str();
+	
+	printf("File: %s\n", file);
+	
+	f.open(file, std::fstream::out|std::fstream::trunc);
 	//magic number, identifying SphereSim files
 	f<<"# "<<viewFileExtension<<'\n';
 	f<<"# SphereSim"<<(_3D_==1?3:2)<<" View File\n\n";
@@ -142,12 +156,99 @@ void Calculator::initFileSave(){
 	saveBool = true;
 	//~ f.close();
 }
+void Calculator::saveConfig(){
+	const char* filter = (std::string("SphereSim Config File (*.")+configFileExtension+")").c_str();
+	QString str = QFileDialog::getSaveFileName(0, ("Save config"), (std::string("./save.")+configFileExtension).c_str(), (filter));
+	if(str == ""){
+		std::cerr<<"File could not be opened!"<<std::endl;
+		circlesCount = 0;
+		//exit(0);
+		return;
+	}
+	const char* file = (const char*) str.toStdString().c_str();
+	
+	printf("File: %s\n", file);
+	
+	f2.open(file, std::fstream::out|std::fstream::trunc);
+	//magic number, identifying SphereSim files
+	f2<<"# "<<viewFileExtension<<'\n';
+	f2<<"# SphereSim"<<(_3D_==1?3:2)<<" View File\n\n";
+	f2<<"# h=hexadecimal, d=decimal values in line\n";
+	f2<<"\n# 3D:";
+	addHex(f2, _3D_);
+	f2<<"\n# sphere count:";
+	addHex(f2, circlesCount);
+	f2<<"\n# max. display sphere count:";
+	addHex(f2, maxShowCirclesCount);
+	
+	f2<<"\n# box size (x,y"<<(_3D_==1?",z":"")<<"):";
+	addHex(f2, boxSize.s0);
+	addHex(f2, boxSize.s1);
+	#if _3D_
+		addHex(f2, boxSize.s2);
+	#endif
+	f2<<"\n# sphere size (min,max):";
+	addHex(f2, sphereSize.s0);
+	addHex(f2, sphereSize.s1);
+	
+	f2<<"\n# render fps max:";
+	addHex(f2, renderFpsMax);
+	f2<<"\n# render fps:";
+	addHex(f2, renderFps);
+	
+	f2<<"\n# speed:";
+	addHex(f2, speed);
+	f2<<"\n# fps:";
+	addHex(f2, fps);
+	f2<<"\n# minFps:";
+	addHex(f2, minFps);
+	
+	f2<<"\n# initial max. speed:";
+	addHex(f2, max_speed);
+	f2<<"\n# E modulus:";
+	addHex(f2, E);
+	f2<<"\n# poisson's value:";
+	addHex(f2, poisson);
+	f2<<"\n# elasticity:";
+	addHex(f2, elastic);
+	f2<<"\n# gravity:";
+	addHex(f2, gravity_abs);
+	f2<<"\n# gravitation factor:";
+	addHex(f2, G_fact);
+	f2<<"\n# air resistance factor:";
+	addHex(f2, airResistance);
+	f2<<"\n# wall resistance:";
+	addHex(f2, (wallResistance?1:0));
+	f2<<"\n\n# fixed flag, sizes, masses, initial positions and speeds of the spheres (f,r,m,x,y"<<(_3D_==1?",z":"")<<",vx,vy"<<(_3D_==1?",vz":"")<<"):";
+	Circle* c;
+	for(int i = 0; i<circlesCount; i++){
+		c = getCircle(i);
+		addHex(f2, (int)c->fixed);
+		addHex(f2, c->size, false);
+		addHex(f2, c->mass, false);
+		addHex(f2, c->pos.s0, false);
+		addHex(f2, c->pos.s1, false);
+		#if _3D_
+			addHex(f2, c->pos.s2, false);
+		#endif
+		addHex(f2, c->speed.s0, false);
+		addHex(f2, c->speed.s1, false);
+		#if _3D_
+			addHex(f2, c->speed.s2, false);
+		#endif
+	}
+	f2<<"\n\n# "<<configFileExtension<<" end of file";
+	f2.close();
+}
 
 void Calculator::stopFileSave(){
+	bool run = running;
+	if(run) stop();
 	saveBool = false;
 	///wait for file savings...
 	f<<"\n\n# "<<viewFileExtension<<" end of file";
 	f.close();
+	if(run) start();
 }
 
 int norm(int i){

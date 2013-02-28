@@ -40,9 +40,9 @@ scalar hueOffset;
 bool useTrace = true && (!manyCircles);
 const char *filename = "save";
 #if _3D_
-	const char *viewFileExtension = "s3v", *startFileExtension = "s3s";
+	const char *viewFileExtension = "s3v", *configFileExtension = "s3c";
 #else
-	const char *viewFileExtension = "s2v", *startFileExtension = "s2s";
+	const char *viewFileExtension = "s2v", *configFileExtension = "s2c";
 #endif
 long traceCount = renderFpsMax*50/sqrt(std::max(1.0,log((maxShowCirclesCount))));
 bool connectTracePoints = true;

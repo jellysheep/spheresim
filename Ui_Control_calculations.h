@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'CalculationsB10264.ui'
+** Form generated from reading UI file 'CalculationsWl1521.ui'
 **
-** Created: Wed Feb 27 16:53:22 2013
+** Created: Thu Feb 28 11:37:14 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef CALCULATIONSB10264_H
-#define CALCULATIONSB10264_H
+#ifndef CALCULATIONSWL1521_H
+#define CALCULATIONSWL1521_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -21,6 +21,7 @@
 #include <QtGui/QGroupBox>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
+#include <QtGui/QPushButton>
 #include <QtGui/QSpinBox>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
@@ -46,6 +47,8 @@ public:
     QCheckBox *save;
     QCheckBox *one_size;
     QCheckBox *wireframe;
+    QPushButton *saveConfig;
+    QPushButton *loadConfig;
     QGroupBox *groupBox_5;
     QGridLayout *gridLayout_7;
     QDoubleSpinBox *z;
@@ -172,6 +175,16 @@ public:
         wireframe->setChecked(false);
 
         gridLayout->addWidget(wireframe, 2, 1, 1, 1);
+
+        saveConfig = new QPushButton(groupBox_2);
+        saveConfig->setObjectName(QString::fromUtf8("saveConfig"));
+
+        gridLayout->addWidget(saveConfig, 8, 0, 1, 1);
+
+        loadConfig = new QPushButton(groupBox_2);
+        loadConfig->setObjectName(QString::fromUtf8("loadConfig"));
+
+        gridLayout->addWidget(loadConfig, 8, 1, 1, 1);
 
 
         verticalLayout->addWidget(groupBox_2);
@@ -387,7 +400,9 @@ public:
         QWidget::setTabOrder(radius_min, radius_max);
         QWidget::setTabOrder(radius_max, render);
         QWidget::setTabOrder(render, save);
-        QWidget::setTabOrder(save, x);
+        QWidget::setTabOrder(save, saveConfig);
+        QWidget::setTabOrder(saveConfig, loadConfig);
+        QWidget::setTabOrder(loadConfig, x);
         QWidget::setTabOrder(x, y);
         QWidget::setTabOrder(y, z);
         QWidget::setTabOrder(z, earth_gravity);
@@ -420,6 +435,8 @@ public:
         save->setText(QApplication::translate("Calculations", "Save", 0, QApplication::UnicodeUTF8));
         one_size->setText(QApplication::translate("Calculations", "One size", 0, QApplication::UnicodeUTF8));
         wireframe->setText(QApplication::translate("Calculations", "Wireframe", 0, QApplication::UnicodeUTF8));
+        saveConfig->setText(QApplication::translate("Calculations", "Save config...", 0, QApplication::UnicodeUTF8));
+        loadConfig->setText(QApplication::translate("Calculations", "Load config...", 0, QApplication::UnicodeUTF8));
         groupBox_5->setTitle(QApplication::translate("Calculations", "Size", 0, QApplication::UnicodeUTF8));
         z->setSuffix(QApplication::translate("Calculations", " m", 0, QApplication::UnicodeUTF8));
         x->setSuffix(QApplication::translate("Calculations", " m", 0, QApplication::UnicodeUTF8));
@@ -450,4 +467,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // CALCULATIONSB10264_H
+#endif // CALCULATIONSWL1521_H

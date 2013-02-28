@@ -12,10 +12,6 @@
 #if defined( __GNUC__ )
 	#define CL_ALIGNED(_x)		  __attribute__ ((aligned(_x)))
 #elif defined( _WIN32) && (_MSC_VER)
-	/* Alignment keys neutered on windows because MSVC can't swallow function arguments with alignment requirements	 */
-	/* http://msdn.microsoft.com/en-us/library/373ak2y1%28VS.71%29.aspx												 */
-	/* #include <crtdefs.h>																							 */
-	/* #define CL_ALIGNED(_x)		  _CRT_ALIGN(_x)																   */
 	#define CL_ALIGNED(_x)
 #else
    #warning  Need to implement some method to align data here
@@ -107,6 +103,7 @@ typedef struct Circle
 	vector speed;
 	vector force;
 	scalar size, mass, poisson, E;
+	unsigned short fixed; // 0 or 1
 	//float x[3];  //padding
 } Circle;
 
@@ -143,7 +140,7 @@ extern scalar gravity_abs;
 extern vector gravity;
 extern bool saveBool, renderBool, playBool;
 extern const char *filename;
-extern const char *viewFileExtension, *startFileExtension;
+extern const char *viewFileExtension, *configFileExtension;
 extern int edges;
 extern scalar step;
 extern scalar G;

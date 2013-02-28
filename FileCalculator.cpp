@@ -54,7 +54,7 @@ void FileCalculator::readLine(){
 
 float FileCalculator::readHexFloat(){
 	float f;
-	unsigned long int l = 0;
+	unsigned int l = 0;
 	//cout<<"line: \""<<line<<"\"\n";
 	for(int _i = 0; !(iss>>std::hex>>l) && _i<5; _i++){
 		readLine();
@@ -116,7 +116,7 @@ FileCalculator::FileCalculator():Calculator(){
 	const char* file = getFileName(filename,viewFileExtension);
 	
 	const char* filter = (std::string("SphereSim View File (*.")+viewFileExtension+")").c_str();
-	QString str = QFileDialog::getOpenFileName(0, ("Open File"), "./", (filter));
+	QString str = QFileDialog::getOpenFileName(0, ("Open file"), (std::string("./save.")+viewFileExtension).c_str(), (filter));
 	if(str == ""){
 		std::cerr<<"File could not be opened!"<<std::endl;
 		circlesCount = 0;
