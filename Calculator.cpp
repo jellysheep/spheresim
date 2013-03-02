@@ -240,6 +240,87 @@ void Calculator::saveConfig(){
 	f2<<"\n\n# "<<configFileExtension<<" end of file";
 	f2.close();
 }
+void Calculator::readLine(){
+	bool retry;
+	int tries = 0;
+	do{
+		tries++;
+		retry = false;
+		if(!getline(f2, line)){
+			retry = true;
+			continue;
+		}else if(line[0] == '#'){
+			retry = true;
+			continue;
+		}
+		///remove comments
+		int i = line.find('#');
+		if(i!=std::string::npos){
+			line.erase(line.find('#'));
+		}
+		//*
+		if(line == ""){
+			retry = true;
+			continue;
+		}// */
+	}while(retry && tries<=5);
+	if(f.eof()){
+		eof = true;
+		return;
+	}
+	//cout<<"line: "<<line<<"\n";
+	///std::decide between std::decimal and hexadecimal chars
+	if(line[0] == 'h' || line[0] == 'H'){
+		hexadec = true;
+		//cout<<"std::hex.\n";
+		line.erase(line.begin());
+	}else{
+		hexadec = false;
+		//cout<<"std::dec.\n";
+	}
+	iss.clear();
+	iss.str(line);
+	//cout<<"new line: \""<<line<<"\"\n";
+}
+
+float Calculator::readHexFloat(){
+	float f;
+	unsigned int l = 0;
+	//cout<<"line: \""<<line<<"\"\n";
+	for(int _i = 0; !(iss>>std::hex>>l) && _i<5; _i++){
+		readLine();
+	}
+	f = *((float*)&l);
+	return f;
+}
+
+float Calculator::readFloat(){
+	iss.peek();
+	if(!iss) readLine();
+	if(hexadec){
+		//cout<<"reading std::hex...\n";
+		return readHexFloat();
+	}
+	float f = 0;
+	//cout<<"reading std::dec...\n";
+	for(int _i = 0; !(iss>>(hexadec?std::hex:std::dec)>>f) && _i<5; _i++){
+		readLine();
+	}
+	return f;
+}
+
+void Calculator::saveInVar_(scalar &s){
+	float f = readFloat();
+	if(!eof){
+		s = f;
+	}
+}
+
+void Calculator::saveInVar_(int &i){
+	int j;
+	_read(iss, j);
+	if(!eof) i = j;
+}
 
 void Calculator::stopFileSave(){
 	bool run = running;

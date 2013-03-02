@@ -95,6 +95,8 @@ protected:
 	Pos *posX, *posY, *posZ;
 	void sort(Pos* p, int dim);
 	void calcSortedBallResistance();
+	
+	void loadConfig(const char* file);
 
 public:
 	EigenCalculator();
@@ -116,6 +118,8 @@ public slots:
 	void updatePoisson();
 	void updateElasticity();
 	void updateSphereSize();
+	
+	void loadConfig();
 };
 
 extern void start(EigenCalculator* clTimer);

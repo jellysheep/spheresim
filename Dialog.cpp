@@ -31,15 +31,22 @@ Dialog::Dialog(){
 }
 
 void Dialog::accepted_(){
-	if(dlg->cpp->isChecked()){
-		calc = new EigenCalculator();
-	}else if(dlg->opencl->isChecked()){
-		calc = new OpenClCalculator();
-	}else if(dlg->read->isChecked()){
-		calc = new FileCalculator();
-	}else{
-		calc = NULL;
-	}
+	calc = NULL;
+	#ifdef ENGINE_CPP
+		if(dlg->cpp->isChecked()){
+			calc = new EigenCalculator();
+		}
+	#endif
+	#ifdef ENGINE_OPENCL
+		if(dlg->opencl->isChecked()){
+			calc = new OpenClCalculator();
+		}
+	#endif
+	#ifdef ENGINE_READ
+		if(dlg->read->isChecked()){
+			calc = new FileCalculator();
+		}
+	#endif
 	selected = true;
 }
 

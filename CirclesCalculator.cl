@@ -12,7 +12,7 @@
 	#error Error: only leapfrog OR heun possible!
 #endif
 
-//#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+#pragma OPENCL EXTENSION cl_khr_fp64 : enable
 //#pragma OPENCL EXTENSION cl_amd_fp64 : enable
 //#pragma OPENCL EXTENSION cl_amd_vec3 : enable
 

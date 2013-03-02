@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'CalculationsWl1521.ui'
+** Form generated from reading UI file 'Calculationsn14544.ui'
 **
-** Created: Thu Feb 28 11:37:14 2013
+** Created: Fri Mar 1 15:22:54 2013
 **      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef CALCULATIONSWL1521_H
-#define CALCULATIONSWL1521_H
+#ifndef CALCULATIONSN14544_H
+#define CALCULATIONSN14544_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -275,7 +275,7 @@ public:
         inter_gravity->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         inter_gravity->setAccelerated(true);
         inter_gravity->setDecimals(2);
-        inter_gravity->setMinimum(0);
+        inter_gravity->setMinimum(-300);
         inter_gravity->setMaximum(300);
         inter_gravity->setSingleStep(0.1);
         inter_gravity->setValue(1);
@@ -467,4 +467,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // CALCULATIONSWL1521_H
+#endif // CALCULATIONSN14544_H

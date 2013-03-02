@@ -8,9 +8,20 @@
 #include <cstdlib>
 
 #include <fstream>
+#include <sstream>
 
 class GLWidget;
 class PlotWidget;
+
+#define _read(stream,var)												\
+	for(int _i = 0; !(stream>>(hexadec?std::hex:std::dec)>>var) && _i<5; _i++){	\
+		readLine();														\
+	}
+
+#define saveInVar(x) {			\
+	saveInVar_(x);				\
+	/*cout<<#x<<": "<<x<<"\n";*/	\
+}
 
 class Calculator : public QThread, public FramesCounter{
 	Q_OBJECT
@@ -48,6 +59,15 @@ protected:
 	scalar **wallForces, *curWallForces;
 	
 	std::fstream f, f2;
+	
+	std::istringstream iss;
+	std::string line;
+	float readHexFloat();
+	float readFloat();
+	void saveInVar_(scalar &s);
+	void saveInVar_(int &i);
+	void readLine();
+	bool hexadec, eof, initialized;
 	
 public:
 	Calculator();
@@ -135,6 +155,8 @@ public slots:
 	void saveFrameToFile();
 	
 	void saveConfig();
+	
+	virtual void loadConfig() = 0;
 };
 
 #endif

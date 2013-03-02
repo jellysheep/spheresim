@@ -28,16 +28,6 @@ protected:
 	void circleCountChanged_subclass(int i);
 	void maxCircleCountChanged_subclass(int i);
 	
-	std::fstream f;
-	std::istringstream iss;
-	std::string line;
-	float readHexFloat();
-	float readFloat();
-	void saveInVar_(scalar &s);
-	void saveInVar_(int &i);
-	void readLine();
-	bool hexadec, eof, initialized;
-	
 	scalar interval;
 	
 public:
@@ -64,6 +54,7 @@ public slots:
 	void updatePoisson();
 	void updateElasticity();
 	void updateSphereSize();
+	void loadConfig();
 };
 
 #endif  /* _FILE_CALCULATOR_H_ */

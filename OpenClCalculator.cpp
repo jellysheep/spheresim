@@ -465,6 +465,9 @@ void OpenClCalculator::updateElasticity(){
 void OpenClCalculator::updateSphereSize(){
 	
 }
+void OpenClCalculator::loadConfig(){
+	
+}
 
 char* OpenClCalculator::file_contents(const char *filename, int *length)
 {

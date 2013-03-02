@@ -86,6 +86,7 @@ public slots:
 	void updatePoisson();
 	void updateElasticity();
 	void updateSphereSize();
+	void loadConfig();
 };
 
 extern void start(OpenClCalculator* clTimer);

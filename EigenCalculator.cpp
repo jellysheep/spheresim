@@ -5,6 +5,9 @@
 #include <iostream>
 using namespace std;
 
+
+#include <QFileDialog>
+
 #include "NanosecondTimer.h"
 
 #define parallelFor _Pragma("omp parallel for if(circlesCount>500)")
@@ -12,7 +15,7 @@ using namespace std;
 #define fixSun 0
 
 EigenCalculator::EigenCalculator():Calculator(){
-	//omp_set_num_threads(8);
+	omp_set_num_threads(1);
 	srand(2);
 	//srand(NanosecondTimer::getNS());
 	
@@ -412,8 +415,11 @@ void EigenCalculator::doStep(){
 	forceCounter++;
 	int x = (int)ceil((circlesCount-1)/2.0);
 	
-	//calcBallResistance();
-	calcSortedBallResistance();
+	if(G_fact != 0){
+		calcBallResistance();
+	}else{
+		calcSortedBallResistance();
+	}
 	
 	if(wallResistance){
 		calcWallResistance();
@@ -608,6 +614,120 @@ void EigenCalculator::maxCircleCountChanged_subclass(int i){
 		}
 	}
 	readNum_render = readNum_render_new;
+}
+
+
+void EigenCalculator::loadConfig(const char* file){
+	f2.open(file, std::fstream::in);
+	bool b = true;
+	if (f2.is_open())
+	{
+		//readLine();
+		int _3d;
+		saveInVar(_3d);
+		if(_3d != _3D_){
+			if(_3d == 0){
+				std::cerr<<"You have to open this file with 2D viewer."<<std::endl;
+			}else{
+				std::cerr<<"You have to open this file with 3D viewer."<<std::endl;
+			}
+			return;
+		}
+		int newCirclesCount;
+		saveInVar(newCirclesCount);
+		int newMaxCirclesCount;
+		saveInVar(newMaxCirclesCount);
+		
+		saveInVar(boxSize.s0);
+		saveInVar(boxSize.s1);
+		#if _3D_
+			saveInVar(boxSize.s2);
+		#endif
+		saveInVar(sphereSize.s0);
+		saveInVar(sphereSize.s1);
+		saveInVar(renderFpsMax);
+		timeInterval = 1000/renderFpsMax;
+		saveInVar(renderFps);
+		saveInVar(speed);
+		saveInVar(fps);
+		saveInVar(minFps);
+		saveInVar(max_speed);
+		saveInVar(E);
+		saveInVar(poisson);
+		saveInVar(elastic);
+		saveInVar(gravity_abs);
+		saveInVar(G_fact);
+		saveInVar(airResistance);
+		int _wallResistance;
+		saveInVar(_wallResistance);
+		wallResistance = (_wallResistance != 0);
+		
+		
+		
+		circleCountChanged(newCirclesCount);
+		//circlesCount = newCirclesCount;
+
+		maxCircleCountChanged(newMaxCirclesCount);
+		//maxShowCirclesCount = newMaxCirclesCount;
+		
+		int fixed;
+		for(int i = 0; i<newCirclesCount; i++){
+			saveInVar(fixed);
+			circles[i].fixed = fixed;
+			saveInVar(circles[i].size);
+			printf("circle size: %5f\n", circles[i].size);
+			saveInVar(circles[i].mass);
+			saveInVar(circlesPos[i](0));
+			saveInVar(circlesPos[i](1));
+			#if _3D_
+				saveInVar(circlesPos[i](2));
+			#endif
+			circlesOldPos[i] = circlesPos[i];
+			printf("circle pos: %5f %5f\n", circlesPos[i](0), circlesPos[i](1));
+			saveInVar(circlesSpeed[i](0));
+			saveInVar(circlesSpeed[i](1));
+			#if _3D_
+				saveInVar(circlesSpeed[i](2));
+			#endif
+			printf("circle speed: %5f %5f\n", circlesSpeed[i](0), circlesSpeed[i](1));
+		}
+		
+		initialized = true;
+		
+		bufferReadIndex = 0;
+		bufferWriteIndex = 0;
+		saveFrame();
+		bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
+		saveFrame();
+		bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
+		
+		printf("Circles to render: %d\n", readNum_render);
+		
+		printf("FileCalculator initialized!\n");
+	}
+	else
+	{
+		std::cerr<<"File could not be opened!"<<std::endl;
+		circlesCount = 0;
+		exit(0);
+	}
+}
+
+void EigenCalculator::loadConfig(){
+	const char* file = (std::string(filename)+configFileExtension).c_str();
+	
+	const char* filter = (std::string("SphereSim View File (*.")+configFileExtension+")").c_str();
+	QString str = QFileDialog::getOpenFileName(0, ("Open file"), (std::string("./save.")+configFileExtension).c_str(), (filter));
+	if(str == ""){
+		std::cerr<<"File could not be opened!"<<std::endl;
+		circlesCount = 0;
+		exit(0);
+	}
+	file = (const char*) str.toStdString().c_str();
+	
+	printf("File: %s\n", file);
+	
+	loadConfig(file);
 }
 
 #endif

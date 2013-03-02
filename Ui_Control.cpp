@@ -139,6 +139,8 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 		
 	QObject::connect(calc->saveConfig, SIGNAL(clicked()), 
 		cc cal, SLOT(saveConfig()), Qt::QueuedConnection);
+	QObject::connect(calc->loadConfig, SIGNAL(clicked()), 
+		cc cal, SLOT(loadConfig()), Qt::QueuedConnection);
 	
 	rend->calc_speed->setValue(speed);
 	calc->count->setValue(circlesCount);
