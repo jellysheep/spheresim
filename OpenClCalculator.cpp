@@ -438,6 +438,10 @@ bool OpenClCalculator::saveFrame(){
 	return true;
 }
 
+bool OpenClCalculator::isFixed(int i){
+	return false;
+}
+
 void OpenClCalculator::circleCountChanged_subclass(int i){
 	
 }

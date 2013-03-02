@@ -303,8 +303,9 @@ float Calculator::readFloat(){
 	}
 	float f = 0;
 	//cout<<"reading std::dec...\n";
-	for(int _i = 0; !(iss>>(hexadec?std::hex:std::dec)>>f) && _i<5; _i++){
+	for(int _i = 0; !(iss>>std::dec>>f) && _i<5; _i++){
 		readLine();
+		if(hexadec) return readHexFloat();
 	}
 	return f;
 }
@@ -406,7 +407,7 @@ void Calculator::saveFrameToFile(){
 }
 
 void Calculator::run(){
-	printf("OpenClCalculator running!\n");
+	printf("Calculator running!\n");
 	int i = 0;
 	try{
 		while(running){
@@ -563,7 +564,7 @@ void Calculator::paintGL(bool readNewFrame){
 			hueOffset += 360;
 		for(i=0; i < readNum_render; i++){
 			color = &ceBuffer[i].hsvColor;
-			ceBuffer[i].color = QColor::fromHsv(normHue(color->hue()+(int)hueOffset), color->saturation(), color->value());
+			ceBuffer[i].color = QColor::fromHsv(normHue(color->hue()+(int)hueOffset+(isFixed(i)?100:0)), color->saturation(), color->value());
 		}
 	}
 	

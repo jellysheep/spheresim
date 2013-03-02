@@ -3,22 +3,22 @@
 #include <cmath>
 #include <algorithm>
 
-int circlesCount = 500;
+int circlesCount = 10;
 int maxShowCirclesCount = 20000;
 bool manyCircles = (std::min(circlesCount,maxShowCirclesCount)>20);
 
-vector3 boxSize = (vector3){1,1,1};
+vector3 boxSize = (vector3){2,2,2};
 vector2 sphereSize = (vector2){0.015,0.015};
 
 int renderFpsMax = 60, renderFps = renderFpsMax;
 scalar speed = 1, speedCorrection = 1.0;
-scalar fps = 1000000, minFps = 800;
+scalar fps = 1000000, minFps = 1000;
 scalar timeInterval = speed*speedCorrection/fps;
 
 scalar max_speed = 0.5;
 scalar E = 2*0.05;//((200)/1000000.0)/2; //Silikonkautschuk
 scalar poisson = 0.5; //Gummi
-scalar elastic = 0.1;//0.05;//0.9;//0.999;//0.9;
+scalar elastic = 1;//0.05;//0.9;//0.999;//0.9;
 scalar gravity_abs = 0.81;
 vector gravity = (vector){0,-gravity_abs
 	#if _3D_
@@ -37,7 +37,7 @@ bool useColorsBool = true;// && (circlesCount<=100);
 bool useColorHSV = true;
 scalar hueStep = -0.15;
 scalar hueOffset;
-bool useTrace = true && (!manyCircles);
+bool useTrace = false && (!manyCircles);
 const char *filename = "save";
 #if _3D_
 	const char *viewFileExtension = "s3v", *configFileExtension = "s3c";

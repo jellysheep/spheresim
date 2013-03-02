@@ -97,6 +97,8 @@ protected:
 	void calcSortedBallResistance();
 	
 	void loadConfig(const char* file);
+	
+	bool isFixed(int i);
 
 public:
 	EigenCalculator();

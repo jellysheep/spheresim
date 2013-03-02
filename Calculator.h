@@ -18,9 +18,9 @@ class PlotWidget;
 		readLine();														\
 	}
 
-#define saveInVar(x) {			\
-	saveInVar_(x);				\
-	/*cout<<#x<<": "<<x<<"\n";*/	\
+#define saveInVar(x) {				\
+	saveInVar_(x);					\
+	/*std::cout<<#x<<": "<<x<<"\n";*/	\
 }
 
 class Calculator : public QThread, public FramesCounter{
@@ -68,6 +68,8 @@ protected:
 	void saveInVar_(int &i);
 	void readLine();
 	bool hexadec, eof, initialized;
+	
+	virtual bool isFixed(int i)=0;
 	
 public:
 	Calculator();

@@ -1,0 +1,43 @@
+# s2c
+# SphereSim2 Config File
+
+# h=hexadecimal, d=decimal values in line
+
+# 3D:
+h0
+# sphere count:
+2143
+# max. display sphere count:
+3000
+# box size (x,y):
+2
+3
+# sphere size (min,max):
+0.01
+0.01
+# render fps max:
+h3c
+# render fps:
+h3c
+# speed:
+h3f800000
+# fps:
+h49742400
+# minFps:
+h44480000
+# initial max. speed:
+h0
+# E modulus:
+h3dcccccd
+# poisson's value:
+h3f000000
+# elasticity:
+0.1
+# gravity:
+3
+# gravitation factor:
+h0
+# air resistance factor:
+100
+# wall resistance:
+h1

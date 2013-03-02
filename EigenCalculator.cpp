@@ -9,8 +9,10 @@ using namespace std;
 #include <QFileDialog>
 
 #include "NanosecondTimer.h"
+#include "GLWidget.h"
 
-#define parallelFor _Pragma("omp parallel for if(circlesCount>500)")
+#define parallelFor
+// _Pragma("omp parallel for if(circlesCount>500)")
 
 #define fixSun 0
 
@@ -169,9 +171,11 @@ void EigenCalculator::save(){
 void EigenCalculator::calcWallResistance(){
 	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
+		if(circles[i].fixed == 1) continue;
 		scalar d_, R, _E_;
 		scalar force_, htw_d_d, fact = 1.0f;
 		if ((htw_d_d = (circles[i].size - circlesPos[i](0)))>0) {
+			//printf("Sphere %d collides with left wall\n", i);
 			if(circlesSpeed[i](0) > 0)fact = elastic;
 			d_ = htw_d_d;
 			R = circles[i].size;
@@ -180,6 +184,7 @@ void EigenCalculator::calcWallResistance(){
 			circlesForce[i](0) += force_*fact;
 			curWallForces[0] += force_*fact;
 		}else if ((htw_d_d = (circles[i].size + circlesPos[i](0) - boxSize.s0))>0) {
+			//printf("Sphere %d collides with right wall\n", i);
 			if(circlesSpeed[i](0) < 0)fact = elastic;
 			d_ = htw_d_d;
 			R = circles[i].size;
@@ -190,6 +195,7 @@ void EigenCalculator::calcWallResistance(){
 		}
 		fact = 1.0f;
 		if ((htw_d_d = (circles[i].size - circlesPos[i](1)))>0) {
+			//printf("Sphere %d collides with bottom wall\n", i);
 			if(circlesSpeed[i](1) > 0)fact = elastic;
 			d_ = htw_d_d;
 			R = circles[i].size;
@@ -198,6 +204,7 @@ void EigenCalculator::calcWallResistance(){
 			circlesForce[i](1) += force_*fact;
 			curWallForces[2] += force_*fact;
 		}else if ((htw_d_d = (circles[i].size + circlesPos[i](1) - boxSize.s1))>0) {
+			//printf("Sphere %d collides with top wall\n", i);
 			if(circlesSpeed[i](1) < 0)fact = elastic;
 			d_ = htw_d_d;
 			R = circles[i].size;
@@ -289,7 +296,7 @@ void EigenCalculator::collideBalls(int i, int j){
 	
 	// Abstossung:
 	if (d < both_r_) {
-		
+		//printf("Circles %d and %d are colliding!\n", i, j);
 		scalar d_, R, _E_;
 		//*
 		//#if _G_==0
@@ -321,26 +328,33 @@ void EigenCalculator::collideBalls(int i, int j){
 void EigenCalculator::sumUpForces(){
 	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
-		if(circles[i].fixed == 1) return;
-		eVector force;
-		#if fixSun
-			if(i==0)continue;
-		#endif
-		EIGEN_ASM_COMMENT("begin");
-		circlesForce[i] -= airResistance*(0.47*M_PI*sqr(circles[i].size))*0.5*circlesSpeed[i]*std::abs(circlesSpeed[i].norm());
-		force = circlesForce[i];
-		eVector acceleration = force / circles[i].mass;
-		acceleration(0) += gravity.s0;
-		acceleration(1) += gravity.s1;
-		#if _3D_
-			acceleration(2) += gravity.s2;
-		#endif
-		circlesOldPos[i] += circlesSpeed[i]*timeInterval;
-		circlesOldPos[i] += 0.5*acceleration*timeInterval*timeInterval;
-		
-		circlesSpeed[i] += acceleration*timeInterval;
-		circlesForce[i] -= force;
-		
+		if(circles[i].fixed == 0){
+			eVector force;
+			#if fixSun
+				if(i==0)continue;
+			#endif
+			EIGEN_ASM_COMMENT("begin");
+			circlesForce[i] -= airResistance*(0.47*M_PI*sqr(circles[i].size))*0.5*circlesSpeed[i]*std::abs(circlesSpeed[i].norm());
+			force = circlesForce[i];
+			/*printf("circle %d force: %5f %5f\n", i, circlesForce[i](0), circlesForce[i](1));
+			printf("circle %d speed: %5f %5f\n", i, circlesSpeed[i](0), circlesSpeed[i](1));
+			printf("circle %d pos: %5f %5f\n", i, circlesPos[i](0), circlesPos[i](1));
+			printf("circle %d old pos: %5f %5f\n", i, circlesOldPos[i](0), circlesOldPos[i](1));
+			printf("circle %d mass: %5f\n", i, circles[i].mass);
+			QThread::msleep(10);// */
+			eVector acceleration = force / circles[i].mass;
+			acceleration(0) += gravity.s0;
+			acceleration(1) += gravity.s1;
+			//printf("circle %d gravity: %5f %5f\n", i, gravity.s0, gravity.s1);
+			#if _3D_
+				acceleration(2) += gravity.s2;
+			#endif
+			circlesOldPos[i] += circlesSpeed[i]*timeInterval;
+			circlesOldPos[i] += 0.5*acceleration*timeInterval*timeInterval;
+			
+			circlesSpeed[i] += acceleration*timeInterval;
+			circlesForce[i] -= force;
+		}
 		circlesPos[i] = circlesOldPos[i];
 		circlesPos[i] += circlesSpeed[i]*(timeInterval/2);
 		//circlesPos[i] += 0.5*acceleration*(timeInterval/2)*(timeInterval/2);
@@ -350,6 +364,9 @@ void EigenCalculator::sumUpForces(){
 		#if _3D_
 			gridIndex[i][2] = circlesPos[i](2)/gridWidth;
 		#endif
+		/*printf("circle %d speed: %5f %5f\n", i, circlesSpeed[i](0), circlesSpeed[i](1));
+		printf("circle %d pos: %5f %5f\n", i, circlesPos[i](0), circlesPos[i](1));
+		printf("circle %d old pos: %5f %5f\n", i, circlesOldPos[i](0), circlesOldPos[i](1));// */
 		
 		EIGEN_ASM_COMMENT("end");
 	}
@@ -381,7 +398,7 @@ void EigenCalculator::calcSortedBallResistance(){
 	}
 	printf("\n"); // */
 
-	/// Kugeln kollidieren nur mit denen, die rechts davon liegen.
+	/// Kugeln kollidieren nur mit anderen, die rechts davon liegen.
 	/// Dadurch werden doppelt berechnete Kollisionen vermieden.
 	
 	parallelFor
@@ -415,16 +432,20 @@ void EigenCalculator::doStep(){
 	forceCounter++;
 	int x = (int)ceil((circlesCount-1)/2.0);
 	
-	if(G_fact != 0){
+	#if 1
+		if(G_fact == 0){
+			calcSortedBallResistance();
+		}else
+	#endif
+	{
 		calcBallResistance();
-	}else{
-		calcSortedBallResistance();
 	}
 	
 	if(wallResistance){
 		calcWallResistance();
 	}
 	
+	timeInterval = std::min(timeInterval, 1.0/minFps);
 	sumUpForces();
 }
 
@@ -457,6 +478,10 @@ bool EigenCalculator::saveFrame(){
 		renderBuffer[bufferWriteIndex][i] = circlesOldPos[i];
 	}
 	return true;
+}
+
+bool EigenCalculator::isFixed(int i){
+	return circles[i].fixed == 1;
 }
 
 #define k_b 1.3806488E-23
@@ -655,7 +680,11 @@ void EigenCalculator::loadConfig(const char* file){
 		saveInVar(E);
 		saveInVar(poisson);
 		saveInVar(elastic);
+		
 		saveInVar(gravity_abs);
+		printf("gravity: %5f\n", gravity_abs);
+		glWidget->updateGravity();
+		
 		saveInVar(G_fact);
 		saveInVar(airResistance);
 		int _wallResistance;
@@ -675,21 +704,36 @@ void EigenCalculator::loadConfig(const char* file){
 			saveInVar(fixed);
 			circles[i].fixed = fixed;
 			saveInVar(circles[i].size);
-			printf("circle size: %5f\n", circles[i].size);
+			//printf("circle size: %5f\n", circles[i].size);
 			saveInVar(circles[i].mass);
 			saveInVar(circlesPos[i](0));
 			saveInVar(circlesPos[i](1));
+			//if(fixed==0) 
+			circlesPos[i](0) += 0.001*((rand()%1024)/1024.0);
+			//if(fixed==0) 
+			circlesPos[i](1) += 0.001*((rand()%1024)/1024.0);
 			#if _3D_
 				saveInVar(circlesPos[i](2));
+				//if(fixed==0) 
+				circlesPos[i](2) += 0.001*((rand()%1024)/1024.0);
 			#endif
 			circlesOldPos[i] = circlesPos[i];
-			printf("circle pos: %5f %5f\n", circlesPos[i](0), circlesPos[i](1));
+			//printf("circle pos: %5f %5f\n", circlesPos[i](0), circlesPos[i](1));
+			//printf("circle oldPos: %5f %5f\n", circlesOldPos[i](0), circlesOldPos[i](1));
 			saveInVar(circlesSpeed[i](0));
 			saveInVar(circlesSpeed[i](1));
 			#if _3D_
 				saveInVar(circlesSpeed[i](2));
 			#endif
-			printf("circle speed: %5f %5f\n", circlesSpeed[i](0), circlesSpeed[i](1));
+			//printf("circle speed: %5f %5f\n", circlesSpeed[i](0), circlesSpeed[i](1));
+			circlesForce[i].Zero();
+		}
+		
+		for(int j = 0; j<circlesCount; j++){
+			for(int k = 0; k<circlesCount; k++){
+				both_r[j][k] = circles[j].size+circles[k].size;
+				both_r[k][j] = circles[j].size+circles[k].size;
+			}
 		}
 		
 		initialized = true;
@@ -703,7 +747,6 @@ void EigenCalculator::loadConfig(const char* file){
 		
 		printf("Circles to render: %d\n", readNum_render);
 		
-		printf("FileCalculator initialized!\n");
 	}
 	else
 	{

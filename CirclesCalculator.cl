@@ -576,7 +576,7 @@ __kernel void moveStep3_updatePositions(__global struct Circle* circle,
 	circle[id].speed += force;
 	circle[id].force -= force;*/
 	
-	force = c->force;
+	force = c->force*1;
 	
 	
 	// Gravitation nach unten:

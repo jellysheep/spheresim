@@ -63,6 +63,8 @@ protected:
 	
 	void circleCountChanged_subclass(int i);
 	void maxCircleCountChanged_subclass(int i);
+	
+	bool isFixed(int i);
 
 public:
 	OpenClCalculator();

@@ -29,6 +29,7 @@ protected:
 	void maxCircleCountChanged_subclass(int i);
 	
 	scalar interval;
+	bool isFixed(int i);
 	
 public:
 	FileCalculator();

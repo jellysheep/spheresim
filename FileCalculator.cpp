@@ -125,6 +125,10 @@ FileCalculator::FileCalculator():Calculator(){
 	}
 }
 
+bool FileCalculator::isFixed(int i){
+	return false;
+}
+
 void FileCalculator::doStep(){
 	QThread::msleep(1000/(renderFpsMax*calcSpeedFact));
 }
