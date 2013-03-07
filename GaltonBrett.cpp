@@ -47,13 +47,13 @@ int main(int argc, char *argv[]){
 			f<<0.005<<" "; //size
 			f<<0.01<<" "; //mass
 			f<<((y%2==0?0.035:0)+0.025+0.075*x)<<" "; //pos
-			f<<(0.4+0.03*y)<<" ";
+			f<<(0.5+0.025*y)<<" ";
 			f<<"0 "; //speed
 			f<<"0\n";
 		}
 	}
 	for(int x = 0; x<30; x++){
-		for(int y = 0; y<10; y++){
+		for(int y = 0; y<12; y++){
 			circles++;
 			f<<"1 "; //decimal, fixed
 			f<<0.015<<" "; //size

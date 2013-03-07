@@ -5,7 +5,7 @@
 #include "FileCalculator.h"
 
 Dialog::Dialog(){
-	#if 1
+	#if 0
 		calc = new EigenCalculator();
 		//calc = new FileCalculator();
 		//calc = new OpenClCalculator();

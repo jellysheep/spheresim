@@ -3,11 +3,11 @@
 #include <cmath>
 #include <algorithm>
 
-int circlesCount = 10;
+int circlesCount = 100;
 int maxShowCirclesCount = 20000;
 bool manyCircles = (std::min(circlesCount,maxShowCirclesCount)>20);
 
-vector3 boxSize = (vector3){2,2,2};
+vector3 boxSize = (vector3){3.5,3,2};
 vector2 sphereSize = (vector2){0.015,0.015};
 
 int renderFpsMax = 60, renderFps = renderFpsMax;

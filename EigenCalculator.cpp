@@ -11,8 +11,7 @@ using namespace std;
 #include "NanosecondTimer.h"
 #include "GLWidget.h"
 
-#define parallelFor
-// _Pragma("omp parallel for if(circlesCount>500)")
+#define parallelFor _Pragma("omp parallel for if(circlesCount>500)")
 
 #define fixSun 0
 
@@ -373,15 +372,18 @@ void EigenCalculator::sumUpForces(){
 }
 
 void EigenCalculator::sort(Pos* p, int dim){
-	scalar temp;
+	//scalar temp;
+	int temp;
 	int j, cid; //circle ID
 
 	for (int i=1; i < circlesCount; i++){
 		cid = p[i].circleAtPos;
-		temp = circlesPos[cid](dim);
+		//temp = circlesPos[cid](dim);
+		temp = gridIndex[cid][dim];
 		j = i-1;
 
-		while (j >= 0 && circlesPos[p[j].circleAtPos](dim) > temp){
+		//while (j >= 0 && circlesPos[p[j].circleAtPos](dim) > temp){
+		while (j >= 0 && gridIndex[p[j].circleAtPos][dim] > temp){
 			p[j+1].circleAtPos = p[j].circleAtPos;
 			j--;
 		}
@@ -407,7 +409,8 @@ void EigenCalculator::calcSortedBallResistance(){
 		posX[i].posOfCircle = pid;
 		for(int pid2 = pid+1; pid2<circlesCount; pid2++){
 			j = posX[pid2].circleAtPos;
-			if(abs(gridIndex[i][0]-gridIndex[j][0]) <=1){
+			if((gridIndex[j][0] <= gridIndex[i][0]+1)){
+			//if(abs(gridIndex[i][0]-gridIndex[j][0]) <=1){
 			//if(circlesPos[j][0]-circlesPos[i][0] < both_r[i][j]){
 				if(abs(gridIndex[i][1]-gridIndex[j][1]) <=1
 				#if _3D_
