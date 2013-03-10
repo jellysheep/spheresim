@@ -26,11 +26,11 @@ Calculator::Calculator(){
 	elapsedFrames = 0;
 	
 	if(useColorHSV){
-		#if _3D_
+		if(use3D){
 			lightTarget = 50;
-		#else
+		}else{
 			lightTarget = 0;
-		#endif
+		}
 	}
 	hueOffset = rans(360);
 	ceBuffer = new CircleExtension[circlesCount];
@@ -78,8 +78,8 @@ void Calculator::addHex(std::ostream &f, int i, bool newLine=true){
 	f<<std::hex<<i;
 }
 void Calculator::initFileSave(){
-	const char* filter = (std::string("SphereSim View File (*.")+viewFileExtension+")").c_str();
-	QString str = QFileDialog::getSaveFileName(0, ("Save file"), (std::string("./save.")+viewFileExtension).c_str(), (filter));
+	const char* filter = (std::string("SphereSim View File (*.")+getViewFileExtension()+")").c_str();
+	QString str = QFileDialog::getSaveFileName(0, ("Save file"), (std::string("./save.")+getViewFileExtension()).c_str(), (filter));
 	if(str == ""){
 		std::cerr<<"File could not be opened!"<<std::endl;
 		circlesCount = 0;
@@ -92,22 +92,22 @@ void Calculator::initFileSave(){
 	
 	f.open(file, std::fstream::out|std::fstream::trunc);
 	//magic number, identifying SphereSim files
-	f<<"# "<<viewFileExtension<<'\n';
-	f<<"# SphereSim"<<(_3D_==1?3:2)<<" View File\n\n";
+	f<<"# "<<getViewFileExtension()<<'\n';
+	f<<"# SphereSim"<<(use3D?3:2)<<" View File\n\n";
 	f<<"# h=hexadecimal, d=decimal values in line\n";
 	f<<"\n# 3D:";
-	addHex(f, _3D_);
+	addHex(f, (use3D?1:0));
 	f<<"\n# sphere count:";
 	addHex(f, circlesCount);
 	f<<"\n# max. display sphere count:";
 	addHex(f, maxShowCirclesCount);
 	
-	f<<"\n# box size (x,y"<<(_3D_==1?",z":"")<<"):";
+	f<<"\n# box size (x,y"<<(use3D?",z":"")<<"):";
 	addHex(f, boxSize.s0);
 	addHex(f, boxSize.s1);
-	#if _3D_
+	if(use3D){
 		addHex(f, boxSize.s2);
-	#endif
+	}
 	f<<"\n# sphere size (min,max):";
 	addHex(f, sphereSize.s0);
 	addHex(f, sphereSize.s1);
@@ -140,7 +140,7 @@ void Calculator::initFileSave(){
 	addHex(f, airResistance);
 	f<<"\n# wall resistance:";
 	addHex(f, (wallResistance?1:0));
-	f<<"\n\n# sizes, masses and initial positions of the spheres (r,m,x,y"<<(_3D_==1?",z":"")<<"):";
+	f<<"\n\n# sizes, masses and initial positions of the spheres (r,m,x,y"<<(use3D?",z":"")<<"):";
 	Circle* c;
 	for(int i = 0; i<circlesCount; i++){
 		c = getCircle(i);
@@ -148,17 +148,17 @@ void Calculator::initFileSave(){
 		addHex(f, c->mass, false);
 		addHex(f, c->pos.s0, false);
 		addHex(f, c->pos.s1, false);
-		#if _3D_
+		if(use3D){
 			addHex(f, c->pos.s2, false);
-		#endif
+		}
 	}
-	f<<"\n\n# positions of the spheres (x,y"<<(_3D_==1?",z":"")<<"):";
+	f<<"\n\n# positions of the spheres (x,y"<<(use3D?",z":"")<<"):";
 	saveBool = true;
 	//~ f.close();
 }
 void Calculator::saveConfig(){
-	const char* filter = (std::string("SphereSim Config File (*.")+configFileExtension+")").c_str();
-	QString str = QFileDialog::getSaveFileName(0, ("Save config"), (std::string("./save.")+configFileExtension).c_str(), (filter));
+	const char* filter = (std::string("SphereSim Config File (*.")+getConfigFileExtension()+")").c_str();
+	QString str = QFileDialog::getSaveFileName(0, ("Save config"), (std::string("./save.")+getConfigFileExtension()).c_str(), (filter));
 	if(str == ""){
 		std::cerr<<"File could not be opened!"<<std::endl;
 		circlesCount = 0;
@@ -171,22 +171,22 @@ void Calculator::saveConfig(){
 	
 	f2.open(file, std::fstream::out|std::fstream::trunc);
 	//magic number, identifying SphereSim files
-	f2<<"# "<<viewFileExtension<<'\n';
-	f2<<"# SphereSim"<<(_3D_==1?3:2)<<" View File\n\n";
+	f2<<"# "<<getViewFileExtension()<<'\n';
+	f2<<"# SphereSim"<<(use3D?3:2)<<" View File\n\n";
 	f2<<"# h=hexadecimal, d=decimal values in line\n";
 	f2<<"\n# 3D:";
-	addHex(f2, _3D_);
+	addHex(f2, (use3D?1:0));
 	f2<<"\n# sphere count:";
 	addHex(f2, circlesCount);
 	f2<<"\n# max. display sphere count:";
 	addHex(f2, maxShowCirclesCount);
 	
-	f2<<"\n# box size (x,y"<<(_3D_==1?",z":"")<<"):";
+	f2<<"\n# box size (x,y"<<(use3D?",z":"")<<"):";
 	addHex(f2, boxSize.s0);
 	addHex(f2, boxSize.s1);
-	#if _3D_
+	if(use3D){
 		addHex(f2, boxSize.s2);
-	#endif
+	}
 	f2<<"\n# sphere size (min,max):";
 	addHex(f2, sphereSize.s0);
 	addHex(f2, sphereSize.s1);
@@ -219,7 +219,7 @@ void Calculator::saveConfig(){
 	addHex(f2, airResistance);
 	f2<<"\n# wall resistance:";
 	addHex(f2, (wallResistance?1:0));
-	f2<<"\n\n# fixed flag, sizes, masses, initial positions and speeds of the spheres (f,r,m,x,y"<<(_3D_==1?",z":"")<<",vx,vy"<<(_3D_==1?",vz":"")<<"):";
+	f2<<"\n\n# fixed flag, sizes, masses, initial positions and speeds of the spheres (f,r,m,x,y"<<(use3D?",z":"")<<",vx,vy"<<(use3D?",vz":"")<<"):";
 	Circle* c;
 	for(int i = 0; i<circlesCount; i++){
 		c = getCircle(i);
@@ -228,16 +228,16 @@ void Calculator::saveConfig(){
 		addHex(f2, c->mass, false);
 		addHex(f2, c->pos.s0, false);
 		addHex(f2, c->pos.s1, false);
-		#if _3D_
+		if(use3D){
 			addHex(f2, c->pos.s2, false);
-		#endif
+		}
 		addHex(f2, c->speed.s0, false);
 		addHex(f2, c->speed.s1, false);
-		#if _3D_
+		if(use3D){
 			addHex(f2, c->speed.s2, false);
-		#endif
+		}
 	}
-	f2<<"\n\n# "<<configFileExtension<<" end of file";
+	f2<<"\n\n# "<<getConfigFileExtension()<<" end of file";
 	f2.close();
 }
 void Calculator::readLine(){
@@ -328,7 +328,7 @@ void Calculator::stopFileSave(){
 	if(run) stop();
 	saveBool = false;
 	///wait for file savings...
-	f<<"\n\n# "<<viewFileExtension<<" end of file";
+	f<<"\n\n# "<<getViewFileExtension()<<" end of file";
 	f.close();
 	if(run) start();
 }
@@ -347,11 +347,11 @@ void Calculator::initCeBuffer(int i){
 	int light;
 	QColor* color;
 	if(useColorHSV){
-		#if _3D_
+		if(use3D){
 			lightTarget = 50;
-		#else
+		}else{
 			lightTarget = 0;
-		#endif
+		}
 		ceBuffer[i].hsvColor = QColor::fromHsv(normHue(rani(60)), 255, 70+rani(90)+lightTarget);
 		ceBuffer[i].color = ceBuffer[i].hsvColor.toRgb();
 		//printf("H:%3d S:%3d V:%3d  R:%3d G:%3d B:%3d\n",i%360,255,255,ceBuffer[i].color.red(),ceBuffer[i].color.green(),ceBuffer[i].color.blue());
@@ -400,9 +400,9 @@ void Calculator::saveFrameToFile(){
 		}
 		addHex(f, c->pos.s0);
 		addHex(f, c->pos.s1, false);
-		#if _3D_
+		if(use3D){
 			addHex(f, c->pos.s2, false);
-		#endif
+		}
 	}
 }
 
@@ -546,11 +546,11 @@ void Calculator::paintGL(bool readNewFrame){
 	Circle* c;
 	CircleExtension* ce;
 	QColor* color;
-	#if _3D_
+	if(use3D){
 		color = new QColor(102,102,102);
-	#else
+	}else{
 		color = new QColor(30,30,30);
-	#endif
+	}
 	//err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, .sizeof(Circle)*readNum_render, c_CPU_render[bufferReadIndex], NULL, NULL);//&event);
 	//printf("waiting for reading...\n");
 	//event.wait();
@@ -580,19 +580,15 @@ void Calculator::paintGL(bool readNewFrame){
 			r = c->size;
 			x = c->pos.s[0];
 			y = c->pos.s[1];
-			#if _3D_
+			if(use3D){
 				z = c->pos.s[2];
-			#else
+			}else{
 				z = 0;
-			#endif
+			}
 			ce = &ceBuffer[i];
 			if(useColorsBool)
 				color = &ce->color;
-			ce->trace[ce->traceCount] = (vector){x,y
-			#if _3D_
-				,z
-			#endif
-				};
+			ce->trace[ce->traceCount] = (vector){x,y,z};
 			glColor4f(color->redF(),color->greenF(),color->blueF(),0);
 			if(connectTracePoints)
 				glBegin(GL_LINE_STRIP);
@@ -602,18 +598,18 @@ void Calculator::paintGL(bool readNewFrame){
 			for(h = (ce->traceFull?((traceCount+ce->traceCount+1-traceCountNew)%traceCount):std::max(0,ce->traceCount-traceCountNew)); 
 					h!=ce->traceCount; h=((h+1)%traceCount)){
 				glColor4f(color->redF(),color->greenF(),color->blueF(),std::pow((k++)*1.0/traceCountNew,0.5)/2);
-				#if _3D_
+				if(use3D){
 					glVertex3d(ce->trace[h].s[0], ce->trace[h].s[1], ce->trace[h].s[2]);
-				#else
+				}else{
 					glVertex2d(ce->trace[h].s[0], ce->trace[h].s[1]);
-				#endif
+				}
 			}
 			glColor4f(color->redF(),color->greenF(),color->blueF(),std::pow((k++)*1.0/traceCountNew,0.5)/2);
-			#if _3D_
+			if(use3D){
 				glVertex3d(x,y,z);
-			#else
+			}else{
 				glVertex2d(x,y);
-			#endif
+			}
 			ce->traceCount++;
 			if(ce->traceCount>=traceCount){
 				ce->traceCount = 0;
@@ -621,9 +617,9 @@ void Calculator::paintGL(bool readNewFrame){
 			}
 			glEnd();
 		}
-		#if _3D_
+		if(use3D){
 			glEnable(GL_LIGHTING);
-		#endif
+		}
 	}
 	for(i=0; i < readNum_render; i++)
 	{
@@ -633,16 +629,16 @@ void Calculator::paintGL(bool readNewFrame){
 		r = c->size;
 		x = c->pos.s[0];
 		y = c->pos.s[1];
-#if _3D_
-		z = c->pos.s[2];
-#else
-		z = 0;
-#endif
+		if(use3D){
+			z = c->pos.s[2];
+		}else{
+			z = 0;
+		}
 		if(useColorsBool)
 		{
 			color = &ceBuffer[i].color;
 		}
-		#if !_3D_
+		if(!use3D){
 			glPushMatrix();
 			glTranslated(x,y,z);
 			glScalef(r,r,r);
@@ -667,7 +663,7 @@ void Calculator::paintGL(bool readNewFrame){
 				glWidget->drawCircleF2(1.f); 
 			#endif
 			glPopMatrix();
-		#else
+		}else{
 			#if onlyOneC
 				if(i==cCount-1)
 					glColor3f(color->redF(),color->greenF(),color->blueF()); 
@@ -681,11 +677,11 @@ void Calculator::paintGL(bool readNewFrame){
 			glScalef(r,r,r);
 			glWidget->drawsphere2(r);
 			glPopMatrix();
-		#endif
+		}
 	}
-	#if _3D_
+	if(use3D){
 		if(showLights){
 			glWidget->drawLights();
 		}
-	#endif
+	}
 }

@@ -21,10 +21,10 @@ FileCalculator::FileCalculator():Calculator(){
 	
 	initialized = false;
 	
-	const char* file = getFileName(filename,viewFileExtension);
+	const char* file = getFileName(filename,getViewFileExtension());
 	
-	const char* filter = (std::string("SphereSim View File (*.")+viewFileExtension+")").c_str();
-	QString str = QFileDialog::getOpenFileName(0, ("Open file"), (std::string("./save.")+viewFileExtension).c_str(), (filter));
+	const char* filter = (std::string("SphereSim View File (*.")+getViewFileExtension()+")").c_str();
+	QString str = QFileDialog::getOpenFileName(0, ("Open file"), (std::string("./save.")+getViewFileExtension()).c_str(), (filter));
 	if(str == ""){
 		std::cerr<<"File could not be opened!"<<std::endl;
 		circlesCount = 0;
@@ -41,7 +41,7 @@ FileCalculator::FileCalculator():Calculator(){
 		//readLine();
 		int _3d;
 		saveInVar(_3d);
-		if(_3d != _3D_){
+		if((_3d!=0) != use3D){
 			if(_3d == 0){
 				std::cerr<<"You have to open this file with 2D viewer."<<std::endl;
 			}else{
@@ -56,9 +56,9 @@ FileCalculator::FileCalculator():Calculator(){
 		
 		saveInVar(boxSize.s0);
 		saveInVar(boxSize.s1);
-		#if _3D_
+		if(use3D){
 			saveInVar(boxSize.s2);
-		#endif
+		}
 		saveInVar(sphereSize.s0);
 		saveInVar(sphereSize.s1);
 		saveInVar(renderFpsMax);
@@ -86,9 +86,9 @@ FileCalculator::FileCalculator():Calculator(){
 			saveInVar(circles2[i].mass);
 			saveInVar(circles[i].pos.s0);
 			saveInVar(circles[i].pos.s1);
-			#if _3D_
+			if(use3D){
 				saveInVar(circles[i].pos.s2);
-			#endif
+			}
 		}
 		
 		readNum_render = std::min(newMaxCirclesCount,newCirclesCount);
@@ -170,9 +170,9 @@ bool FileCalculator::saveFrame(){
 	for(int i = 0; i<circlesCount; i++){
 		saveInVar(renderBuffer[bufferWriteIndex][i].s0);
 		saveInVar(renderBuffer[bufferWriteIndex][i].s1);
-		#if _3D_
+		if(use3D){
 			saveInVar(renderBuffer[bufferWriteIndex][i].s2);
-		#endif
+		}
 	}
 	return true;
 }

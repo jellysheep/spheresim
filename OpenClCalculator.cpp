@@ -80,8 +80,8 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 			printf("ERROR: OpenCL initialization failed!\n");
 			return;
 		}
-		kernel_source[13] = '0'+_3D_; //define OpenCL version of _3D_
-		kernel_source[32] = '0'+_double_; //define OpenCL version of _3D_
+		kernel_source[13] = '0'+(use3D?1:0); //define OpenCL version of use3D
+		kernel_source[32] = '0'+_double_; //define OpenCL version of use3D
 		if(G == 0) kernel_source[46] = '0';
 
 		//pl = kernel_source.boxSize();
@@ -241,12 +241,12 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		//std::vector<cl::Event> event2(1);
 		if(saveBool){
 			file = fopen("save.txt","w");
-			fprintf(file, "%u ", _3D_);
+			fprintf(file, "%u ", (use3D?1:0));
 			fprintf(file, "%g ", boxSize.s[0]);
 			fprintf(file, "%g ", boxSize.s[1]);
-			#if _3D_
+			if(use3D){
 				fprintf(file, "%g ", boxSize.s[2]);
-			#endif
+			}
 			fprintf(file, "%u\n", circlesCount);
 			fclose(file);
 			
@@ -376,10 +376,10 @@ void OpenClCalculator::save(){
 			addHex(file, c_CPU_save[j][i].pos.s[0]);
 			fprintf(file," ");
 			addHex(file, c_CPU_save[j][i].pos.s[1]);*/
-			//#if _3D_
+			//if(use3D){
 			//	f<<" ";
 			//	add(f, c_CPU_save[j][i].pos.s[2]);
-			//#endif
+			//}
 			fprintf(file,"\n");
 		}
 	}

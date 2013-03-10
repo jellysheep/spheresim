@@ -4,10 +4,10 @@
 
 #include <QColor>
 
-#define _3D_ 1
+//#define _3D_ 1
 #define _double_ 1
 
-#define fastSphereRender 1
+//#define fastSphereRender 1
 
 #if defined( __GNUC__ )
 	#define CL_ALIGNED(_x)		  __attribute__ ((aligned(_x)))
@@ -22,9 +22,7 @@ typedef union
 {
 	float  CL_ALIGNED(8) s[2];
 #if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
-   __extension__ struct{ float  x, y; };
    __extension__ struct{ float  s0, s1; };
-   __extension__ struct{ float  lo, hi; };
 #endif
 }float2;
 
@@ -32,9 +30,7 @@ typedef union
 {
 	float  CL_ALIGNED(16) s[4];
 #if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
-   __extension__ struct{ float   x, y, z, w; };
    __extension__ struct{ float   s0, s1, s2, s3; };
-   __extension__ struct{ float2  lo, hi; };
 #endif
 }float4;
 
@@ -44,9 +40,7 @@ typedef union
 {
 	double  CL_ALIGNED(16) s[2];
 #if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
-   __extension__ struct{ double  x, y; };
    __extension__ struct{ double s0, s1; };
-   __extension__ struct{ double lo, hi; };
 #endif
 }double2;
 
@@ -54,21 +48,14 @@ typedef union
 {
 	double  CL_ALIGNED(32) s[4];
 #if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
-   __extension__ struct{ double  x, y, z, w; };
    __extension__ struct{ double  s0, s1, s2, s3; };
-   __extension__ struct{ double2 lo, hi; };
 #endif
 }double4;
 
 typedef  double4  double3;
 
-#if _3D_
-	typedef float3 float_vector;
-	typedef double3 double_vector;
-#else
-	typedef float2 float_vector;
-	typedef double2 double_vector;
-#endif
+typedef float3 float_vector;
+typedef double3 double_vector;
 
 #if _double_
 	typedef double_vector vector;
@@ -88,11 +75,6 @@ typedef  double4  double3;
 typedef struct vector3{
 	scalar s[3];
 } vector3;*/
-#if _3D_
-	typedef vector3 vector;
-#else
-	typedef vector2 vector;
-#endif
 
 extern vector2* clVector(vector2 v);
 extern vector3* clVector(vector3 v);
@@ -120,6 +102,9 @@ typedef struct Plane
 	vector a,b,P;
 } Plane;
 
+extern bool use3D;
+extern bool fastRender;
+
 extern int circlesCount;
 extern bool manyCircles;
 extern int maxShowCirclesCount;
@@ -140,7 +125,8 @@ extern scalar gravity_abs;
 extern vector gravity;
 extern bool saveBool, renderBool, playBool;
 extern const char *filename;
-extern const char *viewFileExtension, *configFileExtension;
+extern const char *viewFileExtension3D, *configFileExtension3D;
+extern const char *viewFileExtension2D, *configFileExtension2D;
 extern int edges;
 extern scalar step;
 extern scalar G;
@@ -192,5 +178,8 @@ T* newCopy(T* oOld, int iOld, int iNew){
 	//*oNew = bufferNew;
 	return bufferNew;
 }
+
+extern const char* getViewFileExtension();
+extern const char* getConfigFileExtension();
 
 #endif

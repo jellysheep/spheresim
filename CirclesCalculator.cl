@@ -19,13 +19,8 @@
 //#define reduced 0.9999999999999
 //0.9
 
-#if _3D_
-	#define double_vector double3
-	#define float_vector float3
-#else
-	#define double_vector double2
-	#define float_vector float2
-#endif
+#define double_vector double3
+#define float_vector float3
 
 #if _double_
 	#define scalar double
@@ -582,7 +577,7 @@ __kernel void moveStep3_updatePositions(__global struct Circle* circle,
 	// Gravitation nach unten:
 	//circle[id].force -= gravity*circle[id].mass;
 	acceleration = force / c->mass;
-	acceleration -= gravity;
+	acceleration += gravity;
 	
 	#if leapfrog
 	

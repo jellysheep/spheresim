@@ -46,7 +46,8 @@ protected:
 	
 	void drawBoxSides(bool fillSides=true);
 	
-	const static ViewOptions initView;
+	const static ViewOptions initView2D, initView3D;
+	ViewOptions initView;
 	ViewOptions lastView, deltaView;
 	bool resettingView;
 	int resetCounter, resetCount;

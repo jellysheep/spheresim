@@ -34,14 +34,17 @@ void StatusViewer::updateTimer(){
 	scalar factor = getElapsedNS()/1000000000.0;
 	printf("Elapsed:	%8.2f seconds\n", factor);
 	
-	scalar glWidgetFrames = glWidget->popFramesCounter() / factor;
-	if(lastGlWidgetFrames == 0){
-		lastGlWidgetFrames = glWidgetFrames;
-	}else{
-		lastGlWidgetFrames *= (1-f);
-		lastGlWidgetFrames += f*glWidgetFrames;
+	scalar glWidgetFrames = 0;
+	if(glWidget){
+		glWidgetFrames = glWidget->popFramesCounter() / factor;
+		if(lastGlWidgetFrames == 0){
+			lastGlWidgetFrames = glWidgetFrames;
+		}else{
+			lastGlWidgetFrames *= (1-f);
+			lastGlWidgetFrames += f*glWidgetFrames;
+		}
+		printf("GlWidget:   %8.2f fps	   [now: %8.2f fps]\n", lastGlWidgetFrames, glWidgetFrames);
 	}
-	printf("GlWidget:   %8.2f fps	   [now: %8.2f fps]\n", lastGlWidgetFrames, glWidgetFrames);
 	
 	scalar frameBufferLoad = clTimer->getFrameBufferLoad();
 	//printf("frameBufferLoad:  %6.4f\n", frameBufferLoad);

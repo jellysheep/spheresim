@@ -60,6 +60,10 @@ int main(int argc, char *argv[]) {
 		win->showMaximized();
 		
 	#else
+		
+		StatusViewer statusViewer(NULL, clTimer);
+		statusViewer.start();
+		printf("StatusViewer initialized!\n");
 	
 		clTimer->start();
 		

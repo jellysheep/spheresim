@@ -11,7 +11,8 @@ using namespace std;
 #include "NanosecondTimer.h"
 #include "GLWidget.h"
 
-#define parallelFor _Pragma("omp parallel for if(circlesCount>500)")
+#define parallelFor 
+//_Pragma("omp parallel for if(circlesCount>500)")
 
 #define fixSun 0
 
@@ -36,31 +37,31 @@ EigenCalculator::EigenCalculator():Calculator(){
 	circlesForce = new eVector[circlesCount];
 	both_r = new scalar*[circlesCount];
 	
-	gridWidth = 2*sphereSize.s1;
-	#if _3D_
-		gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
-	#else
-		gridSteps = (int)(max(boxSize.s0, boxSize.s1)/gridWidth);
-	#endif
+	updateSphereSize();
 	printf("Grid steps: %5d\n", gridSteps);
 	gridIndex = new int*[circlesCount];
 	
 	posX = new Pos[circlesCount];
 	posY = new Pos[circlesCount];
-	#if _3D_
+	if(use3D){
 		posZ = new Pos[circlesCount];
-	#endif
+	}
 	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
 		posX[i].posOfCircle = i;
 		posX[i].circleAtPos = i;
 		posY[i].posOfCircle = i;
 		posY[i].circleAtPos = i;
-		#if _3D_
+		if(use3D){
 			posZ[i].posOfCircle = i;
 			posZ[i].circleAtPos = i;
-		#endif
+		}
 	}
+	
+	///cellSorting
+	firstSphereInCell = new int[maxCellsPerAxis*maxCellsPerAxis*(use3D?maxCellsPerAxis:1)];
+	posCell = new Pos[circlesCount];
+	cellOfSphere = new int[circlesCount];
 	
 	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
@@ -70,6 +71,14 @@ EigenCalculator::EigenCalculator():Calculator(){
 		initCircle(i);
 		
 	}
+	
+	///cellSorting
+	for(int i = 0; i<circlesCount; i++){
+		posCell[i].circleAtPos = i;
+		posCell[i].posOfCircle = i;
+	}
+	sortSpheresByCells();
+	
 	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
 		for(int j = 0; j<circlesCount; j++){
@@ -99,44 +108,42 @@ void EigenCalculator::initCircle(int i){
 	circles[i].poisson = poisson;
 	circles[i].fixed = 0;
 	
+	circlesPos[i].Zero();
 	circlesPos[i](0) = circles[i].size+rans(boxSize.s0-2*circles[i].size);
 	circlesPos[i](1) = circles[i].size+rans(boxSize.s1-2*circles[i].size);
-	#if _3D_
+	if(use3D){
 		circlesPos[i](2) = circles[i].size+rans(boxSize.s2-2*circles[i].size);
-		#if useSSE
-			//Vector4f or Vector4d
-			circlesPos[i](3) = 0;
-		#endif
-	#endif
+	}else{
+		circlesPos[i](2) = 0;
+	}
 	circlesOldPos[i] = circlesPos[i];
 	
 	gridIndex[i] = new int[3];
 	gridIndex[i][0] = circlesPos[i](0)/gridWidth;
 	gridIndex[i][1] = circlesPos[i](1)/gridWidth;
-	#if _3D_
+	if(use3D){
 		gridIndex[i][2] = circlesPos[i](2)/gridWidth;
-	#endif
+	}else{
+		gridIndex[i][2] = 0;
+	}
 	
 	circlesSpeed[i] = eVector::Random();
 	#if useSSE
-		#if _3D_
-			//Vector4f or Vector4d
-			circlesSpeed[i](3) = 0;
-		#else
-			#if !_double_
-				//Vector4f
-				circlesSpeed[i](2) = 0;
-				circlesSpeed[i](3) = 0;
-			#endif
-		#endif
+		circlesSpeed[i](3) = 0;
+		if(!use3D){
+			circlesSpeed[i](2) = 0;
+		}
 	#endif
+	if(use3D){
+		circlesSpeed[i](2) = 0;
+	}
 	circlesSpeed[i].normalize();
 	circlesSpeed[i] *= rans(max_speed);
 	//cout<<circlesSpeed[i]<<endl<<endl;
 	
-	circlesForce[i] = eVector::Zero();
+	circlesForce[i].Zero();
 	
-	//cout<<"3D enabled: "<<_3D_<<endl<<endl;
+	//cout<<"3D enabled: "<<(use3D?1:0)<<endl<<endl;
 	
 	#if fixSun
 		if(i == 0) circles[i].size = 3*sphereSize.s0;
@@ -144,9 +151,9 @@ void EigenCalculator::initCircle(int i){
 		if(i == 0) ceBuffer[i].hsvColor = QColor::fromHsv(0,0,0);
 		if(i == 0) circlesPos[i](0) = boxSize.s0/2;
 		if(i == 0) circlesPos[i](1) = boxSize.s1/2;
-		#if _3D_
+		if(use3D){
 			if(i == 0) circlesPos[i](2) = boxSize.s2/2;
-		#endif
+		}
 		if(i == 0) circlesSpeed[i] = eVector::Zero();
 	#endif
 	circlesOldPos[i] = circlesPos[i];
@@ -154,8 +161,12 @@ void EigenCalculator::initCircle(int i){
 }
 
 void EigenCalculator::updateSphereSize(){
-	gridWidth = 2*sphereSize.s1;
-	gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
+	gridWidth = max(2*sphereSize.s1, max(boxSize.s0, max(boxSize.s1, boxSize.s2))/maxCellsPerAxis);
+	if(use3D){
+		gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
+	}else{
+		gridSteps = (int)(max(boxSize.s0, boxSize.s1)/gridWidth);
+	}
 }
 
 
@@ -212,7 +223,7 @@ void EigenCalculator::calcWallResistance(){
 			circlesForce[i](1) -= force_*fact;
 			curWallForces[3] += force_*fact;
 		}
-		#if _3D_
+		if(use3D){
 			fact = 1.0f;
 			if ((htw_d_d = (circles[i].size - circlesPos[i](2)))>0) {
 				if(circlesSpeed[i](2) > 0)fact = elastic;
@@ -231,7 +242,7 @@ void EigenCalculator::calcWallResistance(){
 				circlesForce[i](2) -= force_*fact;
 				curWallForces[5] += force_*fact;
 			}
-		#endif
+		}
 	}
 }
 
@@ -260,9 +271,9 @@ void EigenCalculator::calcBallResistance(){
 			{
 				if(abs(gridIndex[i][0]-gridIndex[j][0]) >1) continue;
 				if(abs(gridIndex[i][1]-gridIndex[j][1]) >1) continue;
-				#if _3D_
+				if(use3D){
 					if(abs(gridIndex[i][2]-gridIndex[j][2]) >1) continue;
-				#endif
+				}
 			}
 			
 			collideBalls(i,j);
@@ -271,6 +282,7 @@ void EigenCalculator::calcBallResistance(){
 }
 
 void EigenCalculator::collideBalls(int i, int j){
+	if(i == j) return;
 	scalar both_r_ = both_r[i][j];
 	eVector d_pos = circlesPos[j]-circlesPos[i];
 	
@@ -345,9 +357,9 @@ void EigenCalculator::sumUpForces(){
 			acceleration(0) += gravity.s0;
 			acceleration(1) += gravity.s1;
 			//printf("circle %d gravity: %5f %5f\n", i, gravity.s0, gravity.s1);
-			#if _3D_
+			if(use3D){
 				acceleration(2) += gravity.s2;
-			#endif
+			}
 			circlesOldPos[i] += circlesSpeed[i]*timeInterval;
 			circlesOldPos[i] += 0.5*acceleration*timeInterval*timeInterval;
 			
@@ -360,9 +372,9 @@ void EigenCalculator::sumUpForces(){
 		
 		gridIndex[i][0] = (int)(circlesPos[i](0)/gridWidth);
 		gridIndex[i][1] = (int)(circlesPos[i](1)/gridWidth);
-		#if _3D_
+		if(use3D){
 			gridIndex[i][2] = circlesPos[i](2)/gridWidth;
-		#endif
+		}
 		/*printf("circle %d speed: %5f %5f\n", i, circlesSpeed[i](0), circlesSpeed[i](1));
 		printf("circle %d pos: %5f %5f\n", i, circlesPos[i](0), circlesPos[i](1));
 		printf("circle %d old pos: %5f %5f\n", i, circlesOldPos[i](0), circlesOldPos[i](1));// */
@@ -392,6 +404,57 @@ void EigenCalculator::sort(Pos* p, int dim){
 	}
 }
 
+void EigenCalculator::sortSpheresByCells(){
+	for(int i = 0; i<circlesCount; i++){
+		//calculate cell ID
+		cellOfSphere[i] = gridIndex[i][0] + maxCellsPerAxis*gridIndex[i][1] + 
+			(use3D?maxCellsPerAxis*maxCellsPerAxis*gridIndex[i][1]:0);
+	}
+	
+	int temp;
+	int j, cid; //circle ID
+	for (int i=1; i < circlesCount; i++){
+		cid = posCell[i].circleAtPos;
+		temp = cellOfSphere[cid];
+		j = i-1;
+
+		//while (j >= 0 && circlesPos[p[j].circleAtPos](dim) > temp){
+		while (j >= 0 && cellOfSphere[posCell[j].circleAtPos] > temp){
+			posCell[j+1].circleAtPos = posCell[j].circleAtPos;
+			j--;
+		}
+
+		posCell[j+1].circleAtPos = cid;
+	}
+	
+	//save array index of each sphere
+	for(int i = 0; i<circlesCount; i++){
+		posCell[posCell[i].circleAtPos].posOfCircle = i;
+	}
+	
+	/*
+	//set first sphere of each cell to -1
+	for(int i = boxSize.s0/gridWidth + 1; i>=0; i--){
+		for(j = boxSize.s1/gridWidth + 1; j>=0; j--){
+			if(use3D){
+				for(int k = boxSize.s2/gridWidth; k>=0; k--){
+					firstSphereInCell[i + maxCellsPerAxis*j + maxCellsPerAxis*maxCellsPerAxis*k] = -1;
+				}
+			}else{
+				firstSphereInCell[i + maxCellsPerAxis*j] = -1;
+			}
+		}
+	}// */
+	
+	//find posCell array position of first sphere of each cell
+	for(int i = circlesCount-1; i>=0; i--){
+		firstSphereInCell[cellOfSphere[posCell[i].circleAtPos]] = i;
+	}
+	/*for(int i = 0; i<circlesCount; i++){
+		printf("Circle: %2d cellID: %2d first circle in cell: %2d\n", posCell[i].circleAtPos, cellOfSphere[posCell[i].circleAtPos], posCell[firstSphereInCell[cellOfSphere[posCell[i].circleAtPos]]].circleAtPos);
+	}// */
+}
+
 void EigenCalculator::calcSortedBallResistance(){
 	sort(posX, 0);
 	/*
@@ -412,16 +475,98 @@ void EigenCalculator::calcSortedBallResistance(){
 			if((gridIndex[j][0] <= gridIndex[i][0]+1)){
 			//if(abs(gridIndex[i][0]-gridIndex[j][0]) <=1){
 			//if(circlesPos[j][0]-circlesPos[i][0] < both_r[i][j]){
-				if(abs(gridIndex[i][1]-gridIndex[j][1]) <=1
-				#if _3D_
-					&& abs(gridIndex[i][2]-gridIndex[j][2]) <=1
-				#endif
-				){
-					collideBalls(i, j);
+				if(abs(gridIndex[i][1]-gridIndex[j][1]) <=1){
+					if((!use3D) || (abs(gridIndex[i][2]-gridIndex[j][2]) <=1)){
+						collideBalls(i, j);
+					}
 				}
 			}else{
 				break;
 			}
+		}
+	}
+}
+
+void EigenCalculator::checkCollision(int i, int dx, int dy, int dz, bool sameCell){ 
+	//circle ID, deltas to next cell, bool if same cell (i.e. dx = dy = dz = 0)
+	int x = gridIndex[i][0]+dx, y = gridIndex[i][1]+dy, z = gridIndex[i][2]+dz;
+	if(!use3D) z = 0;
+	if(x<0 || y<0 || z<0 || x>maxCellsPerAxis || y>maxCellsPerAxis || z>maxCellsPerAxis) return;
+	int cellID = x + maxCellsPerAxis*y + maxCellsPerAxis*maxCellsPerAxis*z;
+	int j = firstSphereInCell[cellID]; //circle 2 pos in array
+	if(j < 0){
+		//printf("empty cell: %2d (%2d)\n", cellID, j);
+		return;
+	}
+	int c2 = posCell[j].circleAtPos; //circle 2 ID
+	//printf("cell: %2d | %2d cell of circle before: %2d cell of next circle: %2d\n", cellID, cellOfSphere[posCell[j].circleAtPos], cellOfSphere[posCell[j-1].circleAtPos], cellOfSphere[posCell[j+1].circleAtPos]);
+	while(cellOfSphere[c2] == cellID){
+		if(!(sameCell && circlesOldPos[i][0]>circlesOldPos[c2][0]))
+		{
+			collideBalls(i, c2);
+		}
+		j++;
+		c2 = posCell[j].circleAtPos;
+	}; //check collisions of all spheres in that cell
+}
+
+void EigenCalculator::calcCellSortedBallResistance(){
+	//QThread::msleep(50);
+	sortSpheresByCells();
+	/*
+	for(int pid = 0; pid<circlesCount; pid++){ // pos. ID
+		printf("%3d ", posX[pid].circleAtPos);
+	}
+	printf("\n"); // */
+
+	/// Kugeln kollidieren nur mit anderen, die in Zellen rechts, oben, vorne davon liegen.
+	/// Dadurch werden doppelt berechnete Kollisionen vermieden.
+	
+	if(use3D){
+		parallelFor
+		for(int i = 0; i<circlesCount; i++){ //circle ID 1
+			// dz = -1
+			// ___
+			// ___
+			// ___
+			
+			// dz = 0
+			// _XX
+			// _0X
+			// __X
+			
+			checkCollision(i, 0, 0, 0, true);
+			checkCollision(i, 1, 0, 0);
+			checkCollision(i, 1, 1, 0);
+			checkCollision(i, 1, -1, 0);
+			checkCollision(i, 0, 1, 0);
+			
+			// dz = 1
+			// XXX
+			// XXX
+			// XXX
+			
+			checkCollision(i, 0, 0, 1);
+			checkCollision(i, 1, 0, 1);
+			checkCollision(i, -1, 0, 1);
+			checkCollision(i, 0, 1, 1);
+			checkCollision(i, 1, 1, 1);
+			checkCollision(i, -1, 1, 1);
+			checkCollision(i, 0, -1, 1);
+			checkCollision(i, 1, -1, 1);
+			checkCollision(i, -1, -1, 1);
+		}
+	}else{
+		//parallelFor
+		for(int i = 0; i<circlesCount; i++){ //circle ID 1
+			// _XX
+			// _0X
+			// __X
+			checkCollision(i, 0, 0, 0);
+			checkCollision(i, 1, 0, 0);
+			checkCollision(i, 1, 1, 0);
+			checkCollision(i, 1, -1, 0);
+			checkCollision(i, 0, 1, 0);
 		}
 	}
 }
@@ -438,6 +583,8 @@ void EigenCalculator::doStep(){
 	#if 1
 		if(G_fact == 0){
 			calcSortedBallResistance();
+			
+			//calcCellSortedBallResistance();
 		}else
 	#endif
 	{
@@ -450,6 +597,16 @@ void EigenCalculator::doStep(){
 	
 	timeInterval = std::min(timeInterval, 1.0/minFps);
 	sumUpForces();
+	if(!use3D){
+		for(int i = 0; i<circlesCount; i++){
+			circlesPos[i](2) = 0;
+			circlesPos[i](3) = 0;
+		}
+	}else{
+		for(int i = 0; i<circlesCount; i++){
+			circlesPos[i](3) = 0;
+		}
+	}
 }
 
 void EigenCalculator::updateG(){
@@ -506,18 +663,28 @@ Circle* EigenCalculator::getDirectCircle(int i){
 	if(renderBuffer[bufferWriteIndex][i]==eVector::Zero()) return NULL;
 	circles[i].pos.s0 = renderBuffer[bufferWriteIndex][i](0);
 	circles[i].pos.s1 = renderBuffer[bufferWriteIndex][i](1);
-	#if _3D_
+	if(use3D){
 		circles[i].pos.s2 = renderBuffer[bufferWriteIndex][i](2);
-	#endif
+	}
 	return &circles[i];
 }
 
 Circle* EigenCalculator::getCircle(int i){
 	if(renderBuffer[bufferReadIndex][i]==eVector::Zero()) return NULL;
-	circles[i].pos.s0 = renderBuffer[bufferReadIndex][i](0);
-	circles[i].pos.s1 = renderBuffer[bufferReadIndex][i](1);
-	#if _3D_
-		circles[i].pos.s2 = renderBuffer[bufferReadIndex][i](2);
+	#if 1
+		//"live" view
+		circles[i].pos.s0 = circlesPos[i](0);
+		circles[i].pos.s1 = circlesPos[i](1);
+		if(use3D){
+			circles[i].pos.s2 = circlesPos[i](2);
+		}
+	#else
+		//normal view
+		circles[i].pos.s0 = renderBuffer[bufferReadIndex][i](0);
+		circles[i].pos.s1 = renderBuffer[bufferReadIndex][i](1);
+		if(use3D){
+			circles[i].pos.s2 = renderBuffer[bufferReadIndex][i](2);
+		}
 	#endif
 	return &circles[i];
 }
@@ -548,17 +715,17 @@ void EigenCalculator::circleCountChanged_subclass(int i){
 	///position indexes
 	posX = newCopy<Pos>(posX, circlesCount, i);
 	posY = newCopy<Pos>(posY, circlesCount, i);
-	#if _3D_
+	if(use3D){
 		posZ = newCopy<Pos>(posZ, circlesCount, i);
-	#endif
+	}
 	/*
 	if(i<(circlesCount/2)){
 		for(int j = i; j<circlesCount; j++){
 			posX[posX[j].posOfCircle].circleAtPos = posX[j].circleAtPos;
 			posX[posY[j].posOfCircle].circleAtPos = posY[j].circleAtPos;
-			#if _3D_
+			if(use3D){
 				posX[posZ[j].posOfCircle].circleAtPos = posZ[j].circleAtPos;
-			#endif
+			}
 		}
 	}else // */
 	{
@@ -567,10 +734,10 @@ void EigenCalculator::circleCountChanged_subclass(int i){
 			posX[j].posOfCircle = j;
 			posY[j].circleAtPos = j;
 			posY[j].posOfCircle = j;
-			#if _3D_
+			if(use3D){
 				posZ[j].circleAtPos = j;
 				posZ[j].posOfCircle = j;
-			#endif
+			}
 		}
 	}
 	//parallelFor
@@ -579,10 +746,10 @@ void EigenCalculator::circleCountChanged_subclass(int i){
 		posX[j].posOfCircle = j;
 		posY[j].circleAtPos = j;
 		posY[j].posOfCircle = j;
-		#if _3D_
+		if(use3D){
 			posZ[j].circleAtPos = j;
 			posZ[j].posOfCircle = j;
-		#endif
+		}
 	}
 	///renderBuffer
 	int readNum_render_new = min(maxShowCirclesCount,i);
@@ -653,14 +820,16 @@ void EigenCalculator::loadConfig(const char* file){
 		//readLine();
 		int _3d;
 		saveInVar(_3d);
-		if(_3d != _3D_){
+		/*if((_3d!=0) != use3D){
 			if(_3d == 0){
 				std::cerr<<"You have to open this file with 2D viewer."<<std::endl;
 			}else{
 				std::cerr<<"You have to open this file with 3D viewer."<<std::endl;
 			}
 			return;
-		}
+		}*/
+		use3D = (_3d!=0);
+		
 		int newCirclesCount;
 		saveInVar(newCirclesCount);
 		int newMaxCirclesCount;
@@ -668,9 +837,7 @@ void EigenCalculator::loadConfig(const char* file){
 		
 		saveInVar(boxSize.s0);
 		saveInVar(boxSize.s1);
-		#if _3D_
-			saveInVar(boxSize.s2);
-		#endif
+		if(use3D) saveInVar(boxSize.s2);
 		saveInVar(sphereSize.s0);
 		saveInVar(sphereSize.s1);
 		saveInVar(renderFpsMax);
@@ -715,19 +882,23 @@ void EigenCalculator::loadConfig(const char* file){
 			circlesPos[i](0) += 0.001*((rand()%1024)/1024.0);
 			//if(fixed==0) 
 			circlesPos[i](1) += 0.001*((rand()%1024)/1024.0);
-			#if _3D_
+			if(use3D){
 				saveInVar(circlesPos[i](2));
 				//if(fixed==0) 
 				circlesPos[i](2) += 0.001*((rand()%1024)/1024.0);
-			#endif
+			}else{
+				circlesPos[i](2) = 0;
+			}
 			circlesOldPos[i] = circlesPos[i];
 			//printf("circle pos: %5f %5f\n", circlesPos[i](0), circlesPos[i](1));
 			//printf("circle oldPos: %5f %5f\n", circlesOldPos[i](0), circlesOldPos[i](1));
 			saveInVar(circlesSpeed[i](0));
 			saveInVar(circlesSpeed[i](1));
-			#if _3D_
+			if(use3D){
 				saveInVar(circlesSpeed[i](2));
-			#endif
+			}else{
+				circlesSpeed[i](2) = 0;
+			}
 			//printf("circle speed: %5f %5f\n", circlesSpeed[i](0), circlesSpeed[i](1));
 			circlesForce[i].Zero();
 		}
@@ -760,10 +931,10 @@ void EigenCalculator::loadConfig(const char* file){
 }
 
 void EigenCalculator::loadConfig(){
-	const char* file = (std::string(filename)+configFileExtension).c_str();
+	const char* file = (std::string(filename)+getConfigFileExtension()).c_str();
 	
-	const char* filter = (std::string("SphereSim View File (*.")+configFileExtension+")").c_str();
-	QString str = QFileDialog::getOpenFileName(0, ("Open file"), (std::string("./save.")+configFileExtension).c_str(), (filter));
+	const char* filter = (std::string("SphereSim View File (*.")+getConfigFileExtension()+")").c_str();
+	QString str = QFileDialog::getOpenFileName(0, ("Open file"), (std::string("./save.")+getConfigFileExtension()).c_str(), (filter));
 	if(str == ""){
 		std::cerr<<"File could not be opened!"<<std::endl;
 		circlesCount = 0;
@@ -774,6 +945,31 @@ void EigenCalculator::loadConfig(){
 	printf("File: %s\n", file);
 	
 	loadConfig(file);
+}
+
+void EigenCalculator::paintGL(bool b){
+	Calculator::paintGL(b);
+	glDisable(GL_DEPTH_TEST);
+	glLineWidth(0.5);
+	
+	for(double x = 0; x < boxSize.s0; x+=gridWidth){
+		for(double y = 0; y < boxSize.s1; y+=gridWidth){
+			glBegin(GL_LINE_STRIP);
+			glVertex2d(x+gridWidth, y);
+			glVertex2d(x+gridWidth, y+gridWidth);
+			glVertex2d(x, y+gridWidth);
+			glEnd();
+		}
+	}
+	
+	return;
+	eVector pos;
+	for(int i = 0; i<circlesCount; i++){
+		//pos = renderBuffer[bufferReadIndex][i];
+		pos = circlesPos[i];
+		glWidget->renderText(pos[0], pos[1], pos[2], QString::number(	//posCell[i].posOfCircle));
+																		cellOfSphere[i]));
+	}
 }
 
 #endif

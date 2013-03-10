@@ -6,23 +6,25 @@
 #include <cmath>
 #include "Calculator.h"
 
-const ViewOptions GLWidget::initView = {
-	#if _3D_
-		.xRot = 0, .yRot = 60, 
-	#else
-		.xRot = 0, .yRot = 0,
-	#endif
-	.zRot = 0,
-	#if _3D_
-		.xRotCam = 20, .yRotCam = 0,
-		.transX = 0, .transY = 80, .transZ = 0
-	#else
-		.xRotCam = 0, .yRotCam = 0,
-		.transX = 0, .transY = 0, .transZ = 0
-	#endif
-	};
+const ViewOptions GLWidget::initView2D = {
+	.xRot = 0, .yRot = 0, .zRot = 0,
+	.xRotCam = 0, .yRotCam = 0,
+	.transX = 0, .transY = 0, .transZ = 0
+};
+const ViewOptions GLWidget::initView3D = {
+	.xRot = 0, .yRot = 60, .zRot = 0,
+	.xRotCam = 20, .yRotCam = 0,
+	.transX = 0, .transY = 80, .transZ = 0
+};
 
 GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
+	
+	if(use3D){
+		initView = initView3D;
+	}else{
+		initView = initView2D;
+	}
+	
 	setFocusPolicy(Qt::StrongFocus);
 	//setMouseTracking(true);
 	clTimer = ct;
@@ -82,7 +84,7 @@ void GLWidget::initializeGL() {
 	glLoadIdentity();
 	gluPerspective(50.f, 1.f*800/600*boxSize.s[0]/boxSize.s[1], 1.f, 3000.f);
 	
-	if(_3D_!=0){
+	if(use3D){
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
@@ -120,7 +122,7 @@ void GLWidget::initializeGL() {
 	
 	//glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 	
-	#if _3D_
+	if(use3D){
 		glEnable(GL_DEPTH_TEST);						// Enables Depth Testing
 		glDepthFunc(GL_LEQUAL);
 		glDepthMask(GL_TRUE);
@@ -177,19 +179,19 @@ void GLWidget::initializeGL() {
 		glEnable(GL_RESCALE_NORMAL);
 		
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	#endif
+	}
 	
 	displayList = glGenLists(2);
 	glNewList(displayList,GL_COMPILE);
-	#if _3D_
+	if(use3D){
 		#if fastSphereRender
 			drawsphere(1,1.f);
 		#else
 			drawsphere(2,1.f);
 		#endif
-	#else
+	}else{
 		drawCircleF(1.f);
-	#endif
+	}
 	glEndList();
 	glNewList(displayList+1,GL_COMPILE);
 	glLineWidth(1.0);
@@ -200,7 +202,7 @@ void GLWidget::initializeGL() {
 	glVertex3d(1,1,0);
 	glVertex3d(0,1,0);
 	glEnd();
-	if(_3D_!=0){
+	if(use3D){
 		//glColor3d(0.2,0.2,0.2);
 		glBegin(GL_LINE_LOOP);
 		glVertex3d(0,0,1);
@@ -263,11 +265,11 @@ void GLWidget::timeToRender(){
 	clTimer->setNewFrame(false);
 	newFrame = true;
 	
-	//#if _3D_
+	//if(use3D){
 		curView.xRot += autoRotation.s[0]*16.0;
 		curView.yRot += autoRotation.s[1]*16.0;
 		curView.zRot += autoRotation.s[2]*16.0;
-	//#endif
+	//}
 	
 	/*
 	rotGrav += 0.2;
@@ -280,9 +282,9 @@ void GLWidget::timeToRender(){
 void GLWidget::updateGravity(){
 	gravity.s[0] = cos(M_PI/180.0*(rotGrav-90))*gravity_abs;
 	gravity.s[1] = sin(M_PI/180.0*(rotGrav-90))*gravity_abs;
-	#if _3D_
+	//if(use3D){
 		gravity.s[2] = 0;
-	#endif
+	//}
 	emit clTimer->gravityChanged();
 }
 
@@ -382,9 +384,9 @@ void GLWidget::paintGL() {
 	glPushMatrix();
 
 	
-	#if !_3D_
+	if(!use3D){
 		glDisable(GL_POLYGON_SMOOTH);
-	#endif
+	}
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glBegin(GL_QUADS);
@@ -398,12 +400,12 @@ void GLWidget::paintGL() {
 	glVertex3f( x,-y, f);
 	glVertex3f(-x,-y, f);
 	glEnd();
-	#if _3D_
+	if(use3D){
 		glEnable(GL_LIGHTING);
 		glEnable(GL_DEPTH_TEST);
-	#else
-		glEnable(GL_POLYGON_SMOOTH);
-	#endif
+	}else{
+		//glEnable(GL_POLYGON_SMOOTH);
+	}
 	
 	glPopMatrix();//*/
 	
@@ -435,28 +437,31 @@ void GLWidget::paintGL() {
 
 	
 	scalar scale = 80.0;
-	#if !_3D_
+	if(!use3D){
 		scale*=1.5;
-	#endif
+	}
 	glScalef(scale,scale,scale);
 
 	
 	glRotatef(-rotGrav, 0.0, 0.0, 1.0);
 	//glRotatef(curView.zRot / 16.0, 0.0, 0.0, 1.0);
-	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (_3D_!=0?(-boxSize.s[2]/2):0));
-	#if _3D_
+	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (use3D?(-boxSize.s[2]/2):0));
+	if(use3D){
 		setLightPos();
 		//draw light bulbs
 		//drawLights();
-	#endif
+	}
 	
 	if(renderBool){
-		#if _3D_
-		if(reflections && showCube && wallResistance){
-			reflect();
-		}else
-		#endif
-		clTimer->paintGL(true);
+		if(use3D){
+			if(reflections && showCube && wallResistance){
+				reflect();
+			}else{
+				clTimer->paintGL(true);
+			}
+		}else{
+			clTimer->paintGL(true);
+		}
 		/* Draw "bottom" of floor in blue. */
 		/* Switch face orientation. */
 		//*

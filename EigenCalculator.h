@@ -15,40 +15,19 @@ using namespace Eigen;
 #define useSSE 1
 
 #if useSSE
-	#if _3D_
-		//Vector4d and Vector4f are vectorized
-		//typedef Eigen::Matrix<scalar, 4, 1> eVector;
-		#if _double_
-			typedef Vector4d eVector;
-		#else
-			typedef Vector4f eVector;
-		#endif
+	//Vector4d and Vector4f are vectorized
+	//typedef Eigen::Matrix<scalar, 4, 1> eVector;
+	#if _double_
+		typedef Vector4d eVector;
 	#else
-		#if _double_
-			//Vector2d is vectorized
-			typedef Vector2d eVector;
-			//typedef Eigen::Matrix<scalar, 2, 1> eVector;
-		#else
-			//Vector2f is not vectorized, but Vector4f is
-			typedef Vector4f eVector;
-			//typedef Eigen::Matrix<scalar, 4, 1> eVector;
-		#endif
+		typedef Vector4f eVector;
 	#endif
 #else
-	#if _3D_
-		//typedef Eigen::Matrix<scalar, 3, 1> eVector;
-		#if _double_
-			typedef Vector3d eVector;
-		#else
-			typedef Vector3f eVector;
-		#endif
+	//typedef Eigen::Matrix<scalar, 3, 1> eVector;
+	#if _double_
+		typedef Vector3d eVector;
 	#else
-		//typedef Eigen::Matrix<scalar, 2, 1> eVector;
-		#if _double_
-			typedef Vector2d eVector;
-		#else
-			typedef Vector2f eVector;
-		#endif
+		typedef Vector3f eVector;
 	#endif
 #endif
 
@@ -92,9 +71,17 @@ protected:
 	
 	void collideBalls(int i, int j);
 	
-	Pos *posX, *posY, *posZ;
-	void sort(Pos* p, int dim);
+	Pos *posX, *posY, *posZ; //positions of spheres sorted by axes
+	void sort(Pos* p, int dim); //sort the spheres
 	void calcSortedBallResistance();
+	
+	const static int maxCellsPerAxis = 100;
+	int *cellOfSphere;
+	Pos *posCell; //spheres sorted by cell ID
+	int *firstSphereInCell; //first sphere in each cell, or -1
+	void sortSpheresByCells();
+	void calcCellSortedBallResistance();
+	inline void checkCollision(int i, int dx, int dy, int dz, bool sameCell=false);
 	
 	void loadConfig(const char* file);
 	
@@ -109,6 +96,8 @@ public:
 	void fpsChanged(scalar timeInterval);
 	
 	scalar getTemperature();
+	
+	void paintGL(bool b);
 	
 public slots:
 	void boxSizeChanged();
