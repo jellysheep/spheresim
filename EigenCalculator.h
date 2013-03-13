@@ -81,7 +81,8 @@ protected:
 	int *firstSphereInCell; //first sphere in each cell, or -1
 	void sortSpheresByCells();
 	void calcCellSortedBallResistance();
-	inline void checkCollision(int i, int dx, int dy, int dz, bool sameCell=false);
+	void checkCollision(int i, int x, int y, int z, bool sameCell=false);
+	inline int calcCellID(int x, int y, int z=0);
 	
 	void loadConfig(const char* file);
 	

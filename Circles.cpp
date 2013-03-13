@@ -3,14 +3,14 @@
 #include <cmath>
 #include <algorithm>
 
-bool use3D = false;
+bool use3D = true;
 bool fastRender = true;
 
 int circlesCount = 1000;
 int maxShowCirclesCount = 20000;
 bool manyCircles = (std::min(circlesCount,maxShowCirclesCount)>20);
 
-vector3 boxSize = (vector3){1,1,1};
+vector3 boxSize = (vector3){1.5,1.5,1};
 vector2 sphereSize = (vector2){0.015,0.015};
 
 int renderFpsMax = 60, renderFps = renderFpsMax;
@@ -21,8 +21,8 @@ scalar timeInterval = speed*speedCorrection/fps;
 scalar max_speed = 0.5;
 scalar E = 2*0.05;//((200)/1000000.0)/2; //Silikonkautschuk
 scalar poisson = 0.5; //Gummi
-scalar elastic = 0.1;//0.93;//0.05;//0.9;//0.999;//0.9;
-scalar gravity_abs = 9.81;
+scalar elastic = 1;//0.93;//0.05;//0.9;//0.999;//0.9;
+scalar gravity_abs = 0;//9.81;
 vector gravity = (vector){0,-gravity_abs, 0};
 bool saveBool = false, renderBool = true, playBool = false;
 int edges = 2*(int)(std::max(4.0,4*log(sphereSize.s[1]/boxSize.s[0]*400)));

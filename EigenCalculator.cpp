@@ -293,7 +293,7 @@ void EigenCalculator::collideBalls(int i, int j){
 	eVector d_n, force;
 	
 	#if _G_
-	if(G!=0)
+	if(G_fact!=0)
 	{
 		d_n = d_pos/d;
 		// bzw. normalize(d_pos);
@@ -311,7 +311,7 @@ void EigenCalculator::collideBalls(int i, int j){
 		scalar d_, R, _E_;
 		//*
 		//#if _G_==0
-		if(G == 0)
+		if(G_fact == 0)
 		{
 			d_n = d_pos/d; // bzw. normalize(d_pos);
 		}
@@ -365,6 +365,17 @@ void EigenCalculator::sumUpForces(){
 			
 			circlesSpeed[i] += acceleration*timeInterval;
 			circlesForce[i] -= force;
+			
+			#if 0
+				if(wallResistance){
+					circlesOldPos[i](0) = min(circlesOldPos[i](0), boxSize.s0);
+					circlesOldPos[i](1) = min(circlesOldPos[i](1), boxSize.s1);
+					if(use3D) circlesOldPos[i](2) = min(circlesOldPos[i](2), boxSize.s2);
+					circlesOldPos[i](0) = max(circlesOldPos[i](0), 0.0);
+					circlesOldPos[i](1) = max(circlesOldPos[i](1), 0.0);
+					if(use3D) circlesOldPos[i](2) = max(circlesOldPos[i](2), 0.0);
+				}
+			#endif
 		}
 		circlesPos[i] = circlesOldPos[i];
 		circlesPos[i] += circlesSpeed[i]*(timeInterval/2);
@@ -404,11 +415,76 @@ void EigenCalculator::sort(Pos* p, int dim){
 	}
 }
 
+void EigenCalculator::calcSortedBallResistance(){
+	sort(posX, 0);
+	/*
+	for(int pid = 0; pid<circlesCount; pid++){ // pos. ID
+		printf("%3d ", posX[pid].circleAtPos);
+	}
+	printf("\n"); // */
+
+	/// Kugeln kollidieren nur mit anderen, die rechts davon liegen.
+	/// Dadurch werden doppelt berechnete Kollisionen vermieden.
+	
+	parallelFor
+	for(int pid = 0; pid<circlesCount; pid++){ // pos. ID
+		int i = posX[pid].circleAtPos, j; //circle IDs
+		posX[i].posOfCircle = pid;
+		for(int pid2 = pid+1; pid2<circlesCount; pid2++){
+			j = posX[pid2].circleAtPos;
+			if((gridIndex[j][0] <= gridIndex[i][0]+1)){
+			//if(abs(gridIndex[i][0]-gridIndex[j][0]) <=1){
+			//if(circlesPos[j][0]-circlesPos[i][0] < both_r[i][j]){
+				if(abs(gridIndex[i][1]-gridIndex[j][1]) <=1){
+					if((!use3D) || (abs(gridIndex[i][2]-gridIndex[j][2]) <=1)){
+						collideBalls(i, j);
+					}
+				}
+			}else{
+				break;
+			}
+		}
+	}
+}
+
+uint32_t calcZOrder(uint16_t xPos, uint16_t yPos)
+{
+    static const uint32_t MASKS[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF};
+    static const uint32_t SHIFTS[] = {1, 2, 4, 8};
+
+    uint32_t x = xPos;  // Interleave lower 16 bits of x and y, so the bits of x
+    uint32_t y = yPos;  // are in the even positions and bits from y in the odd;
+
+    x = (x | (x << SHIFTS[3])) & MASKS[3];
+    x = (x | (x << SHIFTS[2])) & MASKS[2];
+    x = (x | (x << SHIFTS[1])) & MASKS[1];
+    x = (x | (x << SHIFTS[0])) & MASKS[0];
+
+    y = (y | (y << SHIFTS[3])) & MASKS[3];
+    y = (y | (y << SHIFTS[2])) & MASKS[2];
+    y = (y | (y << SHIFTS[1])) & MASKS[1];
+    y = (y | (y << SHIFTS[0])) & MASKS[0];
+
+    const uint32_t result = x | (y << 1);
+    return result;
+}
+
+int EigenCalculator::calcCellID(int x, int y, int z){
+	return x + maxCellsPerAxis*y + maxCellsPerAxis*maxCellsPerAxis*z;
+	//return calcZOrder(x,y) + maxCellsPerAxis*maxCellsPerAxis*z;
+}
+
 void EigenCalculator::sortSpheresByCells(){
-	for(int i = 0; i<circlesCount; i++){
-		//calculate cell ID
-		cellOfSphere[i] = gridIndex[i][0] + maxCellsPerAxis*gridIndex[i][1] + 
-			(use3D?maxCellsPerAxis*maxCellsPerAxis*gridIndex[i][1]:0);
+	if(use3D){
+		for(int i = 0; i<circlesCount; i++){
+			//calculate cell ID
+			cellOfSphere[i] = calcCellID(gridIndex[i][0], gridIndex[i][1], gridIndex[i][1]);
+		}
+	}else{
+		for(int i = 0; i<circlesCount; i++){
+			//calculate cell ID
+			cellOfSphere[i] = calcCellID(gridIndex[i][0], gridIndex[i][1]);
+		}
 	}
 	
 	int temp;
@@ -455,44 +531,12 @@ void EigenCalculator::sortSpheresByCells(){
 	}// */
 }
 
-void EigenCalculator::calcSortedBallResistance(){
-	sort(posX, 0);
-	/*
-	for(int pid = 0; pid<circlesCount; pid++){ // pos. ID
-		printf("%3d ", posX[pid].circleAtPos);
-	}
-	printf("\n"); // */
+#define twiceCalcCollisions 1
 
-	/// Kugeln kollidieren nur mit anderen, die rechts davon liegen.
-	/// Dadurch werden doppelt berechnete Kollisionen vermieden.
-	
-	parallelFor
-	for(int pid = 0; pid<circlesCount; pid++){ // pos. ID
-		int i = posX[pid].circleAtPos, j; //circle IDs
-		posX[i].posOfCircle = pid;
-		for(int pid2 = pid+1; pid2<circlesCount; pid2++){
-			j = posX[pid2].circleAtPos;
-			if((gridIndex[j][0] <= gridIndex[i][0]+1)){
-			//if(abs(gridIndex[i][0]-gridIndex[j][0]) <=1){
-			//if(circlesPos[j][0]-circlesPos[i][0] < both_r[i][j]){
-				if(abs(gridIndex[i][1]-gridIndex[j][1]) <=1){
-					if((!use3D) || (abs(gridIndex[i][2]-gridIndex[j][2]) <=1)){
-						collideBalls(i, j);
-					}
-				}
-			}else{
-				break;
-			}
-		}
-	}
-}
-
-void EigenCalculator::checkCollision(int i, int dx, int dy, int dz, bool sameCell){ 
-	//circle ID, deltas to next cell, bool if same cell (i.e. dx = dy = dz = 0)
-	int x = gridIndex[i][0]+dx, y = gridIndex[i][1]+dy, z = gridIndex[i][2]+dz;
-	if(!use3D) z = 0;
+void EigenCalculator::checkCollision(int i, int x, int y, int z, bool sameCell){ 
+	//circle ID, cell position, bool if same cell (i.e. dx = dy = dz = 0)
 	if(x<0 || y<0 || z<0 || x>maxCellsPerAxis || y>maxCellsPerAxis || z>maxCellsPerAxis) return;
-	int cellID = x + maxCellsPerAxis*y + maxCellsPerAxis*maxCellsPerAxis*z;
+	int cellID = calcCellID(x,y,z);
 	int j = firstSphereInCell[cellID]; //circle 2 pos in array
 	if(j < 0){
 		//printf("empty cell: %2d (%2d)\n", cellID, j);
@@ -501,9 +545,11 @@ void EigenCalculator::checkCollision(int i, int dx, int dy, int dz, bool sameCel
 	int c2 = posCell[j].circleAtPos; //circle 2 ID
 	//printf("cell: %2d | %2d cell of circle before: %2d cell of next circle: %2d\n", cellID, cellOfSphere[posCell[j].circleAtPos], cellOfSphere[posCell[j-1].circleAtPos], cellOfSphere[posCell[j+1].circleAtPos]);
 	while(cellOfSphere[c2] == cellID){
-		if(!(sameCell && circlesOldPos[i][0]>circlesOldPos[c2][0]))
+		#if twiceCalcCollisions==0
+			if(!(sameCell && circlesOldPos[i][0]>circlesOldPos[c2][0]))
+		#endif
 		{
-			collideBalls(i, c2);
+			if(circlesOldPos[i][0]>circlesOldPos[c2][0]) collideBalls(i, c2);
 		}
 		j++;
 		c2 = posCell[j].circleAtPos;
@@ -525,48 +571,76 @@ void EigenCalculator::calcCellSortedBallResistance(){
 	if(use3D){
 		parallelFor
 		for(int i = 0; i<circlesCount; i++){ //circle ID 1
+			int x = gridIndex[i][0], y = gridIndex[i][1], z = gridIndex[i][2];
 			// dz = -1
 			// ___
 			// ___
 			// ___
+			
+			#if twiceCalcCollisions
+				checkCollision(i, x+0, y+0, z-1);
+				checkCollision(i, x+1, y+0, z-1);
+				checkCollision(i, x-1, y+0, z-1);
+				checkCollision(i, x+0, y+1, z-1);
+				checkCollision(i, x+1, y+1, z-1);
+				checkCollision(i, x-1, y+1, z-1);
+				checkCollision(i, x+0, y-1, z-1);
+				checkCollision(i, x+1, y-1, z-1);
+				checkCollision(i, x-1, y-1, z-1);
+			#endif
 			
 			// dz = 0
 			// _XX
 			// _0X
 			// __X
 			
-			checkCollision(i, 0, 0, 0, true);
-			checkCollision(i, 1, 0, 0);
-			checkCollision(i, 1, 1, 0);
-			checkCollision(i, 1, -1, 0);
-			checkCollision(i, 0, 1, 0);
+			checkCollision(i, x+0, y+0, z+0, true);
+			checkCollision(i, x+1, y+0, z+0);
+			checkCollision(i, x+1, y+1, z+0);
+			checkCollision(i, x+1, y+1, z+0);
+			checkCollision(i, x+0, y+1, z+0);
+			
+			#if twiceCalcCollisions
+				checkCollision(i, x+0, y-1, z+0);
+				checkCollision(i, x-1, y+0, z+0);
+				checkCollision(i, x-1, y+1, z+0);
+				checkCollision(i, x-1, y-1, z+0);
+			#endif
 			
 			// dz = 1
 			// XXX
 			// XXX
 			// XXX
 			
-			checkCollision(i, 0, 0, 1);
-			checkCollision(i, 1, 0, 1);
-			checkCollision(i, -1, 0, 1);
-			checkCollision(i, 0, 1, 1);
-			checkCollision(i, 1, 1, 1);
-			checkCollision(i, -1, 1, 1);
-			checkCollision(i, 0, -1, 1);
-			checkCollision(i, 1, -1, 1);
-			checkCollision(i, -1, -1, 1);
+			checkCollision(i, x+0, y+0, z+1);
+			checkCollision(i, x+1, y+0, z+1);
+			checkCollision(i, x-1, y+0, z+1);
+			checkCollision(i, x+0, y+1, z+1);
+			checkCollision(i, x+1, y+1, z+1);
+			checkCollision(i, x-1, y+1, z+1);
+			checkCollision(i, x+0, y-1, z+1);
+			checkCollision(i, x+1, y-1, z+1);
+			checkCollision(i, x-1, y-1, z+1);
 		}
 	}else{
-		//parallelFor
+		parallelFor
 		for(int i = 0; i<circlesCount; i++){ //circle ID 1
+			int x = gridIndex[i][0], y = gridIndex[i][1], z = 0;
 			// _XX
 			// _0X
 			// __X
-			checkCollision(i, 0, 0, 0);
-			checkCollision(i, 1, 0, 0);
-			checkCollision(i, 1, 1, 0);
-			checkCollision(i, 1, -1, 0);
-			checkCollision(i, 0, 1, 0);
+			checkCollision(i, x+0, y+0, z);
+			checkCollision(i, x+1, y+0, z);
+			checkCollision(i, x+1, y+1, z);
+			checkCollision(i, x+1, y-1, z);
+			checkCollision(i, x+0, y+1, z);
+			
+			#if twiceCalcCollisions
+				checkCollision(i, x+0, y-1, z);
+				checkCollision(i, x-1, y+0, z);
+				checkCollision(i, x-1, y+1, z);
+				checkCollision(i, x-1, y-1, z);
+			#endif
 		}
 	}
 }
@@ -582,9 +656,8 @@ void EigenCalculator::doStep(){
 	
 	#if 1
 		if(G_fact == 0){
-			calcSortedBallResistance();
-			
-			//calcCellSortedBallResistance();
+			//calcSortedBallResistance();
+			calcCellSortedBallResistance();
 		}else
 	#endif
 	{

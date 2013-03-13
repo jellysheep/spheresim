@@ -271,7 +271,7 @@ void GLWidget::timeToRender(){
 		curView.zRot += autoRotation.s[2]*16.0;
 	//}
 	
-	/*
+	//*
 	rotGrav += 0.2;
 	updateGravity();
 	//*/

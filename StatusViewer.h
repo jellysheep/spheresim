@@ -20,7 +20,7 @@ protected:
 	Calculator* clTimer;
 	Control* ctl;
 	scalar lastGlWidgetFrames, lastCalculatorFrames;
-	const static scalar f = 0.5;
+	const static scalar f = 0.1;
 	bool running;
 	QTimer* statusTimer;
 

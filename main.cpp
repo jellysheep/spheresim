@@ -11,15 +11,19 @@
 #include <QHBoxLayout>
 #include <cstdio>
 
-#ifdef Q_WS_X11
-#include <X11/Xlib.h>
-#endif
-
 #include "GLWidget.h"
 #include "CirclesHolder.h"
 #include "StatusViewer.h"
 
 #define PROFILING 0
+
+#if PROFILING
+	#include "EigenCalculator.h"
+#endif
+
+#ifdef Q_WS_X11
+#include <X11/Xlib.h>
+#endif
 
 int main(int argc, char *argv[]) {
 	
@@ -33,13 +37,13 @@ int main(int argc, char *argv[]) {
 	
 	qRegisterMetaType<scalar>("scalar");
 	
-	//Calculator* clTimer = new OpenClCalculator();
-	//Calculator* clTimer = new EigenCalculator();
-	Calculator* clTimer = Dialog().getCalculator();
-	if(clTimer == NULL) exit(0);
-	printf("Calculator initialized!\n");
-	
 	#if PROFILING == 0
+	
+		//Calculator* clTimer = new OpenClCalculator();
+		//Calculator* clTimer = new EigenCalculator();
+		Calculator* clTimer = Dialog().getCalculator();
+		if(clTimer == NULL) exit(0);
+		printf("Calculator initialized!\n");
 
 		GLWidget window(clTimer);
 		printf("GLWidget initialized!\n");
@@ -60,6 +64,10 @@ int main(int argc, char *argv[]) {
 		win->showMaximized();
 		
 	#else
+	
+		Calculator* clTimer = new EigenCalculator();
+		if(clTimer == NULL) exit(0);
+		printf("Calculator initialized!\n");
 		
 		StatusViewer statusViewer(NULL, clTimer);
 		statusViewer.start();
