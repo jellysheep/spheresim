@@ -3,7 +3,7 @@
 #include <cmath>
 #include <algorithm>
 
-bool use3D = true;
+bool use3D = false;
 bool fastRender = true;
 
 int circlesCount = 1000;

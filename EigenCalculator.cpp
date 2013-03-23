@@ -59,9 +59,14 @@ EigenCalculator::EigenCalculator():Calculator(){
 	}
 	
 	///cellSorting
-	firstSphereInCell = new int[maxCellsPerAxis*maxCellsPerAxis*(use3D?maxCellsPerAxis:1)];
+	numCells = min(pow(rowsPerStep, curveSteps), maxCellsPerAxis);
+	
+	firstSphereInCell = new int[numCells*numCells*(use3D?numCells:1)];
 	posCell = new Pos[circlesCount];
 	cellOfSphere = new int[circlesCount];
+	
+	curveIndices = new int[numCells*numCells*(use3D?numCells:1)];
+	buildCurveIndices_Peano();
 	
 	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
@@ -100,6 +105,58 @@ EigenCalculator::EigenCalculator():Calculator(){
 		bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 	}
 	printf("EigenCalculator initialized!\n");
+}
+
+void EigenCalculator::buildCurveIndices_Peano(){
+	indexCounter = 0;
+	buildPeanoCurve(0, 0, 0, 0, 0);
+	for(int y = numCells-1; y>=0; y--){
+		for(int x = 0; x<numCells; x++){
+			printf("%3d ", curveIndices[x+numCells*y]);
+		}
+		printf("\n");
+	}
+}
+
+void EigenCalculator::buildPeanoCurve(int x, int y, int z, int step, int direction){
+	// direction: 
+	// 0 = /^
+	// 1 = ^\ 
+	
+	if(step == curveSteps){
+		//highest recursion depth
+		curveIndices[x+numCells*y+numCells*numCells*z] = indexCounter++;
+	}else{
+		x *= 3;
+		y *= 3;
+		z *= 3;
+		step++;
+		if(use3D){
+			///TODO
+		}else{
+			if(direction == 0){
+				buildPeanoCurve(x+0, y+0, z, step, 0+direction);
+				buildPeanoCurve(x+0, y+1, z, step, 1-direction);
+				buildPeanoCurve(x+0, y+2, z, step, 0+direction);
+				buildPeanoCurve(x+1, y+2, z, step, 1-direction);
+				buildPeanoCurve(x+1, y+1, z, step, 0+direction);
+				buildPeanoCurve(x+1, y+0, z, step, 1-direction);
+				buildPeanoCurve(x+2, y+0, z, step, 0+direction);
+				buildPeanoCurve(x+2, y+1, z, step, 1-direction);
+				buildPeanoCurve(x+2, y+2, z, step, 0+direction);
+			}else if(direction == 1){
+				buildPeanoCurve(x+2, y+0, z, step, 0+direction);
+				buildPeanoCurve(x+2, y+1, z, step, 1-direction);
+				buildPeanoCurve(x+2, y+2, z, step, 0+direction);
+				buildPeanoCurve(x+1, y+2, z, step, 1-direction);
+				buildPeanoCurve(x+1, y+1, z, step, 0+direction);
+				buildPeanoCurve(x+1, y+0, z, step, 1-direction);
+				buildPeanoCurve(x+0, y+0, z, step, 0+direction);
+				buildPeanoCurve(x+0, y+1, z, step, 1-direction);
+				buildPeanoCurve(x+0, y+2, z, step, 0+direction);
+			}
+		}
+	}
 }
 
 void EigenCalculator::initCircle(int i){
@@ -161,7 +218,7 @@ void EigenCalculator::initCircle(int i){
 }
 
 void EigenCalculator::updateSphereSize(){
-	gridWidth = max(2*sphereSize.s1, max(boxSize.s0, max(boxSize.s1, boxSize.s2))/maxCellsPerAxis);
+	gridWidth = max(2*sphereSize.s1, max(boxSize.s0, max(boxSize.s1, boxSize.s2))/numCells);
 	if(use3D){
 		gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
 	}else{
@@ -470,8 +527,8 @@ uint32_t calcZOrder(uint16_t xPos, uint16_t yPos)
 }
 
 int EigenCalculator::calcCellID(int x, int y, int z){
-	return x + maxCellsPerAxis*y + maxCellsPerAxis*maxCellsPerAxis*z;
-	//return calcZOrder(x,y) + maxCellsPerAxis*maxCellsPerAxis*z;
+	return x + numCells*y + numCells*numCells*z;
+	//return calcZOrder(x,y) + numCells*numCells*z;
 }
 
 void EigenCalculator::sortSpheresByCells(){
@@ -514,10 +571,10 @@ void EigenCalculator::sortSpheresByCells(){
 		for(j = boxSize.s1/gridWidth + 1; j>=0; j--){
 			if(use3D){
 				for(int k = boxSize.s2/gridWidth; k>=0; k--){
-					firstSphereInCell[i + maxCellsPerAxis*j + maxCellsPerAxis*maxCellsPerAxis*k] = -1;
+					firstSphereInCell[i + numCells*j + numCells*numCells*k] = -1;
 				}
 			}else{
-				firstSphereInCell[i + maxCellsPerAxis*j] = -1;
+				firstSphereInCell[i + numCells*j] = -1;
 			}
 		}
 	}// */
@@ -535,7 +592,7 @@ void EigenCalculator::sortSpheresByCells(){
 
 void EigenCalculator::checkCollision(int i, int x, int y, int z, bool sameCell){ 
 	//circle ID, cell position, bool if same cell (i.e. dx = dy = dz = 0)
-	if(x<0 || y<0 || z<0 || x>maxCellsPerAxis || y>maxCellsPerAxis || z>maxCellsPerAxis) return;
+	if(x<0 || y<0 || z<0 || x>numCells || y>numCells || z>numCells) return;
 	int cellID = calcCellID(x,y,z);
 	int j = firstSphereInCell[cellID]; //circle 2 pos in array
 	if(j < 0){
@@ -744,7 +801,7 @@ Circle* EigenCalculator::getDirectCircle(int i){
 
 Circle* EigenCalculator::getCircle(int i){
 	if(renderBuffer[bufferReadIndex][i]==eVector::Zero()) return NULL;
-	#if 1
+	#if 0
 		//"live" view
 		circles[i].pos.s0 = circlesPos[i](0);
 		circles[i].pos.s1 = circlesPos[i](1);

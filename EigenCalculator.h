@@ -75,7 +75,8 @@ protected:
 	void sort(Pos* p, int dim); //sort the spheres
 	void calcSortedBallResistance();
 	
-	const static int maxCellsPerAxis = 100;
+	int numCells;
+	const static int maxCellsPerAxis = 27;
 	int *cellOfSphere;
 	Pos *posCell; //spheres sorted by cell ID
 	int *firstSphereInCell; //first sphere in each cell, or -1
@@ -87,6 +88,16 @@ protected:
 	void loadConfig(const char* file);
 	
 	bool isFixed(int i);
+	
+	const static int rowsPerStep = 3, curveSteps = 3;
+	int* curveIndices;
+	int indexCounter;
+	void buildCurveIndices_Peano();
+	void buildPeanoCurve(int x, int y, int z, int step, int direction);
+	
+	int pow(int a, unsigned int b){
+		return (b>=2 ? a*a*pow(a, b-2) : (b == 1 ? a : 1));
+	}
 
 public:
 	EigenCalculator();
