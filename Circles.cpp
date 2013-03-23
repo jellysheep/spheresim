@@ -6,7 +6,7 @@
 bool use3D = false;
 bool fastRender = true;
 
-int circlesCount = 1000;
+int circlesCount = 100;
 int maxShowCirclesCount = 20000;
 bool manyCircles = (std::min(circlesCount,maxShowCirclesCount)>20);
 

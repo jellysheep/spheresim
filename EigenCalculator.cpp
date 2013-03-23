@@ -37,8 +37,8 @@ EigenCalculator::EigenCalculator():Calculator(){
 	circlesForce = new eVector[circlesCount];
 	both_r = new scalar*[circlesCount];
 	
+	numCells = maxCellsPerAxis;//min(pow(rowsPerStep, curveSteps), maxCellsPerAxis);
 	updateSphereSize();
-	printf("Grid steps: %5d\n", gridSteps);
 	gridIndex = new int*[circlesCount];
 	
 	posX = new Pos[circlesCount];
@@ -59,7 +59,6 @@ EigenCalculator::EigenCalculator():Calculator(){
 	}
 	
 	///cellSorting
-	numCells = min(pow(rowsPerStep, curveSteps), maxCellsPerAxis);
 	
 	firstSphereInCell = new int[numCells*numCells*(use3D?numCells:1)];
 	posCell = new Pos[circlesCount];
@@ -219,11 +218,13 @@ void EigenCalculator::initCircle(int i){
 
 void EigenCalculator::updateSphereSize(){
 	gridWidth = max(2*sphereSize.s1, max(boxSize.s0, max(boxSize.s1, boxSize.s2))/numCells);
+	printf("gridWidth: %5f \n", gridWidth);
 	if(use3D){
 		gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
 	}else{
 		gridSteps = (int)(max(boxSize.s0, boxSize.s1)/gridWidth);
 	}
+	printf("Grid steps: %5d\n", gridSteps);
 }
 
 
