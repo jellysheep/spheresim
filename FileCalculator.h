@@ -54,7 +54,7 @@ public slots:
 	void updateEModul();
 	void updatePoisson();
 	void updateElasticity();
-	void updateSphereSize();
+	void updateGridSize();
 	void loadConfig();
 };
 

@@ -16,6 +16,8 @@ using namespace std;
 
 #define fixSun 0
 
+uint32_t calcZOrder(uint16_t xPos, uint16_t yPos);
+
 EigenCalculator::EigenCalculator():Calculator(){
 	omp_set_num_threads(1);
 	srand(2);
@@ -37,8 +39,8 @@ EigenCalculator::EigenCalculator():Calculator(){
 	circlesForce = new eVector[circlesCount];
 	both_r = new scalar*[circlesCount];
 	
-	numCells = maxCellsPerAxis;//min(pow(rowsPerStep, curveSteps), maxCellsPerAxis);
-	updateSphereSize();
+	numCells = min(pow_int(rowsPerStep, curveSteps), maxCellsPerAxis);
+	updateGridSize();
 	gridIndex = new int*[circlesCount];
 	
 	posX = new Pos[circlesCount];
@@ -61,11 +63,21 @@ EigenCalculator::EigenCalculator():Calculator(){
 	///cellSorting
 	
 	firstSphereInCell = new int[numCells*numCells*(use3D?numCells:1)];
+	memset(firstSphereInCell, 0, numCells*numCells*(use3D?numCells:1));
 	posCell = new Pos[circlesCount];
 	cellOfSphere = new int[circlesCount];
 	
 	curveIndices = new int[numCells*numCells*(use3D?numCells:1)];
-	buildCurveIndices_Peano();
+	//buildCurveIndices_RowColumn();
+	//buildCurveIndices_zOrder();
+	//buildCurveIndices_Peano();
+	buildCurveIndices_Hilbert();
+	for(int y = numCells-1; y>=0; y--){
+		for(int x = 0; x<numCells; x++){
+			printf("%3d ", curveIndices[x+numCells*y]);
+		}
+		printf("\n");
+	}
 	
 	//parallelFor
 	for(int i = 0; i<circlesCount; i++){
@@ -106,15 +118,77 @@ EigenCalculator::EigenCalculator():Calculator(){
 	printf("EigenCalculator initialized!\n");
 }
 
+//Hilbert-Kurve:
+//rotate/flip a quadrant appropriately
+void rot(int n, int *x, int *y, int rx, int ry) {
+    if (ry == 0) {
+        if (rx == 1) {
+            *x = n-1 - *x;
+            *y = n-1 - *y;
+        }
+ 
+        //Swap x and y
+        int t  = *x;
+        *x = *y;
+        *y = t;
+    }
+}
+//convert (x,y) to d
+int xy2d_Hilbert (int n, int x, int y) {
+    int rx, ry, s, d=0;
+    for (s=n/2; s>0; s/=2) {
+        rx = (x & s) > 0;
+        ry = (y & s) > 0;
+        d += s * s * ((3 * rx) ^ ry);
+        rot(s, &x, &y, rx, ry);
+    }
+    return d;
+}
+void EigenCalculator::buildCurveIndices_Hilbert(){
+	for(int y = 0; y<numCells; y++){
+		for(int x = 0; x<numCells; x++){
+			if(use3D){
+				for(int z = 0; z<numCells; z++){
+					curveIndices[x+numCells*y] = xy2d_Hilbert(numCells, x, y) + numCells*numCells*z;
+				}
+			}else{
+				curveIndices[x+numCells*y] = xy2d_Hilbert(numCells, x, y);
+			}
+		}
+	}
+}
+
+void EigenCalculator::buildCurveIndices_RowColumn(){
+	for(int y = 0; y<numCells; y++){
+		for(int x = 0; x<numCells; x++){
+			if(use3D){
+				for(int z = 0; z<numCells; z++){
+					curveIndices[x+numCells*y] = x+numCells*y + numCells*numCells*z;
+				}
+			}else{
+				curveIndices[x+numCells*y] = x+numCells*y;
+			}
+		}
+	}
+}
+
+void EigenCalculator::buildCurveIndices_zOrder(){
+	for(int y = 0; y<numCells; y++){
+		for(int x = 0; x<numCells; x++){
+			if(use3D){
+				for(int z = 0; z<numCells; z++){
+					curveIndices[x+numCells*y] = calcZOrder(x,y) + numCells*numCells*z;
+				}
+			}else{
+				curveIndices[x+numCells*y] = calcZOrder(x,y);
+			}
+		}
+	}
+}
+
 void EigenCalculator::buildCurveIndices_Peano(){
 	indexCounter = 0;
 	buildPeanoCurve(0, 0, 0, 0, 0);
-	for(int y = numCells-1; y>=0; y--){
-		for(int x = 0; x<numCells; x++){
-			printf("%3d ", curveIndices[x+numCells*y]);
-		}
-		printf("\n");
-	}
 }
 
 void EigenCalculator::buildPeanoCurve(int x, int y, int z, int step, int direction){
@@ -216,7 +290,7 @@ void EigenCalculator::initCircle(int i){
 	circles[i].mass = 4.0/3.0*pow(circles[i].size,3)*M_PI  *950; //Kautschuk
 }
 
-void EigenCalculator::updateSphereSize(){
+void EigenCalculator::updateGridSize(){
 	gridWidth = max(2*sphereSize.s1, max(boxSize.s0, max(boxSize.s1, boxSize.s2))/numCells);
 	printf("gridWidth: %5f \n", gridWidth);
 	if(use3D){
@@ -528,7 +602,14 @@ uint32_t calcZOrder(uint16_t xPos, uint16_t yPos)
 }
 
 int EigenCalculator::calcCellID(int x, int y, int z){
-	return x + numCells*y + numCells*numCells*z;
+	x = min(numCells-1, x);
+	y = min(numCells-1, y);
+	z = min(numCells-1, z);
+	x = max(0, x);
+	y = max(0, y);
+	z = max(0, z);
+	return curveIndices[x+numCells*y+(use3D?numCells*numCells*z:0)];
+	//return x + numCells*y + numCells*numCells*z;
 	//return calcZOrder(x,y) + numCells*numCells*z;
 }
 
@@ -542,6 +623,7 @@ void EigenCalculator::sortSpheresByCells(){
 		for(int i = 0; i<circlesCount; i++){
 			//calculate cell ID
 			cellOfSphere[i] = calcCellID(gridIndex[i][0], gridIndex[i][1]);
+			//printf
 		}
 	}
 	
@@ -593,7 +675,10 @@ void EigenCalculator::sortSpheresByCells(){
 
 void EigenCalculator::checkCollision(int i, int x, int y, int z, bool sameCell){ 
 	//circle ID, cell position, bool if same cell (i.e. dx = dy = dz = 0)
-	if(x<0 || y<0 || z<0 || x>numCells || y>numCells || z>numCells) return;
+	if(x<0 || y<0 || z<0 || x>=numCells || y>=numCells || z>=numCells){
+		//if(x>=numCells || y>=numCells) printf("return because out of bounds\n");
+		return;
+	}
 	int cellID = calcCellID(x,y,z);
 	int j = firstSphereInCell[cellID]; //circle 2 pos in array
 	if(j < 0){
@@ -601,22 +686,29 @@ void EigenCalculator::checkCollision(int i, int x, int y, int z, bool sameCell){
 		return;
 	}
 	int c2 = posCell[j].circleAtPos; //circle 2 ID
+	//printf("circle 2 ID: %3d\n", c2);
+	//if(c2>circlesCount) printf("cell: %2d circle 2 ID: %2d cell of circle before: %2d cell of next circle: %2d\n", cellID, c2, cellOfSphere[posCell[j-1].circleAtPos], cellOfSphere[posCell[j+1].circleAtPos]);
 	//printf("cell: %2d | %2d cell of circle before: %2d cell of next circle: %2d\n", cellID, cellOfSphere[posCell[j].circleAtPos], cellOfSphere[posCell[j-1].circleAtPos], cellOfSphere[posCell[j+1].circleAtPos]);
 	while(cellOfSphere[c2] == cellID){
 		#if twiceCalcCollisions==0
 			if(!(sameCell && circlesOldPos[i][0]>circlesOldPos[c2][0]))
 		#endif
 		{
-			if(circlesOldPos[i][0]>circlesOldPos[c2][0]) collideBalls(i, c2);
+			//if(circlesOldPos[i][0]>circlesOldPos[c2][0]) 
+			if(i>c2) 
+			collideBalls(i, c2);
 		}
 		j++;
+		//if(j>=circlesCount) return;
 		c2 = posCell[j].circleAtPos;
+		//if(c2>=circlesCount || c2<0) return;
 	}; //check collisions of all spheres in that cell
 }
 
 void EigenCalculator::calcCellSortedBallResistance(){
 	//QThread::msleep(50);
 	sortSpheresByCells();
+	
 	/*
 	for(int pid = 0; pid<circlesCount; pid++){ // pos. ID
 		printf("%3d ", posX[pid].circleAtPos);
@@ -825,6 +917,7 @@ void EigenCalculator::fpsChanged(scalar timeInt){
 }
 
 void EigenCalculator::boxSizeChanged(){
+	updateGridSize();
 }
 
 void EigenCalculator::gravityChanged(){

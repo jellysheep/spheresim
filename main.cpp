@@ -15,7 +15,7 @@
 #include "CirclesHolder.h"
 #include "StatusViewer.h"
 
-#define PROFILING 0
+#define PROFILING 1
 
 #if PROFILING
 	#include "EigenCalculator.h"
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 		printf("Calculator initialized!\n");
 		
 		StatusViewer statusViewer(NULL, clTimer);
-		statusViewer.start();
+		//statusViewer.start();
 		printf("StatusViewer initialized!\n");
 	
 		clTimer->start();

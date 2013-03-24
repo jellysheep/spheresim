@@ -89,13 +89,17 @@ protected:
 	
 	bool isFixed(int i);
 	
-	const static int rowsPerStep = 3, curveSteps = 3;
+	//const static int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
+	const static int rowsPerStep = 2, curveSteps = 4; //Z-Order, Hilbert-Kurve
 	int* curveIndices;
 	int indexCounter;
+	void buildCurveIndices_RowColumn();
+	void buildCurveIndices_zOrder();
 	void buildCurveIndices_Peano();
+	void buildCurveIndices_Hilbert();
 	void buildPeanoCurve(int x, int y, int z, int step, int direction);
 	
-	int pow(int a, unsigned int b){
+	int pow_int(int a, unsigned int b){
 		return (b>=2 ? a*a*pow(a, b-2) : (b == 1 ? a : 1));
 	}
 
@@ -120,7 +124,7 @@ public slots:
 	void updateEModul();
 	void updatePoisson();
 	void updateElasticity();
-	void updateSphereSize();
+	void updateGridSize();
 	
 	void loadConfig();
 };

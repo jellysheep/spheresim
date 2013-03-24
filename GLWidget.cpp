@@ -9,12 +9,14 @@
 const ViewOptions GLWidget::initView2D = {
 	.xRot = 0, .yRot = 0, .zRot = 0,
 	.xRotCam = 0, .yRotCam = 0,
-	.transX = 0, .transY = 0, .transZ = 0
+	.transX = 0, .transY = 0, .transZ = 0,
+	.rotGrav = 0
 };
 const ViewOptions GLWidget::initView3D = {
 	.xRot = 0, .yRot = 60, .zRot = 0,
 	.xRotCam = 20, .yRotCam = 0,
-	.transX = 0, .transY = 80, .transZ = 0
+	.transX = 0, .transY = 80, .transZ = 0,
+	.rotGrav = 0
 };
 
 GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
@@ -34,7 +36,7 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	resettingView = false;
 	
 	newFrame = false;
-	rotGrav = 0;
+	curView.rotGrav = 0;
 	
 	
 	//*
@@ -268,11 +270,11 @@ void GLWidget::timeToRender(){
 	//if(use3D){
 		curView.xRot += autoRotation.s[0]*16.0;
 		curView.yRot += autoRotation.s[1]*16.0;
-		curView.zRot += autoRotation.s[2]*16.0;
+		//curView.zRot += autoRotation.s[2]*16.0;
 	//}
 	
 	//*
-	rotGrav += 0.2;
+	curView.rotGrav += autoRotation.s[2]/2.0;
 	updateGravity();
 	//*/
 	
@@ -280,8 +282,8 @@ void GLWidget::timeToRender(){
 }
 
 void GLWidget::updateGravity(){
-	gravity.s[0] = cos(M_PI/180.0*(rotGrav-90))*gravity_abs;
-	gravity.s[1] = sin(M_PI/180.0*(rotGrav-90))*gravity_abs;
+	gravity.s[0] = cos(M_PI/180.0*(curView.rotGrav-90))*gravity_abs;
+	gravity.s[1] = sin(M_PI/180.0*(curView.rotGrav-90))*gravity_abs;
 	//if(use3D){
 		gravity.s[2] = 0;
 	//}
@@ -322,6 +324,8 @@ void GLWidget::resetView(int ms){
 	shrinkAngleDiff(deltaView.yRot);
 	deltaView.zRot = initView.zRot-curView.zRot;
 	shrinkAngleDiff(deltaView.zRot);
+	deltaView.zRot = initView.rotGrav-curView.rotGrav;
+	shrinkAngleDiff(deltaView.rotGrav);
 	resetCount = ms/renderFps;
 	resetCounter = 0;
 	resetTimer->start(1000/renderFps);
@@ -340,6 +344,7 @@ void GLWidget::resetViewTimer(){
 	curView.xRot = lastView.xRot+resetFact*deltaView.xRot;
 	curView.yRot = lastView.yRot+resetFact*deltaView.yRot;
 	curView.zRot = lastView.zRot+resetFact*deltaView.zRot;
+	curView.rotGrav = lastView.rotGrav+resetFact*deltaView.rotGrav;
 	if(resetCounter>=resetCount){
 		curView = initView;
 		resetTimer->stop();
@@ -443,7 +448,7 @@ void GLWidget::paintGL() {
 	glScalef(scale,scale,scale);
 
 	
-	glRotatef(-rotGrav, 0.0, 0.0, 1.0);
+	glRotatef(-curView.rotGrav, 0.0, 0.0, 1.0);
 	//glRotatef(curView.zRot / 16.0, 0.0, 0.0, 1.0);
 	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (use3D?(-boxSize.s[2]/2):0));
 	if(use3D){

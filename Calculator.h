@@ -152,7 +152,7 @@ public slots:
 	
 	virtual void updateElasticity()=0;
 	
-	virtual void updateSphereSize()=0;
+	virtual void updateGridSize()=0;
 	
 	void saveFrameToFile();
 	

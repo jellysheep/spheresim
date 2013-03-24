@@ -141,7 +141,7 @@ void FileCalculator::updateG(){
 	//nothing to do
 }
 
-void FileCalculator::updateSphereSize(){
+void FileCalculator::updateGridSize(){
 	//nothing to do
 }
 

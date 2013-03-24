@@ -249,7 +249,7 @@ void Control::minSphereSize(double s){
 		sphereSize.s[1] = s;
 		calc->radius_max->setValue(s);
 	}
-	cal->updateSphereSize();
+	cal->updateGridSize();
 }
 void Control::maxSphereSize(double s){
 	sphereSize.s[1] = s;

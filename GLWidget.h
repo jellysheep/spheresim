@@ -15,6 +15,7 @@ struct ViewOptions {
 	scalar xRot, yRot, zRot;
 	scalar xRotCam, yRotCam;
 	scalar transX, transY, transZ;
+	scalar rotGrav;
 };
 
 class GLWidget : public QGLWidget, public FramesCounter {
@@ -34,7 +35,7 @@ protected:
 	Calculator* clTimer;
 	QPoint lastPos;
 	
-	scalar rotGrav;
+	//scalar rotGrav;
 	
 	GLfloat** LightPosition;
 	

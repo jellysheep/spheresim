@@ -466,7 +466,7 @@ void OpenClCalculator::updatePoisson(){
 void OpenClCalculator::updateElasticity(){
 	
 }
-void OpenClCalculator::updateSphereSize(){
+void OpenClCalculator::updateGridSize(){
 	
 }
 void OpenClCalculator::loadConfig(){
