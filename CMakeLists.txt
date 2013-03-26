@@ -10,10 +10,10 @@ SET( CMAKE_CXX_COMPILER_ARG1 "g++" )
 
 ADD_DEFINITIONS(-DENGINE_OPENCL -DENGINE_CPP -DENGINE_READ)
 
-#set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-fopenmp -msse2 -Ofast")
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fopenmp -g -msse2 -msse -Ofast") #  -msse3 -msse4
 INCLUDE ("OptimizeForArchitecture")
 OptimizeForArchitecture ()
+set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-fopenmp -g -msse2 -msse -Ofast -march=native -mtune=native") #  -msse3 -msse4
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fopenmp -g -msse2 -msse -Ofast -march=native -mtune=native") #  -msse3 -msse4
 
 if(OPENMP_FOUND)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")

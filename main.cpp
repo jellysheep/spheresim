@@ -15,7 +15,7 @@
 #include "CirclesHolder.h"
 #include "StatusViewer.h"
 
-#define PROFILING 1
+#define PROFILING 0
 
 #if PROFILING
 	#include "EigenCalculator.h"

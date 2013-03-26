@@ -89,8 +89,8 @@ protected:
 	
 	bool isFixed(int i);
 	
-	//const static int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
-	const static int rowsPerStep = 2, curveSteps = 4; //Z-Order, Hilbert-Kurve
+	const static int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
+	//const static int rowsPerStep = 2, curveSteps = 5; //Z-Order, Hilbert-Kurve
 	int* curveIndices;
 	int indexCounter;
 	void buildCurveIndices_RowColumn();

@@ -70,8 +70,8 @@ EigenCalculator::EigenCalculator():Calculator(){
 	curveIndices = new int[numCells*numCells*(use3D?numCells:1)];
 	//buildCurveIndices_RowColumn();
 	//buildCurveIndices_zOrder();
-	//buildCurveIndices_Peano();
-	buildCurveIndices_Hilbert();
+	buildCurveIndices_Peano();
+	//buildCurveIndices_Hilbert();
 	for(int y = numCells-1; y>=0; y--){
 		for(int x = 0; x<numCells; x++){
 			printf("%3d ", curveIndices[x+numCells*y]);
