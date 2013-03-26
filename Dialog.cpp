@@ -1,12 +1,12 @@
 
-#include "EigenCalculator.h"
+#include "EigenCalculator_Engine.h"
 #include "Dialog.h"
 #include "OpenClCalculator.h"
 #include "FileCalculator.h"
 
 Dialog::Dialog(){
 	#if 1
-		calc = new EigenCalculator();
+		calc = new EigenCalculator_Engine();
 		//calc = new FileCalculator();
 		//calc = new OpenClCalculator();
 		selected = true;
@@ -35,7 +35,7 @@ void Dialog::accepted_(){
 	calc = NULL;
 	#ifdef ENGINE_CPP
 		if(dlg->cpp->isChecked()){
-			calc = new EigenCalculator();
+			calc = new EigenCalculator_Engine();
 		}
 	#endif
 	#ifdef ENGINE_OPENCL

@@ -1,7 +1,7 @@
 #ifdef ENGINE_CPP
 
-#ifndef _EIGEN_CALCULATOR_H_
-#define _EIGEN_CALCULATOR_H_
+#ifndef _EIGEN_CALCULATOR_ENGINE_H_
+#define _EIGEN_CALCULATOR_ENGINE_H_
 
 #define NDEBUG
 #include <Eigen/Dense>
@@ -11,6 +11,7 @@ using namespace Eigen;
 
 #include "Spheres.h"
 #include "Calculator.h"
+#include "EigenCalculator_QObject.h"
 
 #define useSSE 1
 
@@ -35,9 +36,7 @@ struct Pos {
 	int posOfSphere, sphereAtPos;
 };
 
-class EigenCalculator: public Calculator {
-
-	Q_OBJECT // must include this if you use Qt signals/slots
+class EigenCalculator_Engine: public EigenCalculator_QObject {
 
 protected:
 	
@@ -102,9 +101,13 @@ protected:
 	int pow_int(int a, unsigned int b){
 		return (b>=2 ? a*a*pow(a, b-2) : (b == 1 ? a : 1));
 	}
+	
+	static const int maxSpheresInCell = 30;
+	char* spheresPerCell;
+	int** spheresInCell;
 
 public:
-	EigenCalculator();
+	EigenCalculator_Engine();
 	
 	Sphere* getSphere(int i);
 	Sphere* getDirectSphere(int i);
@@ -115,7 +118,6 @@ public:
 	
 	void paintGL(bool b);
 	
-public slots:
 	void boxSizeChanged();
 	void gravityChanged();
 	void updateG();
@@ -129,8 +131,8 @@ public slots:
 	void loadConfig();
 };
 
-extern void start(EigenCalculator* clTimer);
+extern void start(EigenCalculator_Engine* clTimer);
 
-#endif  /* _EIGEN_CALCULATOR_H_ */
+#endif  /* _EIGEN_CALCULATOR_ENGINE_H_ */
 
 #endif

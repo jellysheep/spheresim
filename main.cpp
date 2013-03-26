@@ -18,7 +18,7 @@
 #define PROFILING 0
 
 #if PROFILING
-	#include "EigenCalculator.h"
+	#include "EigenCalculator_Engine.h"
 #endif
 
 #ifdef Q_WS_X11
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 		
 	#else
 	
-		Calculator* clTimer = new EigenCalculator();
+		Calculator* clTimer = new EigenCalculator_Engine();
 		if(clTimer == NULL) exit(0);
 		printf("Calculator initialized!\n");
 		

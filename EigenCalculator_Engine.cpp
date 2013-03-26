@@ -1,6 +1,6 @@
 #ifdef ENGINE_CPP
 
-#include "EigenCalculator.h"
+#include "EigenCalculator_Engine.h"
 
 #include <iostream>
 using namespace std;
@@ -18,7 +18,7 @@ using namespace std;
 
 uint32_t calcZOrder(uint16_t xPos, uint16_t yPos);
 
-EigenCalculator::EigenCalculator():Calculator(){
+EigenCalculator_Engine::EigenCalculator_Engine():EigenCalculator_QObject(){
 	omp_set_num_threads(1);
 	srand(2);
 	//srand(NanosecondTimer::getNS());
@@ -115,7 +115,7 @@ EigenCalculator::EigenCalculator():Calculator(){
 		saveFrame();
 		bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 	}
-	printf("EigenCalculator initialized!\n");
+	printf("EigenCalculator_Engine initialized!\n");
 }
 
 //Hilbert-Kurve:
@@ -144,7 +144,7 @@ int xy2d_Hilbert (int n, int x, int y) {
     }
     return d;
 }
-void EigenCalculator::buildCurveIndices_Hilbert(){
+void EigenCalculator_Engine::buildCurveIndices_Hilbert(){
 	for(int y = 0; y<numCells; y++){
 		for(int x = 0; x<numCells; x++){
 			if(use3D){
@@ -158,7 +158,7 @@ void EigenCalculator::buildCurveIndices_Hilbert(){
 	}
 }
 
-void EigenCalculator::buildCurveIndices_RowColumn(){
+void EigenCalculator_Engine::buildCurveIndices_RowColumn(){
 	for(int y = 0; y<numCells; y++){
 		for(int x = 0; x<numCells; x++){
 			if(use3D){
@@ -172,7 +172,7 @@ void EigenCalculator::buildCurveIndices_RowColumn(){
 	}
 }
 
-void EigenCalculator::buildCurveIndices_zOrder(){
+void EigenCalculator_Engine::buildCurveIndices_zOrder(){
 	for(int y = 0; y<numCells; y++){
 		for(int x = 0; x<numCells; x++){
 			if(use3D){
@@ -186,12 +186,12 @@ void EigenCalculator::buildCurveIndices_zOrder(){
 	}
 }
 
-void EigenCalculator::buildCurveIndices_Peano(){
+void EigenCalculator_Engine::buildCurveIndices_Peano(){
 	indexCounter = 0;
 	buildPeanoCurve(0, 0, 0, 0, 0);
 }
 
-void EigenCalculator::buildPeanoCurve(int x, int y, int z, int step, int direction){
+void EigenCalculator_Engine::buildPeanoCurve(int x, int y, int z, int step, int direction){
 	// direction: 
 	// 0 = /^
 	// 1 = ^\ 
@@ -232,7 +232,7 @@ void EigenCalculator::buildPeanoCurve(int x, int y, int z, int step, int directi
 	}
 }
 
-void EigenCalculator::initSphere(int i){
+void EigenCalculator_Engine::initSphere(int i){
 	spheres[i].size = rans(sphereSize.s0, sphereSize.s1);
 	spheres[i].E = E;
 	spheres[i].poisson = poisson;
@@ -290,7 +290,7 @@ void EigenCalculator::initSphere(int i){
 	spheres[i].mass = 4.0/3.0*pow(spheres[i].size,3)*M_PI  *950; //Kautschuk
 }
 
-void EigenCalculator::updateGridSize(){
+void EigenCalculator_Engine::updateGridSize(){
 	gridWidth = max(2*sphereSize.s1, max(boxSize.s0, max(boxSize.s1, boxSize.s2))/numCells);
 	printf("gridWidth: %5f \n", gridWidth);
 	if(use3D){
@@ -302,7 +302,7 @@ void EigenCalculator::updateGridSize(){
 }
 
 
-void EigenCalculator::save(){
+void EigenCalculator_Engine::save(){
 	//not yet implemented
 }
 
@@ -310,7 +310,7 @@ void EigenCalculator::save(){
 #define newFor 0
 #define joinFors 1
 
-void EigenCalculator::calcWallResistance(){
+void EigenCalculator_Engine::calcWallResistance(){
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){
 		if(spheres[i].fixed == 1) continue;
@@ -378,7 +378,7 @@ void EigenCalculator::calcWallResistance(){
 	}
 }
 
-void EigenCalculator::calcBallResistance(){
+void EigenCalculator_Engine::calcBallResistance(){
 	parallelFor
 	for(int i = 0; i<spheresCount; i++){
 		eVector force;
@@ -413,7 +413,7 @@ void EigenCalculator::calcBallResistance(){
 	}
 }
 
-void EigenCalculator::collideBalls(int i, int j){
+void EigenCalculator_Engine::collideBalls(int i, int j){
 	if(i == j) return;
 	scalar both_r_ = both_r[i][j];
 	eVector d_pos = spheresPos[j]-spheresPos[i];
@@ -468,7 +468,7 @@ void EigenCalculator::collideBalls(int i, int j){
 }
 
 #define sqr(x) ((x)*(x))
-void EigenCalculator::sumUpForces(){
+void EigenCalculator_Engine::sumUpForces(){
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){
 		if(spheres[i].fixed == 0){
@@ -526,7 +526,7 @@ void EigenCalculator::sumUpForces(){
 	}
 }
 
-void EigenCalculator::sort(Pos* p, int dim){
+void EigenCalculator_Engine::sort(Pos* p, int dim){
 	//scalar temp;
 	int temp;
 	int j, cid; //sphere ID
@@ -547,7 +547,7 @@ void EigenCalculator::sort(Pos* p, int dim){
 	}
 }
 
-void EigenCalculator::calcSortedBallResistance(){
+void EigenCalculator_Engine::calcSortedBallResistance(){
 	sort(posX, 0);
 	/*
 	for(int pid = 0; pid<spheresCount; pid++){ // pos. ID
@@ -601,7 +601,7 @@ uint32_t calcZOrder(uint16_t xPos, uint16_t yPos)
     return result;
 }
 
-int EigenCalculator::calcCellID(int x, int y, int z){
+int EigenCalculator_Engine::calcCellID(int x, int y, int z){
 	x = min(numCells-1, x);
 	y = min(numCells-1, y);
 	z = min(numCells-1, z);
@@ -613,7 +613,7 @@ int EigenCalculator::calcCellID(int x, int y, int z){
 	//return calcZOrder(x,y) + numCells*numCells*z;
 }
 
-void EigenCalculator::sortSpheresByCells(){
+void EigenCalculator_Engine::sortSpheresByCells(){
 	if(use3D){
 		for(int i = 0; i<spheresCount; i++){
 			//calculate cell ID
@@ -673,7 +673,7 @@ void EigenCalculator::sortSpheresByCells(){
 
 #define twiceCalcCollisions 1
 
-void EigenCalculator::checkCollision(int i, int x, int y, int z, bool sameCell){ 
+void EigenCalculator_Engine::checkCollision(int i, int x, int y, int z, bool sameCell){ 
 	//sphere ID, cell position, bool if same cell (i.e. dx = dy = dz = 0)
 	if(x<0 || y<0 || z<0 || x>=numCells || y>=numCells || z>=numCells){
 		//if(x>=numCells || y>=numCells) printf("return because out of bounds\n");
@@ -705,7 +705,7 @@ void EigenCalculator::checkCollision(int i, int x, int y, int z, bool sameCell){
 	}; //check collisions of all spheres in that cell
 }
 
-void EigenCalculator::calcCellSortedBallResistance(){
+void EigenCalculator_Engine::calcCellSortedBallResistance(){
 	//QThread::msleep(50);
 	sortSpheresByCells();
 	
@@ -795,7 +795,7 @@ void EigenCalculator::calcCellSortedBallResistance(){
 	}
 }
 
-void EigenCalculator::doStep(){
+void EigenCalculator_Engine::doStep(){
 	if(forceCounter == 0){
 		for(int i = 0; i<numWalls; i++){
 			curWallForces[i] = 0;
@@ -832,43 +832,43 @@ void EigenCalculator::doStep(){
 	}
 }
 
-void EigenCalculator::updateG(){
+void EigenCalculator_Engine::updateG(){
 	//nothing to do
 }
 
-void EigenCalculator::updateAirResistance(){
+void EigenCalculator_Engine::updateAirResistance(){
 	//nothing to do
 }
 
-void EigenCalculator::updateWallResistance(){
+void EigenCalculator_Engine::updateWallResistance(){
 	//nothing to do
 }
 
-void EigenCalculator::updateEModul(){
+void EigenCalculator_Engine::updateEModul(){
 	_E = E*1000000.0;
 }
 
-void EigenCalculator::updatePoisson(){
+void EigenCalculator_Engine::updatePoisson(){
 	//nothing to do
 }
 
-void EigenCalculator::updateElasticity(){
+void EigenCalculator_Engine::updateElasticity(){
 	//nothing to do
 }
 
-bool EigenCalculator::saveFrame(){
+bool EigenCalculator_Engine::saveFrame(){
 	for(int i = 0; i<readNum_render; i++){
 		renderBuffer[bufferWriteIndex][i] = spheresOldPos[i];
 	}
 	return true;
 }
 
-bool EigenCalculator::isFixed(int i){
+bool EigenCalculator_Engine::isFixed(int i){
 	return spheres[i].fixed == 1;
 }
 
 #define k_b 1.3806488E-23
-scalar EigenCalculator::getTemperature(){
+scalar EigenCalculator_Engine::getTemperature(){
 	//1m : 65pm = 1.0E12 : 1
 	//950kg/m^3 : 1.25kg/m^3 = 760 : 1
 	const static double mass = 14*1.66E-27;
@@ -882,7 +882,7 @@ scalar EigenCalculator::getTemperature(){
 	return temp;
 }
 
-Sphere* EigenCalculator::getDirectSphere(int i){
+Sphere* EigenCalculator_Engine::getDirectSphere(int i){
 	if(renderBuffer[bufferWriteIndex][i]==eVector::Zero()) return NULL;
 	spheres[i].pos.s0 = renderBuffer[bufferWriteIndex][i](0);
 	spheres[i].pos.s1 = renderBuffer[bufferWriteIndex][i](1);
@@ -892,7 +892,7 @@ Sphere* EigenCalculator::getDirectSphere(int i){
 	return &spheres[i];
 }
 
-Sphere* EigenCalculator::getSphere(int i){
+Sphere* EigenCalculator_Engine::getSphere(int i){
 	if(renderBuffer[bufferReadIndex][i]==eVector::Zero()) return NULL;
 	#if 0
 		//"live" view
@@ -912,18 +912,18 @@ Sphere* EigenCalculator::getSphere(int i){
 	return &spheres[i];
 }
 
-void EigenCalculator::fpsChanged(scalar timeInt){
+void EigenCalculator_Engine::fpsChanged(scalar timeInt){
 	timeInterval = timeInt;
 }
 
-void EigenCalculator::boxSizeChanged(){
+void EigenCalculator_Engine::boxSizeChanged(){
 	updateGridSize();
 }
 
-void EigenCalculator::gravityChanged(){
+void EigenCalculator_Engine::gravityChanged(){
 }
 
-void EigenCalculator::sphereCountChanged_subclass(int i){
+void EigenCalculator_Engine::sphereCountChanged_subclass(int i){
 	///spheres
 	spheres = newCopy<Sphere>(spheres, spheresCount, i);
 	///spheresOldPos
@@ -1015,7 +1015,7 @@ void EigenCalculator::sphereCountChanged_subclass(int i){
 	}
 }
 
-void EigenCalculator::maxSphereCountChanged_subclass(int i){
+void EigenCalculator_Engine::maxSphereCountChanged_subclass(int i){
 	//renderBuffer
 	int readNum_render_new = min(i,spheresCount);
 	if(readNum_render_new>readNum_render)
@@ -1036,7 +1036,7 @@ void EigenCalculator::maxSphereCountChanged_subclass(int i){
 }
 
 
-void EigenCalculator::loadConfig(const char* file){
+void EigenCalculator_Engine::loadConfig(const char* file){
 	f2.open(file, std::fstream::in);
 	bool b = true;
 	if (f2.is_open())
@@ -1154,7 +1154,7 @@ void EigenCalculator::loadConfig(const char* file){
 	}
 }
 
-void EigenCalculator::loadConfig(){
+void EigenCalculator_Engine::loadConfig(){
 	const char* file = (std::string(filename)+getConfigFileExtension()).c_str();
 	
 	const char* filter = (std::string("SphereSim View File (*.")+getConfigFileExtension()+")").c_str();
@@ -1171,7 +1171,7 @@ void EigenCalculator::loadConfig(){
 	loadConfig(file);
 }
 
-void EigenCalculator::paintGL(bool b){
+void EigenCalculator_Engine::paintGL(bool b){
 	Calculator::paintGL(b);
 	glDisable(GL_DEPTH_TEST);
 	glLineWidth(0.5);
