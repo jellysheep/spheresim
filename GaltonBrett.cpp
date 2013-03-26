@@ -15,11 +15,11 @@ int main(int argc, char *argv[]){
 	}
 	f2.close();
 	
-	int circles = 0;
+	int spheres = 0;
 	
 	for(int x = 0; x<30; x++){
 		for(int y = 0; y<30; y++){
-			circles++;
+			spheres++;
 			f<<"0 "; //decimal, fixed
 			f<<0.01<<" "; //size
 			f<<0.01<<" "; //mass
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 	}
 	for(int x = -22; x<22; x++){
 		if(abs(x)<1) continue;
-		circles++;
+		spheres++;
 		f<<"1 "; //decimal, fixed
 		f<<0.02<<" "; //size
 		f<<0.01<<" "; //mass
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]){
 	}
 	for(int x = 0; x<30; x++){
 		for(int y = 0; y<30; y++){
-			circles++;
+			spheres++;
 			f<<"1 "; //decimal, fixed
 			f<<0.005<<" "; //size
 			f<<0.01<<" "; //mass
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
 	}
 	for(int x = 0; x<30; x++){
 		for(int y = 0; y<12; y++){
-			circles++;
+			spheres++;
 			f<<"1 "; //decimal, fixed
 			f<<0.015<<" "; //size
 			f<<0.01<<" "; //mass
@@ -66,5 +66,5 @@ int main(int argc, char *argv[]){
 	}
 	f.close();
 	
-	cout<<circles<<" circles."<<endl;
+	cout<<spheres<<" spheres."<<endl;
 }

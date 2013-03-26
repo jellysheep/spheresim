@@ -5,7 +5,7 @@
 
 #include <QThread>
 
-#include "Circles.h"
+#include "Spheres.h"
 #include "Calculator.h"
 
 #include <fstream>
@@ -17,16 +17,16 @@ class FileCalculator: public Calculator {
 
 protected:
 	
-	//circles: current positions of file reading
-	//circles2: current positions to render
-	Circle *circles, *circles2;
+	//spheres: current positions of file reading
+	//spheres2: current positions to render
+	Sphere *spheres, *spheres2;
 	vector** renderBuffer;
 	
 	void doStep();
 	bool saveFrame();
 	
-	void circleCountChanged_subclass(int i);
-	void maxCircleCountChanged_subclass(int i);
+	void sphereCountChanged_subclass(int i);
+	void maxSphereCountChanged_subclass(int i);
 	
 	scalar interval;
 	bool isFixed(int i);
@@ -34,8 +34,8 @@ protected:
 public:
 	FileCalculator();
 	
-	Circle* getCircle(int i);
-	Circle* getDirectCircle(int i);
+	Sphere* getSphere(int i);
+	Sphere* getDirectSphere(int i);
 	
 	void fpsChanged(scalar timeInterval);
 	

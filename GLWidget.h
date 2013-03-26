@@ -5,7 +5,7 @@
 #include <QKeyEvent>
 #include "FramesCounter.h"
 #include "Calculator.h"
-#include "Circles.h"
+#include "Spheres.h"
 
 #include <CL/cl.hpp>
 
@@ -66,8 +66,8 @@ public:
 	
 	void drawsphere(int ndiv, float radius);
 	void drawsphere2(float radius);
-	void drawCircleF(float radius);
-	void drawCircleF2(float radius);
+	void drawSphereF(float radius);
+	void drawSphereF2(float radius);
 	
 	unsigned int displayList;
 	

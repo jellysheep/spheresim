@@ -9,7 +9,7 @@
 #include <CL/cl_platform.h>
 #include "CL/cl.hpp"
 
-#include "Circles.h"
+#include "Spheres.h"
 #include "Calculator.h"
 
 class OpenClCalculator: public Calculator {
@@ -36,11 +36,11 @@ protected:
 	cl::Kernel moveStep_addWallForces_kernel;
 	cl::Kernel moveStep_updatePositions_kernel;
 
-	cl::Buffer cl_circles;
+	cl::Buffer cl_spheres;
 	cl::Buffer cl_boxSize, cl_sphereSize;
 	cl::Buffer cl_m_z, cl_m_w;
 	cl::Buffer cl_max_speed;
-	cl::Buffer cl_circlesCount, cl_E;
+	cl::Buffer cl_spheresCount, cl_E;
 	cl::Buffer cl_elastic, cl_gravity, cl_timeInterval;
 	cl::Buffer cl_poisson, cl_G;
 	cl::Buffer cl_flags;
@@ -52,25 +52,25 @@ protected:
 	bool eventsFull;
 	cl::Event* events;
 	FILE * file;
-	bool circlesBufferUsed;
+	bool spheresBufferUsed;
 	
-	Circle** c_CPU_render;
-	Circle* c_CPU_save[2];
-	Circle* circlesBuffer;
+	Sphere** c_CPU_render;
+	Sphere* c_CPU_save[2];
+	Sphere* spheresBuffer;
 	
 	void doStep();
 	bool saveFrame();
 	
-	void circleCountChanged_subclass(int i);
-	void maxCircleCountChanged_subclass(int i);
+	void sphereCountChanged_subclass(int i);
+	void maxSphereCountChanged_subclass(int i);
 	
 	bool isFixed(int i);
 
 public:
 	OpenClCalculator();
 	
-	Circle* getCircle(int i);
-	Circle* getDirectCircle(int i);
+	Sphere* getSphere(int i);
+	Sphere* getDirectSphere(int i);
 	
 	void fpsChanged(scalar timeInterval);
 	

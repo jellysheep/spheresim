@@ -6,7 +6,7 @@
 #include <QThread>
 #include <QTimer>
 #include "NanosecondTimer.h"
-#include "Circles.h"
+#include "Spheres.h"
 class GLWidget;
 class Calculator;
 class Control;

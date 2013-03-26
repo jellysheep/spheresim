@@ -33,8 +33,8 @@ Calculator::Calculator(){
 		}
 	}
 	hueOffset = rans(360);
-	ceBuffer = new CircleExtension[circlesCount];
-	for(int i = 0; i<circlesCount; i++){
+	ceBuffer = new SphereExtension[spheresCount];
+	for(int i = 0; i<spheresCount; i++){
 		initCeBuffer(i);
 	}
 	
@@ -82,7 +82,7 @@ void Calculator::initFileSave(){
 	QString str = QFileDialog::getSaveFileName(0, ("Save file"), (std::string("./save.")+getViewFileExtension()).c_str(), (filter));
 	if(str == ""){
 		std::cerr<<"File could not be opened!"<<std::endl;
-		circlesCount = 0;
+		spheresCount = 0;
 		//exit(0);
 		return;
 	}
@@ -98,9 +98,9 @@ void Calculator::initFileSave(){
 	f<<"\n# 3D:";
 	addHex(f, (use3D?1:0));
 	f<<"\n# sphere count:";
-	addHex(f, circlesCount);
+	addHex(f, spheresCount);
 	f<<"\n# max. display sphere count:";
-	addHex(f, maxShowCirclesCount);
+	addHex(f, maxShowSpheresCount);
 	
 	f<<"\n# box size (x,y"<<(use3D?",z":"")<<"):";
 	addHex(f, boxSize.s0);
@@ -141,9 +141,9 @@ void Calculator::initFileSave(){
 	f<<"\n# wall resistance:";
 	addHex(f, (wallResistance?1:0));
 	f<<"\n\n# sizes, masses and initial positions of the spheres (r,m,x,y"<<(use3D?",z":"")<<"):";
-	Circle* c;
-	for(int i = 0; i<circlesCount; i++){
-		c = getCircle(i);
+	Sphere* c;
+	for(int i = 0; i<spheresCount; i++){
+		c = getSphere(i);
 		addHex(f, c->size);
 		addHex(f, c->mass, false);
 		addHex(f, c->pos.s0, false);
@@ -161,7 +161,7 @@ void Calculator::saveConfig(){
 	QString str = QFileDialog::getSaveFileName(0, ("Save config"), (std::string("./save.")+getConfigFileExtension()).c_str(), (filter));
 	if(str == ""){
 		std::cerr<<"File could not be opened!"<<std::endl;
-		circlesCount = 0;
+		spheresCount = 0;
 		//exit(0);
 		return;
 	}
@@ -177,9 +177,9 @@ void Calculator::saveConfig(){
 	f2<<"\n# 3D:";
 	addHex(f2, (use3D?1:0));
 	f2<<"\n# sphere count:";
-	addHex(f2, circlesCount);
+	addHex(f2, spheresCount);
 	f2<<"\n# max. display sphere count:";
-	addHex(f2, maxShowCirclesCount);
+	addHex(f2, maxShowSpheresCount);
 	
 	f2<<"\n# box size (x,y"<<(use3D?",z":"")<<"):";
 	addHex(f2, boxSize.s0);
@@ -220,9 +220,9 @@ void Calculator::saveConfig(){
 	f2<<"\n# wall resistance:";
 	addHex(f2, (wallResistance?1:0));
 	f2<<"\n\n# fixed flag, sizes, masses, initial positions and speeds of the spheres (f,r,m,x,y"<<(use3D?",z":"")<<",vx,vy"<<(use3D?",vz":"")<<"):";
-	Circle* c;
-	for(int i = 0; i<circlesCount; i++){
-		c = getCircle(i);
+	Sphere* c;
+	for(int i = 0; i<spheresCount; i++){
+		c = getSphere(i);
 		addHex(f2, (int)c->fixed);
 		addHex(f2, c->size, false);
 		addHex(f2, c->mass, false);
@@ -391,11 +391,11 @@ bool Calculator::isRunning(){
 }
 
 void Calculator::saveFrameToFile(){
-	Circle* c;
+	Sphere* c;
 	for(int i = 0; i<readNum_render; i++){
-		c = getDirectCircle(i);
+		c = getDirectSphere(i);
 		if(c == NULL){
-			c = new Circle();
+			c = new Sphere();
 			//printf("NULL error!\n");
 		}
 		addHex(f, c->pos.s0);
@@ -462,32 +462,32 @@ void Calculator::run(){
 	hasStopped = true;
 }
 
-void Calculator::maxCircleCountChanged(int i){
+void Calculator::maxSphereCountChanged(int i){
 	if(performingAction) return;
 	performingAction = true;
 	
-	maxCircleCountChanged_subclass(i);
-	maxShowCirclesCount = i;
+	maxSphereCountChanged_subclass(i);
+	maxShowSpheresCount = i;
 	performingAction = false;
 	if(glWidget!=NULL) glWidget->timeToRender2();
 }
 
-void Calculator::circleCountChanged(int i){
+void Calculator::sphereCountChanged(int i){
 	if(performingAction) return;
-	printf("CirclesCount: %5d new: %5d\n", circlesCount, i);
-	if(i == circlesCount) return;
+	printf("SpheresCount: %5d new: %5d\n", spheresCount, i);
+	if(i == spheresCount) return;
 	performingAction = true;
 	
 	bool run = isRunning();
 	if(run)stop();
-	circleCountChanged_subclass(i);
+	sphereCountChanged_subclass(i);
 	
-	ceBuffer = newCopy<CircleExtension>(ceBuffer, circlesCount, i);
-	for(int j = circlesCount; j<i; j++){
+	ceBuffer = newCopy<SphereExtension>(ceBuffer, spheresCount, i);
+	for(int j = spheresCount; j<i; j++){
 		initCeBuffer(j);
 	}
-	//if(i<=circlesCount) //debug
-	circlesCount = i;
+	//if(i<=spheresCount) //debug
+	spheresCount = i;
 	
 	if(run)start();
 	performingAction = false;
@@ -543,15 +543,15 @@ void Calculator::paintGL(bool readNewFrame){
 	scalar r,x,y,z;
 	
 	int i,k,h;
-	Circle* c;
-	CircleExtension* ce;
+	Sphere* c;
+	SphereExtension* ce;
 	QColor* color;
 	if(use3D){
 		color = new QColor(102,102,102);
 	}else{
 		color = new QColor(30,30,30);
 	}
-	//err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, .sizeof(Circle)*readNum_render, c_CPU_render[bufferReadIndex], NULL, NULL);//&event);
+	//err = queue.enqueueReadBuffer(cl_spheres, CL_TRUE, 0, .sizeof(Sphere)*readNum_render, c_CPU_render[bufferReadIndex], NULL, NULL);//&event);
 	//printf("waiting for reading...\n");
 	//event.wait();
 	//printf("ready!\n");
@@ -575,7 +575,7 @@ void Calculator::paintGL(bool readNewFrame){
 		{
 			//printf("%4u: %5u\n", j, offset+i);
 			//c = c_CPU_render[bufferReadIndex][i];
-			c = getCircle(i);
+			c = getSphere(i);
 			if(c == NULL) continue;
 			r = c->size;
 			x = c->pos.s[0];
@@ -624,7 +624,7 @@ void Calculator::paintGL(bool readNewFrame){
 	for(i=0; i < readNum_render; i++)
 	{
 		//printf("%4u: %5u\n", j, offset+i);
-		c = getCircle(i);
+		c = getSphere(i);
 		if(c == NULL) continue;
 		r = c->size;
 		x = c->pos.s[0];
@@ -644,9 +644,9 @@ void Calculator::paintGL(bool readNewFrame){
 			glScalef(r,r,r);
 			#if onlyOneC
 				if(i==cCount-1)
-					glWidget->drawCircleF2(r,color->redF(),color->greenF(),color->blueF());
+					glWidget->drawSphereF2(r,color->redF(),color->greenF(),color->blueF());
 				else
-					glWidget->drawCircleF2(r, 0.05, 0.05, 0.05);
+					glWidget->drawSphereF2(r, 0.05, 0.05, 0.05);
 			#else
 				glBegin(GL_TRIANGLE_FAN);
 				#if onlyOneC
@@ -660,7 +660,7 @@ void Calculator::paintGL(bool readNewFrame){
 				glVertex3d((1/3.f),(1/3.f),0);
 				
 				glColor3f(color->redF(),color->greenF(),color->blueF()); 
-				glWidget->drawCircleF2(1.f); 
+				glWidget->drawSphereF2(1.f); 
 			#endif
 			glPopMatrix();
 		}else{

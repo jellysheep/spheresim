@@ -192,7 +192,7 @@ void GLWidget::initializeGL() {
 			drawsphere(2,1.f);
 		#endif
 	}else{
-		drawCircleF(1.f);
+		drawSphereF(1.f);
 	}
 	glEndList();
 	glNewList(displayList+1,GL_COMPILE);
@@ -799,7 +799,7 @@ void GLWidget::drawsphere(int ndiv, float radius=1.0) {
 	glEnd();
 }
 
-void GLWidget::drawCircleF2(float r){
+void GLWidget::drawSphereF2(float r){
 	//glScalef(r,r,r);
 	glCallList(displayList);
 }
@@ -809,7 +809,7 @@ void GLWidget::drawsphere2(float radius) {
 	glCallList(displayList);
 }
 
-void GLWidget::drawCircleF(float r){
+void GLWidget::drawSphereF(float r){
 	static float d;
 	static int j;
 	d = 0;
@@ -836,7 +836,7 @@ void GLWidget::drawLights(){
 	}
 }
 
-void drawCircleF_old(float r){
+void drawSphereF_old(float r){
 	static float d;
 	static int j;
 	glBegin(GL_TRIANGLE_FAN);

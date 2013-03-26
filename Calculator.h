@@ -2,7 +2,7 @@
 #define _CALCULATOR_H_
 
 #include <QThread>
-#include "Circles.h"
+#include "Spheres.h"
 #include "FramesCounter.h"
 #include <cstdio>
 #include <cstdlib>
@@ -45,8 +45,8 @@ protected:
 	bool newFrame;
 	volatile bool running, hasStopped;
 	
-	virtual void circleCountChanged_subclass(int i)=0;
-	virtual void maxCircleCountChanged_subclass(int i)=0;
+	virtual void sphereCountChanged_subclass(int i)=0;
+	virtual void maxSphereCountChanged_subclass(int i)=0;
 	
 	int lightTarget;
 	void initCeBuffer(int i);
@@ -90,14 +90,14 @@ public:
 		newFrame = b;
 	}
 	
-	CircleExtension* ceBuffer;
+	SphereExtension* ceBuffer;
 	
 	bool isRunning();
 	
-	virtual Circle* getCircle(int i)=0;
+	virtual Sphere* getSphere(int i)=0;
 	
-	///get latest circles (at 'write' position in buffer)
-	virtual Circle* getDirectCircle(int i)=0;
+	///get latest spheres (at 'write' position in buffer)
+	virtual Sphere* getDirectSphere(int i)=0;
 	
 	void set(PlotWidget* plotWg);
 	
@@ -136,9 +136,9 @@ public slots:
 	
 	virtual void gravityChanged()=0;
 	
-	virtual void circleCountChanged(int i);
+	virtual void sphereCountChanged(int i);
 	
-	virtual void maxCircleCountChanged(int i);
+	virtual void maxSphereCountChanged(int i);
 	
 	virtual void updateG()=0;
 	

@@ -1,6 +1,6 @@
 
-#ifndef _CIRCLES_H_
-#define _CIRCLES_H_
+#ifndef _SPHERES_H_
+#define _SPHERES_H_
 
 #include <QColor>
 
@@ -79,7 +79,7 @@ typedef struct vector3{
 extern vector2* clVector(vector2 v);
 extern vector3* clVector(vector3 v);
 
-typedef struct Circle
+typedef struct Sphere
 {
 	vector pos, oldPos;
 	vector speed;
@@ -87,15 +87,15 @@ typedef struct Circle
 	scalar size, mass, poisson, E;
 	unsigned short fixed; // 0 or 1
 	//float x[3];  //padding
-} Circle;
+} Sphere;
 
-typedef struct CircleExtension
+typedef struct SphereExtension
 {
 	QColor color, hsvColor;
 	vector* trace;
 	int traceCount;
 	bool traceFull;
-} CircleExtension;
+} SphereExtension;
 
 typedef struct Plane
 {
@@ -105,9 +105,9 @@ typedef struct Plane
 extern bool use3D;
 extern bool fastRender;
 
-extern int circlesCount;
-extern bool manyCircles;
-extern int maxShowCirclesCount;
+extern int spheresCount;
+extern bool manySpheres;
+extern int maxShowSpheresCount;
 
 extern vector3 boxSize;
 extern vector2 sphereSize;

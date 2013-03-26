@@ -9,7 +9,7 @@ using namespace Eigen;
 
 #include <QThread>
 
-#include "Circles.h"
+#include "Spheres.h"
 #include "Calculator.h"
 
 #define useSSE 1
@@ -32,7 +32,7 @@ using namespace Eigen;
 #endif
 
 struct Pos {
-	int posOfCircle, circleAtPos;
+	int posOfSphere, sphereAtPos;
 };
 
 class EigenCalculator: public Calculator {
@@ -44,8 +44,8 @@ protected:
 	void save();
 		
 	eVector** renderBuffer;
-	Circle* circles;
-	eVector *circlesOldPos, *circlesPos, *circlesSpeed, *circlesForce;
+	Sphere* spheres;
+	eVector *spheresOldPos, *spheresPos, *spheresSpeed, *spheresForce;
 	scalar** both_r;
 	int gridSteps;
 	scalar gridWidth;
@@ -54,14 +54,14 @@ protected:
 	void doStep();
 	bool saveFrame();
 	
-	Circle c;
+	Sphere c;
 	
 	scalar timeInterval;
 	
-	void circleCountChanged_subclass(int i);
-	void maxCircleCountChanged_subclass(int i);
+	void sphereCountChanged_subclass(int i);
+	void maxSphereCountChanged_subclass(int i);
 	
-	void initCircle(int i);
+	void initSphere(int i);
 	
 	scalar _E;
 	
@@ -106,8 +106,8 @@ protected:
 public:
 	EigenCalculator();
 	
-	Circle* getCircle(int i);
-	Circle* getDirectCircle(int i);
+	Sphere* getSphere(int i);
+	Sphere* getDirectSphere(int i);
 	
 	void fpsChanged(scalar timeInterval);
 	

@@ -16,7 +16,7 @@
 
 OpenClCalculator::OpenClCalculator():Calculator(){
 	try{
-		printf("sizeof(Circle): %d\n", sizeof(Circle));
+		printf("sizeof(Sphere): %d\n", sizeof(Sphere));
 		srand(20);
 		srand(NanosecondTimer::getNS());
 		
@@ -75,7 +75,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 
 		int pl;
 		char *kernel_source;
-		kernel_source = file_contents("../CirclesCalculator.cl", &pl);
+		kernel_source = file_contents("../SpheresCalculator.cl", &pl);
 		if(kernel_source == NULL){
 			printf("ERROR: OpenCL initialization failed!\n");
 			return;
@@ -128,13 +128,13 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 
 		//initialize our CPU memory arrays, send them to the device and set the kernel arguements
 
-		///Circle circle[circlesCount];
-		//circle.A = .5f;
-		//circle.B = 10.0f;
-		//circle.C = 3;
+		///Sphere sphere[spheresCount];
+		//sphere.A = .5f;
+		//sphere.B = 10.0f;
+		//sphere.C = 3;
 		/*
-		circle[i].D = .01;
-		circle[i].E = 1;
+		sphere[i].D = .01;
+		sphere[i].E = 1;
 		*/
 		uint* m_z = new uint(rand());
 		//for(int i = 0; i<10000; i++);
@@ -146,14 +146,14 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		printf("Creating OpenCL arrays\n");
 		//*
 		if(false || (cl_mem_method & CL_MEM_USE_HOST_PTR)>0){
-			cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, sizeof(Circle)*circlesCount, circlesBuffer = new Circle[circlesCount], &err);
-			if(err!=CL_SUCCESS)printf("ERROR: creating circles buffer: %s\n", oclErrorString(err));
-			printf("circles buffer allocated.\n");
-			circlesBufferUsed = true;
+			cl_spheres = cl::Buffer(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, sizeof(Sphere)*spheresCount, spheresBuffer = new Sphere[spheresCount], &err);
+			if(err!=CL_SUCCESS)printf("ERROR: creating spheres buffer: %s\n", oclErrorString(err));
+			printf("spheres buffer allocated.\n");
+			spheresBufferUsed = true;
 		}else // */
 		{
-			cl_circles = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(Circle)*circlesCount, NULL, &err);
-			circlesBufferUsed = false;
+			cl_spheres = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(Sphere)*spheresCount, NULL, &err);
+			spheresBufferUsed = false;
 		}
 //		cl_vector3* boxSize_cl = clVector(boxSize);
 //		cl_vector2* sphereSize_cl = clVector(sphereSize);
@@ -163,7 +163,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		cl_boxSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector3), &boxSize, &err);
 		cl_sphereSize = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(vector2), &sphereSize, &err);
 		cl_max_speed = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &max_speed, &err);
-		cl_circlesCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &circlesCount, &err);
+		cl_spheresCount = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(int), &spheresCount, &err);
 		scalar* E_ = new scalar(1000000.0*E);
 		cl_E = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), E_, &err);
 		cl_elastic = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &elastic, &err);
@@ -172,18 +172,18 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		cl_poisson = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), &poisson, &err);
 		scalar* G_ = new scalar(G*G_fact);
 		cl_G = cl::Buffer(context, CL_MEM_READ_ONLY|cl_mem_method, sizeof(scalar), G_, &err);
-		cl_flags = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(int)*circlesCount, NULL, &err);
+		cl_flags = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(int)*spheresCount, NULL, &err);
 
 		printf("Pushing data to the GPU\n");
 		//push our CPU arrays to the GPU
 
-		//write the circle struct to GPU memory as a buffer
-		//err = queue.enqueueWriteBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle), &circle, NULL, &event);
+		//write the sphere struct to GPU memory as a buffer
+		//err = queue.enqueueWriteBuffer(cl_spheres, CL_TRUE, 0, sizeof(Sphere), &sphere, NULL, &event);
 		/*err = queue.enqueueWriteBuffer(cl_m_z, CL_TRUE, 0, sizeof(uint), m_z, NULL, &event);
 		err = queue.enqueueWriteBuffer(cl_m_w, CL_TRUE, 0, sizeof(uint), m_w, NULL, &event);
 		err = queue.enqueueWriteBuffer(cl_boxSize, CL_TRUE, 0, sizeof(double_vec), boxSize2D, NULL, &event);
 		err = queue.enqueueWriteBuffer(cl_max_speed, CL_TRUE, 0, sizeof(double), &max_speed, NULL, &event);
-		err = queue.enqueueWriteBuffer(cl_circlesCount, CL_TRUE, 0, sizeof(int), &circlesCount, NULL, &event);
+		err = queue.enqueueWriteBuffer(cl_spheresCount, CL_TRUE, 0, sizeof(int), &spheresCount, NULL, &event);
 		err = queue.enqueueWriteBuffer(cl_E, CL_TRUE, 0, sizeof(double), &E, NULL, &event);*/
 		
 
@@ -193,7 +193,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 
 
 		//set the arguements of our kernel
-		err = randomFill_kernel.setArg(0, cl_circles);
+		err = randomFill_kernel.setArg(0, cl_spheres);
 		err = randomFill_kernel.setArg(1, cl_m_z);
 		err = randomFill_kernel.setArg(2, cl_m_w);
 		err = randomFill_kernel.setArg(3, cl_boxSize);
@@ -201,27 +201,27 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		err = randomFill_kernel.setArg(5, cl_sphereSize);
 		err = randomFill_kernel.setArg(6, cl_poisson);
 		err = randomFill_kernel.setArg(7, cl_E);
-		err = randomFill_kernel.setArg(8, cl_circlesCount);
+		err = randomFill_kernel.setArg(8, cl_spheresCount);
 		err = randomFill_kernel.setArg(9, cl_flags);
 		
-		err = moveStep_kernel.setArg(0, cl_circles);
-		err = moveStep_kernel.setArg(1, cl_circlesCount);
+		err = moveStep_kernel.setArg(0, cl_spheres);
+		err = moveStep_kernel.setArg(1, cl_spheresCount);
 		err = moveStep_kernel.setArg(2, cl_boxSize);
 		err = moveStep_kernel.setArg(3, cl_elastic);
 		err = moveStep_kernel.setArg(4, cl_gravity);
 		err = moveStep_kernel.setArg(5, cl_timeInterval);
 		err = moveStep_kernel.setArg(6, cl_G);
 		
-		err = moveStep_addInterForces_kernel.setArg(0, cl_circles);
+		err = moveStep_addInterForces_kernel.setArg(0, cl_spheres);
 		err = moveStep_addInterForces_kernel.setArg(1, cl_elastic);
 		err = moveStep_addInterForces_kernel.setArg(2, cl_G);
 		err = moveStep_addInterForces_kernel.setArg(3, cl_flags);
 		
-		err = moveStep_addWallForces_kernel.setArg(0, cl_circles);
+		err = moveStep_addWallForces_kernel.setArg(0, cl_spheres);
 		err = moveStep_addWallForces_kernel.setArg(1, cl_boxSize);
 		err = moveStep_addWallForces_kernel.setArg(2, cl_elastic);
 		
-		err = moveStep_updatePositions_kernel.setArg(0, cl_circles);
+		err = moveStep_updatePositions_kernel.setArg(0, cl_spheres);
 		err = moveStep_updatePositions_kernel.setArg(1, cl_gravity);
 		err = moveStep_updatePositions_kernel.setArg(2, cl_timeInterval);
 
@@ -247,52 +247,52 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 			if(use3D){
 				fprintf(file, "%g ", boxSize.s[2]);
 			}
-			fprintf(file, "%u\n", circlesCount);
+			fprintf(file, "%u\n", spheresCount);
 			fclose(file);
 			
-			//~ readNum_save = min(1000,circlesCount/2);
-			//~ c_CPU_save[0] = new Circle[readNum_save];
-			//~ c_CPU_save[1] = new Circle[readNum_save];
+			//~ readNum_save = min(1000,spheresCount/2);
+			//~ c_CPU_save[0] = new Sphere[readNum_save];
+			//~ c_CPU_save[1] = new Sphere[readNum_save];
 		}
 			
 		long long ns = NanosecondTimer::getNS();
-		err = queue.enqueueNDRangeKernel(randomFill_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &event); 
+		err = queue.enqueueNDRangeKernel(randomFill_kernel, cl::NullRange, cl::NDRange(spheresCount), cl::NullRange, NULL, &event); 
 		if(err!=CL_SUCCESS)printf("clEnqueueNDRangeKernel: %s\n", oclErrorString(err));
 		queue.finish();
 		printf("kernel randomFill executed successfully!\nTime needed: %8.3f ms\n", (NanosecondTimer::getNS()-ns)/1000000.0);
 		
 		if(renderBool){
-			//c_CPU_render[0] = new Circle[readNum_render];
-			//c_CPU_render[1] = new Circle[readNum_render];
-			readNum_render = std::min(maxShowCirclesCount,circlesCount);
-			c_CPU_render = new Circle*[renderBufferCount];
+			//c_CPU_render[0] = new Sphere[readNum_render];
+			//c_CPU_render[1] = new Sphere[readNum_render];
+			readNum_render = std::min(maxShowSpheresCount,spheresCount);
+			c_CPU_render = new Sphere*[renderBufferCount];
 			for(int i = 0; i<renderBufferCount; i++){
-				c_CPU_render[i] = new Circle[readNum_render];
+				c_CPU_render[i] = new Sphere[readNum_render];
 			}
 			bufferReadIndex = 0;
 			bufferWriteIndex = 0;
 			saveFrame();
-			//err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
+			//err = queue.enqueueReadBuffer(cl_spheres, CL_TRUE, 0, sizeof(Sphere)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
 			bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 			saveFrame();
-			//err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
+			//err = queue.enqueueReadBuffer(cl_spheres, CL_TRUE, 0, sizeof(Sphere)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);//&event);
 			bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 		}
 		
 		/*double r,x,y,z;
 		int j = 0;
 		int offset = 0;
-		Circle c;
-		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_render[j], NULL, &event);
+		Sphere c;
+		err = queue.enqueueReadBuffer(cl_spheres, CL_TRUE, sizeof(Sphere)*offset, sizeof(Sphere)*min((spheresCount-offset),readNum), c_CPU_render[j], NULL, &event);
 		//offset+=readNum;
-		for(; offset<circlesCount; offset+=readNum){
+		for(; offset<spheresCount; offset+=readNum){
 			event.wait();
-			if(circlesCount-(offset+readNum)>0){
-				err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*(offset+readNum), sizeof(Circle)*min((circlesCount-(offset+readNum)),readNum), c_CPU_render[((j+1)%2)], NULL, &event);
+			if(spheresCount-(offset+readNum)>0){
+				err = queue.enqueueReadBuffer(cl_spheres, CL_TRUE, sizeof(Sphere)*(offset+readNum), sizeof(Sphere)*min((spheresCount-(offset+readNum)),readNum), c_CPU_render[((j+1)%2)], NULL, &event);
 			}
 			//queue.finish();
 
-			for(int i=0; i < min((circlesCount-offset),readNum); i++)
+			for(int i=0; i < min((spheresCount-offset),readNum); i++)
 			{
 				//printf("%4u: %5u\n", j, offset+i);
 				c = c_CPU_render[j][i];
@@ -300,7 +300,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 				x = c.pos.s[0];
 				y = c.pos.s[1];
 				z = 0;
-				printf("Circle sphereSize(%3f) mass(%3f) E(%3f) ",r,c.mass,c.E);
+				printf("Sphere sphereSize(%3f) mass(%3f) E(%3f) ",r,c.mass,c.E);
 				printf("pos(%4f|%4f|%4f) ",x,y,z);
 				printf("speed(%4f|%4f|%4f) ",c.speed.s[0],c.speed.s[1],0.0);
 				printf("force(%4f|%4f|%4f)\n",c.force.s[0],c.force.s[1],0.0);
@@ -309,22 +309,22 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 		
 		
 		/*
-		err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, NULL); 
+		err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(spheresCount), cl::NullRange, NULL, NULL); 
 		queue.finish();
 		
 		printf("after kernel moveStep:\n");
 		
 		j = 0;
 		offset = 0;
-		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*min((circlesCount-offset),readNum), c_CPU_render[j], NULL, &event);
+		err = queue.enqueueReadBuffer(cl_spheres, CL_TRUE, sizeof(Sphere)*offset, sizeof(Sphere)*min((spheresCount-offset),readNum), c_CPU_render[j], NULL, &event);
 		//offset+=readNum;
-		for(; offset<circlesCount; offset+=readNum){
-			if(circlesCount-(offset+readNum)>0){
-				err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*(offset+readNum), sizeof(Circle)*min((circlesCount-(offset+readNum)),readNum), c_CPU_render[((j+1)%2)], NULL, &event);
+		for(; offset<spheresCount; offset+=readNum){
+			if(spheresCount-(offset+readNum)>0){
+				err = queue.enqueueReadBuffer(cl_spheres, CL_TRUE, sizeof(Sphere)*(offset+readNum), sizeof(Sphere)*min((spheresCount-(offset+readNum)),readNum), c_CPU_render[((j+1)%2)], NULL, &event);
 			}
 			//queue.finish();
 
-			for(int i=0; i < min((circlesCount-offset),readNum); i++)
+			for(int i=0; i < min((spheresCount-offset),readNum); i++)
 			{
 				//printf("%4u: %5u\n", j, offset+i);
 				c = c_CPU_render[j][i];
@@ -332,7 +332,7 @@ OpenClCalculator::OpenClCalculator():Calculator(){
 				x = c.pos.s[0];
 				y = c.pos.s[1];
 				z = 0;
-				printf("Circle sphereSize(%3f) mass(%3f) E(%3f) poisson(%3f) ",r,c.mass,c.E,c.poisson);
+				printf("Sphere sphereSize(%3f) mass(%3f) E(%3f) poisson(%3f) ",r,c.mass,c.E,c.poisson);
 				printf("pos(%4f|%4f|%4f) ",x,y,z);
 				printf("speed(%4f|%4f|%4f) ",c.speed.s[0],c.speed.s[1],0.0);
 				printf("force(%4f|%4f|%4f)\n",c.force.s[0],c.force.s[1],0.0);
@@ -362,14 +362,14 @@ void OpenClCalculator::save(){
 	file = fopen("save.txt","a");
 	int j = 0;
 	int offset = 0;
-	err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*std::min((circlesCount-offset),readNum_render), c_CPU_save[j=((j+1)%2)], NULL, &event);
+	err = queue.enqueueReadBuffer(cl_spheres, CL_TRUE, sizeof(Sphere)*offset, sizeof(Sphere)*std::min((spheresCount-offset),readNum_render), c_CPU_save[j=((j+1)%2)], NULL, &event);
 	offset+=readNum_render;
-	for(; offset<circlesCount; offset+=readNum_render){
+	for(; offset<spheresCount; offset+=readNum_render){
 		event.wait();
-		err = queue.enqueueReadBuffer(cl_circles, CL_TRUE, sizeof(Circle)*offset, sizeof(Circle)*std::min((circlesCount-offset),readNum_render), c_CPU_save[j=((j+1)%2)], NULL, &event);
+		err = queue.enqueueReadBuffer(cl_spheres, CL_TRUE, sizeof(Sphere)*offset, sizeof(Sphere)*std::min((spheresCount-offset),readNum_render), c_CPU_save[j=((j+1)%2)], NULL, &event);
 		//queue.finish();
 
-		for(int i=0; i < std::min((circlesCount-offset),readNum_render); i++)
+		for(int i=0; i < std::min((spheresCount-offset),readNum_render); i++)
 		{
 			/*addHex(file, c_CPU_save[j][i].size);
 			fprintf(file," ");
@@ -386,23 +386,23 @@ void OpenClCalculator::save(){
 	fclose(file);
 }
 
-Circle* OpenClCalculator::getCircle(int i){
+Sphere* OpenClCalculator::getSphere(int i){
 	return &c_CPU_render[bufferReadIndex][i];
 }
 
-Circle* OpenClCalculator::getDirectCircle(int i){
+Sphere* OpenClCalculator::getDirectSphere(int i){
 	return &c_CPU_render[bufferWriteIndex][i];
 }
 
 void OpenClCalculator::doStep(){
 	if(useSplitKernels){
-		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(1,1), NULL, &events[eventCounter]);
-		//err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(circlesCount,circlesCount), cl::NDRange(1,1), NULL, &events[eventCounter]);
-		err = queue.enqueueNDRangeKernel(moveStep_addWallForces_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+1]); 
-		err = queue.enqueueNDRangeKernel(moveStep_updatePositions_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NullRange, NULL, &events[eventCounter+2]); 
+		err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(spheresCount,spheresCount), cl::NDRange(1,1), NULL, &events[eventCounter]);
+		//err = queue.enqueueNDRangeKernel(moveStep_addInterForces_kernel , cl::NullRange, cl::NDRange(spheresCount,spheresCount), cl::NDRange(1,1), NULL, &events[eventCounter]);
+		err = queue.enqueueNDRangeKernel(moveStep_addWallForces_kernel, cl::NullRange, cl::NDRange(spheresCount), cl::NullRange, NULL, &events[eventCounter+1]); 
+		err = queue.enqueueNDRangeKernel(moveStep_updatePositions_kernel, cl::NullRange, cl::NDRange(spheresCount), cl::NullRange, NULL, &events[eventCounter+2]); 
 		eventCounter++;
 	}else{
-		err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(circlesCount), cl::NDRange(256), NULL, &events[eventCounter++]);
+		err = queue.enqueueNDRangeKernel(moveStep_kernel, cl::NullRange, cl::NDRange(spheresCount), cl::NDRange(256), NULL, &events[eventCounter++]);
 	}
 	//printf("step %i\n", i++);
 	if(eventCounter>=numEvents){
@@ -434,7 +434,7 @@ void OpenClCalculator::doStep(){
 }
 
 bool OpenClCalculator::saveFrame(){
-	err = queue.enqueueReadBuffer(cl_circles, CL_FALSE, 0, sizeof(Circle)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);
+	err = queue.enqueueReadBuffer(cl_spheres, CL_FALSE, 0, sizeof(Sphere)*readNum_render, c_CPU_render[bufferWriteIndex], NULL, NULL);
 	return true;
 }
 
@@ -442,10 +442,10 @@ bool OpenClCalculator::isFixed(int i){
 	return false;
 }
 
-void OpenClCalculator::circleCountChanged_subclass(int i){
+void OpenClCalculator::sphereCountChanged_subclass(int i){
 	
 }
-void OpenClCalculator::maxCircleCountChanged_subclass(int i){
+void OpenClCalculator::maxSphereCountChanged_subclass(int i){
 	
 }
 void OpenClCalculator::updateG(){

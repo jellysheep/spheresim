@@ -3,7 +3,7 @@
 
 #include "Ui_Control_calculations.h"
 #include "Ui_Control_rendering.h"
-#include "Circles.h"
+#include "Spheres.h"
 #include <QMainWindow>
 
 class GLWidget;

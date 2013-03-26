@@ -2,7 +2,7 @@
 #define _DIALOG_H_
 
 #include "Dialog_inner.h"
-#include "Circles.h"
+#include "Spheres.h"
 #include <QDialog>
 #include "Calculator.h"
 

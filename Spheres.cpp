@@ -1,14 +1,14 @@
 
-#include "Circles.h"
+#include "Spheres.h"
 #include <cmath>
 #include <algorithm>
 
 bool use3D = false;
 bool fastRender = true;
 
-int circlesCount = 1000;
-int maxShowCirclesCount = 20000;
-bool manyCircles = (std::min(circlesCount,maxShowCirclesCount)>20);
+int spheresCount = 1000;
+int maxShowSpheresCount = 20000;
+bool manySpheres = (std::min(spheresCount,maxShowSpheresCount)>20);
 
 vector3 boxSize = (vector3){1.5,1.5,1};
 vector2 sphereSize = (vector2){0.015,0.015};
@@ -32,20 +32,20 @@ scalar G_fact = 0;
 scalar airResistance = 0.1;
 bool wallResistance = true;
 
-bool useColorsBool = true;// && (circlesCount<=100);
+bool useColorsBool = true;// && (spheresCount<=100);
 bool useColorHSV = true;
 scalar hueStep = -0.15;
 scalar hueOffset;
-bool useTrace = false && (!manyCircles);
+bool useTrace = false && (!manySpheres);
 const char *filename = "save";
 const char *viewFileExtension3D = "s3v", *configFileExtension3D = "s3c";
 const char *viewFileExtension2D = "s2v", *configFileExtension2D = "s2c";
-long traceCount = renderFpsMax*50/sqrt(std::max(1.0,log((maxShowCirclesCount))));
+long traceCount = renderFpsMax*50/sqrt(std::max(1.0,log((maxShowSpheresCount))));
 bool connectTracePoints = true;
 scalar traceAmount = 1.0;
 int renderBufferCount = renderFpsMax;
 
-bool reflections = true && (std::min(circlesCount,maxShowCirclesCount)<=1000);
+bool reflections = true && (std::min(spheresCount,maxShowSpheresCount)<=1000);
 bool wireframe = false;
 bool showCube = true, showLights = false;
 bool useSplitKernels = true;

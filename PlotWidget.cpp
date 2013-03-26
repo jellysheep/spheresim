@@ -1,6 +1,6 @@
 
 #include "PlotWidget.h"
-#include "Circles.h"
+#include "Spheres.h"
 #include <QPolygon>
 #include <QPoint>
 #include <qwt/qwt_plot.h>

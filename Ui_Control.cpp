@@ -1,5 +1,5 @@
 #include "Ui_Control.h"
-#include "Circles.h"
+#include "Spheres.h"
 #include "Calculator.h"
 #include "GLWidget.h"
 //#include <QtGui>
@@ -88,7 +88,7 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 		this, SLOT(speedChanged(double)), Qt::QueuedConnection);
 		
 	QObject::connect(calc->count, SIGNAL(valueChanged(int)), 
-		cal, SLOT(circleCountChanged(int)), Qt::QueuedConnection);
+		cal, SLOT(sphereCountChanged(int)), Qt::QueuedConnection);
 		
 	QObject::connect(calc->wireframe, SIGNAL(toggled(bool)), 
 		this, SLOT(showWireframe(bool)), Qt::QueuedConnection);
@@ -105,7 +105,7 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	QObject::connect(calc->radius_min, SIGNAL(valueChanged(double)), 
 		this, SLOT(minSphereSize(double)), Qt::QueuedConnection);
 	QObject::connect(calc->visible_count, SIGNAL(valueChanged(int)), 
-		cal, SLOT(maxCircleCountChanged(int)), Qt::QueuedConnection);
+		cal, SLOT(maxSphereCountChanged(int)), Qt::QueuedConnection);
 	QObject::connect(rend->cube, SIGNAL(toggled(bool)), 
 		this, SLOT(setShowCube(bool)), Qt::QueuedConnection);
 	QObject::connect(calc->earth_gravity, SIGNAL(valueChanged(double)), 
@@ -143,8 +143,8 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 		cc cal, SLOT(loadConfig()), Qt::QueuedConnection);
 	
 	rend->calc_speed->setValue(speed);
-	calc->count->setValue(circlesCount);
-	calc->visible_count->setValue(maxShowCirclesCount);
+	calc->count->setValue(spheresCount);
+	calc->visible_count->setValue(maxShowSpheresCount);
 	calc->radius_min->setValue(sphereSize.s[0]);
 	calc->radius_max->setValue(sphereSize.s[1]);
 	calc->one_size->setChecked(sphereSize.s[0] == sphereSize.s[1]);
@@ -368,7 +368,7 @@ void Control::showTrace(bool b){
 	useTrace = b;
 	if(b == false){
 		if(cal!=NULL && cal->ceBuffer!=NULL)
-			for(int i = 0; i<circlesCount; i++){
+			for(int i = 0; i<spheresCount; i++){
 				cal->ceBuffer[i].traceFull = false;
 				cal->ceBuffer[i].traceCount = 0;
 			}

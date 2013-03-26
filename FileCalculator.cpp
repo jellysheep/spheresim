@@ -27,7 +27,7 @@ FileCalculator::FileCalculator():Calculator(){
 	QString str = QFileDialog::getOpenFileName(0, ("Open file"), (std::string("./save.")+getViewFileExtension()).c_str(), (filter));
 	if(str == ""){
 		std::cerr<<"File could not be opened!"<<std::endl;
-		circlesCount = 0;
+		spheresCount = 0;
 		exit(0);
 	}
 	file = (const char*) str.toStdString().c_str();
@@ -49,10 +49,10 @@ FileCalculator::FileCalculator():Calculator(){
 			}
 			return;
 		}
-		int newCirclesCount;
-		saveInVar(newCirclesCount);
-		int newMaxCirclesCount;
-		saveInVar(newMaxCirclesCount);
+		int newSpheresCount;
+		saveInVar(newSpheresCount);
+		int newMaxSpheresCount;
+		saveInVar(newMaxSpheresCount);
 		
 		saveInVar(boxSize.s0);
 		saveInVar(boxSize.s1);
@@ -77,32 +77,32 @@ FileCalculator::FileCalculator():Calculator(){
 		int _wallResistance;
 		saveInVar(_wallResistance);
 		wallResistance = (_wallResistance != 0);
-		circles = new Circle[newCirclesCount];
-		circles2 = new Circle[newCirclesCount];
+		spheres = new Sphere[newSpheresCount];
+		spheres2 = new Sphere[newSpheresCount];
 		
-		for(int i = 0; i<newCirclesCount; i++){
-			saveInVar(circles2[i].size);
-			//printf("circle size: %5f\n", circles2[i].size);
-			saveInVar(circles2[i].mass);
-			saveInVar(circles[i].pos.s0);
-			saveInVar(circles[i].pos.s1);
+		for(int i = 0; i<newSpheresCount; i++){
+			saveInVar(spheres2[i].size);
+			//printf("sphere size: %5f\n", spheres2[i].size);
+			saveInVar(spheres2[i].mass);
+			saveInVar(spheres[i].pos.s0);
+			saveInVar(spheres[i].pos.s1);
 			if(use3D){
-				saveInVar(circles[i].pos.s2);
+				saveInVar(spheres[i].pos.s2);
 			}
 		}
 		
-		readNum_render = std::min(newMaxCirclesCount,newCirclesCount);
+		readNum_render = std::min(newMaxSpheresCount,newSpheresCount);
 		renderBuffer = new vector*[renderBufferCount];
 		for(int i = 0; i<renderBufferCount; i++){
 			renderBuffer[i] = new vector[readNum_render];
 		}
 		
 		
-		circleCountChanged(newCirclesCount);
-		//circlesCount = newCirclesCount;
+		sphereCountChanged(newSpheresCount);
+		//spheresCount = newSpheresCount;
 
-		maxCircleCountChanged(newMaxCirclesCount);
-		//maxShowCirclesCount = newMaxCirclesCount;
+		maxSphereCountChanged(newMaxSpheresCount);
+		//maxShowSpheresCount = newMaxSpheresCount;
 		
 		initialized = true;
 		
@@ -113,14 +113,14 @@ FileCalculator::FileCalculator():Calculator(){
 		saveFrame();
 		bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 		
-		printf("Circles to render: %d\n", readNum_render);
+		printf("Spheres to render: %d\n", readNum_render);
 		
 		printf("FileCalculator initialized!\n");
 	}
 	else
 	{
 		std::cerr<<"File could not be opened!"<<std::endl;
-		circlesCount = 0;
+		spheresCount = 0;
 		exit(0);
 	}
 }
@@ -167,7 +167,7 @@ void FileCalculator::updateElasticity(){
 
 bool FileCalculator::saveFrame(){
 	if(eof || !initialized) return false;
-	for(int i = 0; i<circlesCount; i++){
+	for(int i = 0; i<spheresCount; i++){
 		saveInVar(renderBuffer[bufferWriteIndex][i].s0);
 		saveInVar(renderBuffer[bufferWriteIndex][i].s1);
 		if(use3D){
@@ -177,14 +177,14 @@ bool FileCalculator::saveFrame(){
 	return true;
 }
 
-Circle* FileCalculator::getCircle(int i){
-	circles2[i].pos = renderBuffer[bufferReadIndex][i];
-	return &circles2[i];
+Sphere* FileCalculator::getSphere(int i){
+	spheres2[i].pos = renderBuffer[bufferReadIndex][i];
+	return &spheres2[i];
 }
 
-Circle* FileCalculator::getDirectCircle(int i){
-	circles2[i].pos = renderBuffer[bufferWriteIndex][i];
-	return &circles2[i];
+Sphere* FileCalculator::getDirectSphere(int i){
+	spheres2[i].pos = renderBuffer[bufferWriteIndex][i];
+	return &spheres2[i];
 }
 
 void FileCalculator::fpsChanged(scalar timeInt){
@@ -199,11 +199,11 @@ void FileCalculator::gravityChanged(){
 	//nothing to do
 }
 
-void FileCalculator::circleCountChanged_subclass(int i){
+void FileCalculator::sphereCountChanged_subclass(int i){
 	//nothing to do
 }
 
-void FileCalculator::maxCircleCountChanged_subclass(int i){
+void FileCalculator::maxSphereCountChanged_subclass(int i){
 	//nothing to do
 }
 

@@ -2,7 +2,7 @@
 #define _EXPONENTIAL_SLIDER_H_
 
 #include <QSlider>
-#include "Circles.h"
+#include "Spheres.h"
 
 class QDoubleSpinBox;
 

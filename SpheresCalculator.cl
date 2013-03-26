@@ -38,7 +38,7 @@
 #define pow_(x,y) (pow((scalar)(x),(scalar)(y)))
 //sqrt half_sqrt native_sqrt
 
-typedef struct Circle
+typedef struct Sphere
 {
 	vector pos, oldPos;
 	vector speed;
@@ -46,7 +46,7 @@ typedef struct Circle
 	scalar size,mass,poisson,E;
 	unsigned short fixed; // 0 or 1
 	//float x[3];  //padding
-} Circle;
+} Sphere;
 
 uint GetUint(uint* m_z, uint* m_w, uint gid)
 {
@@ -91,7 +91,7 @@ scalar GetUniform(uint* m_z, uint* m_w, uint gid)
 }
 
 
-__kernel void randomFill(__global struct Circle* circle, __global uint* z, __global uint* w,
+__kernel void randomFill(__global struct Sphere* sphere, __global uint* z, __global uint* w,
 						__global vector3* boxSize, __global scalar* max_speed,
 						__global vector* sphereSize, __global scalar* poisson,
 						__global scalar* E, __global uint* num, __global int* flags){
@@ -111,40 +111,40 @@ __kernel void randomFill(__global struct Circle* circle, __global uint* z, __glo
 	}
 	uint* m_z = &m_z_;
 	uint* m_w = &m_w_;
-	circle[gid].size = s2.s0+((s2.s1-s2.s0)*uGetUniform(m_z, m_w, gid));
+	sphere[gid].size = s2.s0+((s2.s1-s2.s0)*uGetUniform(m_z, m_w, gid));
 #ifndef M_PI
 	float M_PI = 314/100.0f;
 #endif
-	circle[gid].mass = 4.0/3.0*pow_(circle[gid].size,3)*M_PI  *950; //Kautschuk
-	circle[gid].poisson = *poisson;
-	circle[gid].E = *E;
+	sphere[gid].mass = 4.0/3.0*pow_(sphere[gid].size,3)*M_PI  *950; //Kautschuk
+	sphere[gid].poisson = *poisson;
+	sphere[gid].E = *E;
 	   
-	circle[gid].pos.s0 = circle[gid].size/2+uGetUniform(m_z, m_w, gid)*(s.s0-circle[gid].size);
-	circle[gid].pos.s1 = circle[gid].size/2+uGetUniform(m_z, m_w, gid)*(s.s1-circle[gid].size);
+	sphere[gid].pos.s0 = sphere[gid].size/2+uGetUniform(m_z, m_w, gid)*(s.s0-sphere[gid].size);
+	sphere[gid].pos.s1 = sphere[gid].size/2+uGetUniform(m_z, m_w, gid)*(s.s1-sphere[gid].size);
 	#if _3D_
-		circle[gid].pos.s2 = circle[gid].size/2+uGetUniform(m_z, m_w, gid)*(s.s2-circle[gid].size);
-		//printf("pos: %f\n", circle[gid].pos.s2);
+		sphere[gid].pos.s2 = sphere[gid].size/2+uGetUniform(m_z, m_w, gid)*(s.s2-sphere[gid].size);
+		//printf("pos: %f\n", sphere[gid].pos.s2);
 	#endif
-	circle[gid].oldPos = circle[gid].pos;
+	sphere[gid].oldPos = sphere[gid].pos;
 	#if leapfrog
-		//circle[gid].oldPos = 0;
+		//sphere[gid].oldPos = 0;
 	#endif
 	
-	circle[gid].speed.s0 = GetUniform(m_z, m_w, gid);
-	circle[gid].speed.s1 = GetUniform(m_z, m_w, gid);
+	sphere[gid].speed.s0 = GetUniform(m_z, m_w, gid);
+	sphere[gid].speed.s1 = GetUniform(m_z, m_w, gid);
 	#if _3D_
-		circle[gid].speed.s2 = GetUniform(m_z, m_w, gid);
+		sphere[gid].speed.s2 = GetUniform(m_z, m_w, gid);
 	#endif
-	circle[gid].speed = normalize(circle[gid].speed)*uGetUniform(m_z, m_w, gid)*(*max_speed);
+	sphere[gid].speed = normalize(sphere[gid].speed)*uGetUniform(m_z, m_w, gid)*(*max_speed);
 	
-	circle[gid].force.s0 = 0;
-	circle[gid].force.s1 = 0;
+	sphere[gid].force.s0 = 0;
+	sphere[gid].force.s1 = 0;
 	#if _3D_
-		circle[gid].force.s2 = 0;
+		sphere[gid].force.s2 = 0;
 	#endif
 }
 
-__kernel void moveStep2(__global struct Circle* circle, __global int* num,
+__kernel void moveStep2(__global struct Sphere* sphere, __global int* num,
 						__global vector* sphereSize,
 						__global scalar* elastic, __global vector* g,
 						__global scalar* delta_t_, __global scalar* G_)
@@ -152,9 +152,9 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 	vector s = *sphereSize, force, acceleration, pos, pos2, gravity = *g;
 	scalar reduced = *elastic, delta_t = *delta_t_, G = *G_;
 	int id = get_global_id(0);
-	__global struct Circle* c2;
+	__global struct Sphere* c2;
 	
-	__global struct Circle* c = &circle[id];
+	__global struct Sphere* c = &sphere[id];
 	#if heun
 		pos = c->pos + c->speed*(delta_t*step) + c->force/c->mass*(delta_t*step*delta_t*step)/2.0f;
 	#endif
@@ -164,12 +164,12 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 	//*
 	int n = *num, n2 = 0;
 	for(int i = n-1; i>id; i--){
-		c2 = &circle[i];
+		c2 = &sphere[i];
 		#if heun
 			pos2 = c2->pos + c2->speed*(delta_t*step) + c2->force/c2->mass*(delta_t*step*delta_t*step)/2.0f;
 		#endif
 		
-		//#define c2 circle[i]
+		//#define c2 sphere[i]
 		both_r = c->size + c2->size;
 		d_pos = pos2-pos;
 		
@@ -195,8 +195,8 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 			d_n = d_pos/d; // bzw. normalize(d_pos);
 			// Gravitation:
 			force = G*c->mass*c2->mass/pow_(d,2) *d_n;
-			circle[id].force += force;
-			circle[i].force -= force;
+			sphere[id].force += force;
+			sphere[i].force -= force;
 		}
 		
 		// Abstossung:
@@ -212,8 +212,8 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 			if(dot(d_pos, (c->speed-c2->speed)/d)<0){ //Skalarprodukt
 				force *= reduced;
 			}
-			circle[id].force -= force;
-			circle[i].force += force;
+			sphere[id].force -= force;
+			sphere[i].force += force;
 			//continue;
 			
 			/*
@@ -223,11 +223,11 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 			// *
 			if(dot(d_pos, (c->speed-c2->speed)/d)<0){ //Skalarprodukt
 				d_d *= reduced;
-				//circle[id].speed = 0;
-				//circle[i].speed = 0;
+				//sphere[id].speed = 0;
+				//sphere[i].speed = 0;
 			}// * /
-			circle[id].force -= c->size*d_d;
-			circle[i].force += c2->size*d_d;
+			sphere[id].force -= c->size*d_d;
+			sphere[i].force += c2->size*d_d;
 			
 			/ *
 			htc_d = sqrt(htc_dSqr);
@@ -250,8 +250,8 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
 		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s0 += force_*fact;
-		//circle[id].force.s0 += c->size*htw_d_d*c->E*fact;
+		sphere[id].force.s0 += force_*fact;
+		//sphere[id].force.s0 += c->size*htw_d_d*c->E*fact;
 	}else if ((htw_d_d = (c->size + pos.s0 - s.s0))>0) {
 		//c->speed.s0 = -fabs(c->speed.s0);
 		if(c->speed.s0 < 0)fact = reduced;
@@ -259,8 +259,8 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
 		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s0 -= force_*fact;
-		//circle[id].force.s0 -= c->size*htw_d_d*c->E*fact;
+		sphere[id].force.s0 -= force_*fact;
+		//sphere[id].force.s0 -= c->size*htw_d_d*c->E*fact;
 	}
 	fact = 1.0f;
 	if ((htw_d_d = (c->size - pos.s1))>0) {
@@ -270,8 +270,8 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
 		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s1 += force_*fact;
-		//circle[id].force.s1 += c->size*htw_d_d*c->E*fact;
+		sphere[id].force.s1 += force_*fact;
+		//sphere[id].force.s1 += c->size*htw_d_d*c->E*fact;
 	}else if ((htw_d_d = (c->size + pos.s1 - s.s1))>0) {
 		//c->speed.s1 = -fabs(c->speed.s1);
 		if(c->speed.s1 < 0)fact = reduced;
@@ -279,8 +279,8 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
 		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s1 -= force_*fact;
-		//circle[id].force.s1 -= c->size*htw_d_d*c->E*fact;
+		sphere[id].force.s1 -= force_*fact;
+		//sphere[id].force.s1 -= c->size*htw_d_d*c->E*fact;
 	}
 #if _3D_
 	fact = 1.0f;
@@ -290,34 +290,34 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
 		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s2 += force_*fact;
-		//circle[id].force.s2 += c->size*htw_d_d*c->E*fact;
+		sphere[id].force.s2 += force_*fact;
+		//sphere[id].force.s2 += c->size*htw_d_d*c->E*fact;
 	}else if ((htw_d_d = (c->size + pos.s2 - s.s2))>0) {
 		if(c->speed.s2 < 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
 		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s2 -= force_*fact;
-		//circle[id].force.s2 -= c->size*htw_d_d*c->E*fact;
+		sphere[id].force.s2 -= force_*fact;
+		//sphere[id].force.s2 -= c->size*htw_d_d*c->E*fact;
 	}
 #endif
 	// */
 	
 	// Luftwiderstand:
-	//circle[id].force -= 0.001*circle[id].speed*fabs(length(circle[id].speed));
-	//0.00001*normalize(circle[id].speed)*pow_(length(circle[id].speed),2);
+	//sphere[id].force -= 0.001*sphere[id].speed*fabs(length(sphere[id].speed));
+	//0.00001*normalize(sphere[id].speed)*pow_(length(sphere[id].speed),2);
 	
-	/*circle[id].pos += c->speed;
-	force = circle[id].force;
-	circle[id].speed += force;
-	circle[id].force -= force;*/
+	/*sphere[id].pos += c->speed;
+	force = sphere[id].force;
+	sphere[id].speed += force;
+	sphere[id].force -= force;*/
 	
 	force = c->force;
 	
 	
 	// Gravitation nach unten:
-	//circle[id].force -= gravity*circle[id].mass;
+	//sphere[id].force -= gravity*sphere[id].mass;
 	acceleration = force / c->mass;
 	acceleration -= gravity;
 	
@@ -331,7 +331,7 @@ __kernel void moveStep2(__global struct Circle* circle, __global int* num,
 
 #define addForce(i,f) {						\
 	while (atomic_cmpxchg(&flags[i],0,1)==1);\
-	circle[i].force += f;					\
+	sphere[i].force += f;					\
 	atomic_xchg(&flags[i],0);							\
 }
 
@@ -347,7 +347,7 @@ void GetSemaphor_old(__global int * semaphor) {
 	int waiting = 1;							\
 	while(waiting){								\
 		if(atomic_xchg(&flags[i], 1)==0){		\
-			circle[i].force += f;				\
+			sphere[i].force += f;				\
 			atomic_xchg(&flags[i],0);			\
 			waiting = 0;						\
 		}										\
@@ -361,7 +361,7 @@ void ReleaseSemaphor(__global int * semaphor)
    int prevVal = atomic_xchg(semaphor, 0);
 }
 
-__kernel void moveStep3_addInterForces(__global struct Circle* circle, 
+__kernel void moveStep3_addInterForces(__global struct Sphere* sphere, 
 						__global scalar* elastic, __global scalar* G_,
 						__global int* flags)
 {
@@ -377,10 +377,10 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 		
 	if(id2>=id) return;
 		
-	__global struct Circle* c;
-	c = &circle[id];
-	__global struct Circle* c2;
-	c2 = &circle[id2];
+	__global struct Sphere* c;
+	c = &sphere[id];
+	__global struct Sphere* c2;
+	c2 = &sphere[id2];
 	
 	vector force;
 	scalar reduced = *elastic, G = *G_;
@@ -388,7 +388,7 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 	vector d_pos, d_n;
 	scalar both_r, d, d_, R, E_;
 	
-	//#define c2 circle[i]
+	//#define c2 sphere[i]
 	both_r = c->size + c2->size;
 	d_pos = c2->pos-c->pos;
 	
@@ -469,12 +469,12 @@ __kernel void moveStep3_addInterForces(__global struct Circle* circle,
 }
 
 
-__kernel void randomFill2(__global struct Circle* circle, 
+__kernel void randomFill2(__global struct Sphere* sphere, 
 						__global vector* sphereSize,
 						__global scalar* elastic){
 }
 
-__kernel void moveStep3_addWallForces(__global struct Circle* circle, 
+__kernel void moveStep3_addWallForces(__global struct Sphere* sphere, 
 						__global vector* sphereSize,
 						__global scalar* elastic)
 {
@@ -482,7 +482,7 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 	scalar reduced = *elastic;
 	int id = get_global_id(0);
 	
-	__global struct Circle* c = &circle[id];
+	__global struct Sphere* c = &sphere[id];
 	
 	scalar d_, R, E_, force_;
 	
@@ -495,8 +495,8 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
 		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s0 += force_*fact;
-		//circle[id].force.s0 += c->size*htw_d_d*c->E*fact;
+		sphere[id].force.s0 += force_*fact;
+		//sphere[id].force.s0 += c->size*htw_d_d*c->E*fact;
 	}else if ((htw_d_d = (c->size + c->pos.s0 - s.s0))>0) {
 		//c->speed.s0 = -fabs(c->speed.s0);
 		if(c->speed.s0 < 0)fact = reduced;
@@ -504,8 +504,8 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
 		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s0 -= force_*fact;
-		//circle[id].force.s0 -= c->size*htw_d_d*c->E*fact;
+		sphere[id].force.s0 -= force_*fact;
+		//sphere[id].force.s0 -= c->size*htw_d_d*c->E*fact;
 	}
 	fact = 1.0f;
 	if ((htw_d_d = (c->size - c->pos.s1))>0) {
@@ -515,8 +515,8 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
 		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s1 += force_*fact;
-		//circle[id].force.s1 += c->size*htw_d_d*c->E*fact;
+		sphere[id].force.s1 += force_*fact;
+		//sphere[id].force.s1 += c->size*htw_d_d*c->E*fact;
 	}else if ((htw_d_d = (c->size + c->pos.s1 - s.s1))>0) {
 		//c->speed.s1 = -fabs(c->speed.s1);
 		if(c->speed.s1 < 0)fact = reduced;
@@ -524,8 +524,8 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
 		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s1 -= force_*fact;
-		//circle[id].force.s1 -= c->size*htw_d_d*c->E*fact;
+		sphere[id].force.s1 -= force_*fact;
+		//sphere[id].force.s1 -= c->size*htw_d_d*c->E*fact;
 	}
 #if _3D_
 	fact = 1.0f;
@@ -535,22 +535,22 @@ __kernel void moveStep3_addWallForces(__global struct Circle* circle,
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
 		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s2 += force_*fact;
-		//circle[id].force.s2 += c->size*htw_d_d*c->E*fact;
+		sphere[id].force.s2 += force_*fact;
+		//sphere[id].force.s2 += c->size*htw_d_d*c->E*fact;
 	}else if ((htw_d_d = (c->size + c->pos.s2 - s.s2))>0) {
 		if(c->speed.s2 < 0)fact = reduced;
 		d_ = htw_d_d;
 		R = c->size;
 		E_ = 1/(((1-c->poisson*c->poisson)/c->E)+((1-c->poisson*c->poisson)/c->E));
 		force_ = 4.0f/3.0f*E_*sqrt(R*pow_(d_,3));
-		circle[id].force.s2 -= force_*fact;
-		//circle[id].force.s2 -= c->size*htw_d_d*c->E*fact;
+		sphere[id].force.s2 -= force_*fact;
+		//sphere[id].force.s2 -= c->size*htw_d_d*c->E*fact;
 	}
 #endif
 }
 
 
-__kernel void moveStep3_updatePositions(__global struct Circle* circle,
+__kernel void moveStep3_updatePositions(__global struct Sphere* sphere,
 						__global vector* g,
 						__global scalar* delta_t_)
 {
@@ -558,24 +558,24 @@ __kernel void moveStep3_updatePositions(__global struct Circle* circle,
 	scalar delta_t = *delta_t_;
 	int id = get_global_id(0);
 	
-	__global struct Circle* c = &circle[id];
+	__global struct Sphere* c = &sphere[id];
 	
 	// */
 	
 	// Luftwiderstand:
-	//circle[id].force -= 0.001*circle[id].speed*fabs(length(circle[id].speed));
-	//0.00001*normalize(circle[id].speed)*pow_(length(circle[id].speed),2);
+	//sphere[id].force -= 0.001*sphere[id].speed*fabs(length(sphere[id].speed));
+	//0.00001*normalize(sphere[id].speed)*pow_(length(sphere[id].speed),2);
 	
-	/*circle[id].pos += c->speed;
-	force = circle[id].force;
-	circle[id].speed += force;
-	circle[id].force -= force;*/
+	/*sphere[id].pos += c->speed;
+	force = sphere[id].force;
+	sphere[id].speed += force;
+	sphere[id].force -= force;*/
 	
 	force = c->force*1;
 	
 	
 	// Gravitation nach unten:
-	//circle[id].force -= gravity*circle[id].mass;
+	//sphere[id].force -= gravity*sphere[id].mass;
 	acceleration = force / c->mass;
 	acceleration += gravity;
 	
