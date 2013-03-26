@@ -12,7 +12,7 @@
 #include <cstdio>
 
 #include "GLWidget.h"
-#include "SpheresHolder.h"
+//#include "SpheresHolder.h"
 #include "StatusViewer.h"
 
 #define PROFILING 0

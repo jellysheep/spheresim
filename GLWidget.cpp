@@ -36,7 +36,6 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	resettingView = false;
 	
 	newFrame = false;
-	curView.rotGrav = 0;
 	
 	
 	//*
@@ -282,8 +281,8 @@ void GLWidget::timeToRender(){
 }
 
 void GLWidget::updateGravity(){
-	gravity.s[0] = cos(M_PI/180.0*(curView.rotGrav-90))*gravity_abs;
-	gravity.s[1] = sin(M_PI/180.0*(curView.rotGrav-90))*gravity_abs;
+	gravity.s[0] = cos(M_PI/180.0*(-curView.rotGrav-90))*gravity_abs;
+	gravity.s[1] = sin(M_PI/180.0*(-curView.rotGrav-90))*gravity_abs;
 	//if(use3D){
 		gravity.s[2] = 0;
 	//}
@@ -448,7 +447,7 @@ void GLWidget::paintGL() {
 	glScalef(scale,scale,scale);
 
 	
-	glRotatef(-curView.rotGrav, 0.0, 0.0, 1.0);
+	glRotatef(curView.rotGrav, 0.0, 0.0, 1.0);
 	//glRotatef(curView.zRot / 16.0, 0.0, 0.0, 1.0);
 	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (use3D?(-boxSize.s[2]/2):0));
 	if(use3D){

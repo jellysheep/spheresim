@@ -1,21 +1,21 @@
-#ifndef _CIRCLESHOLDER_H_
-#define _CIRCLESHOLDER_H_
+#ifndef _SPHERESHOLDER_H_
+#define _SPHERESHOLDER_H_
 
-#include "Circles.h"
+#include "Spheres.h"
 
-class CirclesHolder {
+class SpheresHolder {
 
 	//Q_OBJECT // must include this if you use Qt signals/slots
 	
 protected:
-	Circle* circles;
+	Sphere* spheres;
 	
 public:
-	CirclesHolder(){
+	SpheresHolder(){
 		
 	}
 
 };
 
-#endif  /* _CIRCLESHOLDER_H_ */
+#endif  /* _SPHERESHOLDER_H_ */
 

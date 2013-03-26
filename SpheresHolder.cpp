@@ -1,5 +1,5 @@
 
-#include "CirclesHolder.h"
+#include "SpheresHolder.h"
 
-CirclesHolder::CirclesHolder(){
+SpheresHolder::SpheresHolder(){
 }

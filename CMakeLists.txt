@@ -12,8 +12,8 @@ ADD_DEFINITIONS(-DENGINE_OPENCL -DENGINE_CPP -DENGINE_READ)
 
 INCLUDE ("OptimizeForArchitecture")
 OptimizeForArchitecture ()
-set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-fopenmp -g -msse2 -msse -Ofast -march=native -mtune=native") #  -msse3 -msse4
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-fopenmp -g -msse2 -msse -Ofast -march=native -mtune=native") #  -msse3 -msse4
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp -g -msse2 -msse -Ofast -march=native -mtune=native") #  -msse3 -msse4
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -g -msse2 -msse -Ofast -march=native -mtune=native") #  -msse3 -msse4
 
 if(OPENMP_FOUND)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
