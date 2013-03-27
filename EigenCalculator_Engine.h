@@ -75,7 +75,7 @@ protected:
 	void calcSortedBallResistance();
 	
 	int numCells;
-	const static int maxCellsPerAxis = 27;
+	int maxCellsPerAxis = 27;
 	int *cellOfSphere;
 	Pos *posCell; //spheres sorted by cell ID
 	int *firstSphereInCell; //first sphere in each cell, or -1

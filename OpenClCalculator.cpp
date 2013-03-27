@@ -2,7 +2,7 @@
 
 #include "OpenClCalculator.h"
 
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 #include <cstdio>
 //#include <stdio.h>
 #include <cstdlib>

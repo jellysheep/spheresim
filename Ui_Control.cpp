@@ -1,9 +1,10 @@
+
 #include "Ui_Control.h"
 #include "Spheres.h"
 #include "Calculator.h"
 #include "GLWidget.h"
 //#include <QtGui>
-#include <QtGui/QDockWidget>
+#include <QtWidgets/QDockWidget>
 #include "PlotWidget.h"
 
 #define cc (const QObject*)

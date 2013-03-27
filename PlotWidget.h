@@ -1,6 +1,6 @@
 
 #include <QObject>
-#include <QtGui/QDockWidget>
+#include <QtWidgets/QDockWidget>
 
 class QwtPlot;
 class QwtPlotGrid;

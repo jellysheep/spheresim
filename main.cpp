@@ -4,9 +4,9 @@
 
 #include "ExceptionHandler.h"
 
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 #include <QtOpenGL/QGLWidget>
-#include <QtConcurrentRun>
+#include <QtConcurrent/QtConcurrentRun>
 #include <QStyleFactory>
 #include <QHBoxLayout>
 #include <cstdio>
