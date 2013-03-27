@@ -12,7 +12,7 @@ using namespace Eigen;
 #include "Spheres.h"
 #include "Calculator.h"
 
-#define useSSE 1
+#define useSSE 0
 
 #if useSSE
 	//Vector4d and Vector4f are vectorized
@@ -44,8 +44,6 @@ template <int dims, bool _3D_>
 class EigenCalculator_Engine: public Calculator {
 
 protected:
-	
-	void save();
 		
 	eVector** renderBuffer;
 	Sphere* spheres;
@@ -57,6 +55,10 @@ protected:
 	
 	void doStep();
 	bool saveFrame();
+	
+	void save();
+	
+	bool isFixed(int i);
 	
 	Sphere c;
 	
@@ -80,7 +82,7 @@ protected:
 	void calcSortedBallResistance();
 	
 	int numCells;
-	const static int maxCellsPerAxis = 27;
+	const static int maxCellsPerAxis;
 	int *cellOfSphere;
 	Pos *posCell; //spheres sorted by cell ID
 	int *firstSphereInCell; //first sphere in each cell, or -1
@@ -90,8 +92,6 @@ protected:
 	inline int calcCellID(int x, int y, int z=0);
 	
 	void loadConfig(const char* file);
-	
-	bool isFixed(int i);
 	
 	//const static int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
 	const static int rowsPerStep = 2, curveSteps = 6; //Z-Order, Hilbert-Kurve
@@ -116,14 +116,14 @@ protected:
 public:
 	EigenCalculator_Engine();
 	
-	Sphere* getSphere(int i);
-	Sphere* getDirectSphere(int i);
+	void paintGL(bool b);
 	
 	void fpsChanged(scalar timeInterval);
 	
-	scalar getTemperature();
+	Sphere* getSphere(int i);
+	Sphere* getDirectSphere(int i);
 	
-	void paintGL(bool b);
+	scalar getTemperature();
 	
 	void boxSizeChanged();
 	void gravityChanged();

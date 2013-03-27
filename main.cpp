@@ -67,6 +67,8 @@ int main(int argc, char *argv[]) {
 		
 	#else
 		
+		renderBool = false;
+		
 		Calculator* clTimer;
 		//Calculator* clTimer = new EigenCalculator_Engine<(use3D?3:2),use3D>();
 		if(use3D){

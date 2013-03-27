@@ -28,9 +28,9 @@ Dialog::Dialog(){
 			dlg->read->setEnabled(true);
 		#endif
 		QObject::connect(this, SIGNAL(accepted()), 
-			this, SLOT(accepted_()), Qt::DirectConnection);
+			this, SLOT(accepted_()), Qt::AutoConnection);
 		QObject::connect(this, SIGNAL(rejected()), 
-			this, SLOT(rejected_()), Qt::DirectConnection);
+			this, SLOT(rejected_()), Qt::AutoConnection);
 		exec();
 	#endif
 }

@@ -41,16 +41,16 @@ GLWidget::GLWidget(Calculator* ct, QWidget *parent) : QGLWidget(parent) {
 	//*
 	rotationTimer = new QTimer(this);
 	rotationTimer->setInterval(1000/(renderFps-5));
-	QObject::connect(rotationTimer, SIGNAL(timeout()), this, SLOT(timeToRender()), Qt::QueuedConnection);
+	QObject::connect(rotationTimer, SIGNAL(timeout()), this, SLOT(timeToRender()), Qt::AutoConnection);
 	rotationTimer->start();// */
-	QObject::connect(this, SIGNAL(timeToRender_()), this, SLOT(timeToRender()), Qt::DirectConnection);
+	QObject::connect(this, SIGNAL(timeToRender_()), this, SLOT(timeToRender()), Qt::AutoConnection);
 	
 	resetTimer = new QTimer(this);
 	connect(resetTimer, SIGNAL(timeout()), this, SLOT(resetViewTimer()));
 	
 	
 	QObject::connect(this, SIGNAL(destroyed()), 
-		rotationTimer, SLOT(stop()), Qt::DirectConnection);
+		rotationTimer, SLOT(stop()), Qt::AutoConnection);
 }
 
 void GLWidget::updateTimer() {

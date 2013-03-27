@@ -18,6 +18,10 @@ using namespace std;
 
 uint32_t calcZOrder(uint16_t xPos, uint16_t yPos);
 
+
+template <int dims, bool _3D_>
+const int EigenCalculator_Engine<dims,_3D_>::maxCellsPerAxis = 27;
+
 template <int dims, bool _3D_>
 EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	omp_set_num_threads(1);
@@ -823,7 +827,7 @@ void EigenCalculator_Engine<dims,_3D_>::countSpheresPerCell(){
 	for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
 		numSpheresInCell[i] = 0;
 	}
-	static const scalar fact = 2.1;
+	static const scalar fact = 1.1;
 	parallelFor
 	for(int i = 0; i<spheresCount; i++){
 		int minX, maxX, minY, maxY, minZ, maxZ, cellID;
@@ -835,10 +839,10 @@ void EigenCalculator_Engine<dims,_3D_>::countSpheresPerCell(){
 			minZ = (int)((spheresPos[i](2)-spheres[i].size*fact)/gridWidth);
 			maxZ = (int)((spheresPos[i](2)+spheres[i].size*fact)/gridWidth);
 		}
-		for(int x = minX; x<=maxX; x++){
-			for(int y = minY; y<=maxY; y++){
+		for(int x = minX-1; x<=maxX+1; x++){
+			for(int y = minY-1; y<=maxY+1; y++){
 				if(_3D_){
-					for(int z = minZ; z<=maxZ; z++){
+					for(int z = minZ-1; z<=maxZ+1; z++){
 						cellID = calcCellID(x,y,z);
 						spheresInCell[cellID][numSpheresInCell[cellID]++] = i;
 					}
