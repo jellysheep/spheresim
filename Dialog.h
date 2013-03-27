@@ -1,10 +1,13 @@
 #ifndef _DIALOG_H_
 #define _DIALOG_H_
 
-#include "ui_Dialog_Qt5.h"
 #include "Spheres.h"
 #include <QDialog>
 #include "Calculator.h"
+
+namespace Ui {
+	class Dialog;
+}
 
 class Dialog : public QDialog {
 	Q_OBJECT

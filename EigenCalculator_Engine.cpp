@@ -516,14 +516,14 @@ void EigenCalculator_Engine<dims,_3D_>::sumUpForces(){
 			spheresSpeed[i] += acceleration*timeInterval;
 			spheresForce[i] -= force;
 			
-			#if 0
+			#if 1
 				if(wallResistance){
-					spheresOldPos[i](0) = min(spheresOldPos[i](0), boxSize.s0);
-					spheresOldPos[i](1) = min(spheresOldPos[i](1), boxSize.s1);
-					if(_3D_) spheresOldPos[i](2) = min(spheresOldPos[i](2), boxSize.s2);
-					spheresOldPos[i](0) = max(spheresOldPos[i](0), 0.0);
-					spheresOldPos[i](1) = max(spheresOldPos[i](1), 0.0);
-					if(_3D_) spheresOldPos[i](2) = max(spheresOldPos[i](2), 0.0);
+					spheresOldPos[i](0) = std::min(spheresOldPos[i](0), boxSize.s0);
+					spheresOldPos[i](1) = std::min(spheresOldPos[i](1), boxSize.s1);
+					if(_3D_) spheresOldPos[i](2) = std::min(spheresOldPos[i](2), boxSize.s2);
+					spheresOldPos[i](0) = std::max(spheresOldPos[i](0), (scalar)0.0);
+					spheresOldPos[i](1) = std::max(spheresOldPos[i](1), (scalar)0.0);
+					if(_3D_) spheresOldPos[i](2) = std::max(spheresOldPos[i](2), (scalar)0.0);
 				}
 			#endif
 		}
@@ -819,14 +819,17 @@ void EigenCalculator_Engine<dims,_3D_>::calcCellSortedBallResistance(){
 	}
 }
 
+int x = 0;
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::countSpheresPerCell(){
 	for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
 		numSpheresInCell[i] = 0;
 	}
+	//printf("%3d\n", x++);
 	static const scalar fact = 1.1;
-	parallelFor
+	//parallelFor
 	for(int i = 0; i<spheresCount; i++){
+		//if(i == 999) printf(" %3d\n", i);
 		int minX, maxX, minY, maxY, minZ, maxZ, cellID;
 		minX = (int)((spheresPos[i](0)-spheres[i].size*fact)/gridWidth);
 		maxX = (int)((spheresPos[i](0)+spheres[i].size*fact)/gridWidth);
@@ -836,27 +839,27 @@ void EigenCalculator_Engine<dims,_3D_>::countSpheresPerCell(){
 			minZ = (int)((spheresPos[i](2)-spheres[i].size*fact)/gridWidth);
 			maxZ = (int)((spheresPos[i](2)+spheres[i].size*fact)/gridWidth);
 		}
-		for(int x = minX-1; x<=maxX+1; x++){
-			for(int y = minY-1; y<=maxY+1; y++){
+		for(int x = minX; x<=maxX; x++){
+			for(int y = minY; y<=maxY; y++){
 				if(_3D_){
-					for(int z = minZ-1; z<=maxZ+1; z++){
+					for(int z = minZ; z<=maxZ; z++){
 						cellID = calcCellID(x,y,z);
-						spheresInCell[cellID][numSpheresInCell[cellID]++] = i;
 					}
 				}else{
 					cellID = calcCellID(x,y);
+				}
+				if(numSpheresInCell[cellID]<maxNumSpheresInCell){
 					spheresInCell[cellID][numSpheresInCell[cellID]++] = i;
 				}
 			}
 		}
 	}
-	return;
-	for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
+	/*for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
 		if(numSpheresInCell[i]>=maxNumSpheresInCell){
 			printf("Many (%3d) spheres in cell!\n", numSpheresInCell[i]);
 		}
 		numSpheresInCell[i] = std::min(maxNumSpheresInCell-1, (int)numSpheresInCell[i]);
-	}
+	}*/
 }
 
 template <int dims, bool _3D_>
@@ -887,10 +890,10 @@ void EigenCalculator_Engine<dims,_3D_>::doStep(){
 	#if 1
 		if(G_fact == 0){
 			//calcSortedBallResistance();
-			calcCellSortedBallResistance();
+			//calcCellSortedBallResistance();
 			
-			//countSpheresPerCell();
-			//collideSpheresPerCell();
+			countSpheresPerCell();
+			collideSpheresPerCell();
 		}else
 	#endif
 	{

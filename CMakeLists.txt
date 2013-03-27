@@ -26,8 +26,8 @@ set_source_files_properties(main.cpp PROPERTIES COMPILE_FLAGS $(CPPFLAGS))
 #INCLUDE ("OptimizeForArchitecture")
 #OptimizeForArchitecture ()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fopenmp")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -msse -Ofast -march=native -mtune=native") #  -msse3 -msse4
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -msse -Ofast -march=native -mtune=native") #  -msse3 -msse4
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 
 if(OPENMP_FOUND)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")

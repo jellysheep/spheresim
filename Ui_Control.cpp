@@ -1,5 +1,7 @@
 
 #include "Ui_Control.h"
+#include "ui_Calculations_Qt5.h"
+#include "ui_Rendering_Qt5.h"
 #include "Spheres.h"
 #include "Calculator.h"
 #include "GLWidget.h"

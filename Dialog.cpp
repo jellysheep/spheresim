@@ -1,6 +1,7 @@
 
-#include "EigenCalculator_Engine.h"
 #include "Dialog.h"
+#include "ui_Dialog_Qt5.h"
+#include "EigenCalculator_Engine.h"
 #include "OpenClCalculator.h"
 #include "FileCalculator.h"
 

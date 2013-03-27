@@ -1,8 +1,6 @@
 #ifndef _UI_CONTROL_
 #define _UI_CONTROL_
 
-#include "ui_Calculations_Qt5.h"
-#include "ui_Rendering_Qt5.h"
 #include "Spheres.h"
 #include <QMainWindow>
 
@@ -11,6 +9,11 @@ class Calculator;
 class StatusViewer;
 class QDockWidget;
 class PlotWidget;
+
+namespace Ui{
+	class Rendering;
+	class Calculations;
+};
 
 class Control : public QMainWindow {
 	Q_OBJECT

@@ -108,7 +108,7 @@ protected:
 		return (b>=2 ? a*a*pow(a, b-2) : (b == 1 ? a : 1));
 	}
 	
-	static const int maxNumSpheresInCell = 30;
+	static const int maxNumSpheresInCell = 50;
 	char* numSpheresInCell;
 	int** spheresInCell;
 	void countSpheresPerCell();
