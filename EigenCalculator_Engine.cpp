@@ -23,7 +23,7 @@ template <int dims, bool _3D_>
 const int EigenCalculator_Engine<dims,_3D_>::maxCellsPerAxis = 27;
 
 template <int dims, bool _3D_>
-EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
+EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():EigenCalculator_QObject(){
 	omp_set_num_threads(1);
 	srand(2);
 	//srand(NanosecondTimer::getNS());

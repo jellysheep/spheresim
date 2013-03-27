@@ -11,6 +11,7 @@ using namespace Eigen;
 
 #include "Spheres.h"
 #include "Calculator.h"
+#include "EigenCalculator_QObject.h"
 
 #define useSSE 0
 
@@ -41,7 +42,7 @@ struct Pos {
 };
 
 template <int dims, bool _3D_>
-class EigenCalculator_Engine: public Calculator {
+class EigenCalculator_Engine: public EigenCalculator_QObject {
 
 protected:
 		
@@ -59,6 +60,8 @@ protected:
 	void save();
 	
 	bool isFixed(int i);
+	
+	void loadConfig(const char* file);
 	
 	Sphere c;
 	
@@ -90,8 +93,6 @@ protected:
 	void calcCellSortedBallResistance();
 	void checkCollision(int i, int x, int y, int z, bool sameCell=false);
 	inline int calcCellID(int x, int y, int z=0);
-	
-	void loadConfig(const char* file);
 	
 	//const static int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
 	const static int rowsPerStep = 2, curveSteps = 6; //Z-Order, Hilbert-Kurve
