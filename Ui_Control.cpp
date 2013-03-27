@@ -172,6 +172,8 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	rend->hue_rot->setValue(hueStep);
 	rend->lights->setChecked(showLights);
 	rend->trace_length->setValue(traceAmount);
+	calc->render->setChecked(renderBool);
+	calc->save->setChecked(saveBool);
 }
 
 void Control::setRender(bool b){

@@ -887,10 +887,10 @@ void EigenCalculator_Engine<dims,_3D_>::doStep(){
 	#if 1
 		if(G_fact == 0){
 			//calcSortedBallResistance();
-			//calcCellSortedBallResistance();
+			calcCellSortedBallResistance();
 			
-			countSpheresPerCell();
-			collideSpheresPerCell();
+			//countSpheresPerCell();
+			//collideSpheresPerCell();
 		}else
 	#endif
 	{

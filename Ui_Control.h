@@ -1,8 +1,8 @@
 #ifndef _UI_CONTROL_
 #define _UI_CONTROL_
 
-#include "Ui_Control_calculations.h"
-#include "Ui_Control_rendering.h"
+#include "ui_Calculations_Qt5.h"
+#include "ui_Rendering_Qt5.h"
 #include "Spheres.h"
 #include <QMainWindow>
 
