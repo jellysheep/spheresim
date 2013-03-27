@@ -85,7 +85,6 @@ protected:
 	void calcSortedBallResistance();
 	
 	int numCells;
-	int maxCellsPerAxis = 100;
 	int *cellOfSphere;
 	Pos *posCell; //spheres sorted by cell ID
 	int *firstSphereInCell; //first sphere in each cell, or -1
@@ -94,8 +93,6 @@ protected:
 	void checkCollision(int i, int x, int y, int z, bool sameCell=false);
 	inline int calcCellID(int x, int y, int z=0);
 	
-	//const static int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
-	const static int rowsPerStep = 2, curveSteps = 6; //Z-Order, Hilbert-Kurve
 	int* curveIndices;
 	int indexCounter;
 	void buildCurveIndices_RowColumn();
@@ -108,11 +105,12 @@ protected:
 		return (b>=2 ? a*a*pow(a, b-2) : (b == 1 ? a : 1));
 	}
 	
-	static const int maxNumSpheresInCell = 50;
 	char* numSpheresInCell;
 	int** spheresInCell;
 	void countSpheresPerCell();
 	void collideSpheresPerCell();
+	char* numCollsPerSphere;
+	int** collsPerSphere;
 
 public:
 	EigenCalculator_Engine();

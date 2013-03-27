@@ -475,6 +475,10 @@ void Calculator::maxSphereCountChanged(int i){
 void Calculator::sphereCountChanged(int i){
 	if(performingAction) return;
 	printf("SpheresCount: %5d new: %5d\n", spheresCount, i);
+	
+	renderFpsMax = (int)(45.0*pow(1/3.0, spheresCount/1000.0)+15);
+	renderFps = renderFpsMax;
+	
 	if(i == spheresCount) return;
 	performingAction = true;
 	

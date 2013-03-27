@@ -155,6 +155,11 @@ extern vector3 autoRotation;
 
 extern scalar calcSpeedFact;
 
+extern int maxCellsPerAxis;
+extern int rowsPerStep, curveSteps;
+extern int maxNumSpheresInCell;
+extern int maxNumCollsPerSphere;
+
 //#define min(a,b) (((a)<(b))?(a):(b))
 
 

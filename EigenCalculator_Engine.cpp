@@ -124,6 +124,12 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():EigenCalculator_QObj
 		spheresInCell[i] = new int[maxNumSpheresInCell];
 	}
 	
+	numCollsPerSphere = new char[spheresCount];
+	collsPerSphere = new int*[spheresCount];
+	for(int i = 0; i<spheresCount; i++){
+		collsPerSphere[i] = new int[maxNumCollsPerSphere];
+	}
+	
 	printf("EigenCalculator_Engine initialized!\n");
 }
 
@@ -159,7 +165,7 @@ void EigenCalculator_Engine<dims,_3D_>::buildCurveIndices_Hilbert(){
 		for(int x = 0; x<numCells; x++){
 			if(_3D_){
 				for(int z = 0; z<numCells; z++){
-					curveIndices[x+numCells*y] = xy2d_Hilbert(numCells, x, y) + numCells*numCells*z;
+					curveIndices[x+numCells*y + numCells*numCells*z] = xy2d_Hilbert(numCells, x, y) + numCells*numCells*z;
 				}
 			}else{
 				curveIndices[x+numCells*y] = xy2d_Hilbert(numCells, x, y);
@@ -174,7 +180,7 @@ void EigenCalculator_Engine<dims,_3D_>::buildCurveIndices_RowColumn(){
 		for(int x = 0; x<numCells; x++){
 			if(_3D_){
 				for(int z = 0; z<numCells; z++){
-					curveIndices[x+numCells*y] = x+numCells*y + numCells*numCells*z;
+					curveIndices[x+numCells*y + numCells*numCells*z] = x+numCells*y + numCells*numCells*z;
 				}
 			}else{
 				curveIndices[x+numCells*y] = x+numCells*y;
@@ -189,7 +195,7 @@ void EigenCalculator_Engine<dims,_3D_>::buildCurveIndices_zOrder(){
 		for(int x = 0; x<numCells; x++){
 			if(_3D_){
 				for(int z = 0; z<numCells; z++){
-					curveIndices[x+numCells*y] = calcZOrder(x,y) + numCells*numCells*z;
+					curveIndices[x+numCells*y + numCells*numCells*z] = calcZOrder(x,y) + numCells*numCells*z;
 				}
 			}else{
 				curveIndices[x+numCells*y] = calcZOrder(x,y);
@@ -254,8 +260,9 @@ void EigenCalculator_Engine<dims,_3D_>::initSphere(int i){
 	spheres[i].fixed = 0;
 	
 	spheresPos[i].Zero();
-	spheresPos[i](0) = spheres[i].size+rans(boxSize.s0-2*spheres[i].size);
-	spheresPos[i](1) = spheres[i].size+rans(boxSize.s1-2*spheres[i].size);
+	//spheresPos[i](0) = spheres[i].size+rans(boxSize.s0-2*spheres[i].size);
+	spheresPos[i](0) = 2*spheres[i].size+(i%(int)sqrt(spheresCount))*((boxSize.s0-4*spheres[i].size)/sqrt(spheresCount))+rans(-spheres[i].size,spheres[i].size);
+	spheresPos[i](1) = 2*spheres[i].size+(i/(int)sqrt(spheresCount))*((boxSize.s0-4*spheres[i].size)/sqrt(spheresCount))+rans(-spheres[i].size,spheres[i].size);
 	if(_3D_){
 		spheresPos[i](2) = spheres[i].size+rans(boxSize.s2-2*spheres[i].size);
 	}
@@ -629,7 +636,12 @@ int EigenCalculator_Engine<dims,_3D_>::calcCellID(int x, int y, int z){
 	x = max(0, x);
 	y = max(0, y);
 	z = max(0, z);
+	
 	return curveIndices[x+numCells*y+(_3D_?numCells*numCells*z:0)];
+	//int id = curveIndices[x+numCells*y+(_3D_?numCells*numCells*z:0)];
+	//printf("x: %3d y: %3d z: %3d id: %3d \n", x, y, z, id);
+	//return id;
+	
 	//return x + numCells*y + numCells*numCells*z;
 	//return calcZOrder(x,y) + numCells*numCells*z;
 }
@@ -822,15 +834,22 @@ void EigenCalculator_Engine<dims,_3D_>::calcCellSortedBallResistance(){
 int x = 0;
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::countSpheresPerCell(){
+	//no spheres in cells:
 	for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
 		numSpheresInCell[i] = 0;
 	}
+	//no spheres already colliding:
+	for(int i = 0; i<spheresCount; i++){
+		numCollsPerSphere[i] = 0;
+	}
+	
 	//printf("%3d\n", x++);
-	static const scalar fact = 1.1;
+	static const scalar fact = 1.0;
+	bool tooManySpheres = false;
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){
 		//if(i == 999) printf(" %3d\n", i);
-		int minX, maxX, minY, maxY, minZ, maxZ, cellID;
+		volatile int minX, maxX, minY, maxY, minZ, maxZ, x, y, z, cellID;
 		minX = (int)((spheresPos[i](0)-spheres[i].size*fact)/gridWidth);
 		maxX = (int)((spheresPos[i](0)+spheres[i].size*fact)/gridWidth);
 		minY = (int)((spheresPos[i](1)-spheres[i].size*fact)/gridWidth);
@@ -839,21 +858,31 @@ void EigenCalculator_Engine<dims,_3D_>::countSpheresPerCell(){
 			minZ = (int)((spheresPos[i](2)-spheres[i].size*fact)/gridWidth);
 			maxZ = (int)((spheresPos[i](2)+spheres[i].size*fact)/gridWidth);
 		}
-		for(int x = minX; x<=maxX; x++){
-			for(int y = minY; y<=maxY; y++){
+		for(x = minX; x<=maxX; x++){
+			for(y = minY; y<=maxY; y++){
 				if(_3D_){
-					for(int z = minZ; z<=maxZ; z++){
+					for(z = minZ; z<=maxZ; z++){
 						cellID = calcCellID(x,y,z);
+						if(numSpheresInCell[cellID]<maxNumSpheresInCell){
+							spheresInCell[cellID][numSpheresInCell[cellID]++] = i;
+						}else{
+							//printf("Too many spheres in cell %5d!\n", cellID);
+							tooManySpheres = true;
+						}
 					}
 				}else{
 					cellID = calcCellID(x,y);
 				}
 				if(numSpheresInCell[cellID]<maxNumSpheresInCell){
 					spheresInCell[cellID][numSpheresInCell[cellID]++] = i;
+				}else{
+					//printf("Too many spheres in cell %5d!\n", cellID);
+					tooManySpheres = true;
 				}
 			}
 		}
 	}
+	if(tooManySpheres) printf("Too many spheres in cell!\n");
 	/*for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
 		if(numSpheresInCell[i]>=maxNumSpheresInCell){
 			printf("Many (%3d) spheres in cell!\n", numSpheresInCell[i]);
@@ -864,16 +893,47 @@ void EigenCalculator_Engine<dims,_3D_>::countSpheresPerCell(){
 
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::collideSpheresPerCell(){
+	bool tooManyColls = false;
 	parallelFor
 	for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
 		//cycle through cell IDs
-		int num = numSpheresInCell[i];
-		for(int c = 0, c2; c<num-1; c++){
-			for(c2 = c+1; c2<num; c2++){
-				collideBalls(spheresInCell[i][c], spheresInCell[i][c2]);
+		
+		//check collisions in cell:
+		int num = numSpheresInCell[i],c,c2,tmp;
+		if(num<2) continue;
+		bool cont; //continue
+		for(int id = 0, id2; id<num-1; id++){ //sphere id in cell
+			for(id2 = id+1; id2<num; id2++){
+				c = spheresInCell[i][id];
+				c2 = spheresInCell[i][id2];
+				//make shure that c<c2:
+				if(c>c2){
+					tmp = c;
+					c = c2;
+					c2 = tmp;
+				}
+				//check if spheres already have collided:
+				cont = false;
+				for(int a = numCollsPerSphere[c]-1; a>=0; a--){
+					if(collsPerSphere[c][a]==c2){
+						cont = true;
+						break;
+					}
+				}
+				if(cont) continue;
+				//else list the higher id (c2) in the array of sphere with lower id (c):
+				if(numCollsPerSphere[c]<maxNumCollsPerSphere){
+					collsPerSphere[c][numCollsPerSphere[c]++] = c2;
+					//and check collision:
+					collideBalls(c,c2);
+				}else{
+					//printf("Too many spheres (%5d) colliding with sphere %5d!\n", numCollsPerSphere[c], c);
+					tooManyColls = true;
+				}
 			}
 		}
 	}
+	if(tooManyColls) printf("Too many spheres colliding with one sphere!\n");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
