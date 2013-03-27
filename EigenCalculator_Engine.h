@@ -11,7 +11,6 @@ using namespace Eigen;
 
 #include "Spheres.h"
 #include "Calculator.h"
-#include "EigenCalculator_QObject.h"
 
 #define useSSE 1
 
@@ -19,24 +18,30 @@ using namespace Eigen;
 	//Vector4d and Vector4f are vectorized
 	//typedef Eigen::Matrix<scalar, 4, 1> eVector;
 	#if _double_
-		typedef Vector4d eVector;
+		//typedef Vector4d eVector;
+		#define eVector Eigen::Matrix<scalar, ((dims+1)/2)*2, 1>
 	#else
-		typedef Vector4f eVector;
+		//typedef Vector4f eVector;
+		#define eVector Eigen::Matrix<scalar, ((dims+3)/4)*4, 1>
 	#endif
 #else
 	//typedef Eigen::Matrix<scalar, 3, 1> eVector;
-	#if _double_
-		typedef Vector3d eVector;
+	#define eVector Eigen::Matrix<scalar, dims, 1>
+	/*#if _double_
+		//typedef Vector3d eVector;
+		#define eVector Eigen::Matrix<scalar, dims, 1>
 	#else
-		typedef Vector3f eVector;
-	#endif
+		//typedef Vector3f eVector;
+		#define eVector Eigen::Matrix<scalar, dims, 1>
+	#endif*/
 #endif
 
 struct Pos {
 	int posOfSphere, sphereAtPos;
 };
 
-class EigenCalculator_Engine: public EigenCalculator_QObject {
+template <int dims, bool _3D_>
+class EigenCalculator_Engine: public Calculator {
 
 protected:
 	
@@ -88,8 +93,8 @@ protected:
 	
 	bool isFixed(int i);
 	
-	const static int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
-	//const static int rowsPerStep = 2, curveSteps = 5; //Z-Order, Hilbert-Kurve
+	//const static int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
+	const static int rowsPerStep = 2, curveSteps = 6; //Z-Order, Hilbert-Kurve
 	int* curveIndices;
 	int indexCounter;
 	void buildCurveIndices_RowColumn();
@@ -102,9 +107,11 @@ protected:
 		return (b>=2 ? a*a*pow(a, b-2) : (b == 1 ? a : 1));
 	}
 	
-	static const int maxSpheresInCell = 30;
-	char* spheresPerCell;
+	static const int maxNumSpheresInCell = 30;
+	char* numSpheresInCell;
 	int** spheresInCell;
+	void countSpheresPerCell();
+	void collideSpheresPerCell();
 
 public:
 	EigenCalculator_Engine();
@@ -130,8 +137,6 @@ public:
 	
 	void loadConfig();
 };
-
-extern void start(EigenCalculator_Engine* clTimer);
 
 #endif  /* _EIGEN_CALCULATOR_ENGINE_H_ */
 

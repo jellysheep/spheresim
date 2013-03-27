@@ -18,7 +18,8 @@ using namespace std;
 
 uint32_t calcZOrder(uint16_t xPos, uint16_t yPos);
 
-EigenCalculator_Engine::EigenCalculator_Engine():EigenCalculator_QObject(){
+template <int dims, bool _3D_>
+EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	omp_set_num_threads(1);
 	srand(2);
 	//srand(NanosecondTimer::getNS());
@@ -45,7 +46,7 @@ EigenCalculator_Engine::EigenCalculator_Engine():EigenCalculator_QObject(){
 	
 	posX = new Pos[spheresCount];
 	posY = new Pos[spheresCount];
-	if(use3D){
+	if(_3D_){
 		posZ = new Pos[spheresCount];
 	}
 	//parallelFor
@@ -54,7 +55,7 @@ EigenCalculator_Engine::EigenCalculator_Engine():EigenCalculator_QObject(){
 		posX[i].sphereAtPos = i;
 		posY[i].posOfSphere = i;
 		posY[i].sphereAtPos = i;
-		if(use3D){
+		if(_3D_){
 			posZ[i].posOfSphere = i;
 			posZ[i].sphereAtPos = i;
 		}
@@ -62,15 +63,15 @@ EigenCalculator_Engine::EigenCalculator_Engine():EigenCalculator_QObject(){
 	
 	///cellSorting
 	
-	firstSphereInCell = new int[numCells*numCells*(use3D?numCells:1)];
-	memset(firstSphereInCell, 0, numCells*numCells*(use3D?numCells:1));
+	firstSphereInCell = new int[numCells*numCells*(_3D_?numCells:1)];
+	memset(firstSphereInCell, 0, numCells*numCells*(_3D_?numCells:1));
 	posCell = new Pos[spheresCount];
 	cellOfSphere = new int[spheresCount];
 	
-	curveIndices = new int[numCells*numCells*(use3D?numCells:1)];
-	//buildCurveIndices_RowColumn();
+	curveIndices = new int[numCells*numCells*(_3D_?numCells:1)];
+	buildCurveIndices_RowColumn();
 	//buildCurveIndices_zOrder();
-	buildCurveIndices_Peano();
+	//buildCurveIndices_Peano();
 	//buildCurveIndices_Hilbert();
 	for(int y = numCells-1; y>=0; y--){
 		for(int x = 0; x<numCells; x++){
@@ -115,6 +116,13 @@ EigenCalculator_Engine::EigenCalculator_Engine():EigenCalculator_QObject(){
 		saveFrame();
 		bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 	}
+	
+	numSpheresInCell = new char[numCells*numCells*(_3D_?numCells:1)];
+	spheresInCell = new int*[numCells*numCells*(_3D_?numCells:1)];
+	for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
+		spheresInCell[i] = new int[maxNumSpheresInCell];
+	}
+	
 	printf("EigenCalculator_Engine initialized!\n");
 }
 
@@ -144,10 +152,11 @@ int xy2d_Hilbert (int n, int x, int y) {
     }
     return d;
 }
-void EigenCalculator_Engine::buildCurveIndices_Hilbert(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::buildCurveIndices_Hilbert(){
 	for(int y = 0; y<numCells; y++){
 		for(int x = 0; x<numCells; x++){
-			if(use3D){
+			if(_3D_){
 				for(int z = 0; z<numCells; z++){
 					curveIndices[x+numCells*y] = xy2d_Hilbert(numCells, x, y) + numCells*numCells*z;
 				}
@@ -158,10 +167,11 @@ void EigenCalculator_Engine::buildCurveIndices_Hilbert(){
 	}
 }
 
-void EigenCalculator_Engine::buildCurveIndices_RowColumn(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::buildCurveIndices_RowColumn(){
 	for(int y = 0; y<numCells; y++){
 		for(int x = 0; x<numCells; x++){
-			if(use3D){
+			if(_3D_){
 				for(int z = 0; z<numCells; z++){
 					curveIndices[x+numCells*y] = x+numCells*y + numCells*numCells*z;
 				}
@@ -172,10 +182,11 @@ void EigenCalculator_Engine::buildCurveIndices_RowColumn(){
 	}
 }
 
-void EigenCalculator_Engine::buildCurveIndices_zOrder(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::buildCurveIndices_zOrder(){
 	for(int y = 0; y<numCells; y++){
 		for(int x = 0; x<numCells; x++){
-			if(use3D){
+			if(_3D_){
 				for(int z = 0; z<numCells; z++){
 					curveIndices[x+numCells*y] = calcZOrder(x,y) + numCells*numCells*z;
 				}
@@ -186,12 +197,14 @@ void EigenCalculator_Engine::buildCurveIndices_zOrder(){
 	}
 }
 
-void EigenCalculator_Engine::buildCurveIndices_Peano(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::buildCurveIndices_Peano(){
 	indexCounter = 0;
 	buildPeanoCurve(0, 0, 0, 0, 0);
 }
 
-void EigenCalculator_Engine::buildPeanoCurve(int x, int y, int z, int step, int direction){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::buildPeanoCurve(int x, int y, int z, int step, int direction){
 	// direction: 
 	// 0 = /^
 	// 1 = ^\ 
@@ -204,7 +217,7 @@ void EigenCalculator_Engine::buildPeanoCurve(int x, int y, int z, int step, int 
 		y *= 3;
 		z *= 3;
 		step++;
-		if(use3D){
+		if(_3D_){
 			///TODO
 		}else{
 			if(direction == 0){
@@ -232,7 +245,8 @@ void EigenCalculator_Engine::buildPeanoCurve(int x, int y, int z, int step, int 
 	}
 }
 
-void EigenCalculator_Engine::initSphere(int i){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::initSphere(int i){
 	spheres[i].size = rans(sphereSize.s0, sphereSize.s1);
 	spheres[i].E = E;
 	spheres[i].poisson = poisson;
@@ -241,39 +255,36 @@ void EigenCalculator_Engine::initSphere(int i){
 	spheresPos[i].Zero();
 	spheresPos[i](0) = spheres[i].size+rans(boxSize.s0-2*spheres[i].size);
 	spheresPos[i](1) = spheres[i].size+rans(boxSize.s1-2*spheres[i].size);
-	if(use3D){
+	if(_3D_){
 		spheresPos[i](2) = spheres[i].size+rans(boxSize.s2-2*spheres[i].size);
-	}else{
-		spheresPos[i](2) = 0;
 	}
 	spheresOldPos[i] = spheresPos[i];
 	
-	gridIndex[i] = new int[3];
+	gridIndex[i] = new int[dims];
 	gridIndex[i][0] = spheresPos[i](0)/gridWidth;
 	gridIndex[i][1] = spheresPos[i](1)/gridWidth;
-	if(use3D){
+	if(_3D_){
 		gridIndex[i][2] = spheresPos[i](2)/gridWidth;
-	}else{
-		gridIndex[i][2] = 0;
 	}
 	
 	spheresSpeed[i] = eVector::Random();
 	#if useSSE
-		spheresSpeed[i](3) = 0;
-		if(!use3D){
-			spheresSpeed[i](2) = 0;
+		if(_3D_){
+			spheresSpeed[i](3) = 0;
 		}
+		#if _double_==0
+			else{
+				spheresSpeed[i](2) = 0;
+			}
+		#endif
 	#endif
-	if(use3D){
-		spheresSpeed[i](2) = 0;
-	}
 	spheresSpeed[i].normalize();
 	spheresSpeed[i] *= rans(max_speed);
 	//cout<<spheresSpeed[i]<<endl<<endl;
 	
 	spheresForce[i].Zero();
 	
-	//cout<<"3D enabled: "<<(use3D?1:0)<<endl<<endl;
+	//cout<<"3D enabled: "<<(_3D_?1:0)<<endl<<endl;
 	
 	#if fixSun
 		if(i == 0) spheres[i].size = 3*sphereSize.s0;
@@ -281,7 +292,7 @@ void EigenCalculator_Engine::initSphere(int i){
 		if(i == 0) ceBuffer[i].hsvColor = QColor::fromHsv(0,0,0);
 		if(i == 0) spheresPos[i](0) = boxSize.s0/2;
 		if(i == 0) spheresPos[i](1) = boxSize.s1/2;
-		if(use3D){
+		if(_3D_){
 			if(i == 0) spheresPos[i](2) = boxSize.s2/2;
 		}
 		if(i == 0) spheresSpeed[i] = eVector::Zero();
@@ -290,10 +301,11 @@ void EigenCalculator_Engine::initSphere(int i){
 	spheres[i].mass = 4.0/3.0*pow(spheres[i].size,3)*M_PI  *950; //Kautschuk
 }
 
-void EigenCalculator_Engine::updateGridSize(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::updateGridSize(){
 	gridWidth = max(2*sphereSize.s1, max(boxSize.s0, max(boxSize.s1, boxSize.s2))/numCells);
 	printf("gridWidth: %5f \n", gridWidth);
-	if(use3D){
+	if(_3D_){
 		gridSteps = (int)(max(boxSize.s0, max(boxSize.s1, boxSize.s2))/gridWidth);
 	}else{
 		gridSteps = (int)(max(boxSize.s0, boxSize.s1)/gridWidth);
@@ -302,7 +314,8 @@ void EigenCalculator_Engine::updateGridSize(){
 }
 
 
-void EigenCalculator_Engine::save(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::save(){
 	//not yet implemented
 }
 
@@ -310,7 +323,8 @@ void EigenCalculator_Engine::save(){
 #define newFor 0
 #define joinFors 1
 
-void EigenCalculator_Engine::calcWallResistance(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::calcWallResistance(){
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){
 		if(spheres[i].fixed == 1) continue;
@@ -355,7 +369,7 @@ void EigenCalculator_Engine::calcWallResistance(){
 			spheresForce[i](1) -= force_*fact;
 			curWallForces[3] += force_*fact;
 		}
-		if(use3D){
+		if(_3D_){
 			fact = 1.0f;
 			if ((htw_d_d = (spheres[i].size - spheresPos[i](2)))>0) {
 				if(spheresSpeed[i](2) > 0)fact = elastic;
@@ -378,7 +392,8 @@ void EigenCalculator_Engine::calcWallResistance(){
 	}
 }
 
-void EigenCalculator_Engine::calcBallResistance(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::calcBallResistance(){
 	parallelFor
 	for(int i = 0; i<spheresCount; i++){
 		eVector force;
@@ -403,7 +418,7 @@ void EigenCalculator_Engine::calcBallResistance(){
 			{
 				if(abs(gridIndex[i][0]-gridIndex[j][0]) >1) continue;
 				if(abs(gridIndex[i][1]-gridIndex[j][1]) >1) continue;
-				if(use3D){
+				if(_3D_){
 					if(abs(gridIndex[i][2]-gridIndex[j][2]) >1) continue;
 				}
 			}
@@ -413,7 +428,8 @@ void EigenCalculator_Engine::calcBallResistance(){
 	}
 }
 
-void EigenCalculator_Engine::collideBalls(int i, int j){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::collideBalls(int i, int j){
 	if(i == j) return;
 	scalar both_r_ = both_r[i][j];
 	eVector d_pos = spheresPos[j]-spheresPos[i];
@@ -468,7 +484,8 @@ void EigenCalculator_Engine::collideBalls(int i, int j){
 }
 
 #define sqr(x) ((x)*(x))
-void EigenCalculator_Engine::sumUpForces(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::sumUpForces(){
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){
 		if(spheres[i].fixed == 0){
@@ -489,7 +506,7 @@ void EigenCalculator_Engine::sumUpForces(){
 			acceleration(0) += gravity.s0;
 			acceleration(1) += gravity.s1;
 			//printf("sphere %d gravity: %5f %5f\n", i, gravity.s0, gravity.s1);
-			if(use3D){
+			if(_3D_){
 				acceleration(2) += gravity.s2;
 			}
 			spheresOldPos[i] += spheresSpeed[i]*timeInterval;
@@ -502,10 +519,10 @@ void EigenCalculator_Engine::sumUpForces(){
 				if(wallResistance){
 					spheresOldPos[i](0) = min(spheresOldPos[i](0), boxSize.s0);
 					spheresOldPos[i](1) = min(spheresOldPos[i](1), boxSize.s1);
-					if(use3D) spheresOldPos[i](2) = min(spheresOldPos[i](2), boxSize.s2);
+					if(_3D_) spheresOldPos[i](2) = min(spheresOldPos[i](2), boxSize.s2);
 					spheresOldPos[i](0) = max(spheresOldPos[i](0), 0.0);
 					spheresOldPos[i](1) = max(spheresOldPos[i](1), 0.0);
-					if(use3D) spheresOldPos[i](2) = max(spheresOldPos[i](2), 0.0);
+					if(_3D_) spheresOldPos[i](2) = max(spheresOldPos[i](2), 0.0);
 				}
 			#endif
 		}
@@ -515,7 +532,7 @@ void EigenCalculator_Engine::sumUpForces(){
 		
 		gridIndex[i][0] = (int)(spheresPos[i](0)/gridWidth);
 		gridIndex[i][1] = (int)(spheresPos[i](1)/gridWidth);
-		if(use3D){
+		if(_3D_){
 			gridIndex[i][2] = spheresPos[i](2)/gridWidth;
 		}
 		/*printf("sphere %d speed: %5f %5f\n", i, spheresSpeed[i](0), spheresSpeed[i](1));
@@ -526,7 +543,8 @@ void EigenCalculator_Engine::sumUpForces(){
 	}
 }
 
-void EigenCalculator_Engine::sort(Pos* p, int dim){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::sort(Pos* p, int dim){
 	//scalar temp;
 	int temp;
 	int j, cid; //sphere ID
@@ -547,7 +565,8 @@ void EigenCalculator_Engine::sort(Pos* p, int dim){
 	}
 }
 
-void EigenCalculator_Engine::calcSortedBallResistance(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::calcSortedBallResistance(){
 	sort(posX, 0);
 	/*
 	for(int pid = 0; pid<spheresCount; pid++){ // pos. ID
@@ -568,7 +587,7 @@ void EigenCalculator_Engine::calcSortedBallResistance(){
 			//if(abs(gridIndex[i][0]-gridIndex[j][0]) <=1){
 			//if(spheresPos[j][0]-spheresPos[i][0] < both_r[i][j]){
 				if(abs(gridIndex[i][1]-gridIndex[j][1]) <=1){
-					if((!use3D) || (abs(gridIndex[i][2]-gridIndex[j][2]) <=1)){
+					if((!_3D_) || (abs(gridIndex[i][2]-gridIndex[j][2]) <=1)){
 						collideBalls(i, j);
 					}
 				}
@@ -601,20 +620,22 @@ uint32_t calcZOrder(uint16_t xPos, uint16_t yPos)
     return result;
 }
 
-int EigenCalculator_Engine::calcCellID(int x, int y, int z){
+template <int dims, bool _3D_>
+int EigenCalculator_Engine<dims,_3D_>::calcCellID(int x, int y, int z){
 	x = min(numCells-1, x);
 	y = min(numCells-1, y);
 	z = min(numCells-1, z);
 	x = max(0, x);
 	y = max(0, y);
 	z = max(0, z);
-	return curveIndices[x+numCells*y+(use3D?numCells*numCells*z:0)];
+	return curveIndices[x+numCells*y+(_3D_?numCells*numCells*z:0)];
 	//return x + numCells*y + numCells*numCells*z;
 	//return calcZOrder(x,y) + numCells*numCells*z;
 }
 
-void EigenCalculator_Engine::sortSpheresByCells(){
-	if(use3D){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::sortSpheresByCells(){
+	if(_3D_){
 		for(int i = 0; i<spheresCount; i++){
 			//calculate cell ID
 			cellOfSphere[i] = calcCellID(gridIndex[i][0], gridIndex[i][1], gridIndex[i][1]);
@@ -652,7 +673,7 @@ void EigenCalculator_Engine::sortSpheresByCells(){
 	//set first sphere of each cell to -1
 	for(int i = boxSize.s0/gridWidth + 1; i>=0; i--){
 		for(j = boxSize.s1/gridWidth + 1; j>=0; j--){
-			if(use3D){
+			if(_3D_){
 				for(int k = boxSize.s2/gridWidth; k>=0; k--){
 					firstSphereInCell[i + numCells*j + numCells*numCells*k] = -1;
 				}
@@ -673,7 +694,8 @@ void EigenCalculator_Engine::sortSpheresByCells(){
 
 #define twiceCalcCollisions 1
 
-void EigenCalculator_Engine::checkCollision(int i, int x, int y, int z, bool sameCell){ 
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::checkCollision(int i, int x, int y, int z, bool sameCell){ 
 	//sphere ID, cell position, bool if same cell (i.e. dx = dy = dz = 0)
 	if(x<0 || y<0 || z<0 || x>=numCells || y>=numCells || z>=numCells){
 		//if(x>=numCells || y>=numCells) printf("return because out of bounds\n");
@@ -705,7 +727,8 @@ void EigenCalculator_Engine::checkCollision(int i, int x, int y, int z, bool sam
 	}; //check collisions of all spheres in that cell
 }
 
-void EigenCalculator_Engine::calcCellSortedBallResistance(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::calcCellSortedBallResistance(){
 	//QThread::msleep(50);
 	sortSpheresByCells();
 	
@@ -718,7 +741,7 @@ void EigenCalculator_Engine::calcCellSortedBallResistance(){
 	/// Kugeln kollidieren nur mit anderen, die in Zellen rechts, oben, vorne davon liegen.
 	/// Dadurch werden doppelt berechnete Kollisionen vermieden.
 	
-	if(use3D){
+	if(_3D_){
 		parallelFor
 		for(int i = 0; i<spheresCount; i++){ //sphere ID 1
 			int x = gridIndex[i][0], y = gridIndex[i][1], z = gridIndex[i][2];
@@ -795,7 +818,63 @@ void EigenCalculator_Engine::calcCellSortedBallResistance(){
 	}
 }
 
-void EigenCalculator_Engine::doStep(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::countSpheresPerCell(){
+	for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
+		numSpheresInCell[i] = 0;
+	}
+	static const scalar fact = 2.1;
+	parallelFor
+	for(int i = 0; i<spheresCount; i++){
+		int minX, maxX, minY, maxY, minZ, maxZ, cellID;
+		minX = (int)((spheresPos[i](0)-spheres[i].size*fact)/gridWidth);
+		maxX = (int)((spheresPos[i](0)+spheres[i].size*fact)/gridWidth);
+		minY = (int)((spheresPos[i](1)-spheres[i].size*fact)/gridWidth);
+		maxY = (int)((spheresPos[i](1)+spheres[i].size*fact)/gridWidth);
+		if(_3D_){
+			minZ = (int)((spheresPos[i](2)-spheres[i].size*fact)/gridWidth);
+			maxZ = (int)((spheresPos[i](2)+spheres[i].size*fact)/gridWidth);
+		}
+		for(int x = minX; x<=maxX; x++){
+			for(int y = minY; y<=maxY; y++){
+				if(_3D_){
+					for(int z = minZ; z<=maxZ; z++){
+						cellID = calcCellID(x,y,z);
+						spheresInCell[cellID][numSpheresInCell[cellID]++] = i;
+					}
+				}else{
+					cellID = calcCellID(x,y);
+					spheresInCell[cellID][numSpheresInCell[cellID]++] = i;
+				}
+			}
+		}
+	}
+	return;
+	for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
+		if(numSpheresInCell[i]>=maxNumSpheresInCell){
+			printf("Many (%3d) spheres in cell!\n", numSpheresInCell[i]);
+		}
+		numSpheresInCell[i] = std::min(maxNumSpheresInCell-1, (int)numSpheresInCell[i]);
+	}
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::collideSpheresPerCell(){
+	parallelFor
+	for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
+		//cycle through cell IDs
+		int num = numSpheresInCell[i];
+		for(int c = 0, c2; c<num-1; c++){
+			for(c2 = c+1; c2<num; c2++){
+				collideBalls(spheresInCell[i][c], spheresInCell[i][c2]);
+			}
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::doStep(){
 	if(forceCounter == 0){
 		for(int i = 0; i<numWalls; i++){
 			curWallForces[i] = 0;
@@ -807,7 +886,10 @@ void EigenCalculator_Engine::doStep(){
 	#if 1
 		if(G_fact == 0){
 			//calcSortedBallResistance();
-			calcCellSortedBallResistance();
+			//calcCellSortedBallResistance();
+			
+			countSpheresPerCell();
+			collideSpheresPerCell();
 		}else
 	#endif
 	{
@@ -818,57 +900,72 @@ void EigenCalculator_Engine::doStep(){
 		calcWallResistance();
 	}
 	
-	timeInterval = std::min(timeInterval, 1.0/minFps);
+	timeInterval = std::min((double)timeInterval, 1.0/minFps);
 	sumUpForces();
-	if(!use3D){
-		for(int i = 0; i<spheresCount; i++){
-			spheresPos[i](2) = 0;
-			spheresPos[i](3) = 0;
+	#if useSSE
+		if(_3D_){
+			for(int i = 0; i<spheresCount; i++){
+				spheresPos[i](3) = 0;
+			}
 		}
-	}else{
-		for(int i = 0; i<spheresCount; i++){
-			spheresPos[i](3) = 0;
-		}
-	}
+		#if _double_==0
+			else{
+				for(int i = 0; i<spheresCount; i++){
+					spheresPos[i](2) = 0;
+					spheresPos[i](3) = 0;
+				}
+			}
+		#endif
+	#endif
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
-void EigenCalculator_Engine::updateG(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::updateG(){
 	//nothing to do
 }
 
-void EigenCalculator_Engine::updateAirResistance(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::updateAirResistance(){
 	//nothing to do
 }
 
-void EigenCalculator_Engine::updateWallResistance(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::updateWallResistance(){
 	//nothing to do
 }
 
-void EigenCalculator_Engine::updateEModul(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::updateEModul(){
 	_E = E*1000000.0;
 }
 
-void EigenCalculator_Engine::updatePoisson(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::updatePoisson(){
 	//nothing to do
 }
 
-void EigenCalculator_Engine::updateElasticity(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::updateElasticity(){
 	//nothing to do
 }
 
-bool EigenCalculator_Engine::saveFrame(){
+template <int dims, bool _3D_>
+bool EigenCalculator_Engine<dims,_3D_>::saveFrame(){
 	for(int i = 0; i<readNum_render; i++){
 		renderBuffer[bufferWriteIndex][i] = spheresOldPos[i];
 	}
 	return true;
 }
 
-bool EigenCalculator_Engine::isFixed(int i){
+template <int dims, bool _3D_>
+bool EigenCalculator_Engine<dims,_3D_>::isFixed(int i){
 	return spheres[i].fixed == 1;
 }
 
 #define k_b 1.3806488E-23
-scalar EigenCalculator_Engine::getTemperature(){
+template <int dims, bool _3D_>
+scalar EigenCalculator_Engine<dims,_3D_>::getTemperature(){
 	//1m : 65pm = 1.0E12 : 1
 	//950kg/m^3 : 1.25kg/m^3 = 760 : 1
 	const static double mass = 14*1.66E-27;
@@ -882,48 +979,54 @@ scalar EigenCalculator_Engine::getTemperature(){
 	return temp;
 }
 
-Sphere* EigenCalculator_Engine::getDirectSphere(int i){
+template <int dims, bool _3D_>
+Sphere* EigenCalculator_Engine<dims,_3D_>::getDirectSphere(int i){
 	if(renderBuffer[bufferWriteIndex][i]==eVector::Zero()) return NULL;
 	spheres[i].pos.s0 = renderBuffer[bufferWriteIndex][i](0);
 	spheres[i].pos.s1 = renderBuffer[bufferWriteIndex][i](1);
-	if(use3D){
+	if(_3D_){
 		spheres[i].pos.s2 = renderBuffer[bufferWriteIndex][i](2);
 	}
 	return &spheres[i];
 }
 
-Sphere* EigenCalculator_Engine::getSphere(int i){
+template <int dims, bool _3D_>
+Sphere* EigenCalculator_Engine<dims,_3D_>::getSphere(int i){
 	if(renderBuffer[bufferReadIndex][i]==eVector::Zero()) return NULL;
 	#if 0
 		//"live" view
 		spheres[i].pos.s0 = spheresPos[i](0);
 		spheres[i].pos.s1 = spheresPos[i](1);
-		if(use3D){
+		if(_3D_){
 			spheres[i].pos.s2 = spheresPos[i](2);
 		}
 	#else
 		//normal view
 		spheres[i].pos.s0 = renderBuffer[bufferReadIndex][i](0);
 		spheres[i].pos.s1 = renderBuffer[bufferReadIndex][i](1);
-		if(use3D){
+		if(_3D_){
 			spheres[i].pos.s2 = renderBuffer[bufferReadIndex][i](2);
 		}
 	#endif
 	return &spheres[i];
 }
 
-void EigenCalculator_Engine::fpsChanged(scalar timeInt){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::fpsChanged(scalar timeInt){
 	timeInterval = timeInt;
 }
 
-void EigenCalculator_Engine::boxSizeChanged(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::boxSizeChanged(){
 	updateGridSize();
 }
 
-void EigenCalculator_Engine::gravityChanged(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::gravityChanged(){
 }
 
-void EigenCalculator_Engine::sphereCountChanged_subclass(int i){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::sphereCountChanged_subclass(int i){
 	///spheres
 	spheres = newCopy<Sphere>(spheres, spheresCount, i);
 	///spheresOldPos
@@ -939,7 +1042,7 @@ void EigenCalculator_Engine::sphereCountChanged_subclass(int i){
 	///position indexes
 	posX = newCopy<Pos>(posX, spheresCount, i);
 	posY = newCopy<Pos>(posY, spheresCount, i);
-	if(use3D){
+	if(_3D_){
 		posZ = newCopy<Pos>(posZ, spheresCount, i);
 	}
 	/*
@@ -947,7 +1050,7 @@ void EigenCalculator_Engine::sphereCountChanged_subclass(int i){
 		for(int j = i; j<spheresCount; j++){
 			posX[posX[j].posOfSphere].sphereAtPos = posX[j].sphereAtPos;
 			posX[posY[j].posOfSphere].sphereAtPos = posY[j].sphereAtPos;
-			if(use3D){
+			if(_3D_){
 				posX[posZ[j].posOfSphere].sphereAtPos = posZ[j].sphereAtPos;
 			}
 		}
@@ -958,7 +1061,7 @@ void EigenCalculator_Engine::sphereCountChanged_subclass(int i){
 			posX[j].posOfSphere = j;
 			posY[j].sphereAtPos = j;
 			posY[j].posOfSphere = j;
-			if(use3D){
+			if(_3D_){
 				posZ[j].sphereAtPos = j;
 				posZ[j].posOfSphere = j;
 			}
@@ -970,7 +1073,7 @@ void EigenCalculator_Engine::sphereCountChanged_subclass(int i){
 		posX[j].posOfSphere = j;
 		posY[j].sphereAtPos = j;
 		posY[j].posOfSphere = j;
-		if(use3D){
+		if(_3D_){
 			posZ[j].sphereAtPos = j;
 			posZ[j].posOfSphere = j;
 		}
@@ -1015,7 +1118,8 @@ void EigenCalculator_Engine::sphereCountChanged_subclass(int i){
 	}
 }
 
-void EigenCalculator_Engine::maxSphereCountChanged_subclass(int i){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::maxSphereCountChanged_subclass(int i){
 	//renderBuffer
 	int readNum_render_new = min(i,spheresCount);
 	if(readNum_render_new>readNum_render)
@@ -1036,7 +1140,8 @@ void EigenCalculator_Engine::maxSphereCountChanged_subclass(int i){
 }
 
 
-void EigenCalculator_Engine::loadConfig(const char* file){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 	f2.open(file, std::fstream::in);
 	bool b = true;
 	if (f2.is_open())
@@ -1044,14 +1149,16 @@ void EigenCalculator_Engine::loadConfig(const char* file){
 		//readLine();
 		int _3d;
 		saveInVar(_3d);
-		/*if((_3d!=0) != use3D){
+		
+		//*
+		if((_3d!=0) != _3D_){
 			if(_3d == 0){
 				std::cerr<<"You have to open this file with 2D viewer."<<std::endl;
 			}else{
 				std::cerr<<"You have to open this file with 3D viewer."<<std::endl;
 			}
 			return;
-		}*/
+		}// */
 		use3D = (_3d!=0);
 		
 		int newSpheresCount;
@@ -1061,7 +1168,7 @@ void EigenCalculator_Engine::loadConfig(const char* file){
 		
 		saveInVar(boxSize.s0);
 		saveInVar(boxSize.s1);
-		if(use3D) saveInVar(boxSize.s2);
+		if(_3D_) saveInVar(boxSize.s2);
 		saveInVar(sphereSize.s0);
 		saveInVar(sphereSize.s1);
 		saveInVar(renderFpsMax);
@@ -1106,23 +1213,41 @@ void EigenCalculator_Engine::loadConfig(const char* file){
 			spheresPos[i](0) += 0.001*((rand()%1024)/1024.0);
 			//if(fixed==0) 
 			spheresPos[i](1) += 0.001*((rand()%1024)/1024.0);
-			if(use3D){
+			if(_3D_){
 				saveInVar(spheresPos[i](2));
 				//if(fixed==0) 
 				spheresPos[i](2) += 0.001*((rand()%1024)/1024.0);
-			}else{
-				spheresPos[i](2) = 0;
 			}
+			#if useSSE
+				if(_3D_){
+					spheresPos[i](3) = 0;
+				}
+				#if _double_==0
+					else{
+						spheresPos[i](2) = 0;
+						spheresPos[i](3) = 0;
+					}
+				#endif
+			#endif
 			spheresOldPos[i] = spheresPos[i];
 			//printf("sphere pos: %5f %5f\n", spheresPos[i](0), spheresPos[i](1));
 			//printf("sphere oldPos: %5f %5f\n", spheresOldPos[i](0), spheresOldPos[i](1));
 			saveInVar(spheresSpeed[i](0));
 			saveInVar(spheresSpeed[i](1));
-			if(use3D){
+			if(_3D_){
 				saveInVar(spheresSpeed[i](2));
-			}else{
-				spheresSpeed[i](2) = 0;
 			}
+			#if useSSE
+				if(_3D_){
+					spheresSpeed[i](3) = 0;
+				}
+				#if _double_==0
+					else{
+						spheresSpeed[i](2) = 0;
+						spheresSpeed[i](3) = 0;
+					}
+				#endif
+			#endif
 			//printf("sphere speed: %5f %5f\n", spheresSpeed[i](0), spheresSpeed[i](1));
 			spheresForce[i].Zero();
 		}
@@ -1154,7 +1279,8 @@ void EigenCalculator_Engine::loadConfig(const char* file){
 	}
 }
 
-void EigenCalculator_Engine::loadConfig(){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::loadConfig(){
 	const char* file = (std::string(filename)+getConfigFileExtension()).c_str();
 	
 	const char* filter = (std::string("SphereSim View File (*.")+getConfigFileExtension()+")").c_str();
@@ -1171,7 +1297,8 @@ void EigenCalculator_Engine::loadConfig(){
 	loadConfig(file);
 }
 
-void EigenCalculator_Engine::paintGL(bool b){
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::paintGL(bool b){
 	Calculator::paintGL(b);
 	glDisable(GL_DEPTH_TEST);
 	glLineWidth(0.5);
@@ -1195,5 +1322,8 @@ void EigenCalculator_Engine::paintGL(bool b){
 																		cellOfSphere[i]));
 	}
 }
+
+template class EigenCalculator_Engine<2,false>;
+template class EigenCalculator_Engine<3,true>;
 
 #endif

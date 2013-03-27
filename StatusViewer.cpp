@@ -96,7 +96,7 @@ void StatusViewer::updateTimer(){
 		printf("Temperature: %f\n", temp);
 		emit temperatureChanged(temp);
 	}
-	emit fpsChanged(glWidgetFrames, clTimerFrames, frameBufferLoad, speed*std::min(1.0,clTimerFrames/(speed*minFps)));
+	emit fpsChanged(glWidgetFrames, clTimerFrames, frameBufferLoad, speed*std::min(1.0,(double)(clTimerFrames/(speed*minFps))));
 }
 
 void StatusViewer::stop(){

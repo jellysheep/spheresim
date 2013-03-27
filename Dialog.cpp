@@ -6,7 +6,11 @@
 
 Dialog::Dialog(){
 	#if 1
-		calc = new EigenCalculator_Engine();
+		if(use3D){
+			calc = new EigenCalculator_Engine<3,true>();
+		}else{
+			calc = new EigenCalculator_Engine<2,false>();
+		}
 		//calc = new FileCalculator();
 		//calc = new OpenClCalculator();
 		selected = true;
@@ -35,7 +39,11 @@ void Dialog::accepted_(){
 	calc = NULL;
 	#ifdef ENGINE_CPP
 		if(dlg->cpp->isChecked()){
-			calc = new EigenCalculator_Engine();
+			if(use3D){
+				calc = new EigenCalculator_Engine<3,true>();
+			}else{
+				calc = new EigenCalculator_Engine<2,false>();
+			}
 		}
 	#endif
 	#ifdef ENGINE_OPENCL

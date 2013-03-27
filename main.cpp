@@ -15,9 +15,10 @@
 //#include "SpheresHolder.h"
 #include "StatusViewer.h"
 
-#define PROFILING 0
+//#define PROFILING 0
 
-#if PROFILING
+//#if PROFILING
+#ifdef PROFILING
 	#include "EigenCalculator_Engine.h"
 #endif
 
@@ -37,7 +38,8 @@ int main(int argc, char *argv[]) {
 	
 	qRegisterMetaType<scalar>("scalar");
 	
-	#if PROFILING == 0
+	//#if PROFILING == 0
+	#ifndef PROFILING
 	
 		//Calculator* clTimer = new OpenClCalculator();
 		//Calculator* clTimer = new EigenCalculator();
@@ -64,8 +66,15 @@ int main(int argc, char *argv[]) {
 		win->showMaximized();
 		
 	#else
-	
-		Calculator* clTimer = new EigenCalculator_Engine();
+		
+		Calculator* clTimer;
+		//Calculator* clTimer = new EigenCalculator_Engine<(use3D?3:2),use3D>();
+		if(use3D){
+			clTimer = new EigenCalculator_Engine<3,true>();
+		}else{
+			clTimer = new EigenCalculator_Engine<2,false>();
+		}
+		
 		if(clTimer == NULL) exit(0);
 		printf("Calculator initialized!\n");
 		
