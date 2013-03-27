@@ -60,88 +60,88 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	graphWg->setHidden(!showGraph);
 	
 	QObject::connect((const QObject*)sv, SIGNAL(fpsChanged(scalar,scalar,scalar,scalar)), 
-		this, SLOT(fpsChanged(scalar,scalar,scalar,scalar)), Qt::QueuedConnection);
+		this, SLOT(fpsChanged(scalar,scalar,scalar,scalar)), Qt::AutoConnection);
 	QObject::connect(rend->x_rot, SIGNAL(valueChanged(double)), 
-		this, SLOT(xAutoRot(double)), Qt::QueuedConnection);
+		this, SLOT(xAutoRot(double)), Qt::AutoConnection);
 	QObject::connect(rend->y_rot, SIGNAL(valueChanged(double)), 
-		this, SLOT(yAutoRot(double)), Qt::QueuedConnection);
+		this, SLOT(yAutoRot(double)), Qt::AutoConnection);
 	QObject::connect(rend->z_rot, SIGNAL(valueChanged(double)), 
-		this, SLOT(zAutoRot(double)), Qt::QueuedConnection);
+		this, SLOT(zAutoRot(double)), Qt::AutoConnection);
 	QObject::connect(rend->start, SIGNAL(clicked()), 
-		cc cal, SLOT(start()), Qt::QueuedConnection);
+		cc cal, SLOT(start()), Qt::AutoConnection);
 	QObject::connect(rend->stop, SIGNAL(clicked()), 
-		cc cal, SLOT(stop()), Qt::QueuedConnection);
+		cc cal, SLOT(stop()), Qt::AutoConnection);
 	QObject::connect(rend->fps, SIGNAL(valueChanged(double)), 
-		cc glw, SLOT(setRenderFps(double)), Qt::QueuedConnection);
+		cc glw, SLOT(setRenderFps(double)), Qt::AutoConnection);
 	QObject::connect(rend->colours, SIGNAL(toggled(bool)), 
-		this, SLOT(useColors(bool)), Qt::QueuedConnection);
+		this, SLOT(useColors(bool)), Qt::AutoConnection);
 	QObject::connect(rend->traces, SIGNAL(toggled(bool)), 
-		this, SLOT(showTrace(bool)), Qt::QueuedConnection);
+		this, SLOT(showTrace(bool)), Qt::AutoConnection);
 	QObject::connect(rend->connect_trace, SIGNAL(toggled(bool)), 
-		this, SLOT(connectTrace(bool)), Qt::QueuedConnection);
+		this, SLOT(connectTrace(bool)), Qt::AutoConnection);
 	QObject::connect(calc->x, SIGNAL(valueChanged(double)), 
-		this, SLOT(xBoxSize(double)), Qt::QueuedConnection);
+		this, SLOT(xBoxSize(double)), Qt::AutoConnection);
 	QObject::connect(calc->y, SIGNAL(valueChanged(double)), 
-		this, SLOT(yBoxSize(double)), Qt::QueuedConnection);
+		this, SLOT(yBoxSize(double)), Qt::AutoConnection);
 	QObject::connect(calc->z, SIGNAL(valueChanged(double)), 
-		this, SLOT(zBoxSize(double)), Qt::QueuedConnection);
+		this, SLOT(zBoxSize(double)), Qt::AutoConnection);
 	QObject::connect(rend->calc_speed, SIGNAL(valueChanged(double)), 
-		this, SLOT(speedChanged(double)), Qt::QueuedConnection);
+		this, SLOT(speedChanged(double)), Qt::AutoConnection);
 		
 	QObject::connect(calc->count, SIGNAL(valueChanged(int)), 
-		cal, SLOT(sphereCountChanged(int)), Qt::QueuedConnection);
+		cal, SLOT(sphereCountChanged(int)), Qt::AutoConnection);
 		
 	QObject::connect(calc->wireframe, SIGNAL(toggled(bool)), 
-		this, SLOT(showWireframe(bool)), Qt::QueuedConnection);
+		this, SLOT(showWireframe(bool)), Qt::AutoConnection);
 	QObject::connect(rend->reflections, SIGNAL(toggled(bool)), 
-		this, SLOT(showReflections(bool)), Qt::QueuedConnection);
+		this, SLOT(showReflections(bool)), Qt::AutoConnection);
 	
 	QObject::connect(rend->reset_view, SIGNAL(clicked()), 
-		cc glw, SLOT(resetView()), Qt::QueuedConnection);
+		cc glw, SLOT(resetView()), Qt::AutoConnection);
 		
 	QObject::connect(calc->one_size, SIGNAL(toggled(bool)), 
-		this, SLOT(oneSphereSize(bool)), Qt::QueuedConnection);
+		this, SLOT(oneSphereSize(bool)), Qt::AutoConnection);
 	QObject::connect(calc->radius_max, SIGNAL(valueChanged(double)), 
-		this, SLOT(maxSphereSize(double)), Qt::QueuedConnection);
+		this, SLOT(maxSphereSize(double)), Qt::AutoConnection);
 	QObject::connect(calc->radius_min, SIGNAL(valueChanged(double)), 
-		this, SLOT(minSphereSize(double)), Qt::QueuedConnection);
+		this, SLOT(minSphereSize(double)), Qt::AutoConnection);
 	QObject::connect(calc->visible_count, SIGNAL(valueChanged(int)), 
-		cal, SLOT(maxSphereCountChanged(int)), Qt::QueuedConnection);
+		cal, SLOT(maxSphereCountChanged(int)), Qt::AutoConnection);
 	QObject::connect(rend->cube, SIGNAL(toggled(bool)), 
-		this, SLOT(setShowCube(bool)), Qt::QueuedConnection);
+		this, SLOT(setShowCube(bool)), Qt::AutoConnection);
 	QObject::connect(calc->earth_gravity, SIGNAL(valueChanged(double)), 
-		this, SLOT(earthGravity(double)), Qt::QueuedConnection);
+		this, SLOT(earthGravity(double)), Qt::AutoConnection);
 	QObject::connect(calc->inter_gravity, SIGNAL(valueChanged(double)), 
-		this, SLOT(interGravity(double)), Qt::QueuedConnection);
+		this, SLOT(interGravity(double)), Qt::AutoConnection);
 	QObject::connect(calc->air_resistance, SIGNAL(valueChanged(double)), 
-		this, SLOT(setAirResistance(double)), Qt::QueuedConnection);
+		this, SLOT(setAirResistance(double)), Qt::AutoConnection);
 	QObject::connect(calc->wall_resistance, SIGNAL(toggled(bool)), 
-		this, SLOT(setWallResistance(bool)), Qt::QueuedConnection);
+		this, SLOT(setWallResistance(bool)), Qt::AutoConnection);
 	QObject::connect(calc->e_modul, SIGNAL(valueChanged(double)), 
-		this, SLOT(setEModul(double)), Qt::QueuedConnection);
+		this, SLOT(setEModul(double)), Qt::AutoConnection);
 	QObject::connect(calc->poissons_ratio, SIGNAL(valueChanged(double)), 
-		this, SLOT(setPoisson(double)), Qt::QueuedConnection);
+		this, SLOT(setPoisson(double)), Qt::AutoConnection);
 	QObject::connect(calc->elasticity, SIGNAL(valueChanged(double)), 
-		this, SLOT(setElasticity(double)), Qt::QueuedConnection);
+		this, SLOT(setElasticity(double)), Qt::AutoConnection);
 	QObject::connect(rend->hue_rot, SIGNAL(valueChanged(double)), 
-		this, SLOT(setHueStep(double)), Qt::QueuedConnection);
+		this, SLOT(setHueStep(double)), Qt::AutoConnection);
 	QObject::connect(rend->lights, SIGNAL(toggled(bool)), 
-		this, SLOT(setShowLights(bool)), Qt::QueuedConnection);
+		this, SLOT(setShowLights(bool)), Qt::AutoConnection);
 	QObject::connect(rend->trace_length, SIGNAL(valueChanged(double)), 
-		this, SLOT(setTraceAmount(double)), Qt::QueuedConnection);
+		this, SLOT(setTraceAmount(double)), Qt::AutoConnection);
 		
 	QObject::connect(calc->render, SIGNAL(toggled(bool)), 
-		this, SLOT(setRender(bool)), Qt::QueuedConnection);
+		this, SLOT(setRender(bool)), Qt::AutoConnection);
 	QObject::connect(calc->save, SIGNAL(toggled(bool)), 
-		this, SLOT(setSave(bool)), Qt::QueuedConnection);
+		this, SLOT(setSave(bool)), Qt::AutoConnection);
 	
 	QObject::connect((const QObject*)sv, SIGNAL(temperatureChanged(double)), 
-		this, SLOT(setTemperature(double)), Qt::QueuedConnection);
+		this, SLOT(setTemperature(double)), Qt::AutoConnection);
 		
 	QObject::connect(calc->saveConfig, SIGNAL(clicked()), 
-		cc cal, SLOT(saveConfig()), Qt::QueuedConnection);
+		cc cal, SLOT(saveConfig()), Qt::AutoConnection);
 	QObject::connect(calc->loadConfig, SIGNAL(clicked()), 
-		cc cal, SLOT(loadConfig()), Qt::QueuedConnection);
+		cc cal, SLOT(loadConfig()), Qt::AutoConnection);
 	
 	rend->calc_speed->setValue(speed);
 	calc->count->setValue(spheresCount);

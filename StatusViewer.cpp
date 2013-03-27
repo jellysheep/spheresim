@@ -9,7 +9,7 @@
 StatusViewer::StatusViewer(GLWidget* glw, Calculator* clt) {
 	statusTimer = new QTimer(this);
 	statusTimer->setInterval(500);
-	QObject::connect(statusTimer, SIGNAL(timeout()), this, SLOT(updateTimer()), Qt::DirectConnection);
+	QObject::connect(statusTimer, SIGNAL(timeout()), this, SLOT(updateTimer()), Qt::AutoConnection);
 	statusTimer->start();
 	glWidget = glw;
 	clTimer = clt;
@@ -17,7 +17,7 @@ StatusViewer::StatusViewer(GLWidget* glw, Calculator* clt) {
 	lastCalculatorFrames = 0;
 	
 	QObject::connect(this, SIGNAL(destroyed()), 
-		this, SLOT(stop()), Qt::DirectConnection);
+		this, SLOT(stop()), Qt::AutoConnection);
 	running = true;
 }
 
@@ -96,7 +96,7 @@ void StatusViewer::updateTimer(){
 		printf("Temperature: %f\n", temp);
 		emit temperatureChanged(temp);
 	}
-	emit fpsChanged(glWidgetFrames, clTimerFrames, frameBufferLoad, speed*std::min(1.0,clTimerFrames/(speed*minFps)));
+	emit fpsChanged(glWidgetFrames, clTimerFrames, frameBufferLoad, speed*std::min(1.0,(double)(clTimerFrames/(speed*minFps))));
 }
 
 void StatusViewer::stop(){

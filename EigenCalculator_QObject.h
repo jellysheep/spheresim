@@ -11,30 +11,30 @@ class EigenCalculator_QObject: public Calculator {
 	Q_OBJECT // must include this if you use Qt signals/slots
 
 protected:
-	
-	virtual void save()=0;
 		
 	virtual void doStep()=0;
 	virtual bool saveFrame()=0;
 	
+	virtual void save()=0;
+	
 	virtual void sphereCountChanged_subclass(int i)=0;
 	virtual void maxSphereCountChanged_subclass(int i)=0;
 	
-	virtual void loadConfig(const char* file)=0;
-	
 	virtual bool isFixed(int i)=0;
+	
+	virtual void loadConfig(const char* file)=0;
 
 public:
 	EigenCalculator_QObject():Calculator(){}
 	
-	virtual Sphere* getSphere(int i)=0;
-	virtual Sphere* getDirectSphere(int i)=0;
+	virtual void paintGL(bool b)=0;
 	
 	virtual void fpsChanged(scalar timeInterval)=0;
 	
-	virtual scalar getTemperature()=0;
+	virtual Sphere* getSphere(int i)=0;
+	virtual Sphere* getDirectSphere(int i)=0;
 	
-	virtual void paintGL(bool b)=0;
+	virtual scalar getTemperature()=0;
 	
 public slots:
 	virtual void boxSizeChanged()=0;

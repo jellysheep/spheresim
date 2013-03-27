@@ -6,7 +6,11 @@
 
 Dialog::Dialog(){
 	#if 1
-		calc = new EigenCalculator_Engine();
+		if(use3D){
+			calc = new EigenCalculator_Engine<3,true>();
+		}else{
+			calc = new EigenCalculator_Engine<2,false>();
+		}
 		//calc = new FileCalculator();
 		//calc = new OpenClCalculator();
 		selected = true;
@@ -24,9 +28,9 @@ Dialog::Dialog(){
 			dlg->read->setEnabled(true);
 		#endif
 		QObject::connect(this, SIGNAL(accepted()), 
-			this, SLOT(accepted_()), Qt::DirectConnection);
+			this, SLOT(accepted_()), Qt::AutoConnection);
 		QObject::connect(this, SIGNAL(rejected()), 
-			this, SLOT(rejected_()), Qt::DirectConnection);
+			this, SLOT(rejected_()), Qt::AutoConnection);
 		exec();
 	#endif
 }
@@ -35,7 +39,11 @@ void Dialog::accepted_(){
 	calc = NULL;
 	#ifdef ENGINE_CPP
 		if(dlg->cpp->isChecked()){
-			calc = new EigenCalculator_Engine();
+			if(use3D){
+				calc = new EigenCalculator_Engine<3,true>();
+			}else{
+				calc = new EigenCalculator_Engine<2,false>();
+			}
 		}
 	#endif
 	#ifdef ENGINE_OPENCL

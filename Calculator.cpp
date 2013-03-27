@@ -16,7 +16,7 @@ Calculator::Calculator(){
 	glWidget = NULL;
 	
 	QObject::connect(this, SIGNAL(destroyed()), 
-		this, SLOT(quit()), Qt::DirectConnection);
+		this, SLOT(quit()), Qt::AutoConnection);
 	
 	performingAction = false;
 	hasStopped = true;
