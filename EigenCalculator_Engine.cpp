@@ -11,8 +11,7 @@ using namespace std;
 #include "NanosecondTimer.h"
 #include "GLWidget.h"
 
-#define parallelFor 
-//_Pragma("omp parallel for if(spheresCount>500)")
+#define parallelFor _Pragma("omp parallel for if(spheresCount>500)")
 
 #define fixSun 0
 
@@ -436,61 +435,6 @@ void EigenCalculator_Engine<dims,_3D_>::calcBallResistance(){
 	}
 }
 
-template <int dims, bool _3D_>
-void EigenCalculator_Engine<dims,_3D_>::collideBalls(int i, int j){
-	if(i == j) return;
-	scalar both_r_ = both_r[i][j];
-	eVector d_pos = spheresPos[j]-spheresPos[i];
-	
-	//d_pos.s2 = 0;
-	scalar d = d_pos.norm();
-	d = max(d,(scalar)0.00005f);
-	
-	eVector d_n, force;
-	
-	#if _G_
-	if(G_fact!=0)
-	{
-		d_n = d_pos/d;
-		// bzw. normalize(d_pos);
-		// Gravitation:
-		force = G*G_fact*spheres[i].mass*spheres[j].mass/pow(max(d,(scalar)spheres[i].size/10),2) *d_n;
-		spheresForce[i] += force;
-		
-		spheresForce[j] -= force;
-	}
-	#endif
-	
-	// Abstossung:
-	if (d < both_r_) {
-		//printf("Spheres %d and %d are colliding!\n", i, j);
-		scalar d_, R, _E_;
-		//*
-		//#if _G_==0
-		if(G_fact == 0)
-		{
-			d_n = d_pos/d; // bzw. normalize(d_pos);
-		}
-		//#endif
-		// */
-		// nach Kontaktmechanik mit Poisson-Zahlen:
-		d_ = both_r_ - d;
-		//*
-		R = 1/((1/spheres[i].size)+(1/spheres[j].size));
-		//_E_ = 1/(((1-spheres[i].poisson*spheres[i].poisson)/(_E))+((1-spheres[j].poisson*spheres[j].poisson)/(_E)));
-		_E_ = 1/(((1-(poisson*poisson))/(_E))+((1-(poisson*poisson))/(_E)));
-		force = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3)) *d_n;
-		//printf("Stoss! r: %5f m: %5f d: %5f R: %5f E*: %5f F: %5f\n", spheres[i].size, spheres[i].mass, d_, R, _E_, force.norm());
-		if(elastic!=1 && d_pos.dot((spheresSpeed[i]-spheresSpeed[j])/d)<0){ //Skalarprodukt
-			force *= elastic;
-		}
-		#pragma atomic
-			spheresForce[i] -= force;
-		#pragma atomic
-			spheresForce[j] += force;
-	}
-}
-
 #define sqr(x) ((x)*(x))
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::sumUpForces(){
@@ -548,6 +492,61 @@ void EigenCalculator_Engine<dims,_3D_>::sumUpForces(){
 		printf("sphere %d old pos: %5f %5f\n", i, spheresOldPos[i](0), spheresOldPos[i](1));// */
 		
 		EIGEN_ASM_COMMENT("end");
+	}
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::collideBalls(int i, int j){
+	if(i == j) return;
+	scalar both_r_ = both_r[i][j];
+	eVector d_pos = spheresPos[j]-spheresPos[i];
+	
+	//d_pos.s2 = 0;
+	scalar d = d_pos.norm();
+	d = std::max(d,(scalar)0.00005f);
+	
+	eVector d_n, force;
+	
+	#if _G_
+	if(G_fact!=0)
+	{
+		d_n = d_pos/d;
+		// bzw. normalize(d_pos);
+		// Gravitation:
+		force = G*G_fact*spheres[i].mass*spheres[j].mass/pow(max(d,(scalar)spheres[i].size/10),2) *d_n;
+		spheresForce[i] += force;
+		
+		spheresForce[j] -= force;
+	}
+	#endif
+	
+	// Abstossung:
+	if (d < both_r_) {
+		//printf("Spheres %d and %d are colliding!\n", i, j);
+		scalar d_, R, _E_;
+		//*
+		//#if _G_==0
+		if(G_fact == 0)
+		{
+			d_n = d_pos/d; // bzw. normalize(d_pos);
+		}
+		//#endif
+		// */
+		// nach Kontaktmechanik mit Poisson-Zahlen:
+		d_ = both_r_ - d;
+		//*
+		R = 1/((1/spheres[i].size)+(1/spheres[j].size));
+		//_E_ = 1/(((1-spheres[i].poisson*spheres[i].poisson)/(_E))+((1-spheres[j].poisson*spheres[j].poisson)/(_E)));
+		_E_ = 1/(((1-(poisson*poisson))/(_E))+((1-(poisson*poisson))/(_E)));
+		force = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3)) *d_n;
+		//printf("Stoss! r: %5f m: %5f d: %5f R: %5f E*: %5f F: %5f\n", spheres[i].size, spheres[i].mass, d_, R, _E_, force.norm());
+		if(elastic!=1 && d_pos.dot((spheresSpeed[i]-spheresSpeed[j])/d)<0){ //Skalarprodukt
+			force *= elastic;
+		}
+		#pragma atomic
+			spheresForce[i] -= force;
+		#pragma atomic
+			spheresForce[j] += force;
 	}
 }
 
@@ -838,16 +837,14 @@ void EigenCalculator_Engine<dims,_3D_>::countSpheresPerCell(){
 	for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
 		numSpheresInCell[i] = 0;
 	}
-	//no spheres already colliding:
-	for(int i = 0; i<spheresCount; i++){
-		numCollsPerSphere[i] = 0;
-	}
 	
 	//printf("%3d\n", x++);
 	static const scalar fact = 1.0;
 	bool tooManySpheres = false;
-	//parallelFor
+	parallelFor
 	for(int i = 0; i<spheresCount; i++){
+		//no spheres already colliding:
+		numCollsPerSphere[i] = 0;
 		//if(i == 999) printf(" %3d\n", i);
 		volatile int minX, maxX, minY, maxY, minZ, maxZ, x, y, z, cellID;
 		minX = (int)((spheresPos[i](0)-spheres[i].size*fact)/gridWidth);
@@ -1212,7 +1209,7 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 	{
 		//readLine();
 		int _3d;
-		saveInVar(_3d);
+		saveInVar(f2, _3d);
 		
 		//*
 		if((_3d!=0) != _3D_){
@@ -1226,34 +1223,34 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 		use3D = (_3d!=0);
 		
 		int newSpheresCount;
-		saveInVar(newSpheresCount);
+		saveInVar(f2, newSpheresCount);
 		int newMaxSpheresCount;
-		saveInVar(newMaxSpheresCount);
+		saveInVar(f2, newMaxSpheresCount);
 		
-		saveInVar(boxSize.s0);
-		saveInVar(boxSize.s1);
-		if(_3D_) saveInVar(boxSize.s2);
-		saveInVar(sphereSize.s0);
-		saveInVar(sphereSize.s1);
-		saveInVar(renderFpsMax);
+		saveInVar(f2, boxSize.s0);
+		saveInVar(f2, boxSize.s1);
+		if(_3D_) saveInVar(f2, boxSize.s2);
+		saveInVar(f2, sphereSize.s0);
+		saveInVar(f2, sphereSize.s1);
+		saveInVar(f2, renderFpsMax);
 		timeInterval = 1000/renderFpsMax;
-		saveInVar(renderFps);
-		saveInVar(speed);
-		saveInVar(fps);
-		saveInVar(minFps);
-		saveInVar(max_speed);
-		saveInVar(E);
-		saveInVar(poisson);
-		saveInVar(elastic);
+		saveInVar(f2, renderFps);
+		saveInVar(f2, speed);
+		saveInVar(f2, fps);
+		saveInVar(f2, minFps);
+		saveInVar(f2, max_speed);
+		saveInVar(f2, E);
+		saveInVar(f2, poisson);
+		saveInVar(f2, elastic);
 		
-		saveInVar(gravity_abs);
+		saveInVar(f2, gravity_abs);
 		printf("gravity: %5f\n", gravity_abs);
 		glWidget->updateGravity();
 		
-		saveInVar(G_fact);
-		saveInVar(airResistance);
+		saveInVar(f2, G_fact);
+		saveInVar(f2, airResistance);
 		int _wallResistance;
-		saveInVar(_wallResistance);
+		saveInVar(f2, _wallResistance);
 		wallResistance = (_wallResistance != 0);
 		
 		
@@ -1266,19 +1263,19 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 		
 		int fixed;
 		for(int i = 0; i<newSpheresCount; i++){
-			saveInVar(fixed);
+			saveInVar(f2, fixed);
 			spheres[i].fixed = fixed;
-			saveInVar(spheres[i].size);
+			saveInVar(f2, spheres[i].size);
 			//printf("sphere size: %5f\n", spheres[i].size);
-			saveInVar(spheres[i].mass);
-			saveInVar(spheresPos[i](0));
-			saveInVar(spheresPos[i](1));
+			saveInVar(f2, spheres[i].mass);
+			saveInVar(f2, spheresPos[i](0));
+			saveInVar(f2, spheresPos[i](1));
 			//if(fixed==0) 
 			spheresPos[i](0) += 0.001*((rand()%1024)/1024.0);
 			//if(fixed==0) 
 			spheresPos[i](1) += 0.001*((rand()%1024)/1024.0);
 			if(_3D_){
-				saveInVar(spheresPos[i](2));
+				saveInVar(f2, spheresPos[i](2));
 				//if(fixed==0) 
 				spheresPos[i](2) += 0.001*((rand()%1024)/1024.0);
 			}
@@ -1296,10 +1293,10 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 			spheresOldPos[i] = spheresPos[i];
 			//printf("sphere pos: %5f %5f\n", spheresPos[i](0), spheresPos[i](1));
 			//printf("sphere oldPos: %5f %5f\n", spheresOldPos[i](0), spheresOldPos[i](1));
-			saveInVar(spheresSpeed[i](0));
-			saveInVar(spheresSpeed[i](1));
+			saveInVar(f2, spheresSpeed[i](0));
+			saveInVar(f2, spheresSpeed[i](1));
 			if(_3D_){
-				saveInVar(spheresSpeed[i](2));
+				saveInVar(f2, spheresSpeed[i](2));
 			}
 			#if useSSE
 				if(_3D_){

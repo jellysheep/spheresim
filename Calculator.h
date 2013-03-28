@@ -13,14 +13,14 @@
 class GLWidget;
 class PlotWidget;
 
-#define _read(stream,var)												\
-	for(int _i = 0; !(stream>>(hexadec?std::hex:std::dec)>>var) && _i<5; _i++){	\
-		readLine();														\
+#define _read(f,stream,var)															\
+	for(int _i = 0; !(stream>>(hexadec?std::hex:std::dec)>>var) && _i<20; _i++){	\
+		readLine(f);																\
 	}
 
-#define saveInVar(x) {				\
-	saveInVar_(x);					\
-	/*std::cout<<#x<<": "<<x<<"\n";*/	\
+#define saveInVar(stream,x) {				\
+	saveInVar_(stream,x);					\
+	/*std::cout<<#x<<": "<<x<<"\n";*/		\
 }
 
 class Calculator : public QThread, public FramesCounter{
@@ -62,11 +62,11 @@ protected:
 	
 	std::istringstream iss;
 	std::string line;
-	float readHexFloat();
-	float readFloat();
-	void saveInVar_(scalar &s);
-	void saveInVar_(int &i);
-	void readLine();
+	float readHexFloat(std::fstream& f);
+	float readFloat(std::fstream& f);
+	void saveInVar_(std::fstream& f, scalar &s);
+	void saveInVar_(std::fstream& f, int &i);
+	void readLine(std::fstream& f);
 	bool hexadec, eof, initialized;
 	
 	virtual bool isFixed(int i)=0;

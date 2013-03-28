@@ -5,7 +5,7 @@
 #include <QColor>
 
 //#define _3D_ 1
-#define _double_ 0
+#define _double_ 1
 
 //#define fastSphereRender 1
 
@@ -112,7 +112,9 @@ extern int maxShowSpheresCount;
 extern vector3 boxSize;
 extern vector2 sphereSize;
 
-extern int renderFpsMax, renderFps;
+extern bool autoSlowRender;
+extern int renderFpsMax;
+extern int renderFps;
 extern scalar speed, speedCorrection;
 extern scalar fps,minFps;
 extern scalar timeInterval;

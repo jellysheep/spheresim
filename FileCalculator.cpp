@@ -40,7 +40,7 @@ FileCalculator::FileCalculator():Calculator(){
 	{
 		//readLine();
 		int _3d;
-		saveInVar(_3d);
+		saveInVar(f, _3d);
 		if((_3d!=0) != use3D){
 			if(_3d == 0){
 				std::cerr<<"You have to open this file with 2D viewer."<<std::endl;
@@ -50,44 +50,44 @@ FileCalculator::FileCalculator():Calculator(){
 			return;
 		}
 		int newSpheresCount;
-		saveInVar(newSpheresCount);
+		saveInVar(f, newSpheresCount);
 		int newMaxSpheresCount;
-		saveInVar(newMaxSpheresCount);
+		saveInVar(f, newMaxSpheresCount);
 		
-		saveInVar(boxSize.s0);
-		saveInVar(boxSize.s1);
+		saveInVar(f, boxSize.s0);
+		saveInVar(f, boxSize.s1);
 		if(use3D){
-			saveInVar(boxSize.s2);
+			saveInVar(f, boxSize.s2);
 		}
-		saveInVar(sphereSize.s0);
-		saveInVar(sphereSize.s1);
-		saveInVar(renderFpsMax);
+		saveInVar(f, sphereSize.s0);
+		saveInVar(f, sphereSize.s1);
+		saveInVar(f, renderFpsMax);
 		timeInterval = 1000/renderFpsMax;
-		saveInVar(renderFps);
-		saveInVar(speed);
-		saveInVar(fps);
-		saveInVar(minFps);
-		saveInVar(max_speed);
-		saveInVar(E);
-		saveInVar(poisson);
-		saveInVar(elastic);
-		saveInVar(gravity_abs);
-		saveInVar(G_fact);
-		saveInVar(airResistance);
+		saveInVar(f, renderFps);
+		saveInVar(f, speed);
+		saveInVar(f, fps);
+		saveInVar(f, minFps);
+		saveInVar(f, max_speed);
+		saveInVar(f, E);
+		saveInVar(f, poisson);
+		saveInVar(f, elastic);
+		saveInVar(f, gravity_abs);
+		saveInVar(f, G_fact);
+		saveInVar(f, airResistance);
 		int _wallResistance;
-		saveInVar(_wallResistance);
+		saveInVar(f, _wallResistance);
 		wallResistance = (_wallResistance != 0);
 		spheres = new Sphere[newSpheresCount];
 		spheres2 = new Sphere[newSpheresCount];
 		
 		for(int i = 0; i<newSpheresCount; i++){
-			saveInVar(spheres2[i].size);
+			saveInVar(f, spheres2[i].size);
 			//printf("sphere size: %5f\n", spheres2[i].size);
-			saveInVar(spheres2[i].mass);
-			saveInVar(spheres[i].pos.s0);
-			saveInVar(spheres[i].pos.s1);
+			saveInVar(f, spheres2[i].mass);
+			saveInVar(f, spheres[i].pos.s0);
+			saveInVar(f, spheres[i].pos.s1);
 			if(use3D){
-				saveInVar(spheres[i].pos.s2);
+				saveInVar(f, spheres[i].pos.s2);
 			}
 		}
 		
@@ -130,7 +130,8 @@ bool FileCalculator::isFixed(int i){
 }
 
 void FileCalculator::doStep(){
-	QThread::msleep(1000/(renderFpsMax*calcSpeedFact));
+	//printf("%10f ; target fps: %10f\n", calcSpeedFact, (renderFpsMax/calcSpeedFact));
+	QThread::msleep(1000/(renderFpsMax/calcSpeedFact));
 }
 
 void FileCalculator::save(){
@@ -168,10 +169,10 @@ void FileCalculator::updateElasticity(){
 bool FileCalculator::saveFrame(){
 	if(eof || !initialized) return false;
 	for(int i = 0; i<spheresCount; i++){
-		saveInVar(renderBuffer[bufferWriteIndex][i].s0);
-		saveInVar(renderBuffer[bufferWriteIndex][i].s1);
+		saveInVar(f, renderBuffer[bufferWriteIndex][i].s0);
+		saveInVar(f, renderBuffer[bufferWriteIndex][i].s1);
 		if(use3D){
-			saveInVar(renderBuffer[bufferWriteIndex][i].s2);
+			saveInVar(f, renderBuffer[bufferWriteIndex][i].s2);
 		}
 	}
 	return true;

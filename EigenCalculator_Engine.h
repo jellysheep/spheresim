@@ -3,39 +3,14 @@
 #ifndef _EIGEN_CALCULATOR_ENGINE_H_
 #define _EIGEN_CALCULATOR_ENGINE_H_
 
-#define NDEBUG
-#include <Eigen/Dense>
-using namespace Eigen;
+#include "EigenCalculator_eVector.h"
 
 #include <QThread>
 
 #include "Spheres.h"
 #include "Calculator.h"
 #include "EigenCalculator_QObject.h"
-
-#define useSSE 0
-
-#if useSSE
-	//Vector4d and Vector4f are vectorized
-	//typedef Eigen::Matrix<scalar, 4, 1> eVector;
-	#if _double_
-		//typedef Vector4d eVector;
-		#define eVector Eigen::Matrix<scalar, ((dims+1)/2)*2, 1>
-	#else
-		//typedef Vector4f eVector;
-		#define eVector Eigen::Matrix<scalar, ((dims+3)/4)*4, 1>
-	#endif
-#else
-	//typedef Eigen::Matrix<scalar, 3, 1> eVector;
-	#define eVector Eigen::Matrix<scalar, dims, 1>
-	/*#if _double_
-		//typedef Vector3d eVector;
-		#define eVector Eigen::Matrix<scalar, dims, 1>
-	#else
-		//typedef Vector3f eVector;
-		#define eVector Eigen::Matrix<scalar, dims, 1>
-	#endif*/
-#endif
+#include "EigenCalculator_Collider.h"
 
 struct Pos {
 	int posOfSphere, sphereAtPos;
@@ -111,6 +86,8 @@ protected:
 	void collideSpheresPerCell();
 	char* numCollsPerSphere;
 	int** collsPerSphere;
+	
+	EigenCalculator_Collider<dims,_3D_>* collider;
 
 public:
 	EigenCalculator_Engine();

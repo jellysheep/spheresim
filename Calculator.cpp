@@ -240,18 +240,22 @@ void Calculator::saveConfig(){
 	f2<<"\n\n# "<<getConfigFileExtension()<<" end of file";
 	f2.close();
 }
-void Calculator::readLine(){
+void Calculator::readLine(std::fstream& f){
 	bool retry;
 	int tries = 0;
 	do{
 		tries++;
+		//std::cout<<"try "<<tries<<"... \n";
 		retry = false;
-		if(!getline(f2, line)){
+		if(!getline(f, line)){
 			retry = true;
 			continue;
-		}else if(line[0] == '#'){
-			retry = true;
-			continue;
+		}else{
+			//std::cout<<"_line: "<<line<<"\n";
+			if(line[0] == '#'){
+				retry = true;
+				continue;
+			}
 		}
 		///remove comments
 		int i = line.find('#');
@@ -268,58 +272,58 @@ void Calculator::readLine(){
 		eof = true;
 		return;
 	}
-	//cout<<"line: "<<line<<"\n";
+	//std::cout<<"line: "<<line<<"\n";
 	///std::decide between std::decimal and hexadecimal chars
 	if(line[0] == 'h' || line[0] == 'H'){
 		hexadec = true;
-		//cout<<"std::hex.\n";
+		//std::cout<<"std::hex.\n";
 		line.erase(line.begin());
 	}else{
 		hexadec = false;
-		//cout<<"std::dec.\n";
+		//std::cout<<"std::dec.\n";
 	}
 	iss.clear();
 	iss.str(line);
-	//cout<<"new line: \""<<line<<"\"\n";
+	//std::cout<<"new line: \""<<line<<"\"\n";
 }
 
-float Calculator::readHexFloat(){
-	float f;
+float Calculator::readHexFloat(std::fstream& f){
+	float f_;
 	unsigned int l = 0;
 	//cout<<"line: \""<<line<<"\"\n";
 	for(int _i = 0; !(iss>>std::hex>>l) && _i<5; _i++){
-		readLine();
+		readLine(f);
 	}
-	f = *((float*)&l);
-	return f;
+	f_ = *((float*)&l);
+	return f_;
 }
 
-float Calculator::readFloat(){
+float Calculator::readFloat(std::fstream& f){
 	iss.peek();
-	if(!iss) readLine();
+	if(!iss) readLine(f);
 	if(hexadec){
 		//cout<<"reading std::hex...\n";
-		return readHexFloat();
+		return readHexFloat(f);
 	}
-	float f = 0;
+	float f_ = 0;
 	//cout<<"reading std::dec...\n";
-	for(int _i = 0; !(iss>>std::dec>>f) && _i<5; _i++){
-		readLine();
-		if(hexadec) return readHexFloat();
+	for(int _i = 0; !(iss>>std::dec>>f_) && _i<5; _i++){
+		readLine(f);
+		if(hexadec) return readHexFloat(f);
 	}
-	return f;
+	return f_;
 }
 
-void Calculator::saveInVar_(scalar &s){
-	float f = readFloat();
+void Calculator::saveInVar_(std::fstream& f, scalar &s){
+	float f_ = readFloat(f);
 	if(!eof){
-		s = f;
+		s = f_;
 	}
 }
 
-void Calculator::saveInVar_(int &i){
-	int j;
-	_read(iss, j);
+void Calculator::saveInVar_(std::fstream& f, int &i){
+	int j = 0;
+	_read(f, iss, j);
 	if(!eof) i = j;
 }
 
@@ -476,7 +480,7 @@ void Calculator::sphereCountChanged(int i){
 	if(performingAction) return;
 	printf("SpheresCount: %5d new: %5d\n", spheresCount, i);
 	
-	renderFpsMax = (int)(45.0*pow(1/3.0, spheresCount/1000.0)+15);
+	renderFpsMax = (autoSlowRender?(int)(45.0*pow(1/3.0, spheresCount/1000.0)+15):60);
 	renderFps = renderFpsMax;
 	
 	if(i == spheresCount) return;

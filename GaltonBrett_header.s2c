@@ -6,7 +6,7 @@
 # 3D:
 h0
 # sphere count:
-2203
+3644
 # max. display sphere count:
 3000
 # box size (x,y):
@@ -24,11 +24,11 @@ h3f800000
 # fps:
 h49742400
 # minFps:
-h44480000
+800
 # initial max. speed:
 h0
 # E modulus:
-h3dcccccd
+0.01
 # poisson's value:
 h3f000000
 # elasticity:
