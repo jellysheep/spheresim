@@ -6,7 +6,7 @@
 bool use3D = false;
 bool fastRender = true;
 
-int spheresCount = 3644;
+int spheresCount = 100;
 int maxShowSpheresCount = 20000;
 bool manySpheres = (std::min(spheresCount,maxShowSpheresCount)>20);
 

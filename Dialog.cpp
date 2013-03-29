@@ -3,14 +3,15 @@
 #include "ui_Dialog_Qt5.h"
 #include "EigenCalculator_Engine.h"
 #include "OpenClCalculator.h"
+#include "ThrustCalculator.h"
 #include "FileCalculator.h"
 
 Dialog::Dialog(){
 	#if 1
 		if(use3D){
-			calc = new EigenCalculator_Engine<3,true>();
+			calc = new ThrustCalculator3D();
 		}else{
-			calc = new EigenCalculator_Engine<2,false>();
+			calc = new ThrustCalculator2D();
 		}
 		//calc = new FileCalculator();
 		//calc = new OpenClCalculator();
@@ -24,6 +25,9 @@ Dialog::Dialog(){
 		#endif
 		#ifdef ENGINE_OPENCL
 			dlg->opencl->setEnabled(true);
+		#endif
+		#ifdef ENGINE_THRUST
+			dlg->thrust->setEnabled(true);
 		#endif
 		#ifdef ENGINE_READ
 			dlg->read->setEnabled(true);
@@ -50,6 +54,15 @@ void Dialog::accepted_(){
 	#ifdef ENGINE_OPENCL
 		if(dlg->opencl->isChecked()){
 			calc = new OpenClCalculator();
+		}
+	#endif
+	#ifdef ENGINE_THRUST
+		if(dlg->thrust->isChecked()){
+			if(use3D){
+				calc = new ThrustCalculator3D();
+			}else{
+				calc = new ThrustCalculator2D();
+			}
 		}
 	#endif
 	#ifdef ENGINE_READ
