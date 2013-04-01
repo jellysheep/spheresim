@@ -5,6 +5,7 @@
 
 #include "Spheres.h"
 #include "Calculator.h"
+#include "EigenCalculator_Engine.h"
 
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
@@ -62,7 +63,7 @@ struct VectorLength2D : public thrust::unary_function<Float2,Float2>{
 };
 
 template <int dims, bool _3D_>
-class ThrustCalculator: public Calculator {
+class ThrustCalculator: public EigenCalculator_Engine<dims,_3D_> {
 	typedef typename IF<_3D_, 
 		FloatIteratorTuple3D, 
 		FloatIteratorTuple2D
@@ -77,51 +78,18 @@ class ThrustCalculator: public Calculator {
 	typedef typename IF<_3D_, VectorLength3D, VectorLength2D>::RET VectorLength;
 
 protected:
-		
-	void doStep();
-	bool saveFrame();
-	
-	void save();
-	
-	bool isFixed(int i);
-	
-	void loadConfig(const char* file);
-	
-	void sphereCountChanged_subclass(int i);
-	void maxSphereCountChanged_subclass(int i);
-	
-	void initSphere(int i);
-	
-	void calcWallResistance();
-	void calcBallResistance();
-	void sumUpForces();
 	
 	thrust::device_vector<float> *spherePos, *sphereSpeed, *sphereForce;
 	FloatTupleIterator spherePosFirst, spherePosLast;
 	FloatTupleIterator sphereSpeedFirst, sphereSpeedLast;
 	void buildZipIterators();
 	
+	thrust::device_vector<int> spheresPerCell, cellIndices;
+	int* cellIndices_;
+	void collideSpheresPerCell();
+	
 public:
 	ThrustCalculator();
-	
-	void fpsChanged(scalar timeInterval);
-	
-	Sphere* getSphere(int i);
-	Sphere* getDirectSphere(int i);
-	
-	scalar getTemperature();
-	
-	void boxSizeChanged();
-	void gravityChanged();
-	void updateG();
-	void updateAirResistance();
-	void updateWallResistance();
-	void updateEModul();
-	void updatePoisson();
-	void updateElasticity();
-	void updateGridSize();
-	
-	void loadConfig();
 };
 
 typedef ThrustCalculator<3,true> ThrustCalculator3D;

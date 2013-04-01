@@ -5,9 +5,7 @@
 
 #include <thrust/transform_reduce.h>
 #include <thrust/functional.h>
-
-#include <cusp/hyb_matrix.h>
-#include <cusp/print.h>
+#include <thrust/sequence.h>
 
 // This functor implements the dot product between 3d vectors
 struct DotProduct3D : public thrust::binary_function<Float3,Float3,float>
@@ -76,8 +74,28 @@ struct GetZero : public thrust::unary_function<float,float>{
         }
 };
 
+
+
+// This functor tests regular code...
+struct addVectorContents : public thrust::unary_function<float,float>
+{
+    const int l;
+    const thrust::device_ptr<float> ptr;
+    addVectorContents(int l_, thrust::device_ptr<float> ptr_) : l(l_), ptr(ptr_) {}
+    
+    __host__ __device__
+        float operator()(const float& a) const
+        {
+			float f = a;
+			for(int i = 0; i<l; i++){
+				f+=ptr[i];
+			}
+			return f;
+        }
+};
+
 template <int dims, bool _3D_>
-ThrustCalculator<dims,_3D_>::ThrustCalculator():Calculator(){
+ThrustCalculator<dims,_3D_>::ThrustCalculator():EigenCalculator_Engine<dims,_3D_>(){
 	spherePos = new thrust::device_vector<float>[dims];
 	sphereSpeed = new thrust::device_vector<float>[dims];
 	sphereForce = new thrust::device_vector<float>[dims];
@@ -103,121 +121,45 @@ ThrustCalculator<dims,_3D_>::ThrustCalculator():Calculator(){
 		std::cout<<"Pos. of sphere "<<i<<": "<<
 			spherePos[0][i]<<','<<spherePos[1][i]<<'\n';
 	}
+	
+	
+	int numCells = EigenCalculator_Engine<dims,_3D_>::numCells;
+	spheresPerCell = thrust::device_vector<int>(numCells*numCells*(_3D_?numCells:1));
+	cellIndices_ = new int[numCells*numCells*(_3D_?numCells:1)];
+	cellIndices = thrust::device_vector<int>(cellIndices_, cellIndices_+numCells*numCells*(_3D_?numCells:1));
+	
+	
+	
+	thrust::device_vector<float> content(1);
+	content[0] = 5.f;
+	thrust::device_ptr<float> contentPtr = content.data();
+	std::cout<<"content before: "<<content[0]<<'\n';
+	thrust::transform(content.begin(), content.end(), content.begin(), addVectorContents(1, contentPtr));
+	std::cout<<"content after: "<<content[0]<<'\n';
 }
 
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::doStep(){
-}
-
-template <int dims, bool _3D_>
-bool ThrustCalculator<dims,_3D_>::saveFrame(){
-	return true;
-}
-
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::save(){
-}
-
-
-template <int dims, bool _3D_>
-bool ThrustCalculator<dims,_3D_>::isFixed(int i){
-}
-
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::loadConfig(const char* file){
-}
+struct NumGreaterOne {
+	__host__ __device__
+	bool operator()(const int& a, const int& b) {
+		return a>1 && b<=1;
+	}
+};
 
 
 template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::sphereCountChanged_subclass(int i){
+void ThrustCalculator<dims,_3D_>::collideSpheresPerCell(){
+	int numCells = EigenCalculator_Engine<dims,_3D_>::numCells;
+	int* numSpheresInCell = EigenCalculator_Engine<dims,_3D_>::numSpheresInCell;
+	thrust::sequence(cellIndices.begin(), cellIndices.end());
+	spheresPerCell = thrust::device_vector<int>(numSpheresInCell, numSpheresInCell+(numCells*numCells*(_3D_?numCells:1)));
+	thrust::sort_by_key(spheresPerCell.begin(), spheresPerCell.end(), cellIndices.begin(), NumGreaterOne());
+	/*
+	for(int i = 0; i<numCells*numCells*(_3D_?numCells:1); i+=100){
+		std::cout<<"Spheres in cell "<<cellIndices[i]<<": "<<numSpheresInCell[cellIndices[i]]<<'\n';
+	}//*/
+	//thrust::copy(cellIndices.begin(), cellIndices.end(), cellIndices_);
+	EigenCalculator_Engine<dims,_3D_>::collideSpheresPerCell(true,cellIndices_);
 }
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::maxSphereCountChanged_subclass(int i){
-}
-
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::initSphere(int i){
-}
-
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::calcWallResistance(){
-}
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::calcBallResistance(){
-}
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::sumUpForces(){
-}
-
-
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::fpsChanged(scalar timeInterval){
-}
-
-
-template <int dims, bool _3D_>
-Sphere* ThrustCalculator<dims,_3D_>::getSphere(int i){
-}
-
-template <int dims, bool _3D_>
-Sphere* ThrustCalculator<dims,_3D_>::getDirectSphere(int i){
-}
-
-
-template <int dims, bool _3D_>
-scalar ThrustCalculator<dims,_3D_>::getTemperature(){
-}
-
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::boxSizeChanged(){
-}
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::gravityChanged(){
-}
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::updateG(){
-}
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::updateAirResistance(){
-}
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::updateWallResistance(){
-}
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::updateEModul(){
-}
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::updatePoisson(){
-}
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::updateElasticity(){
-}
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::updateGridSize(){
-}
-
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::loadConfig(){
-}
-
 
 
 template class ThrustCalculator<2,false>;

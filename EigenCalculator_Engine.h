@@ -9,7 +9,6 @@
 
 #include "Spheres.h"
 #include "Calculator.h"
-#include "EigenCalculator_QObject.h"
 #include "EigenCalculator_Collider.h"
 
 struct Pos {
@@ -17,7 +16,7 @@ struct Pos {
 };
 
 template <int dims, bool _3D_>
-class EigenCalculator_Engine: public EigenCalculator_QObject {
+class EigenCalculator_Engine: public Calculator {
 
 protected:
 		
@@ -80,11 +79,12 @@ protected:
 		return (b>=2 ? a*a*pow(a, b-2) : (b == 1 ? a : 1));
 	}
 	
-	char* numSpheresInCell;
+	int* numSpheresInCell;
 	int** spheresInCell;
 	void countSpheresPerCell();
-	void collideSpheresPerCell();
-	char* numCollsPerSphere;
+	virtual void collideSpheresPerCell();
+	void collideSpheresPerCell(bool numSpheresInCell_isSorted, int* cellIndices);
+	int* numCollsPerSphere;
 	int** collsPerSphere;
 	
 	EigenCalculator_Collider<dims,_3D_>* collider;

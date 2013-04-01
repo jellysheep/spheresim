@@ -19,7 +19,7 @@ uint32_t calcZOrder(uint16_t xPos, uint16_t yPos);
 
 
 template <int dims, bool _3D_>
-EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():EigenCalculator_QObject(){
+EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	omp_set_num_threads(1);
 	srand(2);
 	//srand(NanosecondTimer::getNS());
@@ -117,13 +117,13 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():EigenCalculator_QObj
 		bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 	}
 	
-	numSpheresInCell = new char[numCells*numCells*(_3D_?numCells:1)];
+	numSpheresInCell = new int[numCells*numCells*(_3D_?numCells:1)];
 	spheresInCell = new int*[numCells*numCells*(_3D_?numCells:1)];
 	for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
 		spheresInCell[i] = new int[maxNumSpheresInCell];
 	}
 	
-	numCollsPerSphere = new char[spheresCount];
+	numCollsPerSphere = new int[spheresCount];
 	collsPerSphere = new int*[spheresCount];
 	for(int i = 0; i<spheresCount; i++){
 		collsPerSphere[i] = new int[maxNumCollsPerSphere];
@@ -890,14 +890,25 @@ void EigenCalculator_Engine<dims,_3D_>::countSpheresPerCell(){
 
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::collideSpheresPerCell(){
+	collideSpheresPerCell(false, NULL);
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::collideSpheresPerCell(bool numSpheresInCell_isSorted, int* cellIndices){
 	bool tooManyColls = false;
-	parallelFor
-	for(int i = (numCells*numCells*(_3D_?numCells:1))-1; i>=0; i--){
+	int i;
+	//parallelFor
+	for(int x = (numCells*numCells*(_3D_?numCells:1))-1; x>=0; x--){
+		if(numSpheresInCell_isSorted) i = cellIndices[x];
+		else i = x;
 		//cycle through cell IDs
 		
 		//check collisions in cell:
 		int num = numSpheresInCell[i],c,c2,tmp;
-		if(num<2) continue;
+		if(num<2){
+			if(numSpheresInCell_isSorted) break;
+			continue;
+		}
 		bool cont; //continue
 		for(int id = 0, id2; id<num-1; id++){ //sphere id in cell
 			for(id2 = id+1; id2<num; id2++){

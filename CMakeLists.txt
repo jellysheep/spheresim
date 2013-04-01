@@ -64,7 +64,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(SphereSim_SOURCES main.cpp 	GLWidget.cpp	OpenClCalculator.cpp 	StatusViewer.cpp	Spheres.cpp	ExponentialSlider.cpp	ExponentialInput.cpp	Ui_Control.cpp	Calculator.cpp	EigenCalculator_Engine.cpp	ExceptionHandler.cpp	PlotWidget.cpp	Dialog.cpp	FileCalculator.cpp	EigenCalculator_Collider.cpp	ThrustCalculator.cpp)
-SET(SphereSim_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Spheres.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	Calculator.h	EigenCalculator_Engine.h	ExceptionHandler.h		PlotWidget.h	Dialog.h	FileCalculator.h	EigenCalculator_Collider.h		ThrustCalculator.h EigenCalculator_PairCollider.h NanosecondTimer.h FramesCounter.h EigenCalculator_QObject.h)
+SET(SphereSim_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Spheres.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	Calculator.h	EigenCalculator_Engine.h	ExceptionHandler.h		PlotWidget.h	Dialog.h	FileCalculator.h	EigenCalculator_Collider.h		ThrustCalculator.h EigenCalculator_PairCollider.h NanosecondTimer.h FramesCounter.h)
 QT5_WRAP_CPP(SphereSim_HEADERS_MOC ${SphereSim_HEADERS})
 
 SET(SphereSim_UI Calculations_Qt5.ui Rendering_Qt5.ui Dialog_Qt5.ui)

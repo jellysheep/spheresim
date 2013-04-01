@@ -8,14 +8,23 @@
 
 Dialog::Dialog(){
 	#if 1
-		if(use3D){
-			calc = new ThrustCalculator3D();
-		}else{
-			calc = new ThrustCalculator2D();
-		}
-		//calc = new FileCalculator();
-		//calc = new OpenClCalculator();
-		selected = true;
+		#if 0
+			if(use3D){
+				calc = new ThrustCalculator3D();
+			}else{
+				calc = new ThrustCalculator2D();
+			}
+			selected = true;
+		#else
+			if(use3D){
+				calc = new EigenCalculator_Engine<3,true>();
+			}else{
+				calc = new EigenCalculator_Engine<2,false>();
+			}
+			//calc = new FileCalculator();
+			//calc = new OpenClCalculator();
+			selected = true;
+		#endif
 	#else
 		selected = false;
 		dlg = new Ui::Dialog();
