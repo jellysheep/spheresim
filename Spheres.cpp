@@ -10,7 +10,7 @@ int spheresCount = 2000;
 int maxShowSpheresCount = 20000;
 bool manySpheres = (std::min(spheresCount,maxShowSpheresCount)>20);
 
-vector3 boxSize = (vector3){2,2,0.5};
+vector3 boxSize = (vector3){1.3,1.3,0.2};
 vector2 sphereSize = (vector2){0.015,0.015};
 
 bool autoSlowRender = false;
@@ -23,8 +23,8 @@ scalar timeInterval = speed*speedCorrection/fps;
 scalar max_speed = 0.5;
 scalar E = 3*0.05;//((200)/1000000.0)/2; //Silikonkautschuk
 scalar poisson = 0.5; //Gummi
-scalar elastic = 1;//0.93;//0.05;//0.9;//0.999;//0.9;
-scalar gravity_abs = 0;//9.81;
+scalar elastic = 0.8;//0.93;//0.05;//0.9;//0.999;//0.9;
+scalar gravity_abs = 9.81;
 vector gravity = (vector){0,-gravity_abs, 0};
 bool saveBool = false, renderBool = true, playBool = false;
 int edges = 2*(int)(std::max(4.0,4*log(sphereSize.s[1]/boxSize.s[0]*400)));
@@ -54,13 +54,13 @@ bool useSplitKernels = true;
 bool showGraph = true;
 int plotFps = 5;
 
-vector3 autoRotation = (vector3){0,0,0};
+vector3 autoRotation = (vector3){0,0,0.02};
 
 scalar calcSpeedFact;
 
 int maxCellsPerAxis = 100;
 //int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
-int rowsPerStep = 2, curveSteps = 9; //Z-Order, Hilbert-Kurve
+int rowsPerStep = 2, curveSteps = 5; //Z-Order, Hilbert-Kurve
 int maxNumSpheresInCell = 200;
 int maxNumCollsPerSphere = 200; //maximum number for a sphere to collide with other spheres
 

@@ -1,35 +1,25 @@
 
-#ifndef _EIGEN_CALCULATOR_COLLIDER_H_
-#define _EIGEN_CALCULATOR_COLLIDER_H_
+#ifndef _EIGEN_CALCULATOR_PAIR_COLLIDER_H_
+#define _EIGEN_CALCULATOR_PAIR_COLLIDER_H_
 
-#include "EigenCalculator_Collider.h"
-
-template <int dims, bool _3D_>
-class EigenCalculator_Engine<dims,_3D_>;
+#include "EigenCalculator_Force.h"
 
 template <int dims, bool _3D_>
-class EigenCalculator_PairCollider : public EigenCalculator_Collider{
+class EigenCalculator_Engine;
+
+#define P EigenCalculator_PairCollider<dims,_3D_>
+
+template <int dims, bool _3D_>
+class EigenCalculator_PairCollider : public virtual EigenCalculator_Force<dims,_3D_>{
 protected:
-	int count;
+	void collideBalls(int i, int j);
 	
 public:
-	template <int dims, bool _3D_>
-	EigenCalculator_PairCollider(EigenCalculator_Engine<dims,_3D_>* c):EigenCalculator_Collider(c){
+	EigenCalculator_PairCollider(EigenCalculator_Engine<dims,_3D_>* c):EigenCalculator_Force<dims,_3D_>(c){
 	}
 	
-	template <int dims, bool _3D_>
-	void calcCollisionForces(){
-		for(int i = 0; i<count-1; i++){
-			for(int j = i+1; j<count; j++){
-				collideBalls(i,j);
-			}
-		}
-	}
-	
-	virtual void spheresCountChanged(int spheresCount){
-		count = spheresCount;
-	}
+	virtual void calcForces();
 };
 
-#endif  /*_EIGEN_CALCULATOR_COLLIDER_H_*/
+#endif  /*_EIGEN_CALCULATOR_PAIR_COLLIDER_H_*/
 

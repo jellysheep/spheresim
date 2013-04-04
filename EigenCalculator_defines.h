@@ -6,6 +6,13 @@
 #include <Eigen/Dense>
 using namespace Eigen;
 
+#define parallelFor 
+//_Pragma("omp parallel for if(spheresCount>500)")
+
+struct Pos {
+	int posOfSphere, sphereAtPos;
+};
+
 #define useSSE 0
 
 #if useSSE
@@ -29,5 +36,24 @@ using namespace Eigen;
 		#define eVector Eigen::Matrix<scalar, dims, 1>
 	#endif*/
 #endif
+
+
+
+template <bool condition, typename Then, typename Else>
+struct IF
+{
+    typedef Then RET;
+};
+
+template <class Then, typename Else>
+struct IF<false, Then, Else>
+{
+    typedef Else RET;
+};
+
+template <typename T>
+T pow_int(T a, unsigned int b){
+	return (b==0 ? 1 : a*pow_int(a,b-1));
+}
 
 #endif

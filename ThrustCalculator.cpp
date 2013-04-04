@@ -123,10 +123,10 @@ ThrustCalculator<dims,_3D_>::ThrustCalculator():EigenCalculator_Engine<dims,_3D_
 	}
 	
 	
-	int numCells = EigenCalculator_Engine<dims,_3D_>::numCells;
-	spheresPerCell = thrust::device_vector<int>(numCells*numCells*(_3D_?numCells:1));
-	cellIndices_ = new int[numCells*numCells*(_3D_?numCells:1)];
-	cellIndices = thrust::device_vector<int>(cellIndices_, cellIndices_+numCells*numCells*(_3D_?numCells:1));
+	/*int numCells = EigenCalculator_Engine<dims,_3D_>::numCells;
+	spheresPerCell = thrust::device_vector<int>(numCells_);
+	cellIndices_ = new int[numCells_];
+	cellIndices = thrust::device_vector<int>(cellIndices_, cellIndices_+numCells_);*/
 	
 	
 	
@@ -144,22 +144,6 @@ struct NumGreaterOne {
 		return a>1 && b<=1;
 	}
 };
-
-
-template <int dims, bool _3D_>
-void ThrustCalculator<dims,_3D_>::collideSpheresPerCell(){
-	int numCells = EigenCalculator_Engine<dims,_3D_>::numCells;
-	int* numSpheresInCell = EigenCalculator_Engine<dims,_3D_>::numSpheresInCell;
-	thrust::sequence(cellIndices.begin(), cellIndices.end());
-	spheresPerCell = thrust::device_vector<int>(numSpheresInCell, numSpheresInCell+(numCells*numCells*(_3D_?numCells:1)));
-	thrust::sort_by_key(spheresPerCell.begin(), spheresPerCell.end(), cellIndices.begin(), NumGreaterOne());
-	/*
-	for(int i = 0; i<numCells*numCells*(_3D_?numCells:1); i+=100){
-		std::cout<<"Spheres in cell "<<cellIndices[i]<<": "<<numSpheresInCell[cellIndices[i]]<<'\n';
-	}//*/
-	//thrust::copy(cellIndices.begin(), cellIndices.end(), cellIndices_);
-	EigenCalculator_Engine<dims,_3D_>::collideSpheresPerCell(true,cellIndices_);
-}
 
 
 template class ThrustCalculator<2,false>;

@@ -11,18 +11,6 @@
 #include <thrust/host_vector.h>
 #include <cmath>
 
-template <bool condition, typename Then, typename Else>
-struct IF
-{
-    typedef Then RET;
-};
-
-template <class Then, typename Else>
-struct IF<false, Then, Else>
-{
-    typedef Else RET;
-};
-
 
 typedef thrust::tuple<float, float> Float2;
 typedef thrust::tuple<float, float, float> Float3;
@@ -86,7 +74,6 @@ protected:
 	
 	thrust::device_vector<int> spheresPerCell, cellIndices;
 	int* cellIndices_;
-	void collideSpheresPerCell();
 	
 public:
 	ThrustCalculator();

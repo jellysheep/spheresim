@@ -1,0 +1,278 @@
+
+
+#include "EigenCalculator_CellForce.h"
+#include <cmath>
+#include <iostream>
+#include <bitset>
+
+int calcZOrder(int xPos, int yPos);
+int calcZOrder(int xPos, int yPos, int zPos);
+
+//Hilbert-Kurve:
+//rotate/flip a quadrant appropriately
+void rot(int n, int *x, int *y, int rx, int ry) {
+    if (ry == 0) {
+        if (rx == 1) {
+            *x = n-1 - *x;
+            *y = n-1 - *y;
+        }
+ 
+        //Swap x and y
+        int t  = *x;
+        *x = *y;
+        *y = t;
+    }
+}
+//convert (x,y) to d
+int xy2d_Hilbert (int n, int x, int y) {
+    int rx, ry, s, d=0;
+    for (s=n/2; s>0; s/=2) {
+        rx = (x & s) > 0;
+        ry = (y & s) > 0;
+        d += s * s * ((3 * rx) ^ ry);
+        rot(s, &x, &y, rx, ry);
+    }
+    return d;
+}
+template <int dims, bool _3D_>
+void EigenCalculator_CellForce<dims,_3D_>::buildCurveIndices_Hilbert(){
+	for(int y = 0; y<C::numCellsPerAxis; y++){
+		for(int x = 0; x<C::numCellsPerAxis; x++){
+			if(_3D_){
+				for(int z = 0; z<C::numCellsPerAxis; z++){
+					curveIndices[x+C::numCellsPerAxis*y + C::numCellsPerAxis*C::numCellsPerAxis*z] = xy2d_Hilbert(C::numCellsPerAxis, x, y) + C::numCellsPerAxis*C::numCellsPerAxis*z;
+				}
+			}else{
+				curveIndices[x+C::numCellsPerAxis*y] = xy2d_Hilbert(C::numCellsPerAxis, x, y);
+			}
+		}
+	}
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_CellForce<dims,_3D_>::buildCurveIndices_RowColumn(){
+	for(int y = 0; y<C::numCellsPerAxis; y++){
+		for(int x = 0; x<C::numCellsPerAxis; x++){
+			if(_3D_){
+				for(int z = 0; z<C::numCellsPerAxis; z++){
+					curveIndices[x+C::numCellsPerAxis*y + C::numCellsPerAxis*C::numCellsPerAxis*z] = x+C::numCellsPerAxis*y + C::numCellsPerAxis*C::numCellsPerAxis*z;
+				}
+			}else{
+				curveIndices[x+C::numCellsPerAxis*y] = x+C::numCellsPerAxis*y;
+			}
+		}
+	}
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_CellForce<dims,_3D_>::buildCurveIndices_zOrder(){
+	for(int y = 0; y<C::numCellsPerAxis; y++){
+		for(int x = 0; x<C::numCellsPerAxis; x++){
+			if(_3D_){
+				for(int z = 0; z<C::numCellsPerAxis; z++){
+					curveIndices[x+C::numCellsPerAxis*y + C::numCellsPerAxis*C::numCellsPerAxis*z] = calcZOrder(x,y,z);
+					//curveIndices[x+C::numCellsPerAxis*y + C::numCellsPerAxis*C::numCellsPerAxis*z] = calcZOrder(x,y) + C::numCellsPerAxis*C::numCellsPerAxis*z;
+				}
+			}else{
+				curveIndices[x+C::numCellsPerAxis*y] = calcZOrder(x,y);
+			}
+		}
+	}
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_CellForce<dims,_3D_>::buildCurveIndices_Peano(){
+	indexCounter = 0;
+	buildPeanoCurve(0, 0, 0, 0, 0);
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_CellForce<dims,_3D_>::buildPeanoCurve(int x, int y, int z, int step, int direction){
+	// direction: 
+	// 0 = /^
+	// 1 = ^\ 
+	
+	if(step == curveSteps){
+		//highest recursion depth
+		curveIndices[x+C::numCellsPerAxis*y+C::numCellsPerAxis*C::numCellsPerAxis*z] = indexCounter++;
+	}else{
+		x *= 3;
+		y *= 3;
+		z *= 3;
+		step++;
+		if(_3D_){
+			///TODO
+		}else{
+			if(direction == 0){
+				buildPeanoCurve(x+0, y+0, z, step, 0+direction);
+				buildPeanoCurve(x+0, y+1, z, step, 1-direction);
+				buildPeanoCurve(x+0, y+2, z, step, 0+direction);
+				buildPeanoCurve(x+1, y+2, z, step, 1-direction);
+				buildPeanoCurve(x+1, y+1, z, step, 0+direction);
+				buildPeanoCurve(x+1, y+0, z, step, 1-direction);
+				buildPeanoCurve(x+2, y+0, z, step, 0+direction);
+				buildPeanoCurve(x+2, y+1, z, step, 1-direction);
+				buildPeanoCurve(x+2, y+2, z, step, 0+direction);
+			}else if(direction == 1){
+				buildPeanoCurve(x+2, y+0, z, step, 0+direction);
+				buildPeanoCurve(x+2, y+1, z, step, 1-direction);
+				buildPeanoCurve(x+2, y+2, z, step, 0+direction);
+				buildPeanoCurve(x+1, y+2, z, step, 1-direction);
+				buildPeanoCurve(x+1, y+1, z, step, 0+direction);
+				buildPeanoCurve(x+1, y+0, z, step, 1-direction);
+				buildPeanoCurve(x+0, y+0, z, step, 0+direction);
+				buildPeanoCurve(x+0, y+1, z, step, 1-direction);
+				buildPeanoCurve(x+0, y+2, z, step, 0+direction);
+			}
+		}
+	}
+}
+
+
+
+int calcZOrder(int xPos, int yPos)
+{
+    static const int MASKS[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF};
+    static const int SHIFTS[] = {1, 2, 4, 8};
+
+    int x = xPos;  // Interleave lower 16 bits of x and y, so the bits of x
+    int y = yPos;  // are in the even positions and bits from y in the odd;
+
+    x = (x | (x << SHIFTS[3])) & MASKS[3];
+    x = (x | (x << SHIFTS[2])) & MASKS[2];
+    x = (x | (x << SHIFTS[1])) & MASKS[1];
+    x = (x | (x << SHIFTS[0])) & MASKS[0];
+
+    y = (y | (y << SHIFTS[3])) & MASKS[3];
+    y = (y | (y << SHIFTS[2])) & MASKS[2];
+    y = (y | (y << SHIFTS[1])) & MASKS[1];
+    y = (y | (y << SHIFTS[0])) & MASKS[0];
+
+    const int result = x | (y << 1);
+    return result;
+}
+
+int calcZOrder(int xPos, int yPos, int zPos)
+{
+	static const int sizeMask = 0b1111111111; //max. 10 bit per int => 30 bit result
+    static const int MASKS[] = {0x49249249, 0xC30C30C3, 0x0F00F00F, 0xFF0000FF};
+    static const int SHIFTS[] = {2, 4, 8, 16};
+
+    int x = xPos & sizeMask;
+    int y = yPos & sizeMask;
+    int z = zPos & sizeMask;
+
+    x = (x | (x << SHIFTS[3])) & MASKS[3];
+    x = (x | (x << SHIFTS[2])) & MASKS[2];
+    x = (x | (x << SHIFTS[1])) & MASKS[1];
+    x = (x | (x << SHIFTS[0])) & MASKS[0];
+
+    y = (y | (y << SHIFTS[3])) & MASKS[3];
+    y = (y | (y << SHIFTS[2])) & MASKS[2];
+    y = (y | (y << SHIFTS[1])) & MASKS[1];
+    y = (y | (y << SHIFTS[0])) & MASKS[0];
+
+    z = (z | (z << SHIFTS[3])) & MASKS[3];
+    z = (z | (z << SHIFTS[2])) & MASKS[2];
+    z = (z | (z << SHIFTS[1])) & MASKS[1];
+    z = (z | (z << SHIFTS[0])) & MASKS[0];
+
+    const int result = x | (y << 1) | (z << 2);
+    return result;
+}
+
+template <int dims, bool _3D_>
+int EigenCalculator_CellForce<dims,_3D_>::calcCellID(int x, int y, int z){
+	x = std::min(C::numCellsPerAxis-1, x);
+	y = std::min(C::numCellsPerAxis-1, y);
+	z = std::min(C::numCellsPerAxis-1, z);
+	x = std::max(0, x);
+	y = std::max(0, y);
+	z = std::max(0, z);
+	
+	return curveIndices[x+C::numCellsPerAxis*y+(_3D_?C::numCellsPerAxis*C::numCellsPerAxis*z:0)];
+	//int id = curveIndices[x+C::numCellsPerAxis*y+(_3D_?C::numCellsPerAxis*C::numCellsPerAxis*z:0)];
+	//printf("x: %3d y: %3d z: %3d id: %3d \n", x, y, z, id);
+	//return id;
+	
+	//return x + C::numCellsPerAxis*y + C::numCellsPerAxis*C::numCellsPerAxis*z;
+	//return calcZOrder(x,y) + C::numCellsPerAxis*C::numCellsPerAxis*z;
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_CellForce<dims,_3D_>::updateGridSize(){
+	gridWidth = std::max(2*sphereSize.s1, std::max(boxSize.s0, std::max(boxSize.s1, boxSize.s2))/numCellsPerAxis);
+	printf("gridWidth: %5f \n", gridWidth);
+	if(_3D_){
+		gridSteps = (int)(std::max(boxSize.s0, std::max(boxSize.s1, boxSize.s2))/gridWidth);
+	}else{
+		gridSteps = (int)(std::max(boxSize.s0, boxSize.s1)/gridWidth);
+	}
+	printf("Grid steps: %5d\n", gridSteps);
+}
+
+
+template <int dims, bool _3D_>
+void EigenCalculator_CellForce<dims,_3D_>::buildCurveIndices(){
+	//buildCurveIndices_RowColumn();
+	buildCurveIndices_zOrder();
+	//buildCurveIndices_Peano();
+	//buildCurveIndices_Hilbert();
+}
+
+
+template <int dims, bool _3D_>
+EigenCalculator_CellForce<dims,_3D_>::EigenCalculator_CellForce(EigenCalculator_Engine<dims,_3D_>* c):EigenCalculator_Force<dims,_3D_>(c){
+	numCellsPerAxis = std::min(pow_int(rowsPerStep, curveSteps), maxCellsPerAxis);
+	numCells_ = numCellsPerAxis*numCellsPerAxis*(_3D_?numCellsPerAxis:1);
+	updateGridSize();
+	gridIndex = new int*[spheresCount];
+	
+	
+	curveIndices = new int[C::numCells_];
+	buildCurveIndices();
+	/*
+	for(int y = C::numCellsPerAxis-1; y>=0; y--){
+		for(int x = 0; x<C::numCellsPerAxis; x++){
+			printf("%3d ", curveIndices[x+C::numCellsPerAxis*y]);
+		}
+		printf("\n");
+	}//*/
+	
+	/// z-Order 3D-Test:
+	int x = 0, y = 0, z = 0;
+	std::cout<<"x: "<<std::bitset<32>(x)<<" y: "<<std::bitset<32>(y)<<" z: "<<std::bitset<32>(z)<<'\n';
+	std::cout<<"$: "<<std::bitset<32>(calcZOrder(x,y,z))<<'\n';
+	x = 0b1111111111111, y = 0, z = 0;
+	std::cout<<"x: "<<std::bitset<32>(x)<<" y: "<<std::bitset<32>(y)<<" z: "<<std::bitset<32>(z)<<'\n';
+	std::cout<<"$: "<<std::bitset<32>(calcZOrder(x,y,z))<<'\n';
+	x = 0, y = 0b1111111111111, z = 0;
+	std::cout<<"x: "<<std::bitset<32>(x)<<" y: "<<std::bitset<32>(y)<<" z: "<<std::bitset<32>(z)<<'\n';
+	std::cout<<"$: "<<std::bitset<32>(calcZOrder(x,y,z))<<'\n';
+	x = 0, y = 0, z = 0b1111111111111;
+	std::cout<<"x: "<<std::bitset<32>(x)<<" y: "<<std::bitset<32>(y)<<" z: "<<std::bitset<32>(z)<<'\n';
+	std::cout<<"$: "<<std::bitset<32>(calcZOrder(x,y,z))<<'\n';
+	x = 0b1111111111111, y = 0b1111111111111, z = 0b1111111111111;
+	std::cout<<"x: "<<std::bitset<32>(x)<<" y: "<<std::bitset<32>(y)<<" z: "<<std::bitset<32>(z)<<'\n';
+	std::cout<<"$: "<<std::bitset<32>(calcZOrder(x,y,z))<<'\n';
+	
+	///cellSorting
+	
+	firstSphereInCell = new int[numCells_];
+	memset(firstSphereInCell, 0, numCells_);
+	posCell = new Pos[spheresCount];
+	cellOfSphere = new int[spheresCount];
+
+	///cellSorting
+	for(int i = 0; i<spheresCount; i++){
+		posCell[i].sphereAtPos = i;
+		posCell[i].posOfSphere = i;
+		
+		gridIndex[i] = new int[dims];
+
+	}
+}
+
+
+template class EigenCalculator_CellForce<2,false>;
+template class EigenCalculator_CellForce<3,true>;

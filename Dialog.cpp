@@ -6,6 +6,8 @@
 #include "ThrustCalculator.h"
 #include "FileCalculator.h"
 
+#include "Spheres.h"
+
 Dialog::Dialog(){
 	#if 1
 		#if 0
