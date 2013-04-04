@@ -56,8 +56,8 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	//addForce<EigenCalculator_PairCollider<dims,_3D_> >();
 	//addForce<EigenCalculator_EfficientPairCollider<dims,_3D_> >();
 	//addForce<EigenCalculator_StripeCollider<dims,_3D_> >();
-	addForce<EigenCalculator_CellSortCollider<dims,_3D_> >();
-	//addForce<EigenCalculator_CellCountCollider<dims,_3D_> >();
+	//addForce<EigenCalculator_CellSortCollider<dims,_3D_> >();
+	addForce<EigenCalculator_CellCountCollider<dims,_3D_> >();
 	
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){

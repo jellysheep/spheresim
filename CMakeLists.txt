@@ -70,6 +70,11 @@ QT5_WRAP_CPP(SphereSim_HEADERS_MOC ${SphereSim_HEADERS})
 SET(SphereSim_UI Calculations_Qt5.ui Rendering_Qt5.ui Dialog_Qt5.ui)
 QT5_WRAP_UI(SphereSim_HEADERS_UI ${SphereSim_UI})
 
+FIND_PACKAGE(Qt5LinguistTools)
+SET(ts_files "./translate_de_DE.ts")
+QT5_CREATE_TRANSLATION(qm_files "./" ${SphereSim_HEADERS_UI} ${SphereSim_HEADERS} ${ts_files})
+#QT5_ADD_TRANSLATION(qm_files ${ts_files})
+
 #INCLUDE(${QT_USE_FILE})
 #ADD_DEFINITIONS(${QT_DEFINITIONS})
 
@@ -77,7 +82,7 @@ QT5_WRAP_UI(SphereSim_HEADERS_UI ${SphereSim_UI})
 #message("QT_LIBRARIES: ${QT_LIBRARIES}\n")
 #message("QT_DEBUG_LIBRARIES: ${QT_DEBUG_LIBRARIES}\n")
 
-ADD_EXECUTABLE(SphereSim ${SphereSim_SOURCES} ${SphereSim_HEADERS_MOC} ${SphereSim_HEADERS_UI})
+ADD_EXECUTABLE(SphereSim ${SphereSim_SOURCES} ${SphereSim_HEADERS_MOC} ${SphereSim_HEADERS_UI} ${qm_files})
 
 TARGET_LINK_LIBRARIES(SphereSim ${OPENGL_LIBRARIES} ${cllib} ${OPENCL_LIBRARIES} qwt gomp)
 
