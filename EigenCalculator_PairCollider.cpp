@@ -9,35 +9,18 @@ void EigenCalculator_PairCollider<dims,_3D_>::collideBalls(int i, int j){
 	
 	//d_pos.s2 = 0;
 	scalar d = d_pos.norm();
-	d = std::max(d,(scalar)0.00005f);
-	
-	eVector d_n, force;
-	
-	#if _G_
-	if(G_fact!=0)
-	{
-		d_n = d_pos/d;
-		// bzw. normalize(d_pos);
-		// Gravitation:
-		force = G*G_fact*F::spheres[i].mass*F::spheres[j].mass/pow(max(d,(scalar)F::spheres[i].size/10),2) *d_n;
-		F::spheresForce[i] += force;
-		
-		F::spheresForce[j] -= force;
-	}
-	#endif
 	
 	// Abstossung:
 	if (d < both_r_) {
+		
+		d = std::max(d,(scalar)0.00005f);
+		
+		eVector d_n, force;
+		
 		//printf("Spheres %d and %d are colliding!\n", i, j);
 		scalar d_, R, _E_;
-		//*
-		//#if _G_==0
-		if(G_fact == 0)
-		{
-			d_n = d_pos/d; // bzw. normalize(d_pos);
-		}
-		//#endif
-		// */
+		d_n = d_pos/d; // bzw. normalize(d_pos);
+		
 		// nach Kontaktmechanik mit Poisson-Zahlen:
 		d_ = both_r_ - d;
 		//*

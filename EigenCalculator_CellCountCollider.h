@@ -5,6 +5,7 @@
 #include "EigenCalculator_Force.h"
 #include "EigenCalculator_CellForce.h"
 #include "EigenCalculator_PairCollider.h"
+#include "EigenCalculator_CellGravitation.h"
 
 template <int dims, bool _3D_>
 class EigenCalculator_Engine;
@@ -13,6 +14,9 @@ template <int dims, bool _3D_>
 class EigenCalculator_CellCountCollider : 
 	protected EigenCalculator_CellForce<dims,_3D_>,
 	public EigenCalculator_PairCollider<dims,_3D_>{
+	
+	friend class EigenCalculator_CellGravitation<dims,_3D_>;
+	
 protected:
 	
 	int* numSpheresInCell;

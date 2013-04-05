@@ -48,6 +48,11 @@ public:
 			gridIndex[i][1] = F::spheresPos[i](1)/gridWidth;
 			if(_3D_){
 				gridIndex[i][2] = F::spheresPos[i](2)/gridWidth;
+				//calculate cell ID
+				C::cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1], C::gridIndex[i][2]);
+			}else{
+				//calculate cell ID
+				C::cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1]);
 			}
 		}
 	};

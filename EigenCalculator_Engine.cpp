@@ -8,6 +8,9 @@
 #include "EigenCalculator_CellSortCollider.h"
 #include "EigenCalculator_CellCountCollider.h"
 
+#include "EigenCalculator_PairGravitation.h"
+#include "EigenCalculator_CellGravitation.h"
+
 #include <iostream>
 using namespace std;
 
@@ -24,6 +27,13 @@ template<class Force>
 void EigenCalculator_Engine<dims,_3D_>::addForce(){
 	if(numForces<maxNumForces){
 		forces[numForces++] = new Force(this);
+	}
+}
+
+template<int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::addForce(EigenCalculator_Force<dims,_3D_>* force){
+	if(numForces<maxNumForces){
+		forces[numForces++] = force;
 	}
 }
 
@@ -53,11 +63,17 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	maxNumForces = 10;
 	forces = new EigenCalculator_Force<dims,_3D_>*[maxNumForces];
 	numForces = 0;
-	//addForce<EigenCalculator_PairCollider<dims,_3D_> >();
-	//addForce<EigenCalculator_EfficientPairCollider<dims,_3D_> >();
-	//addForce<EigenCalculator_StripeCollider<dims,_3D_> >();
-	//addForce<EigenCalculator_CellSortCollider<dims,_3D_> >();
-	addForce<EigenCalculator_CellCountCollider<dims,_3D_> >();
+	
+	//addForce(new EigenCalculator_PairCollider<dims,_3D_>(this));
+	//addForce(new EigenCalculator_EfficientPairCollider<dims,_3D_>(this));
+	//addForce(new EigenCalculator_StripeCollider<dims,_3D_>(this));
+	//addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
+	EigenCalculator_CellCountCollider<dims,_3D_>* cellCountCollider = 
+		new EigenCalculator_CellCountCollider<dims,_3D_>(this);
+	addForce(cellCountCollider);
+	
+	//addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
+	addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this, cellCountCollider));
 	
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){

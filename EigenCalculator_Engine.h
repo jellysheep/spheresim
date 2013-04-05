@@ -57,6 +57,8 @@ protected:
 	
 	template<class Force>
 	void addForce();
+	
+	void addForce(EigenCalculator_Force<dims,_3D_>* force);
 
 public:
 	EigenCalculator_Engine();

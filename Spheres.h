@@ -135,6 +135,7 @@ extern scalar G;
 extern scalar G_fact;
 extern scalar airResistance;
 extern bool wallResistance;
+extern bool ballResistance;
 
 extern bool useColorsBool;
 extern bool useColorHSV;

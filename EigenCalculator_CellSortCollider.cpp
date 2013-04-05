@@ -4,18 +4,6 @@
 
 template <int dims, bool _3D_>
 void EigenCalculator_CellSortCollider<dims,_3D_>::sortSpheresByCells(){
-	if(_3D_){
-		for(int i = 0; i<spheresCount; i++){
-			//calculate cell ID
-			C::cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1], C::gridIndex[i][2]);
-		}
-	}else{
-		for(int i = 0; i<spheresCount; i++){
-			//calculate cell ID
-			C::cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1]);
-			//printf
-		}
-	}
 	
 	int temp;
 	int j, cid; //sphere ID
