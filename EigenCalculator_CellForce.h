@@ -24,6 +24,9 @@ protected:
 	void buildCurveIndices_Peano();
 	void buildCurveIndices_Hilbert();
 	void buildPeanoCurve(int x, int y, int z, int step, int direction);
+
+	int calcZOrder(int xPos, int yPos);
+	int calcZOrder(int xPos, int yPos, int zPos);
 	
 	int calcCellID(int x, int y, int z=0);
 	
@@ -38,7 +41,7 @@ protected:
 	void updateGridSize();
 	
 public:
-	EigenCalculator_CellForce(EigenCalculator_Engine<dims,_3D_>* c);
+	EigenCalculator_CellForce(EigenCalculator_Engine<dims,_3D_>* c, bool buildCurve=true);
 	
 	virtual void calcForces(){
 		F::calc->setGridWith(gridWidth);
@@ -48,11 +51,6 @@ public:
 			gridIndex[i][1] = F::spheresPos[i](1)/gridWidth;
 			if(_3D_){
 				gridIndex[i][2] = F::spheresPos[i](2)/gridWidth;
-				//calculate cell ID
-				C::cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1], C::gridIndex[i][2]);
-			}else{
-				//calculate cell ID
-				C::cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1]);
 			}
 		}
 	};

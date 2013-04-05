@@ -8,7 +8,7 @@ template <int dims, bool _3D_>
 class EigenCalculator_Engine;
 
 template <int dims, bool _3D_>
-class EigenCalculator_PairGravitation : public virtual EigenCalculator_Force<dims,_3D_>{
+class EigenCalculator_PairGravitation : public EigenCalculator_Force<dims,_3D_>{
 protected:
 	void calcGravitation(int i, int j);
 	

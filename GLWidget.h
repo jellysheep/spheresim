@@ -7,8 +7,6 @@
 #include "Calculator.h"
 #include "Spheres.h"
 
-#include <CL/cl.hpp>
-
 class Calculator;
 
 struct ViewOptions {

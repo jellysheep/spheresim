@@ -68,12 +68,10 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	//addForce(new EigenCalculator_EfficientPairCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_StripeCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
-	EigenCalculator_CellCountCollider<dims,_3D_>* cellCountCollider = 
-		new EigenCalculator_CellCountCollider<dims,_3D_>(this);
-	addForce(cellCountCollider);
+	addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
 	
 	//addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
-	addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this, cellCountCollider));
+	addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
 	
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){
@@ -404,7 +402,7 @@ Sphere* EigenCalculator_Engine<dims,_3D_>::getDirectSphere(int i){
 template <int dims, bool _3D_>
 Sphere* EigenCalculator_Engine<dims,_3D_>::getSphere(int i){
 	if(renderBuffer[bufferReadIndex][i]==eVector::Zero()) return NULL;
-	#if 0
+	#if 1
 		//"live" view
 		spheres[i].pos.s0 = spheresPos[i](0);
 		spheres[i].pos.s1 = spheresPos[i](1);
@@ -722,6 +720,12 @@ void EigenCalculator_Engine<dims,_3D_>::paintGL(bool b){
 	glDisable(GL_DEPTH_TEST);
 	glLineWidth(0.5);
 	
+	
+	for(int i = 0; i<numForces; i++){
+		forces[i]->paintGL();
+	}
+	
+	return;
 	for(double x = 0; x < boxSize.s0; x+=gridWidth){
 		for(double y = 0; y < boxSize.s1; y+=gridWidth){
 			glBegin(GL_LINE_STRIP);

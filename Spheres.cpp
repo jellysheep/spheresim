@@ -6,12 +6,12 @@
 bool use3D = true;
 bool fastRender = true;
 
-int spheresCount = 1000;
+int spheresCount = 400;
 int maxShowSpheresCount = 20000;
 bool manySpheres = (std::min(spheresCount,maxShowSpheresCount)>20);
 
-vector3 boxSize = (vector3){3,3,3};
-vector2 sphereSize = (vector2){0.035,0.035};
+vector3 boxSize = (vector3){10,10,3};
+vector2 sphereSize = (vector2){0.015,0.015};
 
 bool autoSlowRender = false;
 int renderFpsMax = (autoSlowRender?(int)(45.0*pow(1/3.0, spheresCount/1000.0)+15):60);
@@ -61,7 +61,7 @@ scalar calcSpeedFact;
 
 int maxCellsPerAxis = 100;
 //int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
-int rowsPerStep = 2, curveSteps = 5; //Z-Order, Hilbert-Kurve
+int rowsPerStep = 2, curveSteps = 3; //Z-Order, Hilbert-Kurve
 int maxNumSpheresInCell = 500;
 int maxNumCollsPerSphere = 500; //maximum number for a sphere to collide with other spheres
 

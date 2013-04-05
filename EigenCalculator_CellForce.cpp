@@ -5,9 +5,6 @@
 #include <iostream>
 #include <bitset>
 
-int calcZOrder(int xPos, int yPos);
-int calcZOrder(int xPos, int yPos, int zPos);
-
 //Hilbert-Kurve:
 //rotate/flip a quadrant appropriately
 void rot(int n, int *x, int *y, int rx, int ry) {
@@ -130,7 +127,8 @@ void EigenCalculator_CellForce<dims,_3D_>::buildPeanoCurve(int x, int y, int z, 
 
 
 
-int calcZOrder(int xPos, int yPos)
+template <int dims, bool _3D_>
+int EigenCalculator_CellForce<dims,_3D_>::calcZOrder(int xPos, int yPos)
 {
     static const int MASKS[] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF};
     static const int SHIFTS[] = {1, 2, 4, 8};
@@ -152,7 +150,8 @@ int calcZOrder(int xPos, int yPos)
     return result;
 }
 
-int calcZOrder(int xPos, int yPos, int zPos)
+template <int dims, bool _3D_>
+int EigenCalculator_CellForce<dims,_3D_>::calcZOrder(int xPos, int yPos, int zPos)
 {
 	static const int sizeMask = 0b1111111111; //max. 10 bit per int => 30 bit result
     static const int MASKS[] = {0x49249249, 0xC30C30C3, 0x0F00F00F, 0xFF0000FF};
@@ -201,7 +200,14 @@ int EigenCalculator_CellForce<dims,_3D_>::calcCellID(int x, int y, int z){
 
 template <int dims, bool _3D_>
 void EigenCalculator_CellForce<dims,_3D_>::updateGridSize(){
-	gridWidth = std::max(2*sphereSize.s1, std::max(boxSize.s0, std::max(boxSize.s1, boxSize.s2))/numCellsPerAxis);
+	scalar gridWidth_;
+	if(_3D_){
+		gridWidth_ = std::max(boxSize.s0, std::max(boxSize.s1, boxSize.s2))/numCellsPerAxis;
+	}else{
+		gridWidth_ = std::max(boxSize.s0, boxSize.s1)/numCellsPerAxis;
+	}
+	//gridWidth_ = std::max(sphereSize.s1, gridWidth_);
+	gridWidth = gridWidth_;
 	printf("gridWidth: %5f \n", gridWidth);
 	if(_3D_){
 		gridSteps = (int)(std::max(boxSize.s0, std::max(boxSize.s1, boxSize.s2))/gridWidth);
@@ -222,7 +228,7 @@ void EigenCalculator_CellForce<dims,_3D_>::buildCurveIndices(){
 
 
 template <int dims, bool _3D_>
-EigenCalculator_CellForce<dims,_3D_>::EigenCalculator_CellForce(EigenCalculator_Engine<dims,_3D_>* c):EigenCalculator_Force<dims,_3D_>(c){
+EigenCalculator_CellForce<dims,_3D_>::EigenCalculator_CellForce(EigenCalculator_Engine<dims,_3D_>* c, bool buildCurve):EigenCalculator_Force<dims,_3D_>(c){
 	numCellsPerAxis = std::min(pow_int(rowsPerStep, curveSteps), maxCellsPerAxis);
 	numCells_ = numCellsPerAxis*numCellsPerAxis*(_3D_?numCellsPerAxis:1);
 	updateGridSize();
@@ -230,7 +236,9 @@ EigenCalculator_CellForce<dims,_3D_>::EigenCalculator_CellForce(EigenCalculator_
 	
 	
 	curveIndices = new int[C::numCells_];
-	buildCurveIndices();
+	if(buildCurve){
+		buildCurveIndices();
+	}
 	/*
 	for(int y = C::numCellsPerAxis-1; y>=0; y--){
 		for(int x = 0; x<C::numCellsPerAxis; x++){
@@ -239,6 +247,7 @@ EigenCalculator_CellForce<dims,_3D_>::EigenCalculator_CellForce(EigenCalculator_
 		printf("\n");
 	}//*/
 	
+	/*
 	/// z-Order 3D-Test:
 	int x = 0, y = 0, z = 0;
 	std::cout<<"x: "<<std::bitset<32>(x)<<" y: "<<std::bitset<32>(y)<<" z: "<<std::bitset<32>(z)<<'\n';
@@ -255,6 +264,7 @@ EigenCalculator_CellForce<dims,_3D_>::EigenCalculator_CellForce(EigenCalculator_
 	x = 0b1111111111111, y = 0b1111111111111, z = 0b1111111111111;
 	std::cout<<"x: "<<std::bitset<32>(x)<<" y: "<<std::bitset<32>(y)<<" z: "<<std::bitset<32>(z)<<'\n';
 	std::cout<<"$: "<<std::bitset<32>(calcZOrder(x,y,z))<<'\n';
+	//*/
 	
 	///cellSorting
 	

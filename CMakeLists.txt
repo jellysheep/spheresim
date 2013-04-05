@@ -72,7 +72,7 @@ QT5_WRAP_UI(SphereSim_HEADERS_UI ${SphereSim_UI})
 
 FIND_PACKAGE(Qt5LinguistTools)
 SET(ts_files "./translate_de_DE.ts")
-QT5_CREATE_TRANSLATION(qm_files "./" ${SphereSim_HEADERS_UI} ${SphereSim_HEADERS} ${ts_files})
+#~ QT5_CREATE_TRANSLATION(qm_files "./" ${SphereSim_HEADERS_UI} ${SphereSim_HEADERS} ${ts_files})
 #QT5_ADD_TRANSLATION(qm_files ${ts_files})
 
 #INCLUDE(${QT_USE_FILE})

@@ -35,7 +35,9 @@ public:
 		_E = calc->_E;
 	}
 	
-	virtual void spheresCountChanged(int spheresCount){};
+	virtual void spheresCountChanged(int spheresCount){}
+	
+	virtual void paintGL(){}
 };
 
 #endif  /*_EIGEN_CALCULATOR_FORCE_H_*/
