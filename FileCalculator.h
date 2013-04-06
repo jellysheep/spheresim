@@ -56,6 +56,7 @@ public slots:
 	void updateElasticity();
 	void updateGridSize();
 	void loadConfig();
+	void updateMagnitude();
 };
 
 #endif  /* _FILE_CALCULATOR_H_ */

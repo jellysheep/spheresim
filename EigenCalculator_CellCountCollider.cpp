@@ -62,9 +62,10 @@ void EigenCalculator_CellCountCollider<dims,_3D_>::countSpheresPerCell(){
 
 template <int dims, bool _3D_>
 void EigenCalculator_CellCountCollider<dims,_3D_>::calcForces(){
+	if(!ballResistance) return;
 	C::calcForces();
 	countSpheresPerCell();
-	if(ballResistance) collideSpheresPerCell(false, NULL);
+	collideSpheresPerCell(false, NULL);
 }
 
 template <int dims, bool _3D_>

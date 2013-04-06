@@ -163,6 +163,8 @@ extern int rowsPerStep, curveSteps;
 extern int maxNumSpheresInCell;
 extern int maxNumCollsPerSphere;
 
+extern int magnitude;
+
 //#define min(a,b) (((a)<(b))?(a):(b))
 
 
@@ -189,5 +191,23 @@ T* newCopy(T* oOld, int iOld, int iNew){
 
 extern const char* getViewFileExtension();
 extern const char* getConfigFileExtension();
+
+struct Unit{
+	scalar size;
+	const char* name;
+};
+
+namespace unit{
+	extern Unit pm;
+	extern Unit Ang;
+	extern Unit m;
+	extern Unit km;
+	extern Unit Mkm;
+	extern Unit Gkm;
+	extern Unit ly;
+}
+
+extern Unit unitOfMagnitude[2];
+extern Unit curUnit;
 
 #endif

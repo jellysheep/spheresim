@@ -159,6 +159,8 @@ public slots:
 	void saveConfig();
 	
 	virtual void loadConfig() = 0;
+	
+	virtual void updateMagnitude()=0;
 };
 
 #endif

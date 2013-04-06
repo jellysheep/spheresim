@@ -85,6 +85,8 @@ public:
 	void loadConfig();
 	
 	void setGridWith(scalar s);
+	
+	void updateMagnitude();
 };
 
 #endif  /* _EIGEN_CALCULATOR_ENGINE_H_ */

@@ -9,6 +9,7 @@
 
 template <int dims, bool _3D_>
 void EigenCalculator_EfficientPairCollider<dims,_3D_>::calcForces(){
+	if(!ballResistance) return;
 	C::calcForces();
 	
 	parallelFor

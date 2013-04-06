@@ -89,6 +89,7 @@ public slots:
 	void updateElasticity();
 	void updateGridSize();
 	void loadConfig();
+	void updateMagnitude();
 };
 
 extern void start(OpenClCalculator* clTimer);

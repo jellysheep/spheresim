@@ -4,6 +4,8 @@
 #include "EigenCalculator_CellForce.h"
 #include <GL/glu.h>
 
+//Implementation of the Barnes-Hut simulation
+
 template <int dims, bool _3D_>
 EigenCalculator_CellGravitation<dims,_3D_>::EigenCalculator_CellGravitation(
 	EigenCalculator_Engine<dims,_3D_>* c):F(c),C(c,false){
@@ -299,7 +301,9 @@ void EigenCalculator_CellGravitation<dims,_3D_>::paintCell(int i){
 template <int dims, bool _3D_>
 void EigenCalculator_CellGravitation<dims,_3D_>::paintGL(){
 	
-	glScalef(boxSize.s0, boxSize.s1, boxSize.s2);
+	glPushMatrix();
+	
+	glScalef(curUnit.size*boxSize.s0, curUnit.size*boxSize.s1, curUnit.size*boxSize.s2);
 	int sid = 0;
 	int cid = C::cellOfSphere[sid];
 	cid = std::min(cid, C::numCells_-1);
@@ -322,6 +326,8 @@ void EigenCalculator_CellGravitation<dims,_3D_>::paintGL(){
 		paintCell(approximatingCells[cid][i]);
 	}
 	//printf("Cell pos. of sphere %4d is: %3d %3d %3d\n", sid, C::gridIndex[sid][0], C::gridIndex[sid][1], (_3D_?C::gridIndex[sid][2]:0));
+	
+	glPopMatrix();
 }
 
 template class EigenCalculator_CellGravitation<2,false>;

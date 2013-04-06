@@ -44,7 +44,7 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	srand(2);
 	//srand(NanosecondTimer::getNS());
 	
-	_E = E*1000000.0;
+	_E = curUnit.size*curUnit.size*E*1000000.0;
 		
 	bool eVectorizing = false;
 	#ifdef EIGEN_VECTORIZE
@@ -68,10 +68,10 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	//addForce(new EigenCalculator_EfficientPairCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_StripeCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
-	addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
+	//addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
 	
-	//addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
-	addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
+	addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
+	//addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
 	
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){
@@ -103,24 +103,24 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 		bufferWriteIndex = ((bufferWriteIndex+1)%renderBufferCount);
 	}
 	
-	gridWidth = boxSize.s0;
+	gridWidth = curUnit.size*boxSize.s0;
 	
 	printf("EigenCalculator_Engine initialized!\n");
 }
 
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::initSphere(int i){
-	spheres[i].size = rans(sphereSize.s0, sphereSize.s1);
+	spheres[i].size = rans(curUnit.size*sphereSize.s0, curUnit.size*sphereSize.s1);
 	spheres[i].E = E;
 	spheres[i].poisson = poisson;
 	spheres[i].fixed = 0;
 	
-	spheresPos[i].Zero();
-	//spheresPos[i](0) = spheres[i].size+rans(boxSize.s0-2*spheres[i].size);
-	spheresPos[i](0) = 2*spheres[i].size+(i%(int)sqrt(spheresCount))*((boxSize.s0-4*spheres[i].size)/sqrt(spheresCount))+rans(-spheres[i].size,spheres[i].size);
-	spheresPos[i](1) = 2*spheres[i].size+(i/(int)sqrt(spheresCount))*((boxSize.s0-4*spheres[i].size)/sqrt(spheresCount))+rans(-spheres[i].size,spheres[i].size);
+	spheresPos[i].setZero();
+	//spheresPos[i](0) = spheres[i].size+rans(curUnit.size*boxSize.s0-2*spheres[i].size);
+	spheresPos[i](0) = 2*spheres[i].size+(i%(int)(sqrt(spheresCount)+1))*((curUnit.size*boxSize.s0-4*spheres[i].size)/(sqrt(spheresCount)+1))+rans(-spheres[i].size,spheres[i].size);
+	spheresPos[i](1) = 2*spheres[i].size+(i/(int)(sqrt(spheresCount)+1))*((curUnit.size*boxSize.s1-4*spheres[i].size)/(sqrt(spheresCount)+1))+rans(-spheres[i].size,spheres[i].size);
 	if(_3D_){
-		spheresPos[i](2) = spheres[i].size+rans(boxSize.s2-2*spheres[i].size);
+		spheresPos[i](2) = spheres[i].size+rans(curUnit.size*boxSize.s2-2*spheres[i].size);
 	}
 	spheresOldPos[i] = spheresPos[i];
 	
@@ -137,26 +137,27 @@ void EigenCalculator_Engine<dims,_3D_>::initSphere(int i){
 		#endif
 	#endif
 	spheresSpeed[i].normalize();
-	spheresSpeed[i] *= rans(max_speed);
+	spheresSpeed[i] *= rans(curUnit.size*max_speed);
 	//cout<<spheresSpeed[i]<<endl<<endl;
 	
-	spheresForce[i].Zero();
+	spheresForce[i].setZero();
 	
 	//cout<<"3D enabled: "<<(_3D_?1:0)<<endl<<endl;
 	
 	#if fixSun
-		if(i == 0) spheres[i].size = 3*sphereSize.s0;
+		if(i == 0) spheres[i].size = 3*curUnit.size*sphereSize.s0;
 		//if(i == 0) spheres[i].mass*=5;
 		if(i == 0) ceBuffer[i].hsvColor = QColor::fromHsv(0,0,0);
-		if(i == 0) spheresPos[i](0) = boxSize.s0/2;
-		if(i == 0) spheresPos[i](1) = boxSize.s1/2;
+		if(i == 0) spheresPos[i](0) = curUnit.size*boxSize.s0/2;
+		if(i == 0) spheresPos[i](1) = curUnit.size*boxSize.s1/2;
 		if(_3D_){
-			if(i == 0) spheresPos[i](2) = boxSize.s2/2;
+			if(i == 0) spheresPos[i](2) = curUnit.size*boxSize.s2/2;
 		}
 		if(i == 0) spheresSpeed[i] = eVector::Zero();
 	#endif
 	spheresOldPos[i] = spheresPos[i];
 	spheres[i].mass = 4.0/3.0*pow(spheres[i].size,3)*M_PI  *950; //Kautschuk
+	printf("Sphere: radius %10f m;   mass: %10f kg\n", spheres[i].size, spheres[i].mass);
 }
 
 
@@ -181,7 +182,7 @@ void EigenCalculator_Engine<dims,_3D_>::calcWallResistance(){
 			force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
 			spheresForce[i](0) += force_*fact;
 			curWallForces[0] += force_*fact;
-		}else if ((htw_d_d = (spheres[i].size + spheresPos[i](0) - boxSize.s0))>0) {
+		}else if ((htw_d_d = (spheres[i].size + spheresPos[i](0) - curUnit.size*boxSize.s0))>0) {
 			//printf("Sphere %d collides with right wall\n", i);
 			if(spheresSpeed[i](0) < 0)fact = elastic;
 			d_ = htw_d_d;
@@ -201,7 +202,7 @@ void EigenCalculator_Engine<dims,_3D_>::calcWallResistance(){
 			force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
 			spheresForce[i](1) += force_*fact;
 			curWallForces[2] += force_*fact;
-		}else if ((htw_d_d = (spheres[i].size + spheresPos[i](1) - boxSize.s1))>0) {
+		}else if ((htw_d_d = (spheres[i].size + spheresPos[i](1) - curUnit.size*boxSize.s1))>0) {
 			//printf("Sphere %d collides with top wall\n", i);
 			if(spheresSpeed[i](1) < 0)fact = elastic;
 			d_ = htw_d_d;
@@ -221,7 +222,7 @@ void EigenCalculator_Engine<dims,_3D_>::calcWallResistance(){
 				force_ = 4.0f/3.0f*_E_*sqrt(R*pow(d_,3));
 				spheresForce[i](2) += force_*fact;
 				curWallForces[4] += force_*fact;
-			}else if ((htw_d_d = (spheres[i].size + spheresPos[i](2) - boxSize.s2))>0) {
+			}else if ((htw_d_d = (spheres[i].size + spheresPos[i](2) - curUnit.size*boxSize.s2))>0) {
 				if(spheresSpeed[i](2) < 0)fact = elastic;
 				d_ = htw_d_d;
 				R = spheres[i].size;
@@ -268,9 +269,9 @@ void EigenCalculator_Engine<dims,_3D_>::sumUpForces(){
 			
 			#if 1
 				if(wallResistance){
-					spheresOldPos[i](0) = std::min(spheresOldPos[i](0), boxSize.s0);
-					spheresOldPos[i](1) = std::min(spheresOldPos[i](1), boxSize.s1);
-					if(_3D_) spheresOldPos[i](2) = std::min(spheresOldPos[i](2), boxSize.s2);
+					spheresOldPos[i](0) = std::min(spheresOldPos[i](0), curUnit.size*boxSize.s0);
+					spheresOldPos[i](1) = std::min(spheresOldPos[i](1), curUnit.size*boxSize.s1);
+					if(_3D_) spheresOldPos[i](2) = std::min(spheresOldPos[i](2), curUnit.size*boxSize.s2);
 					spheresOldPos[i](0) = std::max(spheresOldPos[i](0), (scalar)0.0);
 					spheresOldPos[i](1) = std::max(spheresOldPos[i](1), (scalar)0.0);
 					if(_3D_) spheresOldPos[i](2) = std::max(spheresOldPos[i](2), (scalar)0.0);
@@ -346,7 +347,7 @@ void EigenCalculator_Engine<dims,_3D_>::updateWallResistance(){
 
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::updateEModul(){
-	_E = E*1000000.0;
+	_E = curUnit.size*curUnit.size*E*1000000.0;
 }
 
 template <int dims, bool _3D_>
@@ -402,7 +403,7 @@ Sphere* EigenCalculator_Engine<dims,_3D_>::getDirectSphere(int i){
 template <int dims, bool _3D_>
 Sphere* EigenCalculator_Engine<dims,_3D_>::getSphere(int i){
 	if(renderBuffer[bufferReadIndex][i]==eVector::Zero()) return NULL;
-	#if 1
+	#if 0
 		//"live" view
 		spheres[i].pos.s0 = spheresPos[i](0);
 		spheres[i].pos.s1 = spheresPos[i](1);
@@ -622,18 +623,25 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 			saveInVar(f2, fixed);
 			spheres[i].fixed = fixed;
 			saveInVar(f2, spheres[i].size);
-			//printf("sphere size: %5f\n", spheres[i].size);
+			spheres[i].size *= curUnit.size;
+			printf("sphere size: %5f\n", spheres[i].size);
 			saveInVar(f2, spheres[i].mass);
 			saveInVar(f2, spheresPos[i](0));
+			spheresPos[i](0) += boxSize.s0/2;
+			spheresPos[i](0) *= curUnit.size;
 			saveInVar(f2, spheresPos[i](1));
+			spheresPos[i](1) += boxSize.s1/2;
+			spheresPos[i](1) *= curUnit.size;
 			//if(fixed==0) 
-			spheresPos[i](0) += 0.001*((rand()%1024)/1024.0);
+			//spheresPos[i](0) += 0.001*((rand()%1024)/1024.0);
 			//if(fixed==0) 
-			spheresPos[i](1) += 0.001*((rand()%1024)/1024.0);
+			//spheresPos[i](1) += 0.001*((rand()%1024)/1024.0);
 			if(_3D_){
 				saveInVar(f2, spheresPos[i](2));
+				spheresPos[i](2) += boxSize.s2/2;
+				spheresPos[i](2) *= curUnit.size;
 				//if(fixed==0) 
-				spheresPos[i](2) += 0.001*((rand()%1024)/1024.0);
+				//spheresPos[i](2) += 0.001*((rand()%1024)/1024.0);
 			}
 			#if useSSE
 				if(_3D_){
@@ -650,9 +658,12 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 			//printf("sphere pos: %5f %5f\n", spheresPos[i](0), spheresPos[i](1));
 			//printf("sphere oldPos: %5f %5f\n", spheresOldPos[i](0), spheresOldPos[i](1));
 			saveInVar(f2, spheresSpeed[i](0));
+			spheresSpeed[i](0) *= curUnit.size;
 			saveInVar(f2, spheresSpeed[i](1));
+			spheresSpeed[i](1) *= curUnit.size;
 			if(_3D_){
 				saveInVar(f2, spheresSpeed[i](2));
+				spheresSpeed[i](2) *= curUnit.size;
 			}
 			#if useSSE
 				if(_3D_){
@@ -726,8 +737,8 @@ void EigenCalculator_Engine<dims,_3D_>::paintGL(bool b){
 	}
 	
 	return;
-	for(double x = 0; x < boxSize.s0; x+=gridWidth){
-		for(double y = 0; y < boxSize.s1; y+=gridWidth){
+	for(double x = 0; x < curUnit.size*boxSize.s0; x+=gridWidth){
+		for(double y = 0; y < curUnit.size*boxSize.s1; y+=gridWidth){
 			glBegin(GL_LINE_STRIP);
 			glVertex2d(x+gridWidth, y);
 			glVertex2d(x+gridWidth, y+gridWidth);
@@ -750,6 +761,10 @@ void EigenCalculator_Engine<dims,_3D_>::paintGL(bool b){
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::setGridWith(scalar s){
 	gridWidth = s;
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::updateMagnitude(){
 }
 
 template class EigenCalculator_Engine<2,false>;

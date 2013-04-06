@@ -26,6 +26,7 @@ void EigenCalculator_StripeCollider<dims,_3D_>::sort(Pos* p, int dim){
 
 template <int dims, bool _3D_>
 void EigenCalculator_StripeCollider<dims,_3D_>::calcForces(){
+	if(!ballResistance) return;
 	C::calcForces();
 	
 	sort(posX, 0);

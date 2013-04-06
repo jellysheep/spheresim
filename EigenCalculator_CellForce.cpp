@@ -202,17 +202,17 @@ template <int dims, bool _3D_>
 void EigenCalculator_CellForce<dims,_3D_>::updateGridSize(){
 	scalar gridWidth_;
 	if(_3D_){
-		gridWidth_ = std::max(boxSize.s0, std::max(boxSize.s1, boxSize.s2))/numCellsPerAxis;
+		gridWidth_ = (curUnit.size*std::max(boxSize.s0, std::max(boxSize.s1, boxSize.s2)))/numCellsPerAxis;
 	}else{
-		gridWidth_ = std::max(boxSize.s0, boxSize.s1)/numCellsPerAxis;
+		gridWidth_ = (curUnit.size*std::max(boxSize.s0, boxSize.s1))/numCellsPerAxis;
 	}
-	//gridWidth_ = std::max(sphereSize.s1, gridWidth_);
+	//gridWidth_ = std::max(curUnit.size*sphereSize.s1, gridWidth_);
 	gridWidth = gridWidth_;
 	printf("gridWidth: %5f \n", gridWidth);
 	if(_3D_){
-		gridSteps = (int)(std::max(boxSize.s0, std::max(boxSize.s1, boxSize.s2))/gridWidth);
+		gridSteps = (int)((curUnit.size*std::max(boxSize.s0, std::max(boxSize.s1, boxSize.s2)))/gridWidth);
 	}else{
-		gridSteps = (int)(std::max(boxSize.s0, boxSize.s1)/gridWidth);
+		gridSteps = (int)((curUnit.size*std::max(boxSize.s0, boxSize.s1))/gridWidth);
 	}
 	printf("Grid steps: %5d\n", gridSteps);
 }

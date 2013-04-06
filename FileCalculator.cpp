@@ -212,4 +212,8 @@ void FileCalculator::loadConfig(){
 	//
 }
 
+void FileCalculator::updateMagnitude(){
+	//
+}
+
 #endif

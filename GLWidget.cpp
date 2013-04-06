@@ -117,7 +117,7 @@ void GLWidget::initializeGL() {
 	// Setup a perspective projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(50.f, 1.f*boxSize.s[1]/boxSize.s[0], 1.f, 2000.f);
+	gluPerspective(50.f, 1.f*boxSize.s[1]/boxSize.s[0], 1.f, 20000.f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
@@ -250,7 +250,7 @@ void GLWidget::resizeGL(int w, int h) {
 	glViewport(0,0,w,h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(50.f, 1.f*w/h, 1.f, 2000.f);
+	gluPerspective(50.f, 1.f*w/h, 1.f, 20000.f);
 	glMatrixMode(GL_MODELVIEW);
 	//glLoadIdentity();
 	/*
@@ -441,6 +441,7 @@ void GLWidget::paintGL() {
 
 	
 	scalar scale = 80.0;
+	scale /= curUnit.size;
 	if(!use3D){
 		scale*=1.5;
 	}
@@ -449,7 +450,7 @@ void GLWidget::paintGL() {
 	
 	glRotatef(curView.rotGrav, 0.0, 0.0, 1.0);
 	//glRotatef(curView.zRot / 16.0, 0.0, 0.0, 1.0);
-	glTranslatef(-boxSize.s[0]/2, -boxSize.s[1]/2, (use3D?(-boxSize.s[2]/2):0));
+	glTranslatef(-curUnit.size*boxSize.s[0]/2, -curUnit.size*boxSize.s[1]/2, (use3D?(-curUnit.size*boxSize.s[2]/2):0));
 	if(use3D){
 		setLightPos();
 		//draw light bulbs

@@ -41,6 +41,7 @@ void EigenCalculator_PairCollider<dims,_3D_>::collideBalls(int i, int j){
 	
 template <int dims, bool _3D_>
 void EigenCalculator_PairCollider<dims,_3D_>::calcForces(){
+	if(!ballResistance) return;
 	F::calcForces();
 	
 	for(int i = 0; i<spheresCount-1; i++){

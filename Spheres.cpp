@@ -6,21 +6,22 @@
 bool use3D = true;
 bool fastRender = true;
 
-int spheresCount = 400;
+int spheresCount = 10;
 int maxShowSpheresCount = 20000;
 bool manySpheres = (std::min(spheresCount,maxShowSpheresCount)>20);
 
-vector3 boxSize = (vector3){10,10,3};
-vector2 sphereSize = (vector2){0.015,0.015};
+vector3 boxSize = (vector3){1,1,3};
+//Erdradius: 0.006 Mio.km
+vector2 sphereSize = (vector2){0.006,0.006};
 
 bool autoSlowRender = false;
 int renderFpsMax = (autoSlowRender?(int)(45.0*pow(1/3.0, spheresCount/1000.0)+15):60);
 int renderFps = renderFpsMax;
 scalar speed = 1, speedCorrection = 1.0;
-scalar fps = 1000000, minFps = 800;
+scalar fps = 10000000000, minFps = 800;
 scalar timeInterval = speed*speedCorrection/fps;
 
-scalar max_speed = 0.5;
+scalar max_speed = 0;//0.5;
 scalar E = 3*0.05;//((200)/1000000.0)/2; //Silikonkautschuk
 scalar poisson = 0.5; //Gummi
 scalar elastic = 0.8;//0.93;//0.05;//0.9;//0.999;//0.9;
@@ -29,11 +30,11 @@ vector gravity = (vector){0,-gravity_abs, 0};
 bool saveBool = false, renderBool = true, playBool = false;
 int edges = 2*(int)(std::max(4.0,4*log(sphereSize.s[1]/boxSize.s[0]*400)));
 scalar step = 2*M_PI/edges;
-scalar G = 10000000000.0*6.67384e-11;
+scalar G = 6.67384e-11; //10000000000.0*
 scalar G_fact = 0.1;
 scalar airResistance = 1;
 bool wallResistance = true;
-bool ballResistance = false;
+bool ballResistance = true;
 
 bool useColorsBool = true;// && (spheresCount<=100);
 bool useColorHSV = true;
@@ -61,9 +62,23 @@ scalar calcSpeedFact;
 
 int maxCellsPerAxis = 100;
 //int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
-int rowsPerStep = 2, curveSteps = 3; //Z-Order, Hilbert-Kurve
+int rowsPerStep = 2, curveSteps = (use3D?3:5); //Z-Order, Hilbert-Kurve
 int maxNumSpheresInCell = 500;
 int maxNumCollsPerSphere = 500; //maximum number for a sphere to collide with other spheres
+
+int magnitude = 1; //0: bouncy balls, 1: planets
+Unit unitOfMagnitude[2] = {unit::m, unit::Gkm};
+Unit curUnit = unitOfMagnitude[magnitude];
+
+namespace unit{
+	Unit pm = {.size = 0.000000000001, .name = "pm"};
+	Unit Ang = {.size = 0.0000000001, .name = "Å"};
+	Unit m = {.size = 1.0, .name = "m"};
+	Unit km = {.size = 1000.0, .name = "km"};
+	Unit Mkm = {.size = 1000000000.0, .name = "mio.km"};
+	Unit Gkm = {.size = 1000000000000.0, .name = "mrd.km"};
+	Unit ly = {.size = 9460730472580800.0, .name = "ly"};
+}
 
 int rani(int i){
 	return rand()%(i+1);

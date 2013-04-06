@@ -538,7 +538,7 @@ void Calculator::paintGL(bool readNewFrame){
 	// Draw a cube
 	if(showCube){
 		glPushMatrix();
-		glScalef(boxSize.s[0], boxSize.s[1], boxSize.s[2]);
+		glScalef(curUnit.size*boxSize.s[0], curUnit.size*boxSize.s[1], curUnit.size*boxSize.s[2]);
 		glCallList(glWidget->displayList+1);
 		glPopMatrix();
 	}
@@ -618,10 +618,12 @@ void Calculator::paintGL(bool readNewFrame){
 			}else{
 				glVertex2d(x,y);
 			}
-			ce->traceCount++;
-			if(ce->traceCount>=traceCount){
-				ce->traceCount = 0;
-				ce->traceFull = true;
+			if(readNewFrame){
+				ce->traceCount++;
+				if(ce->traceCount>=traceCount){
+					ce->traceCount = 0;
+					ce->traceFull = true;
+				}
 			}
 			glEnd();
 		}

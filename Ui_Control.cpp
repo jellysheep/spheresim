@@ -136,6 +136,9 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 		this, SLOT(setRender(bool)), Qt::AutoConnection);
 	QObject::connect(calc->save, SIGNAL(toggled(bool)), 
 		this, SLOT(setSave(bool)), Qt::AutoConnection);
+		
+	QObject::connect(calc->magnitude, SIGNAL(currentIndexChanged(int)), 
+		this, SLOT(setMagnitude(int)), Qt::AutoConnection);
 	
 	QObject::connect((const QObject*)sv, SIGNAL(temperatureChanged(double)), 
 		this, SLOT(setTemperature(double)), Qt::AutoConnection);
@@ -176,6 +179,7 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	rend->trace_length->setValue(traceAmount);
 	calc->render->setChecked(renderBool);
 	calc->save->setChecked(saveBool);
+	calc->magnitude->setCurrentIndex(magnitude);
 }
 
 void Control::setRender(bool b){
@@ -258,6 +262,7 @@ void Control::minSphereSize(double s){
 }
 void Control::maxSphereSize(double s){
 	sphereSize.s[1] = s;
+	cal->updateGridSize();
 }
 
 void Control::updateGL(){
@@ -399,4 +404,21 @@ void Control::showReflections(bool b){
 void Control::setShowCube(bool b){
 	showCube = b;
 	updateGL();
+}
+void updateValue(QDoubleSpinBox* dsb){
+	dsb->setValue(dsb->value());
+}
+void Control::setMagnitude(int m){
+	magnitude = m;
+	curUnit = unitOfMagnitude[magnitude];
+	static const QString space(" ");
+	QString unitSuffix = space+curUnit.name;
+	calc->radius_min->setSuffix(unitSuffix);
+	calc->radius_max->setSuffix(unitSuffix);
+	calc->x->setSuffix(unitSuffix);
+	calc->y->setSuffix(unitSuffix);
+	calc->z->setSuffix(unitSuffix);
+	emit cal->boxSizeChanged();
+	updateGL();
+	emit cal->updateMagnitude();
 }

@@ -40,10 +40,10 @@ void EigenCalculator_CellSortCollider<dims,_3D_>::sortSpheresByCells(){
 	
 	/*
 	//set first sphere of each cell to -1
-	for(int i = boxSize.s0/gridWidth + 1; i>=0; i--){
-		for(j = boxSize.s1/gridWidth + 1; j>=0; j--){
+	for(int i = curUnit.size*boxSize.s0/gridWidth + 1; i>=0; i--){
+		for(j = curUnit.size*boxSize.s1/gridWidth + 1; j>=0; j--){
 			if(_3D_){
-				for(int k = boxSize.s2/gridWidth; k>=0; k--){
+				for(int k = curUnit.size*boxSize.s2/gridWidth; k>=0; k--){
 					C::firstSphereInCell[i + C::numCellsPerAxis*j + C::numCellsPerAxis*C::numCellsPerAxis*k] = -1;
 				}
 			}else{
@@ -98,6 +98,7 @@ void EigenCalculator_CellSortCollider<dims,_3D_>::checkCollision(int i, int x, i
 
 template <int dims, bool _3D_>
 void EigenCalculator_CellSortCollider<dims,_3D_>::calcForces(){
+	if(!ballResistance) return;
 	C::calcForces();
 	//QThread::msleep(50);
 	sortSpheresByCells();

@@ -68,6 +68,7 @@ public slots:
 	void setRender(bool b);
 	void setSave(bool b);
 	void setTemperature(double temp);
+	void setMagnitude(int m);
 };
 
 #endif /* _UI_CONTROL_ */

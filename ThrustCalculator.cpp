@@ -102,7 +102,7 @@ ThrustCalculator<dims,_3D_>::ThrustCalculator():EigenCalculator_Engine<dims,_3D_
 	for(int i = 0; i<dims; i++){
 		spherePos[i] = thrust::device_vector<float>(spheresCount);
 		//thrust::generate(spherePos[i].begin(), spherePos[i].end(), rand);
-		thrust::transform(spherePos[i].begin(), spherePos[i].end(), spherePos[i].begin(), RandPosInBox(boxSize.s[i]));
+		thrust::transform(spherePos[i].begin(), spherePos[i].end(), spherePos[i].begin(), RandPosInBox(curUnit.size*boxSize.s[i]));
 		
 		sphereSpeed[i] = thrust::device_vector<float>(spheresCount);
 		thrust::generate(sphereSpeed[i].begin(), sphereSpeed[i].end(), rand);

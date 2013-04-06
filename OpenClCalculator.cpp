@@ -472,6 +472,9 @@ void OpenClCalculator::updateGridSize(){
 void OpenClCalculator::loadConfig(){
 	
 }
+void OpenClCalculator::updateMagnitude(){
+	
+}
 
 char* OpenClCalculator::file_contents(const char *filename, int *length)
 {

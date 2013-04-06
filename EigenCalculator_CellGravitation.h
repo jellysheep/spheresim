@@ -4,6 +4,8 @@
 
 #include "EigenCalculator_Force.h"
 
+//Implementation of the Barnes-Hut simulation
+
 template <int dims, bool _3D_>
 class EigenCalculator_Engine;
 
