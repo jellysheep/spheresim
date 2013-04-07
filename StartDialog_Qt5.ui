@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>StartDialog</class>
+ <widget class="QDialog" name="StartDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,20 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>SphereSim</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="StartDialog.qrc">
+    <normaloff>:/startDialog/Logo_aktuell_S_ohne_Schatten_transp.png</normaloff>:/startDialog/Logo_aktuell_S_ohne_Schatten_transp.png</iconset>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>false</bool>
+  </property>
+  <property name="modal">
+   <bool>false</bool>
   </property>
   <widget class="QLabel" name="label">
    <property name="geometry">
@@ -53,13 +66,13 @@
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap>../../JuFo_2013/Logo/Logo_aktuell_ohne_Schatten.png</pixmap>
+    <pixmap resource="StartDialog.qrc">:/startDialog/Logo_aktuell_ohne_Schatten.png</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QRadioButton" name="radioButton">
+  <widget class="QRadioButton" name="german">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -72,10 +85,10 @@
     <string>Deutsch</string>
    </property>
    <attribute name="buttonGroup">
-    <string notr="true">buttonGroup</string>
+    <string notr="true">language</string>
    </attribute>
   </widget>
-  <widget class="QRadioButton" name="radioButton_2">
+  <widget class="QRadioButton" name="english">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -91,10 +104,10 @@
     <bool>true</bool>
    </property>
    <attribute name="buttonGroup">
-    <string notr="true">buttonGroup</string>
+    <string notr="true">language</string>
    </attribute>
   </widget>
-  <widget class="QRadioButton" name="radioButton_3">
+  <widget class="QRadioButton" name="_3D">
    <property name="geometry">
     <rect>
      <x>190</x>
@@ -107,10 +120,10 @@
     <string>3D</string>
    </property>
    <attribute name="buttonGroup">
-    <string notr="true">buttonGroup_2</string>
+    <string notr="true">dimension</string>
    </attribute>
   </widget>
-  <widget class="QRadioButton" name="radioButton_4">
+  <widget class="QRadioButton" name="_2D">
    <property name="geometry">
     <rect>
      <x>190</x>
@@ -126,10 +139,10 @@
     <bool>true</bool>
    </property>
    <attribute name="buttonGroup">
-    <string notr="true">buttonGroup_2</string>
+    <string notr="true">dimension</string>
    </attribute>
   </widget>
-  <widget class="QRadioButton" name="radioButton_5">
+  <widget class="QRadioButton" name="spheres">
    <property name="geometry">
     <rect>
      <x>290</x>
@@ -145,10 +158,10 @@
     <bool>true</bool>
    </property>
    <attribute name="buttonGroup">
-    <string notr="true">buttonGroup_3</string>
+    <string notr="true">magnitude</string>
    </attribute>
   </widget>
-  <widget class="QRadioButton" name="radioButton_6">
+  <widget class="QRadioButton" name="planets">
    <property name="geometry">
     <rect>
      <x>290</x>
@@ -161,10 +174,10 @@
     <string>Planets | Planeten</string>
    </property>
    <attribute name="buttonGroup">
-    <string notr="true">buttonGroup_3</string>
+    <string notr="true">magnitude</string>
    </attribute>
   </widget>
-  <widget class="QRadioButton" name="radioButton_7">
+  <widget class="QRadioButton" name="liveSim">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -180,10 +193,10 @@
     <bool>true</bool>
    </property>
    <attribute name="buttonGroup">
-    <string notr="true">buttonGroup_4</string>
+    <string notr="true">simType</string>
    </attribute>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="cancel">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -196,7 +209,7 @@
     <string>Cancel | Abbrechen</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="OK">
    <property name="geometry">
     <rect>
      <x>180</x>
@@ -208,8 +221,11 @@
    <property name="text">
     <string>OK</string>
    </property>
+   <property name="default">
+    <bool>true</bool>
+   </property>
   </widget>
-  <widget class="QRadioButton" name="radioButton_8">
+  <widget class="QRadioButton" name="read">
    <property name="geometry">
     <rect>
      <x>190</x>
@@ -222,16 +238,63 @@
     <string>Open project | Projekt öffnen</string>
    </property>
    <attribute name="buttonGroup">
-    <string notr="true">buttonGroup_4</string>
+    <string notr="true">simType</string>
    </attribute>
   </widget>
  </widget>
- <resources/>
- <connections/>
+ <tabstops>
+  <tabstop>OK</tabstop>
+  <tabstop>english</tabstop>
+  <tabstop>german</tabstop>
+  <tabstop>_2D</tabstop>
+  <tabstop>_3D</tabstop>
+  <tabstop>spheres</tabstop>
+  <tabstop>planets</tabstop>
+  <tabstop>liveSim</tabstop>
+  <tabstop>read</tabstop>
+  <tabstop>cancel</tabstop>
+ </tabstops>
+ <resources>
+  <include location="StartDialog.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>OK</sender>
+   <signal>clicked()</signal>
+   <receiver>StartDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>239</x>
+     <y>267</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>316</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancel</sender>
+   <signal>clicked()</signal>
+   <receiver>StartDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>279</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>108</x>
+     <y>306</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
-  <buttongroup name="buttonGroup_2"/>
-  <buttongroup name="buttonGroup_3"/>
-  <buttongroup name="buttonGroup_4"/>
+  <buttongroup name="language"/>
+  <buttongroup name="dimension"/>
+  <buttongroup name="magnitude"/>
+  <buttongroup name="simType"/>
  </buttongroups>
 </ui>

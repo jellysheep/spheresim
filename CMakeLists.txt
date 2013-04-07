@@ -63,12 +63,14 @@ INCLUDE_DIRECTORIES(
 	"/opt/cuda-toolkit/include"
 )
 
-SET(SphereSim_SOURCES main.cpp 	GLWidget.cpp	OpenClCalculator.cpp 	StatusViewer.cpp	Spheres.cpp	ExponentialSlider.cpp	ExponentialInput.cpp	Ui_Control.cpp	Calculator.cpp	EigenCalculator_Engine.cpp	ExceptionHandler.cpp	PlotWidget.cpp	Dialog.cpp	FileCalculator.cpp	ThrustCalculator.cpp	EigenCalculator_PairCollider.cpp	EigenCalculator_EfficientPairCollider.cpp	EigenCalculator_StripeCollider.cpp	EigenCalculator_CellSortCollider.cpp	EigenCalculator_CellCountCollider.cpp	EigenCalculator_CellForce.cpp	EigenCalculator_PairGravitation.cpp	EigenCalculator_CellGravitation.cpp)
-SET(SphereSim_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Spheres.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	Calculator.h	EigenCalculator_Engine.h	ExceptionHandler.h		PlotWidget.h	Dialog.h	FileCalculator.h	ThrustCalculator.h		EigenCalculator_PairCollider.h		EigenCalculator_EfficientPairCollider.h		EigenCalculator_StripeCollider.h	EigenCalculator_CellSortCollider.h		EigenCalculator_CellCountCollider.h		EigenCalculator_CellForce.h		EigenCalculator_PairGravitation.h	EigenCalculator_CellGravitation.h EigenCalculator_Force.h EigenCalculator_PairCollider.h NanosecondTimer.h FramesCounter.h)
+SET(SphereSim_SOURCES main.cpp 	GLWidget.cpp	OpenClCalculator.cpp 	StatusViewer.cpp	Spheres.cpp	ExponentialSlider.cpp	ExponentialInput.cpp	Ui_Control.cpp	Calculator.cpp	EigenCalculator_Engine.cpp	ExceptionHandler.cpp	PlotWidget.cpp	StartDialog.cpp	FileCalculator.cpp	ThrustCalculator.cpp	EigenCalculator_PairCollider.cpp	EigenCalculator_EfficientPairCollider.cpp	EigenCalculator_StripeCollider.cpp	EigenCalculator_CellSortCollider.cpp	EigenCalculator_CellCountCollider.cpp	EigenCalculator_CellForce.cpp	EigenCalculator_PairGravitation.cpp	EigenCalculator_CellGravitation.cpp)
+SET(SphereSim_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Spheres.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	Calculator.h	EigenCalculator_Engine.h	ExceptionHandler.h		PlotWidget.h	StartDialog.h	FileCalculator.h	ThrustCalculator.h		EigenCalculator_PairCollider.h		EigenCalculator_EfficientPairCollider.h		EigenCalculator_StripeCollider.h	EigenCalculator_CellSortCollider.h		EigenCalculator_CellCountCollider.h		EigenCalculator_CellForce.h		EigenCalculator_PairGravitation.h	EigenCalculator_CellGravitation.h EigenCalculator_Force.h EigenCalculator_PairCollider.h NanosecondTimer.h FramesCounter.h)
 QT5_WRAP_CPP(SphereSim_HEADERS_MOC ${SphereSim_HEADERS})
 
-SET(SphereSim_UI Calculations_Qt5.ui Rendering_Qt5.ui Dialog_Qt5.ui)
+SET(SphereSim_UI Calculations_Qt5.ui Rendering_Qt5.ui StartDialog_Qt5.ui)
 QT5_WRAP_UI(SphereSim_HEADERS_UI ${SphereSim_UI})
+
+QT5_ADD_RESOURCES(SphereSim_resources StartDialog.qrc)
 
 FIND_PACKAGE(Qt5LinguistTools)
 SET(ts_files "./translate_de_DE.ts")
@@ -82,7 +84,7 @@ SET(ts_files "./translate_de_DE.ts")
 #message("QT_LIBRARIES: ${QT_LIBRARIES}\n")
 #message("QT_DEBUG_LIBRARIES: ${QT_DEBUG_LIBRARIES}\n")
 
-ADD_EXECUTABLE(SphereSim ${SphereSim_SOURCES} ${SphereSim_HEADERS_MOC} ${SphereSim_HEADERS_UI} ${qm_files})
+ADD_EXECUTABLE(SphereSim ${SphereSim_SOURCES} ${SphereSim_HEADERS_MOC} ${SphereSim_HEADERS_UI} ${qm_files} ${SphereSim_resources})
 
 TARGET_LINK_LIBRARIES(SphereSim ${OPENGL_LIBRARIES} ${cllib} ${OPENCL_LIBRARIES} qwt gomp)
 

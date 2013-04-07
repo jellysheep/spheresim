@@ -1,24 +1,24 @@
-#ifndef _DIALOG_H_
-#define _DIALOG_H_
+#ifndef _START_DIALOG_H_
+#define _START_DIALOG_H_
 #include <QDialog>
 #include "Calculator.h"
 
 namespace Ui {
-	class Dialog;
+	class StartDialog;
 }
 
-class Dialog : public QDialog {
+class StartDialog : public QDialog {
 	Q_OBJECT
 protected:
-	Ui::Dialog* dlg;
+	Ui::StartDialog* dlg;
 	bool selected;
 	Calculator* calc;
 public:
-	Dialog();
+	StartDialog();
 	Calculator* getCalculator();
 public slots:
 	void accepted_();
 	void rejected_();
 };
 
-#endif /* _DIALOG_H_ */
+#endif /* _START_DIALOG_H_ */

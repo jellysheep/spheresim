@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="startDialog">
+    <file>Logo_aktuell_S_ohne_Schatten_transp.png</file>
+    <file>Logo_aktuell_ohne_Schatten.png</file>
+  </qresource>
+</RCC>

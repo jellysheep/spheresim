@@ -1,6 +1,6 @@
 
 #include "Ui_Control.h"
-#include "Dialog.h"
+#include "StartDialog.h"
 
 #include "ExceptionHandler.h"
 
@@ -9,8 +9,6 @@
 #include <QtConcurrent/QtConcurrentRun>
 #include <QStyleFactory>
 #include <QHBoxLayout>
-#include <QTranslator>
-#include <QLibraryInfo>
 #include <cstdio>
 
 #include "GLWidget.h"
@@ -36,17 +34,6 @@ int main(int argc, char *argv[]) {
 
 	QApplication app(argc, argv);
 	
-	QTranslator qtTranslator;
-	qtTranslator.load("qt_" + QLocale::system().name(),
-		QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-	app.installTranslator(&qtTranslator);
-
-	QTranslator sTranslator;
-	QString localeStr = "translate_" + QLocale::system().name();
-	sTranslator.load(localeStr);
-	printf("locale data: \"%s\"\n", localeStr.toLatin1().constData());
-	app.installTranslator(&sTranslator);
-	
 	app.setStyle(QStyleFactory::create("Plastique"));
 	
 	qRegisterMetaType<scalar>("scalar");
@@ -56,7 +43,7 @@ int main(int argc, char *argv[]) {
 	
 		//Calculator* clTimer = new OpenClCalculator();
 		//Calculator* clTimer = new EigenCalculator();
-		Calculator* clTimer = Dialog().getCalculator();
+		Calculator* clTimer = StartDialog().getCalculator();
 		if(clTimer == NULL) exit(0);
 		printf("Calculator initialized!\n");
 
