@@ -60,6 +60,9 @@ void StatusViewer::updateTimer(){
 		
 	if(clTimer->isRunning()){
 		double nextCalculatorFrames = clTimerFrames;
+		if(nextCalculatorFrames <= 0){
+			nextCalculatorFrames = 10000;
+		}
 		if(renderBool){
 			static scalar bufferLoadTarget = 0.65;
 			calcSpeedFact = (1
@@ -83,19 +86,23 @@ void StatusViewer::updateTimer(){
 		}
 
 		fps = nextCalculatorFrames;
-		
-		if(speed!=0 && fps!=0 && speedCorrection!=0){
-			scalar timeInterval = speed*speedCorrection/fps;
-			//printf("timeInterval: %10f\n", timeInterval);
-			clTimer->fpsChanged(timeInterval);
-		}else{
-			printf("ERROR! fpsChanged! \n");
-			printf("speed: %6f fps: %6f speedCorr.: 6%f\n", speed, fps, speedCorrection);
-		}
 		double temp = clTimer->getTemperature();
 		printf("Temperature: %f\n", temp);
 		emit temperatureChanged(temp);
+	}else{
+		fps = 10000;
+		clTimerFrames = 10000;
 	}
+		
+	if(speed!=0 && fps!=0 && speedCorrection!=0){
+		scalar timeInterval = speed*speedCorrection/fps;
+		//printf("timeInterval: %10f\n", timeInterval);
+		clTimer->fpsChanged(timeInterval);
+	}else{
+		printf("ERROR! fpsChanged! \n");
+		printf("speed: %6f fps: %6f speedCorr.: 6%f\n", speed, fps, speedCorrection);
+	}
+	
 	emit fpsChanged(glWidgetFrames, clTimerFrames, frameBufferLoad, speed*std::min(1.0,(double)(clTimerFrames/(speed*minFps))));
 }
 

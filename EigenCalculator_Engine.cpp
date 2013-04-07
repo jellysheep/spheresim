@@ -68,7 +68,7 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	//addForce(new EigenCalculator_EfficientPairCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_StripeCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
-	//addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
+	addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
 	
 	addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
 	//addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
@@ -248,7 +248,8 @@ void EigenCalculator_Engine<dims,_3D_>::sumUpForces(){
 			EIGEN_ASM_COMMENT("begin");
 			spheresForce[i] -= airResistance*(0.47*M_PI*sqr(spheres[i].size))*0.5*spheresSpeed[i]*std::abs(spheresSpeed[i].norm());
 			force = spheresForce[i];
-			/*printf("sphere %d force: %5f %5f\n", i, spheresForce[i](0), spheresForce[i](1));
+			/*
+			printf("sphere %d force: %5f %5f\n", i, spheresForce[i](0), spheresForce[i](1));
 			printf("sphere %d speed: %5f %5f\n", i, spheresSpeed[i](0), spheresSpeed[i](1));
 			printf("sphere %d pos: %5f %5f\n", i, spheresPos[i](0), spheresPos[i](1));
 			printf("sphere %d old pos: %5f %5f\n", i, spheresOldPos[i](0), spheresOldPos[i](1));
@@ -301,6 +302,10 @@ void EigenCalculator_Engine<dims,_3D_>::doStep(){
 	}
 	forceCounter++;
 	int x = (int)ceil((spheresCount-1)/2.0);
+	
+	for(int i = 0; i<spheresCount; i++){
+		spheresForce[i].setZero();
+	}
 	
 	for(int i = 0; i<numForces; i++){
 		forces[i]->calcForces();
@@ -677,7 +682,7 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 				#endif
 			#endif
 			//printf("sphere speed: %5f %5f\n", spheresSpeed[i](0), spheresSpeed[i](1));
-			spheresForce[i].Zero();
+			spheresForce[i].setZero();
 		}
 		
 		for(int j = 0; j<spheresCount; j++){

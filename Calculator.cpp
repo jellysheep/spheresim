@@ -55,6 +55,8 @@ Calculator::Calculator(){
 	}
 	bufferFilled = false;
 	plotNext = false;
+	
+	curSimTime = QDateTime::currentDateTime();
 }
 /*
 double Calculator::readHex(FILE* file){

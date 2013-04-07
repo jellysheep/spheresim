@@ -69,6 +69,7 @@ public slots:
 	void setSave(bool b);
 	void setTemperature(double temp);
 	void setMagnitude(int m);
+	void setCurSimTime();
 };
 
 #endif /* _UI_CONTROL_ */

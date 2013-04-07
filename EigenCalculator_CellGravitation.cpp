@@ -145,7 +145,7 @@ void EigenCalculator_CellGravitation<dims,_3D_>::addApproximatingCells(int curCe
 	d = std::max(d,d2);
 	//minimal distance between the two cells:
 	scalar r = std::max((cellPos[curCellID]-cellPos[testCellID]).norm()
-		- cellHalfDiagLength[curCellID] - cellHalfDiagLength[testCellID], 0.001);
+		- cellHalfDiagLength[curCellID] - cellHalfDiagLength[testCellID], (scalar)0.001);
 	scalar theta = d/r;
 	if(theta<maxTheta){
 		if(numApproximatingCells[cid]<maxNumApproximatingCells){

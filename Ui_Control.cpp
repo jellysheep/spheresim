@@ -196,6 +196,7 @@ void Control::setSave(bool b){
 
 void Control::setTemperature(double temp){
 	rend->temp->setValue(temp);
+	setCurSimTime();
 }
 
 void Control::setTraceAmount(double d){
@@ -390,7 +391,7 @@ void Control::connectTrace(bool b){
 	updateGL();
 }
 void Control::speedChanged(double d){
-	speed = d;
+	cal->updateSpeed(d);
 }
 
 void Control::showWireframe(bool b){
@@ -421,4 +422,7 @@ void Control::setMagnitude(int m){
 	emit cal->boxSizeChanged();
 	updateGL();
 	emit cal->updateMagnitude();
+}
+void Control::setCurSimTime(){
+	rend->dateTime->setDateTime(cal->getCurSimTime());
 }

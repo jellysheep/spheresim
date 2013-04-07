@@ -10,6 +10,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <QDateTime>
+
 class GLWidget;
 class PlotWidget;
 
@@ -71,6 +73,10 @@ protected:
 	
 	virtual bool isFixed(int i)=0;
 	
+	QDateTime simStartDate; //when simulation was started, or as in .s2c/.s3c file.
+	QDateTime curSimTime;
+	QTime curTimer;
+	
 public:
 	Calculator();
 	
@@ -106,6 +112,20 @@ public:
 	
 	virtual scalar getTemperature()=0;
 	
+	QDateTime getCurSimTime(){
+		if(running){
+			curSimTime = simStartDate.addMSecs(speed*curTimer.elapsed());
+		}
+		return curSimTime;
+	}
+	
+	void updateSpeed(double s){
+		if(running){
+			simStartDate = simStartDate.addMSecs(speed*curTimer.restart());
+		}
+		speed = s;
+	}
+	
 public slots:
 	void start(){
 		printf("starting calculator... ");
@@ -116,13 +136,17 @@ public slots:
 		running = true;
 		hasStopped = false;
 		QThread::start();
+		simStartDate = curSimTime;
+		curTimer.start();
 		printf("started calculator! \n");
 	}
 	void stop(){
 		if(running)
 			running = false;
 		printf("wait for hasStopped==true\n");
-		while(hasStopped == false);
+		while(hasStopped == false){
+			curSimTime = simStartDate.addMSecs(speed*curTimer.elapsed());
+		}
 		printf("return from stop\n");
 	}
 	void quit(){

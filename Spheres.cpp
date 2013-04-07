@@ -10,7 +10,7 @@ int spheresCount = 10;
 int maxShowSpheresCount = 20000;
 bool manySpheres = (std::min(spheresCount,maxShowSpheresCount)>20);
 
-vector3 boxSize = (vector3){1,1,3};
+vector3 boxSize = (vector3){1,1,1};
 //Erdradius: 0.006 Mio.km
 vector2 sphereSize = (vector2){0.006,0.006};
 
@@ -31,10 +31,10 @@ bool saveBool = false, renderBool = true, playBool = false;
 int edges = 2*(int)(std::max(4.0,4*log(sphereSize.s[1]/boxSize.s[0]*400)));
 scalar step = 2*M_PI/edges;
 scalar G = 6.67384e-11; //10000000000.0*
-scalar G_fact = 0.1;
+scalar G_fact = 1.0;
 scalar airResistance = 1;
 bool wallResistance = true;
-bool ballResistance = true;
+bool ballResistance = false;
 
 bool useColorsBool = true;// && (spheresCount<=100);
 bool useColorHSV = true;
