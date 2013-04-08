@@ -11,7 +11,7 @@
 #include "Spheres.h"
 
 StartDialog::StartDialog(){
-	#if 1
+	#if 0
 		#if 0
 			if(use3D){
 				calc = new ThrustCalculator3D();

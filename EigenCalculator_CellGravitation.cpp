@@ -302,6 +302,7 @@ void EigenCalculator_CellGravitation<dims,_3D_>::paintCell(int i){
 	
 template <int dims, bool _3D_>
 void EigenCalculator_CellGravitation<dims,_3D_>::paintGL(){
+	return;
 	
 	if(spheresCount>0){
 		glPushMatrix();		
