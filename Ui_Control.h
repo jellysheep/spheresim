@@ -70,6 +70,7 @@ public slots:
 	void setTemperature(double temp);
 	void setMagnitude(int m);
 	void setCurSimTime();
+	void setBallResistance(bool b);
 };
 
 #endif /* _UI_CONTROL_ */

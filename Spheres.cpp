@@ -2,6 +2,7 @@
 #include "Spheres.h"
 #include <cmath>
 #include <algorithm>
+#include <QCoreApplication>
 
 bool use3D = true;
 bool fastRender = true;
@@ -34,7 +35,7 @@ scalar G = 6.67384e-11; //10000000000.0*
 scalar G_fact = 1.0;
 scalar airResistance = 1;
 bool wallResistance = true;
-bool ballResistance = false;
+bool ballResistance = true;
 
 bool useColorsBool = true;// && (spheresCount<=100);
 bool useColorHSV = true;
@@ -102,5 +103,12 @@ const char* getConfigFileExtension(){
 		return configFileExtension3D;
 	}else{
 		return configFileExtension2D;
+	}
+}
+
+void errorExit(){
+	while(1){
+		QCoreApplication::exit(EXIT_FAILURE);
+		exit(EXIT_FAILURE);
 	}
 }

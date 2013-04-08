@@ -9,7 +9,7 @@ void EigenCalculator_PairGravitation<dims,_3D_>::calcGravitation(int i, int j){
 	//d_pos.s2 = 0;
 	scalar d = d_pos.norm();
 	//d = std::max(d,(scalar)0.00005f);
-	d = std::max(d,std::max((scalar)F::spheres[i].size/5, (scalar)F::spheres[j].size/5));
+	d = std::max(d,std::max((scalar)F::spheres[i].size/50, (scalar)F::spheres[j].size/50));
 	
 	eVector d_n, force;
 	

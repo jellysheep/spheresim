@@ -11,7 +11,7 @@
 #include "Spheres.h"
 
 StartDialog::StartDialog(){
-	#if 0
+	#if 1
 		#if 0
 			if(use3D){
 				calc = new ThrustCalculator3D();
@@ -73,6 +73,7 @@ void StartDialog::accepted_(){
 	}else{
 		magnitude = 0;
 	}
+	curUnit = unitOfMagnitude[magnitude];
 	
 	///simulationType:
 	if(dlg->read->isChecked()){

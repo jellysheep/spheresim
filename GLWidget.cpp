@@ -83,7 +83,7 @@ void GLWidget::initializeGL() {
 	// Setup a perspective projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(50.f, 1.f*800/600*boxSize.s[0]/boxSize.s[1], 1.f, 3000.f);
+	gluPerspective(50.f, 1.f*800/600*boxSize.s[0]/boxSize.s[1], 0.01f, 5000.f);
 	
 	if(use3D){
 		glEnable(GL_LIGHTING);
@@ -117,7 +117,7 @@ void GLWidget::initializeGL() {
 	// Setup a perspective projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(50.f, 1.f*boxSize.s[1]/boxSize.s[0], 1.f, 20000.f);
+	gluPerspective(50.f, 1.f*boxSize.s[1]/boxSize.s[0], 0.01f, 5000.f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	
@@ -250,7 +250,7 @@ void GLWidget::resizeGL(int w, int h) {
 	glViewport(0,0,w,h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(50.f, 1.f*w/h, 1.f, 20000.f);
+	gluPerspective(50.f, 1.f*w/h, 0.01f, 5000.f);
 	glMatrixMode(GL_MODELVIEW);
 	//glLoadIdentity();
 	/*

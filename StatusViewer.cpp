@@ -61,7 +61,7 @@ void StatusViewer::updateTimer(){
 	if(clTimer->isRunning()){
 		double nextCalculatorFrames = clTimerFrames;
 		if(nextCalculatorFrames <= 0){
-			nextCalculatorFrames = 10000;
+			nextCalculatorFrames = 1000000;
 		}
 		if(renderBool){
 			static scalar bufferLoadTarget = 0.65;
@@ -90,8 +90,8 @@ void StatusViewer::updateTimer(){
 		printf("Temperature: %f\n", temp);
 		emit temperatureChanged(temp);
 	}else{
-		fps = 10000;
-		clTimerFrames = 10000;
+		fps = 1000000;
+		clTimerFrames = 1000000;
 	}
 		
 	if(speed!=0 && fps!=0 && speedCorrection!=0){

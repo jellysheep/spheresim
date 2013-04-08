@@ -5,7 +5,7 @@
 #include <QColor>
 
 //#define _3D_ 1
-#define _double_ 0
+#define _double_ 1
 
 //#define fastSphereRender 1
 
@@ -209,5 +209,7 @@ namespace unit{
 
 extern Unit unitOfMagnitude[2];
 extern Unit curUnit;
+
+extern void errorExit();
 
 #endif

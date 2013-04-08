@@ -136,9 +136,6 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 		this, SLOT(setRender(bool)), Qt::AutoConnection);
 	QObject::connect(calc->save, SIGNAL(toggled(bool)), 
 		this, SLOT(setSave(bool)), Qt::AutoConnection);
-		
-	QObject::connect(calc->magnitude, SIGNAL(currentIndexChanged(int)), 
-		this, SLOT(setMagnitude(int)), Qt::AutoConnection);
 	
 	QObject::connect((const QObject*)sv, SIGNAL(temperatureChanged(double)), 
 		this, SLOT(setTemperature(double)), Qt::AutoConnection);
@@ -147,6 +144,11 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 		cc cal, SLOT(saveConfig()), Qt::AutoConnection);
 	QObject::connect(calc->loadConfig, SIGNAL(clicked()), 
 		cc cal, SLOT(loadConfig()), Qt::AutoConnection);
+		
+	QObject::connect(calc->magnitude, SIGNAL(currentIndexChanged(int)), 
+		this, SLOT(setMagnitude(int)), Qt::AutoConnection);
+	QObject::connect(calc->ball_resistance, SIGNAL(toggled(bool)), 
+		this, SLOT(setBallResistance(bool)), Qt::AutoConnection);
 	
 	rend->calc_speed->setValue(speed);
 	calc->count->setValue(spheresCount);
@@ -180,6 +182,7 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	calc->render->setChecked(renderBool);
 	calc->save->setChecked(saveBool);
 	calc->magnitude->setCurrentIndex(magnitude);
+	calc->ball_resistance->setChecked(ballResistance);
 }
 
 void Control::setRender(bool b){
@@ -425,4 +428,7 @@ void Control::setMagnitude(int m){
 }
 void Control::setCurSimTime(){
 	rend->dateTime->setDateTime(cal->getCurSimTime());
+}
+void Control::setBallResistance(bool b){
+	ballResistance = b;
 }

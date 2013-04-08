@@ -238,6 +238,7 @@ void EigenCalculator_Engine<dims,_3D_>::calcWallResistance(){
 #define sqr(x) ((x)*(x))
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::sumUpForces(){
+	//printf("interval: %10f\n", timeInterval);
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){
 		if(spheres[i].fixed == 0){
