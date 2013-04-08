@@ -51,5 +51,10 @@ void EigenCalculator_PairCollider<dims,_3D_>::calcForces(){
 	}
 }
 
+template <int dims, bool _3D_>
+void EigenCalculator_PairCollider<dims,_3D_>::spheresCountChanged(int c){
+	F::spheresCountChanged(c);
+}
+
 template class EigenCalculator_PairCollider<2,false>;
 template class EigenCalculator_PairCollider<3,true>;

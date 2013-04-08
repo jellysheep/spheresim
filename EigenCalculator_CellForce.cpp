@@ -247,42 +247,21 @@ EigenCalculator_CellForce<dims,_3D_>::EigenCalculator_CellForce(EigenCalculator_
 		printf("\n");
 	}//*/
 	
-	/*
-	/// z-Order 3D-Test:
-	int x = 0, y = 0, z = 0;
-	std::cout<<"x: "<<std::bitset<32>(x)<<" y: "<<std::bitset<32>(y)<<" z: "<<std::bitset<32>(z)<<'\n';
-	std::cout<<"$: "<<std::bitset<32>(calcZOrder(x,y,z))<<'\n';
-	x = 0b1111111111111, y = 0, z = 0;
-	std::cout<<"x: "<<std::bitset<32>(x)<<" y: "<<std::bitset<32>(y)<<" z: "<<std::bitset<32>(z)<<'\n';
-	std::cout<<"$: "<<std::bitset<32>(calcZOrder(x,y,z))<<'\n';
-	x = 0, y = 0b1111111111111, z = 0;
-	std::cout<<"x: "<<std::bitset<32>(x)<<" y: "<<std::bitset<32>(y)<<" z: "<<std::bitset<32>(z)<<'\n';
-	std::cout<<"$: "<<std::bitset<32>(calcZOrder(x,y,z))<<'\n';
-	x = 0, y = 0, z = 0b1111111111111;
-	std::cout<<"x: "<<std::bitset<32>(x)<<" y: "<<std::bitset<32>(y)<<" z: "<<std::bitset<32>(z)<<'\n';
-	std::cout<<"$: "<<std::bitset<32>(calcZOrder(x,y,z))<<'\n';
-	x = 0b1111111111111, y = 0b1111111111111, z = 0b1111111111111;
-	std::cout<<"x: "<<std::bitset<32>(x)<<" y: "<<std::bitset<32>(y)<<" z: "<<std::bitset<32>(z)<<'\n';
-	std::cout<<"$: "<<std::bitset<32>(calcZOrder(x,y,z))<<'\n';
-	//*/
-	
-	///cellSorting
-	
-	firstSphereInCell = new int[numCells_];
-	memset(firstSphereInCell, 0, numCells_);
-	posCell = new Pos[spheresCount];
-	cellOfSphere = new int[spheresCount];
-
-	///cellSorting
 	for(int i = 0; i<spheresCount; i++){
-		posCell[i].sphereAtPos = i;
-		posCell[i].posOfSphere = i;
-		
-		gridIndex[i] = new int[dims];
+		C::gridIndex[i] = new int[dims];
 
 	}
 }
 
+template <int dims, bool _3D_>
+void EigenCalculator_CellForce<dims,_3D_>::spheresCountChanged(int c){
+	F::spheresCountChanged(c);
+	printf("CellForce: SpheresCount changes from %5d to %5d\n", spheresCount, c);
+	gridIndex = newCopy(gridIndex, spheresCount, c);
+	for(int i = spheresCount; i<c; i++){
+		gridIndex[i] = new int[dims];
+	}
+}
 
 template class EigenCalculator_CellForce<2,false>;
 template class EigenCalculator_CellForce<3,true>;

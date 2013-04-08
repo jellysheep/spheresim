@@ -24,6 +24,8 @@ public:
 	}
 	
 	virtual void calcForces();
+	
+	virtual void spheresCountChanged(int c);
 };
 
 #endif  /*_EIGEN_CALCULATOR_EFFICIENT_PAIR_COLLIDER_H_*/

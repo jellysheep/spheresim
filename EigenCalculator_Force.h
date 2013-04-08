@@ -35,7 +35,14 @@ public:
 		_E = calc->_E;
 	}
 	
-	virtual void spheresCountChanged(int spheresCount){}
+	virtual void spheresCountChanged(int c){
+		spheres = calc->spheres;
+		spheresPos = calc->spheresPos;
+		spheresSpeed = calc->spheresSpeed;
+		spheresForce = calc->spheresForce;
+		both_r = calc->both_r;
+		_E = calc->_E;
+	}
 	
 	virtual void paintGL(){}
 };

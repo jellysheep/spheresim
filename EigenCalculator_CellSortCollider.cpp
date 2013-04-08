@@ -7,12 +7,12 @@ void EigenCalculator_CellSortCollider<dims,_3D_>::sortSpheresByCells(){
 	if(_3D_){
 		for(int i = 0; i<spheresCount; i++){
 			//calculate cell ID
-			C::cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1], C::gridIndex[i][2]);
+			cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1], C::gridIndex[i][2]);
 		}
 	}else{
 		for(int i = 0; i<spheresCount; i++){
 			//calculate cell ID
-			C::cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1]);
+			cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1]);
 			//printf
 		}
 	}
@@ -20,22 +20,22 @@ void EigenCalculator_CellSortCollider<dims,_3D_>::sortSpheresByCells(){
 	int temp;
 	int j, cid; //sphere ID
 	for (int i=1; i < spheresCount; i++){
-		cid = C::posCell[i].sphereAtPos;
-		temp = C::cellOfSphere[cid];
+		cid = posCell[i].sphereAtPos;
+		temp = cellOfSphere[cid];
 		j = i-1;
 
 		//while (j >= 0 && spheresPos[p[j].sphereAtPos](dim) > temp){
-		while (j >= 0 && C::cellOfSphere[C::posCell[j].sphereAtPos] > temp){
-			C::posCell[j+1].sphereAtPos = C::posCell[j].sphereAtPos;
+		while (j >= 0 && cellOfSphere[posCell[j].sphereAtPos] > temp){
+			posCell[j+1].sphereAtPos = posCell[j].sphereAtPos;
 			j--;
 		}
 
-		C::posCell[j+1].sphereAtPos = cid;
+		posCell[j+1].sphereAtPos = cid;
 	}
 	
 	//save array index of each sphere
 	for(int i = 0; i<spheresCount; i++){
-		C::posCell[C::posCell[i].sphereAtPos].posOfSphere = i;
+		posCell[posCell[i].sphereAtPos].posOfSphere = i;
 	}
 	
 	/*
@@ -44,20 +44,20 @@ void EigenCalculator_CellSortCollider<dims,_3D_>::sortSpheresByCells(){
 		for(j = curUnit.size*boxSize.s1/gridWidth + 1; j>=0; j--){
 			if(_3D_){
 				for(int k = curUnit.size*boxSize.s2/gridWidth; k>=0; k--){
-					C::firstSphereInCell[i + C::numCellsPerAxis*j + C::numCellsPerAxis*C::numCellsPerAxis*k] = -1;
+					firstSphereInCell[i + C::numCellsPerAxis*j + C::numCellsPerAxis*C::numCellsPerAxis*k] = -1;
 				}
 			}else{
-				C::firstSphereInCell[i + C::numCellsPerAxis*j] = -1;
+				firstSphereInCell[i + C::numCellsPerAxis*j] = -1;
 			}
 		}
 	}// */
 	
-	//find C::posCell array position of first sphere of each cell
+	//find posCell array position of first sphere of each cell
 	for(int i = spheresCount-1; i>=0; i--){
-		C::firstSphereInCell[C::cellOfSphere[C::posCell[i].sphereAtPos]] = i;
+		firstSphereInCell[cellOfSphere[posCell[i].sphereAtPos]] = i;
 	}
 	/*for(int i = 0; i<spheresCount; i++){
-		printf("Sphere: %2d cellID: %2d first sphere in cell: %2d\n", C::posCell[i].sphereAtPos, C::cellOfSphere[C::posCell[i].sphereAtPos], C::posCell[C::firstSphereInCell[C::cellOfSphere[C::posCell[i].sphereAtPos]]].sphereAtPos);
+		printf("Sphere: %2d cellID: %2d first sphere in cell: %2d\n", posCell[i].sphereAtPos, cellOfSphere[posCell[i].sphereAtPos], posCell[firstSphereInCell[cellOfSphere[posCell[i].sphereAtPos]]].sphereAtPos);
 	}// */
 }
 
@@ -71,16 +71,17 @@ void EigenCalculator_CellSortCollider<dims,_3D_>::checkCollision(int i, int x, i
 		return;
 	}
 	int cellID = C::calcCellID(x,y,z);
-	int j = C::firstSphereInCell[cellID]; //sphere 2 pos in array
-	if(j < 0){
+	int j = firstSphereInCell[cellID]; //sphere 2 pos in array
+	if(j < 0 || j>=spheresCount){
 		//printf("empty cell: %2d (%2d)\n", cellID, j);
 		return;
 	}
-	int c2 = C::posCell[j].sphereAtPos; //sphere 2 ID
+	int c2 = posCell[j].sphereAtPos; //sphere 2 ID
+	if(c2 < 0 || c2>=spheresCount) return;
 	//printf("sphere 2 ID: %3d\n", c2);
-	//if(c2>spheresCount) printf("cell: %2d sphere 2 ID: %2d cell of sphere before: %2d cell of next sphere: %2d\n", cellID, c2, C::cellOfSphere[C::posCell[j-1].sphereAtPos], C::cellOfSphere[C::posCell[j+1].sphereAtPos]);
-	//printf("cell: %2d | %2d cell of sphere before: %2d cell of next sphere: %2d\n", cellID, C::cellOfSphere[C::posCell[j].sphereAtPos], C::cellOfSphere[C::posCell[j-1].sphereAtPos], C::cellOfSphere[C::posCell[j+1].sphereAtPos]);
-	while(C::cellOfSphere[c2] == cellID){
+	//if(c2>spheresCount) printf("cell: %2d sphere 2 ID: %2d cell of sphere before: %2d cell of next sphere: %2d\n", cellID, c2, cellOfSphere[posCell[j-1].sphereAtPos], cellOfSphere[posCell[j+1].sphereAtPos]);
+	//printf("cell: %2d | %2d cell of sphere before: %2d cell of next sphere: %2d\n", cellID, cellOfSphere[posCell[j].sphereAtPos], cellOfSphere[posCell[j-1].sphereAtPos], cellOfSphere[posCell[j+1].sphereAtPos]);
+	while(cellOfSphere[c2] == cellID){
 		#if twiceCalcCollisions==0
 			if(!(sameCell && spheresOldPos[i][0]>spheresOldPos[c2][0]))
 		#endif
@@ -91,8 +92,8 @@ void EigenCalculator_CellSortCollider<dims,_3D_>::checkCollision(int i, int x, i
 		}
 		j++;
 		//if(j>=spheresCount) return;
-		c2 = C::posCell[j].sphereAtPos;
-		//if(c2>=spheresCount || c2<0) return;
+		c2 = posCell[j].sphereAtPos;
+		if(c2>=spheresCount || c2<0) return;
 	}; //check collisions of all spheres in that cell
 }
 
@@ -187,6 +188,30 @@ void EigenCalculator_CellSortCollider<dims,_3D_>::calcForces(){
 			#endif
 		}
 	}
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_CellSortCollider<dims,_3D_>::spheresCountChanged(int c){
+	P::spheresCountChanged(c);
+	C::spheresCountChanged(c);
+	cellOfSphere = newCopy(cellOfSphere, spheresCount, c);
+	
+	//posCell:
+	Pos* pos = newCopy(posCell, spheresCount, c);
+	int sphereAtLastPos, posOfLastSphere;
+	//if c<spheresCount:
+	for(int i = spheresCount-1; i>=c; i--){
+		sphereAtLastPos = posCell[i].sphereAtPos;
+		posOfLastSphere = posCell[i].posOfSphere;
+		pos[posOfLastSphere].sphereAtPos = sphereAtLastPos;
+		pos[sphereAtLastPos].posOfSphere = posOfLastSphere;
+	}
+	//if c>spheresCount:
+	for(int i = spheresCount; i<c; i++){
+		pos[i].sphereAtPos = i;
+		pos[i].posOfSphere = i;
+	}
+	posCell = pos;
 }
 
 template class EigenCalculator_CellSortCollider<2,false>;

@@ -46,5 +46,11 @@ void EigenCalculator_EfficientPairCollider<dims,_3D_>::calcForces(){
 	}
 }
 
+template <int dims, bool _3D_>
+void EigenCalculator_EfficientPairCollider<dims,_3D_>::spheresCountChanged(int c){
+	P::spheresCountChanged(c);
+	C::spheresCountChanged(c);
+}
+
 template class EigenCalculator_EfficientPairCollider<2,false>;
 template class EigenCalculator_EfficientPairCollider<3,true>;

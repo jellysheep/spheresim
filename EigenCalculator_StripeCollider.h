@@ -17,6 +17,8 @@ protected:
 	
 	Pos *posX, *posY, *posZ; //positions of spheres sorted by axes
 	void sort(Pos* p, int dim);
+	
+	Pos* spheresCountChanged(Pos* p, int c);
 
 public:
 	EigenCalculator_StripeCollider(EigenCalculator_Engine<dims,_3D_>* c) :
@@ -42,6 +44,8 @@ public:
 	}
 	
 	virtual void calcForces();
+	
+	virtual void spheresCountChanged(int c);
 };
 
 #endif  /*_EIGEN_CALCULATOR_STRIPE_COLLIDER_H_*/

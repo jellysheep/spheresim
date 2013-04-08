@@ -119,6 +119,17 @@ void EigenCalculator_CellCountCollider<dims,_3D_>::collideSpheresPerCell(bool nu
 	if(tooManyColls) printf("Too many spheres colliding with one sphere!\n");
 }
 
+template <int dims, bool _3D_>
+void EigenCalculator_CellCountCollider<dims,_3D_>::spheresCountChanged(int c){
+	P::spheresCountChanged(c);
+	C::spheresCountChanged(c);
+	numCollsPerSphere = newCopy(numCollsPerSphere, spheresCount, c);
+	collsPerSphere = newCopy(collsPerSphere, spheresCount, c);
+	for(int i = spheresCount; i<c; i++){
+		collsPerSphere[i] = new int[maxNumCollsPerSphere];
+	}
+}
+
 template class EigenCalculator_CellCountCollider<2,false>;
 template class EigenCalculator_CellCountCollider<3,true>;
 

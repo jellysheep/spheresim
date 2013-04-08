@@ -17,6 +17,8 @@ class EigenCalculator_CellGravitation : public EigenCalculator_CellForce<dims,_3
 protected:
 	void calcGravitation(int i, int j, bool bothWays=true);
 	
+	int *cellOfSphere;
+	
 	int* numSpheresInCell;
 	int** spheresInCell;
 	void countSpheresPerCell();
@@ -53,6 +55,8 @@ public:
 	virtual void calcForces();
 	
 	void paintGL();
+	
+	virtual void spheresCountChanged(int c);
 };
 
 #endif  /*_EIGEN_CALCULATOR_CELL_GRAVITATION_H_*/

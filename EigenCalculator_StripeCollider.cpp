@@ -60,5 +60,33 @@ void EigenCalculator_StripeCollider<dims,_3D_>::calcForces(){
 	}
 }
 
+template <int dims, bool _3D_>
+Pos* EigenCalculator_StripeCollider<dims,_3D_>::spheresCountChanged(Pos* p, int c){
+	Pos* pos = newCopy(p, spheresCount, c);
+	int sphereAtLastPos, posOfLastSphere;
+	//if c<spheresCount:
+	for(int i = spheresCount-1; i>=c; i--){
+		sphereAtLastPos = pos[i].sphereAtPos;
+		posOfLastSphere = pos[i].posOfSphere;
+		pos[posOfLastSphere].sphereAtPos = sphereAtLastPos;
+		pos[sphereAtLastPos].posOfSphere = posOfLastSphere;
+	}
+	//if c>spheresCount:
+	for(int i = spheresCount; i<c; i++){
+		pos[i].sphereAtPos = i;
+		pos[i].posOfSphere = i;
+	}
+	return pos;
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_StripeCollider<dims,_3D_>::spheresCountChanged(int c){
+	P::spheresCountChanged(c);
+	C::spheresCountChanged(c);
+	posX = spheresCountChanged(posX, c);
+	posY = spheresCountChanged(posY, c);
+	if(use3D) posZ = spheresCountChanged(posZ, c);
+}
+
 template class EigenCalculator_StripeCollider<2,false>;
 template class EigenCalculator_StripeCollider<3,true>;

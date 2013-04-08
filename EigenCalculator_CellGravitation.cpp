@@ -10,6 +10,8 @@ template <int dims, bool _3D_>
 EigenCalculator_CellGravitation<dims,_3D_>::EigenCalculator_CellGravitation(
 	EigenCalculator_Engine<dims,_3D_>* c):F(c),C(c,false){
 	
+	cellOfSphere = new int[spheresCount];
+	
 	numAllCells = C::numCells_*2;
 	massVecSumOfCell = new eVector[numAllCells];
 	massSumOfCell = new scalar[numAllCells];
@@ -178,12 +180,12 @@ void EigenCalculator_CellGravitation<dims,_3D_>::countSpheresPerCell(){
 	if(_3D_){
 		for(int i = 0; i<spheresCount; i++){
 			//calculate cell ID
-			C::cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1], C::gridIndex[i][2]);
+			cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1], C::gridIndex[i][2]);
 		}
 	}else{
 		for(int i = 0; i<spheresCount; i++){
 			//calculate cell ID
-			C::cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1]);
+			cellOfSphere[i] = C::calcCellID(C::gridIndex[i][0], C::gridIndex[i][1]);
 			//printf
 		}
 	}
@@ -192,7 +194,7 @@ void EigenCalculator_CellGravitation<dims,_3D_>::countSpheresPerCell(){
 	bool tooManySpheres = false;
 	parallelFor
 	for(int i = 0; i<spheresCount; i++){
-		int cellID = C::cellOfSphere[i];
+		int cellID = cellOfSphere[i];
 		if(numSpheresInCell[cellID]<maxNumSpheresInCell){
 			spheresInCell[cellID][numSpheresInCell[cellID]++] = i;
 		}else{
@@ -237,8 +239,8 @@ void EigenCalculator_CellGravitation<dims,_3D_>::calcForces(){
 		}
 		///sum up masses in smallest cells:
 		for(i = 0; i<spheresCount; i++){
-			massVecSumOfCell[C::numCells_+C::cellOfSphere[i]] += F::spheres[i].mass*F::spheresPos[i];
-			massSumOfCell[C::numCells_+C::cellOfSphere[i]] += F::spheres[i].mass;
+			massVecSumOfCell[C::numCells_+cellOfSphere[i]] += F::spheres[i].mass*F::spheresPos[i];
+			massSumOfCell[C::numCells_+cellOfSphere[i]] += F::spheres[i].mass;
 		}
 		///sum up masses to parent cells and calculate center of mass:
 		int parentCell;
@@ -301,33 +303,50 @@ void EigenCalculator_CellGravitation<dims,_3D_>::paintCell(int i){
 template <int dims, bool _3D_>
 void EigenCalculator_CellGravitation<dims,_3D_>::paintGL(){
 	
-	glPushMatrix();
-	
-	glScalef(curUnit.size*boxSize.s0, curUnit.size*boxSize.s1, curUnit.size*boxSize.s2);
-	int sid = 0;
-	int cid = C::cellOfSphere[sid];
-	cid = std::min(cid, C::numCells_-1);
-	cid = std::max(cid, 0);
-	
-	glColor3d(0.0, 0.0, 1.0);
-	paintCell(C::numCells_+cid);
-	//~ printf("pairwise cells: \n");
-	glColor3d(1.0, 0.0, 0.0);
-	for(int i = 0; i<numPairwiseCells[cid]; i++){
-		//~ printf("Cell size of cell %4d is: %3f %3f %3f\n", pairwiseCells[cid][i], cellSize[pairwiseCells[cid][i]](0), cellSize[pairwiseCells[cid][i]](1), (_3D_?cellSize[pairwiseCells[cid][i]](2):0));
-		//~ printf("Cell pos. of cell %4d is: %3f %3f %3f\n", pairwiseCells[cid][i], cellPos[pairwiseCells[cid][i]](0), cellPos[pairwiseCells[cid][i]](1), (_3D_?cellPos[pairwiseCells[cid][i]](2):0));
-		paintCell(pairwiseCells[cid][i]);
+	if(spheresCount>0){
+		glPushMatrix();		
+		glScalef(curUnit.size*boxSize.s0, curUnit.size*boxSize.s1, curUnit.size*boxSize.s2);
+		
+		int sid = 0;
+		Sphere* s = F::calc->getSphere(sid);
+		if(s!=NULL){
+			int cid;
+			if(use3D){
+				cid = C::calcCellID(s->pos.s[0]/C::gridWidth, s->pos.s[1]/C::gridWidth, s->pos.s[2]/C::gridWidth);
+			}else{
+				cid = C::calcCellID(s->pos.s[0]/C::gridWidth, s->pos.s[1]/C::gridWidth);
+			}
+			//int cid = cellOfSphere[sid];
+			cid = std::min(cid, C::numCells_-1);
+			cid = std::max(cid, 0);
+			
+			glColor3d(0.0, 0.0, 1.0);
+			paintCell(C::numCells_+cid);
+			//~ printf("pairwise cells: \n");
+			glColor3d(1.0, 0.0, 0.0);
+			for(int i = 0; i<numPairwiseCells[cid]; i++){
+				//~ printf("Cell size of cell %4d is: %3f %3f %3f\n", pairwiseCells[cid][i], cellSize[pairwiseCells[cid][i]](0), cellSize[pairwiseCells[cid][i]](1), (_3D_?cellSize[pairwiseCells[cid][i]](2):0));
+				//~ printf("Cell pos. of cell %4d is: %3f %3f %3f\n", pairwiseCells[cid][i], cellPos[pairwiseCells[cid][i]](0), cellPos[pairwiseCells[cid][i]](1), (_3D_?cellPos[pairwiseCells[cid][i]](2):0));
+				paintCell(pairwiseCells[cid][i]);
+			}
+			//~ printf("approximating cells: \n");
+			glColor3d(0.0, 1.0, 0.0);
+			for(int i = 0; i<numApproximatingCells[cid]; i++){
+				//~ printf("Cell size of cell %4d is: %3f %3f %3f\n", approximatingCells[cid][i], cellSize[approximatingCells[cid][i]](0), cellSize[approximatingCells[cid][i]](1), (_3D_?cellSize[approximatingCells[cid][i]](2):0));
+				//~ printf("Cell pos. of cell %4d is: %3f %3f %3f\n", approximatingCells[cid][i], cellPos[approximatingCells[cid][i]](0), cellPos[approximatingCells[cid][i]](1), (_3D_?cellPos[approximatingCells[cid][i]](2):0));
+				paintCell(approximatingCells[cid][i]);
+			}
+			//printf("Cell pos. of sphere %4d is: %3d %3d %3d\n", sid, C::gridIndex[sid][0], C::gridIndex[sid][1], (_3D_?C::gridIndex[sid][2]:0));
+			
+			glPopMatrix();
+		}
 	}
-	//~ printf("approximating cells: \n");
-	glColor3d(0.0, 1.0, 0.0);
-	for(int i = 0; i<numApproximatingCells[cid]; i++){
-		//~ printf("Cell size of cell %4d is: %3f %3f %3f\n", approximatingCells[cid][i], cellSize[approximatingCells[cid][i]](0), cellSize[approximatingCells[cid][i]](1), (_3D_?cellSize[approximatingCells[cid][i]](2):0));
-		//~ printf("Cell pos. of cell %4d is: %3f %3f %3f\n", approximatingCells[cid][i], cellPos[approximatingCells[cid][i]](0), cellPos[approximatingCells[cid][i]](1), (_3D_?cellPos[approximatingCells[cid][i]](2):0));
-		paintCell(approximatingCells[cid][i]);
-	}
-	//printf("Cell pos. of sphere %4d is: %3d %3d %3d\n", sid, C::gridIndex[sid][0], C::gridIndex[sid][1], (_3D_?C::gridIndex[sid][2]:0));
-	
-	glPopMatrix();
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_CellGravitation<dims,_3D_>::spheresCountChanged(int c){
+	C::spheresCountChanged(c);
+	cellOfSphere = newCopy(cellOfSphere, spheresCount, c);
 }
 
 template class EigenCalculator_CellGravitation<2,false>;

@@ -30,10 +30,6 @@ protected:
 	
 	int calcCellID(int x, int y, int z=0);
 	
-	int *cellOfSphere;
-	Pos *posCell; //spheres sorted by cell ID
-	int *firstSphereInCell; //first sphere in each cell, or -1
-	
 	int gridSteps;
 	scalar gridWidth;
 	int **gridIndex; //?
@@ -54,6 +50,8 @@ public:
 			}
 		}
 	};
+	
+	virtual void spheresCountChanged(int c);
 };
 
 #endif  /*_EIGEN_CALCULATOR_CELL_FORCE_H_*/

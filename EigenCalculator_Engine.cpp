@@ -67,11 +67,11 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	//addForce(new EigenCalculator_PairCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_EfficientPairCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_StripeCollider<dims,_3D_>(this));
-	//addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
-	addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
+	addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
+	//addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
 	
-	addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
-	//addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
+	//addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
+	addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
 	
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){
@@ -157,7 +157,7 @@ void EigenCalculator_Engine<dims,_3D_>::initSphere(int i){
 	#endif
 	spheresOldPos[i] = spheresPos[i];
 	spheres[i].mass = 4.0/3.0*pow(spheres[i].size,3)*M_PI  *950; //Kautschuk
-	printf("Sphere: radius %10f m;   mass: %10f kg\n", spheres[i].size, spheres[i].mass);
+	//printf("Sphere: radius %10f m;   mass: %10f kg\n", spheres[i].size, spheres[i].mass);
 }
 
 
@@ -304,9 +304,9 @@ void EigenCalculator_Engine<dims,_3D_>::doStep(){
 	forceCounter++;
 	int x = (int)ceil((spheresCount-1)/2.0);
 	
-	for(int i = 0; i<spheresCount; i++){
+	/*for(int i = 0; i<spheresCount; i++){
 		spheresForce[i].setZero();
-	}
+	}*/
 	
 	for(int i = 0; i<numForces; i++){
 		forces[i]->calcForces();
@@ -539,6 +539,11 @@ void EigenCalculator_Engine<dims,_3D_>::sphereCountChanged_subclass(int i){
 				both_r[j][k] = spheres[j].size+spheres[k].size;
 			}
 		}
+	}
+	
+	///update all forces:
+	for(int j = 0; j<numForces; j++){
+		forces[j]->spheresCountChanged(i);
 	}
 }
 
