@@ -5,12 +5,12 @@
 #include "OpenClCalculator.h"
 #include "ThrustCalculator.h"
 #include "FileCalculator.h"
-#include <QTranslator>
 #include <QLibraryInfo>
 
 #include "Spheres.h"
 
-StartDialog::StartDialog(){
+StartDialog::StartDialog(QApplication* a){
+	app = a;
 	#if 0
 		#if 0
 			if(use3D){
@@ -44,21 +44,25 @@ StartDialog::StartDialog(){
 void StartDialog::accepted_(){
 	calc = NULL;
 	///language:
-	QTranslator qtTranslator;
-	QTranslator sTranslator;
 	QString localeName;
 	if(dlg->german->isChecked()){
 		localeName = "de_DE";
 	}else{
 		localeName = "en_GB";
 	}
-	qtTranslator.load("qt_" + localeName,
+	//*
+	qtTranslator = new QTranslator();
+	qtTranslator->load("qt_" + localeName,
 		QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-	QApplication::installTranslator(&qtTranslator);
+	app->installTranslator(qtTranslator);
+	//QApplication::installTranslator(qtTranslator);//*/
+	
+	sTranslator = new QTranslator();
 	QString localeStr = "translate_" + localeName;
-	sTranslator.load(localeStr);
-	printf("locale data: \"%s\"\n", localeStr.toLatin1().constData());
-	QApplication::installTranslator(&sTranslator);
+	bool b = sTranslator->load(localeStr);
+	printf("locale data: \"%s\" (found: %s)\n", localeStr.toLatin1().constData(), b?"true":"false");
+	app->installTranslator(sTranslator);
+	//QApplication::installTranslator(sTranslator);
 	
 	///dimension:
 	if(dlg->_3D->isChecked()){

@@ -34,8 +34,10 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	
 	rend = new Ui::Rendering();
 	rend->setupUi(rendWg);
+	rend->retranslateUi(rendWg);
 	calc = new Ui::Calculations();
 	calc->setupUi(calcWg);
+	calc->retranslateUi(calcWg);
 	
 	QSize rendSize = rendWg->size();
 	rendSize.setHeight(5000);

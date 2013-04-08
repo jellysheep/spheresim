@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
 	
 		//Calculator* clTimer = new OpenClCalculator();
 		//Calculator* clTimer = new EigenCalculator();
-		Calculator* clTimer = StartDialog().getCalculator();
+		Calculator* clTimer = StartDialog(&app).getCalculator();
 		if(clTimer == NULL) exit(0);
 		printf("Calculator initialized!\n");
 
