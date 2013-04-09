@@ -112,6 +112,7 @@ extern int maxShowSpheresCount;
 extern vector3 boxSize;
 extern vector2 sphereSize;
 
+extern bool useRungeKutta;
 extern bool autoSlowRender;
 extern int renderFpsMax;
 extern int renderFps;

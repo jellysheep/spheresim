@@ -48,8 +48,6 @@ protected:
 	scalar _E;
 	
 	void calcWallResistance();
-	void calcBallResistance();
-	void sumUpForces();
 	
 	int maxNumForces;
 	EigenCalculator_Force<dims,_3D_>** forces;
@@ -59,6 +57,11 @@ protected:
 	void addForce();
 	
 	void addForce(EigenCalculator_Force<dims,_3D_>* force);
+	
+	void EulerPolygon();
+	void RungeKutta();
+	void addStandardForces();
+	eVector** k;
 
 public:
 	EigenCalculator_Engine();

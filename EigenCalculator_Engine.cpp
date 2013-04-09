@@ -67,11 +67,14 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	//addForce(new EigenCalculator_PairCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_EfficientPairCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_StripeCollider<dims,_3D_>(this));
-	addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
-	//addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
+	//addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
+	addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
 	
 	//addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
 	addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
+	
+	
+	k = new eVector*[spheresCount];
 	
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){
@@ -79,6 +82,8 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 		both_r[i] = new scalar[spheresCount];
 		
 		initSphere(i);
+		
+		k[i] = new eVector[9];
 		
 	}
 	
@@ -235,9 +240,23 @@ void EigenCalculator_Engine<dims,_3D_>::calcWallResistance(){
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 #define sqr(x) ((x)*(x))
 template <int dims, bool _3D_>
-void EigenCalculator_Engine<dims,_3D_>::sumUpForces(){
+void EigenCalculator_Engine<dims,_3D_>::EulerPolygon(){
+	
+	for(int i = 0; i<numForces; i++){
+		forces[i]->calcForces();
+	}
+	
+	if(wallResistance){
+		calcWallResistance();
+	}
+	
+	timeInterval = std::min((double)timeInterval, 1.0/minFps);
+	
+	//sumUpForces():
 	//printf("interval: %10f\n", timeInterval);
 	//parallelFor
 	for(int i = 0; i<spheresCount; i++){
@@ -293,7 +312,100 @@ void EigenCalculator_Engine<dims,_3D_>::sumUpForces(){
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::addStandardForces(){
+	//parallelFor
+	for(int i = 0; i<spheresCount; i++){
+		spheresForce[i] -= airResistance*(0.47*M_PI*sqr(spheres[i].size))*0.5*spheresSpeed[i]*std::abs(spheresSpeed[i].norm());
+		spheresForce[i](0) += spheres[i].mass*gravity.s0;
+		spheresForce[i](1) += spheres[i].mass*gravity.s1;
+		if(_3D_){
+			spheresForce[i](2) += spheres[i].mass*gravity.s2;
+		}
+	}
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::RungeKutta(){
+	
+	timeInterval = std::min((double)timeInterval, 1.0/minFps);
+	
+	//k1:
+	for(int i = 0; i<spheresCount; i++){
+		k[i][1] = spheresSpeed[i];
+		spheresPos[i] = spheresOldPos[i];
+	}
+	//k5:
+	for(int i = 0; i<numForces; i++){
+		forces[i]->calcForces();
+	}
+	if(wallResistance){
+		calcWallResistance();
+	}
+	addStandardForces();
+	//k2:
+	for(int i = 0; i<spheresCount; i++){
+		k[i][5] = spheresForce[i];
+		spheresForce[i].setZero();
+		k[i][2] = k[i][1]+0.5*timeInterval*k[i][5];
+		spheresPos[i] = spheresOldPos[i]+0.5*timeInterval*k[i][1];
+		spheresSpeed[i] = k[i][1]+0.5*timeInterval*k[i][5];
+	}
+	//k6:
+	for(int i = 0; i<numForces; i++){
+		forces[i]->calcForces();
+	}
+	if(wallResistance){
+		calcWallResistance();
+	}
+	addStandardForces();
+	//k3:
+	for(int i = 0; i<spheresCount; i++){
+		k[i][6] = spheresForce[i];
+		spheresForce[i].setZero();
+		k[i][3] = k[i][1]+0.5*timeInterval*k[i][6];
+		spheresPos[i] = spheresOldPos[i]+0.5*timeInterval*k[i][2];
+		spheresSpeed[i] = k[i][1]+0.5*timeInterval*k[i][6];
+	}
+	//k7:
+	for(int i = 0; i<numForces; i++){
+		forces[i]->calcForces();
+	}
+	if(wallResistance){
+		calcWallResistance();
+	}
+	addStandardForces();
+	//k4:
+	for(int i = 0; i<spheresCount; i++){
+		k[i][7] = spheresForce[i];
+		spheresForce[i].setZero();
+		k[i][4] = k[i][1]+timeInterval*k[i][7];
+		spheresPos[i] = spheresOldPos[i]+timeInterval*k[i][3];
+		spheresSpeed[i] = k[i][1]+0.5*timeInterval*k[i][7];
+	}
+	//k8:
+	for(int i = 0; i<numForces; i++){
+		forces[i]->calcForces();
+	}
+	if(wallResistance){
+		calcWallResistance();
+	}
+	addStandardForces();
+	//result:
+	for(int i = 0; i<spheresCount; i++){
+		k[i][8] = spheresForce[i];
+		spheresForce[i].setZero();
+	}
+	
+	for(int i = 0; i<spheresCount; i++){
+		spheresPos[i] = spheresOldPos[i]+timeInterval/6.0*(k[i][1]+2*k[i][2]+2*k[i][3]+k[i][4]);
+		spheresOldPos[i] = spheresPos[i];
+		spheresSpeed[i] = k[i][1]+timeInterval/6.0*(k[i][5]+2*k[i][6]+2*k[i][7]+k[i][8]);
+	}
+	
+	
+}
+
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::doStep(){
 	if(forceCounter == 0){
@@ -308,16 +420,12 @@ void EigenCalculator_Engine<dims,_3D_>::doStep(){
 		spheresForce[i].setZero();
 	}*/
 	
-	for(int i = 0; i<numForces; i++){
-		forces[i]->calcForces();
+	if(useRungeKutta){
+		RungeKutta();
+	}else{
+		EulerPolygon();
 	}
 	
-	if(wallResistance){
-		calcWallResistance();
-	}
-	
-	timeInterval = std::min((double)timeInterval, 1.0/minFps);
-	sumUpForces();
 	#if useSSE
 		if(_3D_){
 			for(int i = 0; i<spheresCount; i++){
@@ -448,6 +556,11 @@ void EigenCalculator_Engine<dims,_3D_>::gravityChanged(){
 
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::sphereCountChanged_subclass(int i){
+	///k:
+	k = newCopy(k, spheresCount, i);
+	for(int j = spheresCount; j<i; j++){
+		k[j] = new eVector[9];
+	}
 	///spheres
 	spheres = newCopy<Sphere>(spheres, spheresCount, i);
 	///spheresOldPos
@@ -592,6 +705,7 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 		
 		int newSpheresCount;
 		saveInVar(f2, newSpheresCount);
+		printf("spheresCount: %5d\n", newSpheresCount);
 		int newMaxSpheresCount;
 		saveInVar(f2, newMaxSpheresCount);
 		
@@ -622,12 +736,15 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 		wallResistance = (_wallResistance != 0);
 		
 		
-		
-		sphereCountChanged(newSpheresCount);
-		//spheresCount = newSpheresCount;
+		if(newSpheresCount>=0){
+			sphereCountChanged(newSpheresCount);
+			//spheresCount = newSpheresCount;
+		}
 
-		maxSphereCountChanged(newMaxSpheresCount);
-		//maxShowSpheresCount = newMaxSpheresCount;
+		if(newMaxSpheresCount>=0){
+			maxSphereCountChanged(newMaxSpheresCount);
+			//maxShowSpheresCount = newMaxSpheresCount;
+		}
 		
 		int fixed;
 		for(int i = 0; i<newSpheresCount; i++){

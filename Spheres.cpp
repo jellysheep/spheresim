@@ -15,11 +15,12 @@ vector3 boxSize = (vector3){1,1,1};
 //Erdradius: 0.006 Mio.km
 vector2 sphereSize = (vector2){0.01,0.01};
 
+bool useRungeKutta = false;
 bool autoSlowRender = false;
 int renderFpsMax = (autoSlowRender?(int)(45.0*pow(1/3.0, spheresCount/1000.0)+15):60);
 int renderFps = renderFpsMax;
 scalar speed = 1, speedCorrection = 1.0;
-scalar fps = 10000000000, minFps = 1000;
+scalar fps = 10000000000, minFps = useRungeKutta?250:1000;
 scalar timeInterval = speed*speedCorrection/fps;
 
 scalar max_speed = 0;//0.5;

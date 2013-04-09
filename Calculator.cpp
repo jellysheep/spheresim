@@ -274,15 +274,15 @@ void Calculator::readLine(std::fstream& f){
 		eof = true;
 		return;
 	}
-	//std::cout<<"line: "<<line<<"\n";
+	std::cout<<"line: "<<line<<"\n";
 	///std::decide between std::decimal and hexadecimal chars
 	if(line[0] == 'h' || line[0] == 'H'){
 		hexadec = true;
-		//std::cout<<"std::hex.\n";
+		std::cout<<"std::hex.\n";
 		line.erase(line.begin());
 	}else{
 		hexadec = false;
-		//std::cout<<"std::dec.\n";
+		std::cout<<"std::dec.\n";
 	}
 	iss.clear();
 	iss.str(line);
