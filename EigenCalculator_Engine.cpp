@@ -70,8 +70,8 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	//addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
 	addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
 	
-	//addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
-	addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
+	addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
+	//addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
 	
 	
 	k = new eVector*[spheresCount];
@@ -691,6 +691,7 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 		//readLine();
 		int _3d;
 		saveInVar(f2, _3d);
+		std::cout<<"_3d: "<<_3d<<std::endl;
 		
 		//*
 		if((_3d!=0) != _3D_){

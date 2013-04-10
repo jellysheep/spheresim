@@ -28,7 +28,7 @@ set(DEVICE_SYSTEM "THRUST_DEVICE_SYSTEM_OMP") #THRUST_DEVICE_SYSTEM_OMP THRUST_D
 #INCLUDE ("OptimizeForArchitecture")
 #OptimizeForArchitecture ()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fopenmp -DTHRUST_DEVICE_SYSTEM=${DEVICE_SYSTEM}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -msse -Ofast -march=native -mtune=native") #  -msse3 -msse4
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -msse -O2") #  -msse3 -msse4  -march=native -mtune=native  -Ofast
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 
 if(OPENMP_FOUND)

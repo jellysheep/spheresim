@@ -64,8 +64,8 @@ scalar calcSpeedFact;
 
 int maxCellsPerAxis = 100;
 //int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
-int rowsPerStep = 2, curveSteps = (use3D?3:5); //Z-Order, Hilbert-Kurve
-int maxNumSpheresInCell = 500;
+int rowsPerStep = 2, curveSteps = (use3D?3:6); //Z-Order, Hilbert-Kurve
+int maxNumSpheresInCell = 1000;
 int maxNumCollsPerSphere = 500; //maximum number for a sphere to collide with other spheres
 
 int magnitude = 0; //0: bouncy balls, 1: planets

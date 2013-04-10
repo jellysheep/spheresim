@@ -1,3 +1,3 @@
 #!/bin/bash
-gcc GaltonBrett.cpp -lQtOpenGL -lc -lgcc -o GaltonBrett && ./GaltonBrett
+gcc GaltonBrett.cpp -lQtOpenGL -lc -lgcc -lstdc++ -o GaltonBrett && ./GaltonBrett
 #-lc++
