@@ -247,13 +247,13 @@ void Calculator::readLine(std::fstream& f){
 	int tries = 0;
 	do{
 		tries++;
-		//std::cout<<"try "<<tries<<"... \n";
+		std::cout<<"try "<<tries<<"... \n";
 		retry = false;
 		if(!getline(f, line)){
 			retry = true;
 			continue;
 		}else{
-			//std::cout<<"_line: "<<line<<"\n";
+			std::cout<<"_line: "<<line<<"\n";
 			if(line[0] == '#'){
 				retry = true;
 				continue;
@@ -286,13 +286,19 @@ void Calculator::readLine(std::fstream& f){
 	}
 	iss.clear();
 	iss.str(line);
-	//std::cout<<"new line: \""<<line<<"\"\n";
+	iss.clear();
+	iss.str(line);
+	iss.clear();
+	iss.str(line);
+	iss.clear();
+	iss.str(line);
+	std::cout<<"new line: \""<<line<<"\"\n";
 }
 
 float Calculator::readHexFloat(std::fstream& f){
 	float f_;
 	unsigned int l = 0;
-	//cout<<"line: \""<<line<<"\"\n";
+	std::cout<<"line: \""<<line<<"\"\n";
 	for(int _i = 0; !(iss>>std::hex>>l) && _i<5; _i++){
 		readLine(f);
 	}
@@ -304,11 +310,11 @@ float Calculator::readFloat(std::fstream& f){
 	iss.peek();
 	if(!iss) readLine(f);
 	if(hexadec){
-		//cout<<"reading std::hex...\n";
+		std::cout<<"reading std::hex...\n";
 		return readHexFloat(f);
 	}
 	float f_ = 0;
-	//cout<<"reading std::dec...\n";
+	std::cout<<"reading std::dec...\n";
 	for(int _i = 0; !(iss>>std::dec>>f_) && _i<5; _i++){
 		readLine(f);
 		if(hexadec) return readHexFloat(f);
