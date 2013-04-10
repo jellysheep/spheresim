@@ -8,6 +8,7 @@
 #include <cstdlib>
 
 #include <fstream>
+#include <iostream>
 #include <sstream>
 
 #include <QDateTime>
@@ -15,13 +16,13 @@
 class GLWidget;
 class PlotWidget;
 
-#define _read(f,stream,var){														\
+//#define _read(f,stream,var){														\
 	for(int _i = 0; !(stream>>(hexadec?std::hex:std::dec)>>var) && _i<20; _i++){	\
 		readLine(f);																\
 	}																				\
 }
 
-#define saveInVar(stream,x) {				\
+//#define saveInVar(stream,x) {				\
 	saveInVar_(stream,x);					\
 	std::cout<<#x<<": "<<x<<"\n";		\
 }
@@ -71,6 +72,19 @@ protected:
 	void saveInVar_(std::fstream& f, int &i);
 	void readLine(std::fstream& f);
 	bool hexadec, eof, initialized;
+	
+	template<typename T>
+	void _read(std::fstream& f, std::istringstream& stream, T& var){														\
+		for(int _i = 0; !(stream>>(hexadec?std::hex:std::dec)>>var) && _i<20; _i++){	\
+			readLine(f);																\
+		}																				\
+	}
+	
+	template<typename T>
+	void saveInVar(std::fstream& stream, T& x) {
+		saveInVar_(stream,x);
+		std::cout<<"read var: "<<x<<"\n";
+	}
 	
 	virtual bool isFixed(int i)=0;
 	

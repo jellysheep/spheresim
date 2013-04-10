@@ -269,7 +269,7 @@ void Calculator::readLine(std::fstream& f){
 			retry = true;
 			continue;
 		}// */
-	}while(retry && tries<=5);
+	}while(retry && tries<=20);
 	if(f.eof()){
 		eof = true;
 		return;
@@ -284,11 +284,16 @@ void Calculator::readLine(std::fstream& f){
 		hexadec = false;
 		std::cout<<"std::dec.\n";
 	}
-	while(line!=iss.str()){
+	while(!(line == iss.str())){
+		iss.clear();
+		iss.clear();
+		iss.clear();
+		iss.clear();
 		iss.clear();
 		iss.str(line);
 	}
 	std::cout<<"new line: \""<<line<<"\"\n";
+	std::cout<<"new line: \""<<iss.str()<<"\"\n";
 }
 
 float Calculator::readHexFloat(std::fstream& f){
