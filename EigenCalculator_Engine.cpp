@@ -66,12 +66,15 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	
 	//addForce(new EigenCalculator_PairCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_EfficientPairCollider<dims,_3D_>(this));
-	//addForce(new EigenCalculator_StripeCollider<dims,_3D_>(this));
+	addForce(new EigenCalculator_StripeCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
-	addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
+	//addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
 	
-	addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
-	//addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
+	if(magnitude == 1){
+		addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
+	}else{
+		addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
+	}
 	
 	
 	k = new eVector*[spheresCount];
@@ -693,6 +696,12 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 		saveInVar(f2, _3d);
 		std::cout<<"_3d: "<<_3d<<std::endl;
 		
+		if(_3d<0 || _3d>1){
+			f2.close();
+			loadConfig(file);
+			return;
+		}
+		
 		//*
 		if((_3d!=0) != _3D_){
 			if(_3d == 0){
@@ -827,6 +836,13 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 		
 		printf("Spheres to render: %d\n", readNum_render);
 		
+		///update all forces:
+		for(int j = 0; j<numForces; j++){
+			forces[j]->updateGridSize();
+		}
+		
+		f2.close();
+		
 	}
 	else
 	{
@@ -865,7 +881,6 @@ void EigenCalculator_Engine<dims,_3D_>::paintGL(bool b){
 		forces[i]->paintGL();
 	}
 	
-	return;
 	for(double x = 0; x < curUnit.size*boxSize.s0; x+=gridWidth){
 		for(double y = 0; y < curUnit.size*boxSize.s1; y+=gridWidth){
 			glBegin(GL_LINE_STRIP);

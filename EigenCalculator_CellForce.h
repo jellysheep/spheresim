@@ -34,7 +34,6 @@ protected:
 	scalar gridWidth;
 	int **gridIndex; //?
 	int numCellsPerAxis, numCells_;
-	void updateGridSize();
 	
 public:
 	EigenCalculator_CellForce(EigenCalculator_Engine<dims,_3D_>* c, bool buildCurve=true);
@@ -52,6 +51,8 @@ public:
 	};
 	
 	virtual void spheresCountChanged(int c);
+	
+	virtual void updateGridSize();
 };
 
 #endif  /*_EIGEN_CALCULATOR_CELL_FORCE_H_*/

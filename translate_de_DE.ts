@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="de_DE" sourcelanguage="en_GB">
+<TS version="2.0" language="de_DE">
 <context>
     <name>Calculations</name>
     <message>
@@ -8,28 +8,28 @@
         <location filename="build/ui_Calculations_Qt5.h" line="475"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="476"/>
         <source>Calculations</source>
-        <translation>Berechnungen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="476"/>
         <location filename="build/ui_Calculations_Qt5.h" line="476"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="477"/>
         <source>Objects</source>
-        <translation>Teilchen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="477"/>
         <location filename="build/ui_Calculations_Qt5.h" line="477"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="478"/>
         <source>Visible objects</source>
-        <translation>sichtbare Teilchen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="478"/>
         <location filename="build/ui_Calculations_Qt5.h" line="478"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="479"/>
         <source>Radius min.</source>
-        <translation>min. Radius</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="479"/>
@@ -48,70 +48,84 @@
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="496"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="497"/>
         <source> m</source>
-        <translation> m</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="481"/>
         <location filename="build/ui_Calculations_Qt5.h" line="481"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="482"/>
         <source>Object count</source>
-        <translation>Anzahl Teilchen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="482"/>
         <location filename="build/ui_Calculations_Qt5.h" line="482"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="483"/>
         <source>Radius max.</source>
-        <translation>max. Radius</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="483"/>
         <location filename="build/ui_Calculations_Qt5.h" line="483"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="484"/>
         <source>Render</source>
-        <translation>Anzeige</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="484"/>
         <location filename="build/ui_Calculations_Qt5.h" line="484"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="485"/>
         <source>Save</source>
-        <translation>Speichern</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="485"/>
         <location filename="build/ui_Calculations_Qt5.h" line="485"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="486"/>
         <source>One size</source>
-        <translation>gleiche Größe</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="486"/>
         <location filename="build/ui_Calculations_Qt5.h" line="486"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="487"/>
         <source>Wireframe</source>
-        <translation>Drahtgitter</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="487"/>
         <location filename="build/ui_Calculations_Qt5.h" line="487"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="488"/>
         <source>Save config...</source>
-        <translation>Einstellungen speichern</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="488"/>
         <location filename="build/ui_Calculations_Qt5.h" line="488"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="489"/>
         <source>Load config...</source>
-        <translation>Einstellungen laden</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="489"/>
         <location filename="build/ui_Calculations_Qt5.h" line="489"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="490"/>
         <source>Size</source>
-        <translation>Größe</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="build2/ui_Calculations_Qt5.h" line="490"/>
+        <location filename="build/ui_Calculations_Qt5.h" line="490"/>
+        <location filename="build_mingw/ui_Calculations_Qt5.h" line="491"/>
+        <source>Z</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="build2/ui_Calculations_Qt5.h" line="491"/>
+        <location filename="build/ui_Calculations_Qt5.h" line="491"/>
+        <location filename="build_mingw/ui_Calculations_Qt5.h" line="492"/>
+        <source>X</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="493"/>
@@ -125,21 +139,7 @@
         <location filename="build/ui_Calculations_Qt5.h" line="494"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="495"/>
         <source>Y</source>
-        <translation>Y</translation>
-    </message>
-    <message>
-        <location filename="build2/ui_Calculations_Qt5.h" line="491"/>
-        <location filename="build/ui_Calculations_Qt5.h" line="491"/>
-        <location filename="build_mingw/ui_Calculations_Qt5.h" line="492"/>
-        <source>X</source>
-        <translation>X</translation>
-    </message>
-    <message>
-        <location filename="build2/ui_Calculations_Qt5.h" line="490"/>
-        <location filename="build/ui_Calculations_Qt5.h" line="490"/>
-        <location filename="build_mingw/ui_Calculations_Qt5.h" line="491"/>
-        <source>Z</source>
-        <translation>Z</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="499"/>
@@ -160,7 +160,7 @@
         <location filename="build/ui_Calculations_Qt5.h" line="502"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="503"/>
         <source>Forces</source>
-        <translation>Kräfte</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="503"/>
@@ -174,21 +174,21 @@
         <location filename="build/ui_Calculations_Qt5.h" line="504"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="505"/>
         <source>Air resistance</source>
-        <translation>Luftwiderstand</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="505"/>
         <location filename="build/ui_Calculations_Qt5.h" line="505"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="506"/>
         <source>Wall resistance</source>
-        <translation>Wandwiderstand</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="506"/>
         <location filename="build/ui_Calculations_Qt5.h" line="506"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="507"/>
         <source>E modulus</source>
-        <translation>E-Modul</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="507"/>
@@ -198,14 +198,14 @@
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="508"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="515"/>
         <source> x</source>
-        <translation> x</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="508"/>
         <location filename="build/ui_Calculations_Qt5.h" line="508"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="509"/>
         <source>InterGravity</source>
-        <translation>Gravitation</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="509"/>
@@ -215,41 +215,41 @@
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="510"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="517"/>
         <source>yes</source>
-        <translation>aktiv</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="510"/>
         <location filename="build/ui_Calculations_Qt5.h" line="510"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="511"/>
         <source>Poisson&apos;s ratio</source>
-        <translation>Poisson-Zahl</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="511"/>
         <location filename="build/ui_Calculations_Qt5.h" line="511"/>
         <source> m/sÂ²</source>
-        <translation>m/s²</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="512"/>
         <location filename="build/ui_Calculations_Qt5.h" line="512"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="513"/>
         <source>EarthGravity</source>
-        <translation>Erdbeschleunigung</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="513"/>
         <location filename="build/ui_Calculations_Qt5.h" line="513"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="514"/>
         <source> GPa</source>
-        <translation> GPa</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="515"/>
         <location filename="build/ui_Calculations_Qt5.h" line="515"/>
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="516"/>
         <source>Elasticity</source>
-        <translation>Elastizität</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Calculations_Qt5.h" line="517"/>
@@ -260,7 +260,7 @@
     <message utf8="true">
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="512"/>
         <source> m/s²</source>
-        <translation> m/s²</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message utf8="true">
         <location filename="build_mingw/ui_Calculations_Qt5.h" line="518"/>
@@ -274,31 +274,31 @@
         <location filename="build/ui_Dialog_Qt5.h" line="86"/>
         <location filename="build_mingw/ui_Dialog_Qt5.h" line="87"/>
         <source>SphereSim</source>
-        <translation>SphereSim</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build/ui_Dialog_Qt5.h" line="87"/>
         <location filename="build_mingw/ui_Dialog_Qt5.h" line="88"/>
         <source>OpenCL kernel</source>
-        <translation>OpenCL-Engine</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build/ui_Dialog_Qt5.h" line="88"/>
         <location filename="build_mingw/ui_Dialog_Qt5.h" line="89"/>
         <source>C++ with Eigen library</source>
-        <translation>C++ mit Eigen-Bibliothek</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build/ui_Dialog_Qt5.h" line="89"/>
         <location filename="build_mingw/ui_Dialog_Qt5.h" line="90"/>
         <source>Thrust library</source>
-        <translation>Thrust-Bibliothek</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build/ui_Dialog_Qt5.h" line="90"/>
         <location filename="build_mingw/ui_Dialog_Qt5.h" line="91"/>
         <source>Read spheres from file</source>
-        <translation>Teilchenbewegungen von Datei laden</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -330,14 +330,14 @@
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="462"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="463"/>
         <source>Rendering</source>
-        <translation>Darstellung</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="463"/>
         <location filename="build/ui_Rendering_Qt5.h" line="463"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="464"/>
         <source>FPS</source>
-        <translation>FPS</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="464"/>
@@ -367,56 +367,56 @@
         <location filename="build/ui_Rendering_Qt5.h" line="466"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="467"/>
         <source>Trace length</source>
-        <translation>Spurlänge</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="467"/>
         <location filename="build/ui_Rendering_Qt5.h" line="467"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="468"/>
         <source>Colors</source>
-        <translation>farbige Teilchen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="468"/>
         <location filename="build/ui_Rendering_Qt5.h" line="468"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="469"/>
         <source>Traces</source>
-        <translation>Spuren</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="469"/>
         <location filename="build/ui_Rendering_Qt5.h" line="469"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="470"/>
         <source>Connect tr.</source>
-        <translation>Spuren verbinden</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="470"/>
         <location filename="build/ui_Rendering_Qt5.h" line="470"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="471"/>
         <source>Show lights</source>
-        <translation>Lichtpunkte</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="471"/>
         <location filename="build/ui_Rendering_Qt5.h" line="471"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="472"/>
         <source>Reflections</source>
-        <translation>Reflexion</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="472"/>
         <location filename="build/ui_Rendering_Qt5.h" line="472"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="473"/>
         <source>Show cube</source>
-        <translation>Würfel zeigen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="473"/>
         <location filename="build/ui_Rendering_Qt5.h" line="473"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="474"/>
         <source>Auto rotation</source>
-        <translation>autom. Drehung</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="474"/>
@@ -435,77 +435,77 @@
         <location filename="build/ui_Rendering_Qt5.h" line="477"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="478"/>
         <source>Z axis</source>
-        <translation>Z-Achse</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="478"/>
         <location filename="build/ui_Rendering_Qt5.h" line="478"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="479"/>
         <source>Y axis</source>
-        <translation>Y-Achse</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="479"/>
         <location filename="build/ui_Rendering_Qt5.h" line="479"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="480"/>
         <source>X axis</source>
-        <translation>X-Achse</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="480"/>
         <location filename="build/ui_Rendering_Qt5.h" line="480"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="481"/>
         <source>Reset</source>
-        <translation>zurücksetzen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="481"/>
         <location filename="build/ui_Rendering_Qt5.h" line="481"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="482"/>
         <source>Reset view</source>
-        <translation>Drehung</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="482"/>
         <location filename="build/ui_Rendering_Qt5.h" line="482"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="483"/>
         <source>Hue rotation</source>
-        <translation>Farbänderung</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="484"/>
         <location filename="build/ui_Rendering_Qt5.h" line="484"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="485"/>
         <source>General</source>
-        <translation>Allgemein</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="486"/>
         <location filename="build/ui_Rendering_Qt5.h" line="486"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="487"/>
         <source>Real calc. FPS</source>
-        <translation>Reale FPS</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="487"/>
         <location filename="build/ui_Rendering_Qt5.h" line="487"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="488"/>
         <source>Start</source>
-        <translation>Start</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="488"/>
         <location filename="build/ui_Rendering_Qt5.h" line="488"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="489"/>
         <source>Calc. FPS</source>
-        <translation>berechnete FPS</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="490"/>
         <location filename="build/ui_Rendering_Qt5.h" line="490"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="491"/>
         <source>Stop</source>
-        <translation>Pause</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="492"/>
@@ -515,7 +515,7 @@
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="493"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="499"/>
         <source> x</source>
-        <translation type="unfinished"> x</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="493"/>
@@ -529,35 +529,35 @@
         <location filename="build/ui_Rendering_Qt5.h" line="494"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="495"/>
         <source>Speed</source>
-        <translation>Geschwindigkeit</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="495"/>
         <location filename="build/ui_Rendering_Qt5.h" line="495"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="496"/>
         <source>Frame buffer</source>
-        <translation>Bildspeicher</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="496"/>
         <location filename="build/ui_Rendering_Qt5.h" line="496"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="497"/>
         <source>Render FPS</source>
-        <translation>Anzeige-FPS</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="497"/>
         <location filename="build/ui_Rendering_Qt5.h" line="497"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="498"/>
         <source>Real speed</source>
-        <translation>Realgeschwindigkeit</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="499"/>
         <location filename="build/ui_Rendering_Qt5.h" line="499"/>
         <location filename="build_mingw/ui_Rendering_Qt5.h" line="500"/>
         <source>Temperature</source>
-        <translation>Temperatur</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="build2/ui_Rendering_Qt5.h" line="501"/>
@@ -597,7 +597,7 @@
         <location filename="build/ui_StartDialog_Qt5.h" line="143"/>
         <location filename="build_mingw/ui_StartDialog_Qt5.h" line="144"/>
         <source>SphereSim</source>
-        <translation type="unfinished">SphereSim</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="StartDialog_Qt5.ui" line="46"/>

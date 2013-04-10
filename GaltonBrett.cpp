@@ -21,7 +21,7 @@ int main(int argc, char *argv[]){
 		for(int y = 0; y<40; y++){
 			spheres++;
 			f<<"0 "; //decimal, fixed
-			f<<0.006<<" "; //size
+			f<<0.007<<" "; //size
 			f<<0.01<<" "; //mass
 			f<<(-1+0.6+0.05+0.020*x)<<" "; //pos
 			f<<(-1.5+2.0+0.02*y)<<" ";
@@ -42,19 +42,19 @@ int main(int argc, char *argv[]){
 		f<<"0\n";
 	}
 	for(int x = 0; x<32; x++){
-		for(int y = 0; y<50; y++){
+		for(int y = 0; y<39; y++){
 			spheres++;
 			f<<"1 "; //decimal, fixed
 			f<<0.005<<" "; //size
 			f<<0.01<<" "; //mass
 			f<<(-1+(y%2==1?0.035:0)+0.025+0.06*x)<<" "; //pos
-			f<<(-1.5+0.5+0.020*y)<<" ";
+			f<<(-1.5+0.5+0.020*(y+11))<<" ";
 			f<<"0 "; //speed
 			f<<"0\n";
 		}
 	}
 	for(int x = 0; x<32; x++){
-		for(int y = 0; y<12; y++){
+		for(int y = 0; y<18; y++){
 			spheres++;
 			f<<"1 "; //decimal, fixed
 			f<<0.015<<" "; //size

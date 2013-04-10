@@ -45,6 +45,8 @@ public:
 	}
 	
 	virtual void paintGL(){}
+	
+	virtual void updateGridSize(){}
 };
 
 #endif  /*_EIGEN_CALCULATOR_FORCE_H_*/

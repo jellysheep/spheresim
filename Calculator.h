@@ -15,14 +15,15 @@
 class GLWidget;
 class PlotWidget;
 
-#define _read(f,stream,var)															\
+#define _read(f,stream,var){														\
 	for(int _i = 0; !(stream>>(hexadec?std::hex:std::dec)>>var) && _i<20; _i++){	\
 		readLine(f);																\
-	}
+	}																				\
+}
 
 #define saveInVar(stream,x) {				\
 	saveInVar_(stream,x);					\
-	/*std::cout<<#x<<": "<<x<<"\n";*/		\
+	std::cout<<#x<<": "<<x<<"\n";		\
 }
 
 class Calculator : public QThread, public FramesCounter{
