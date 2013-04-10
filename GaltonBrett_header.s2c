@@ -1,8 +1,5 @@
 # s2c
 # SphereSim2 Config File
-
-# h=hexadecimal, d=decimal values in line
-
 # 3D:
 h0
 # sphere count:

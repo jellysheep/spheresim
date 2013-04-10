@@ -152,6 +152,14 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	QObject::connect(calc->ball_resistance, SIGNAL(toggled(bool)), 
 		this, SLOT(setBallResistance(bool)), Qt::AutoConnection);
 	
+	updateUiValues();
+		
+	QObject::connect(cal, SIGNAL(fileLoaded()), 
+		this, SLOT(updateUiValues()), Qt::AutoConnection);
+}
+
+void Control::updateUiValues(){
+	
 	rend->calc_speed->setValue(speed);
 	calc->count->setValue(spheresCount);
 	calc->visible_count->setValue(maxShowSpheresCount);
@@ -185,6 +193,7 @@ Control::Control(GLWidget* g, Calculator* c, StatusViewer* s):QMainWindow(),glw(
 	calc->save->setChecked(saveBool);
 	calc->magnitude->setCurrentIndex(magnitude);
 	calc->ball_resistance->setChecked(ballResistance);
+	
 }
 
 void Control::setRender(bool b){

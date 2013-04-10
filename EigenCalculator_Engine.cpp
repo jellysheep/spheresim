@@ -843,6 +843,8 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 		
 		f2.close();
 		
+		emit fileLoaded();
+		
 	}
 	else
 	{

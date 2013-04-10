@@ -71,6 +71,7 @@ public slots:
 	void setMagnitude(int m);
 	void setCurSimTime();
 	void setBallResistance(bool b);
+	void updateUiValues();
 };
 
 #endif /* _UI_CONTROL_ */

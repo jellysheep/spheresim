@@ -186,6 +186,9 @@ public slots:
 	virtual void loadConfig() = 0;
 	
 	virtual void updateMagnitude()=0;
+
+signals:
+	virtual void fileLoaded();
 };
 
 #endif

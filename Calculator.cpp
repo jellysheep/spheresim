@@ -284,14 +284,10 @@ void Calculator::readLine(std::fstream& f){
 		hexadec = false;
 		std::cout<<"std::dec.\n";
 	}
-	iss.clear();
-	iss.str(line);
-	iss.clear();
-	iss.str(line);
-	iss.clear();
-	iss.str(line);
-	iss.clear();
-	iss.str(line);
+	while(line!=iss.str()){
+		iss.clear();
+		iss.str(line);
+	}
 	std::cout<<"new line: \""<<line<<"\"\n";
 }
 
