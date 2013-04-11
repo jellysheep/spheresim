@@ -284,11 +284,7 @@ void Calculator::readLine(std::fstream& f){
 		hexadec = false;
 		std::cout<<"std::dec.\n";
 	}
-	while(!(line == iss.str())){
-		iss.clear();
-		iss.clear();
-		iss.clear();
-		iss.clear();
+	while((!iss) || !(line == iss.str())){
 		iss.clear();
 		iss.str(line);
 	}
@@ -332,7 +328,7 @@ void Calculator::saveInVar_(std::fstream& f, scalar &s){
 
 void Calculator::saveInVar_(std::fstream& f, int &i){
 	int j = 0;
-	_read(f, iss, j);
+	_read<int>(f, iss, j);
 	if(!eof) i = j;
 }
 

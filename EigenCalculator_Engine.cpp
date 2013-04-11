@@ -758,6 +758,7 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 		
 		int fixed;
 		for(int i = 0; i<newSpheresCount; i++){
+			printf("reading sphere %5d...\n", i);
 			saveInVar(f2, fixed);
 			spheres[i].fixed = fixed;
 			saveInVar(f2, spheres[i].size);

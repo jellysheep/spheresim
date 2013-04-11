@@ -22,7 +22,8 @@ class PlotWidget;
 	}																				\
 }
 
-//#define saveInVar(stream,x) {				\
+#define saveInVar(stream,x) {				\
+	std::cout<<#x<<": "<<x<<"\n";		\
 	saveInVar_(stream,x);					\
 	std::cout<<#x<<": "<<x<<"\n";		\
 }
@@ -74,16 +75,12 @@ protected:
 	bool hexadec, eof, initialized;
 	
 	template<typename T>
-	void _read(std::fstream& f, std::istringstream& stream, T& var){														\
-		for(int _i = 0; !(stream>>(hexadec?std::hex:std::dec)>>var) && _i<20; _i++){	\
-			readLine(f);																\
-		}																				\
-	}
-	
-	template<typename T>
-	void saveInVar(std::fstream& stream, T& x) {
-		saveInVar_(stream,x);
-		std::cout<<"read var: "<<x<<"\n";
+	void _read(std::fstream& f, std::istringstream& stream, T& var){
+		for(int _i = 0; !(stream>>(hexadec?std::hex:std::dec)>>var) && _i<20; _i++){
+			readLine(f);
+		}
+		T x = var;
+		std::cout<<"read: "<<x<<"\n";
 	}
 	
 	virtual bool isFixed(int i)=0;
