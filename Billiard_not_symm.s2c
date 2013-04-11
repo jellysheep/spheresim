@@ -1,0 +1,70 @@
+# s2c
+# SphereSim2 Config File
+# 3D:
+h0
+# sphere count:
+11
+# max. display sphere count:
+5000
+# box size (x,y):
+3
+2
+# sphere size (min,max):
+0.01
+0.01
+# render fps max:
+h3c
+# render fps:
+h3c
+# speed:
+h3f800000
+# fps:
+h49742400
+# minFps:
+800
+# initial max. speed:
+h0
+# E modulus:
+0.01
+# poisson's value:
+h3f000000
+# elasticity:
+0.9
+# gravity:
+0
+# gravitation factor:
+h0
+# air resistance factor:
+10
+# wall resistance:
+1
+# weisse Kugel:
+0 0.039 0.1 -0.5 0 0.5 0
+# andere Kugeln:
+#    7
+#   4 
+#  2 8
+# 1 5
+#  3 9
+#   6
+#    10
+#1
+0 0.039 0.1 0.358 0.01 0 0
+#2
+0 0.039 0.1 0.431 0.04 0 0
+#3
+0 0.038 0.1 0.431 -0.04 0 0
+#4
+0 0.039 0.1 0.5 0.08 0 0
+#5
+0 0.039 0.1 0.5 0 0 0
+#6
+0 0.039 0.1 0.5 -0.08 0 0
+#7
+0 0.038 0.1 0.569 0.12 0 0
+#8
+0 0.039 0.1 0.569 0.04 0 0
+#9
+0 0.037 0.1 0.569 -0.04 0 0
+#10
+0 0.039 0.1 0.569 -0.13 0 0

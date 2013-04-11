@@ -40,7 +40,7 @@ void EigenCalculator_Engine<dims,_3D_>::addForce(EigenCalculator_Force<dims,_3D_
 
 template <int dims, bool _3D_>
 EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
-	omp_set_num_threads(1);
+	//omp_set_num_threads(1);
 	srand(2);
 	//srand(NanosecondTimer::getNS());
 	
@@ -66,9 +66,9 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	
 	//addForce(new EigenCalculator_PairCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_EfficientPairCollider<dims,_3D_>(this));
-	addForce(new EigenCalculator_StripeCollider<dims,_3D_>(this));
+	//addForce(new EigenCalculator_StripeCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
-	//addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
+	addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
 	
 	if(magnitude == 1){
 		addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
@@ -883,7 +883,8 @@ void EigenCalculator_Engine<dims,_3D_>::paintGL(bool b){
 	for(int i = 0; i<numForces; i++){
 		forces[i]->paintGL();
 	}
-	
+
+	return;
 	for(double x = 0; x < curUnit.size*boxSize.s0; x+=gridWidth){
 		for(double y = 0; y < curUnit.size*boxSize.s1; y+=gridWidth){
 			glBegin(GL_LINE_STRIP);
