@@ -7,7 +7,7 @@
 bool use3D = false;
 bool fastRender = true;
 
-int spheresCount = 200;
+int spheresCount = 10000;
 int maxShowSpheresCount = 20000;
 bool manySpheres = (std::min(spheresCount,maxShowSpheresCount)>20);
 
@@ -30,7 +30,7 @@ scalar elastic = 1.0;//0.93;//0.05;//0.9;//0.999;//0.9;
 scalar gravity_abs = 9.81;
 vector gravity = (vector){0,-gravity_abs, 0};
 bool saveBool = false, renderBool = true, playBool = false;
-int edges = 2*(int)(std::max(4.0,4*log(sphereSize.s[1]/boxSize.s[0]*400)));
+int edges = (int)(std::max(4.0,4*log(sphereSize.s[1]/boxSize.s[0]*400)));
 scalar step = 2*M_PI/edges;
 scalar G = 6.67384e-11; //10000000000.0*
 scalar G_fact = 0.0;
@@ -64,9 +64,9 @@ scalar calcSpeedFact;
 
 int maxCellsPerAxis = 100;
 //int rowsPerStep = 3, curveSteps = 3; //Peano-Kurve, RowColumn-Order
-int rowsPerStep = 2, curveSteps = (use3D?3:4); //Z-Order, Hilbert-Kurve
+int rowsPerStep = 2, curveSteps = (use3D?3:6); //Z-Order, Hilbert-Kurve
 int maxNumSpheresInCell = 2000;
-int maxNumCollsPerSphere = 500; //maximum number for a sphere to collide with other spheres
+int maxNumCollsPerSphere = 1000; //maximum number for a sphere to collide with other spheres
 
 int magnitude = 0; //0: bouncy balls, 1: planets
 Unit unitOfMagnitude[2] = {unit::m, unit::Gkm};

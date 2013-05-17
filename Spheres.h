@@ -24,7 +24,7 @@ typedef union
 #if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
    __extension__ struct{ float  s0, s1; };
 #endif
-}float2;
+}s_float2;
 
 typedef union
 {
@@ -32,9 +32,9 @@ typedef union
 #if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
    __extension__ struct{ float   s0, s1, s2, s3; };
 #endif
-}float4;
+}s_float4;
 
-typedef  float4  float3;
+typedef  s_float4  s_float3;
 
 typedef union
 {
@@ -42,7 +42,7 @@ typedef union
 #if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
    __extension__ struct{ double s0, s1; };
 #endif
-}double2;
+}s_double2;
 
 typedef union
 {
@@ -50,22 +50,22 @@ typedef union
 #if defined( __GNUC__) && ! defined( __STRICT_ANSI__ )
    __extension__ struct{ double  s0, s1, s2, s3; };
 #endif
-}double4;
+}s_double4;
 
-typedef  double4  double3;
+typedef  s_double4  s_double3;
 
-typedef float3 float_vector;
-typedef double3 double_vector;
+typedef s_float3 float_vector;
+typedef s_double3 double_vector;
 
 #if _double_
 	typedef double_vector vector;
-	typedef double2 vector2;
-	typedef double3 vector3;
+	typedef s_double2 vector2;
+	typedef s_double3 vector3;
 	typedef double scalar;
 #else
 	typedef float_vector vector;
-	typedef float2 vector2;
-	typedef float3 vector3;
+	typedef s_float2 vector2;
+	typedef s_float3 vector3;
 	typedef float scalar;
 #endif
 

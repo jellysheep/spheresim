@@ -181,24 +181,6 @@ int EigenCalculator_CellForce<dims,_3D_>::calcZOrder(int xPos, int yPos, int zPo
 }
 
 template <int dims, bool _3D_>
-int EigenCalculator_CellForce<dims,_3D_>::calcCellID(int x, int y, int z){
-	x = std::min(C::numCellsPerAxis-1, x);
-	y = std::min(C::numCellsPerAxis-1, y);
-	z = std::min(C::numCellsPerAxis-1, z);
-	x = std::max(0, x);
-	y = std::max(0, y);
-	z = std::max(0, z);
-	
-	return curveIndices[x+C::numCellsPerAxis*y+(_3D_?C::numCellsPerAxis*C::numCellsPerAxis*z:0)];
-	//int id = curveIndices[x+C::numCellsPerAxis*y+(_3D_?C::numCellsPerAxis*C::numCellsPerAxis*z:0)];
-	//printf("x: %3d y: %3d z: %3d id: %3d \n", x, y, z, id);
-	//return id;
-	
-	//return x + C::numCellsPerAxis*y + C::numCellsPerAxis*C::numCellsPerAxis*z;
-	//return calcZOrder(x,y) + C::numCellsPerAxis*C::numCellsPerAxis*z;
-}
-
-template <int dims, bool _3D_>
 void EigenCalculator_CellForce<dims,_3D_>::updateGridSize(){
 	scalar gridWidth_;
 	if(_3D_){

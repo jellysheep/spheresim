@@ -35,11 +35,11 @@ h3f000000
 # gravitation factor:
 h0
 # air resistance factor:
-10
+500
 # wall resistance:
 1
 # weisse Kugel:
-0 0.039 0.1 -0.5 0 0.5 0
+0 0.039 0.1 -0.5 0 1 0
 # andere Kugeln:
 #    7
 #   4 

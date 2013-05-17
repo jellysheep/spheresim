@@ -18,20 +18,24 @@ void EigenCalculator_CellCountCollider<dims,_3D_>::countSpheresPerCell(){
 		//no spheres already colliding:
 		numCollsPerSphere[i] = 0;
 		//if(i == 999) printf(" %3d\n", i);
-		volatile int minX, maxX, minY, maxY, minZ, maxZ, x, y, z, cellID;
+		int minX, maxX, minY, maxY, minZ, maxZ, x, y, z, cellID;
 		minX = (int)((F::spheresPos[i](0)-F::spheres[i].size*fact)/C::gridWidth);
+		minX = std::max(0, minX);
 		maxX = (int)((F::spheresPos[i](0)+F::spheres[i].size*fact)/C::gridWidth);
+		maxX = std::min(C::numCellsPerAxis-1, maxX);
 		minY = (int)((F::spheresPos[i](1)-F::spheres[i].size*fact)/C::gridWidth);
+		minY = std::max(0, minY);
 		maxY = (int)((F::spheresPos[i](1)+F::spheres[i].size*fact)/C::gridWidth);
+		maxY = std::min(C::numCellsPerAxis-1, maxY);
 		if(_3D_){
 			minZ = (int)((F::spheresPos[i](2)-F::spheres[i].size*fact)/C::gridWidth);
+			minZ = std::max(0, minZ);
 			maxZ = (int)((F::spheresPos[i](2)+F::spheres[i].size*fact)/C::gridWidth);
-		}
-		for(x = minX; x<=maxX; x++){
-			for(y = minY; y<=maxY; y++){
-				if(_3D_){
+			maxZ = std::min(C::numCellsPerAxis-1, maxZ);
+			for(x = minX; x<=maxX; x++){
+				for(y = minY; y<=maxY; y++){
 					for(z = minZ; z<=maxZ; z++){
-						cellID = C::calcCellID(x,y,z);
+						cellID = C::calcCellID_unsafe(x,y,z);
 						if(numSpheresInCell[cellID]<maxNumSpheresInCell){
 							spheresInCell[cellID][numSpheresInCell[cellID]++] = i;
 						}else{
@@ -39,14 +43,18 @@ void EigenCalculator_CellCountCollider<dims,_3D_>::countSpheresPerCell(){
 							tooManySpheres = true;
 						}
 					}
-				}else{
-					cellID = C::calcCellID(x,y);
 				}
-				if(numSpheresInCell[cellID]<maxNumSpheresInCell){
-					spheresInCell[cellID][numSpheresInCell[cellID]++] = i;
-				}else{
-					//printf("Too many spheres in cell %5d!\n", cellID);
-					tooManySpheres = true;
+			}
+		}else{
+			for(x = minX; x<=maxX; x++){
+				for(y = minY; y<=maxY; y++){
+					cellID = C::calcCellID_unsafe(x,y);
+					if(numSpheresInCell[cellID]<maxNumSpheresInCell){
+						spheresInCell[cellID][numSpheresInCell[cellID]++] = i;
+					}else{
+						//printf("Too many spheres in cell %5d!\n", cellID);
+						tooManySpheres = true;
+					}
 				}
 			}
 		}
@@ -99,11 +107,9 @@ void EigenCalculator_CellCountCollider<dims,_3D_>::collideSpheresPerCell(bool nu
 				cont = false;
 				for(int a = numCollsPerSphere[c]-1; a>=0; a--){
 					if(collsPerSphere[c][a]==c2){
-						cont = true;
-						break;
+						goto outOfSecondFor;
 					}
 				}
-				if(cont) continue;
 				//else list the higher id (c2) in the array of sphere with lower id (c):
 				if(numCollsPerSphere[c]<maxNumCollsPerSphere){
 					collsPerSphere[c][numCollsPerSphere[c]++] = c2;
@@ -114,6 +120,8 @@ void EigenCalculator_CellCountCollider<dims,_3D_>::collideSpheresPerCell(bool nu
 					tooManyColls = true;
 				}
 			}
+			outOfSecondFor:
+			continue;
 		}
 	}
 	if(tooManyColls) printf("Too many spheres colliding with one sphere!\n");

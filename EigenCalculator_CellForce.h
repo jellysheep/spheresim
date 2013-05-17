@@ -28,7 +28,25 @@ protected:
 	int calcZOrder(int xPos, int yPos);
 	int calcZOrder(int xPos, int yPos, int zPos);
 	
-	int calcCellID(int x, int y, int z=0);
+	inline int calcCellID(int x, int y, int z=0){
+		x = std::min(C::numCellsPerAxis-1, x);
+		y = std::min(C::numCellsPerAxis-1, y);
+		z = std::min(C::numCellsPerAxis-1, z);
+		x = std::max(0, x);
+		y = std::max(0, y);
+		z = std::max(0, z);
+		
+		return curveIndices[x+C::numCellsPerAxis*y+(_3D_?C::numCellsPerAxis*C::numCellsPerAxis*z:0)];
+		//int id = curveIndices[x+C::numCellsPerAxis*y+(_3D_?C::numCellsPerAxis*C::numCellsPerAxis*z:0)];
+		//printf("x: %3d y: %3d z: %3d id: %3d \n", x, y, z, id);
+		//return id;
+		
+		//return x + C::numCellsPerAxis*y + C::numCellsPerAxis*C::numCellsPerAxis*z;
+		//return calcZOrder(x,y) + C::numCellsPerAxis*C::numCellsPerAxis*z;
+	}
+	inline int calcCellID_unsafe(int x, int y, int z=0){
+		return curveIndices[x+C::numCellsPerAxis*y+C::numCellsPerAxis*C::numCellsPerAxis*z];
+	}
 	
 	int gridSteps;
 	scalar gridWidth;

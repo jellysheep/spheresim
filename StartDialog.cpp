@@ -1,9 +1,9 @@
 
 #include "StartDialog.h"
+#include "ThrustCalculator.h"
 #include "ui_StartDialog_Qt5.h"
 #include "EigenCalculator_Engine.h"
 #include "OpenClCalculator.h"
-#include "ThrustCalculator.h"
 #include "FileCalculator.h"
 #include <QLibraryInfo>
 
@@ -83,11 +83,13 @@ void StartDialog::accepted_(){
 	if(dlg->read->isChecked()){
 		calc = new FileCalculator();
 	}else{
+		//calc = new OpenClCalculator();
+		//*
 		if(use3D){
 			calc = new EigenCalculator_Engine<3,true>();
 		}else{
 			calc = new EigenCalculator_Engine<2,false>();
-		}
+		}//*/
 	}
 	selected = true;
 }

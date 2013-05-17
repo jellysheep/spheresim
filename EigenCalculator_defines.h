@@ -6,7 +6,8 @@
 #include <Eigen/Dense>
 using namespace Eigen;
 
-#define parallelFor _Pragma("omp parallel for if(spheresCount>500)")
+#define parallelFor
+// _Pragma("omp parallel for if(spheresCount>500)")
 
 struct Pos {
 	int posOfSphere, sphereAtPos;

@@ -1,11 +1,13 @@
 
 #ifdef ENGINE_THRUST
 
-#include "ThrustCalculator.h"
-
+#include <thrust/device_vector.h>
+#include <thrust/host_vector.h>
 #include <thrust/transform_reduce.h>
 #include <thrust/functional.h>
 #include <thrust/sequence.h>
+
+#include "ThrustCalculator.h"
 
 // This functor implements the dot product between 3d vectors
 struct DotProduct3D : public thrust::binary_function<Float3,Float3,float>

@@ -3,12 +3,13 @@
 #ifndef _THRUST_CALCULATOR_H_
 #define _THRUST_CALCULATOR_H_
 
+#include <thrust/device_vector.h>
+#include <thrust/host_vector.h>
+
 #include "Spheres.h"
 #include "Calculator.h"
 #include "EigenCalculator_Engine.h"
 
-#include <thrust/device_vector.h>
-#include <thrust/host_vector.h>
 #include <cmath>
 
 

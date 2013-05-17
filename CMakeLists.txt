@@ -8,7 +8,7 @@ SET( CMAKE_INCLUDE_PATH ${SphereSim_SOURCE_DIR}/cmake)
 #SET( CMAKE_CXX_COMPILER "ccache" )
 #SET( CMAKE_CXX_COMPILER_ARG1 "g++" )
 
-ADD_DEFINITIONS(-DENGINE_CPP -DENGINE_READ -DENGINE_THRUST_ -DENGINE_OPENCL)
+ADD_DEFINITIONS(-DENGINE_CPP -DENGINE_READ -DENGINE_THRUST -DENGINE_OPENCL)
 
 #ADD_DEFINITIONS(-DQT_DEBUG -DDEBUG)
 #SET(QT_USE_QTOPENGL TRUE)
@@ -22,15 +22,15 @@ ADD_CUSTOM_TARGET(profile rm -f CMakeFiles/SphereSim.dir/main.cpp.o COMMAND CPPF
 #ADD_CUSTOM_TARGET(main DEPENDS main.cpp.o)
 #SET_TARGET_PROPERTIES(main PROPERTIES COMPILE_FLAGS -DPROFILING)
 set_source_files_properties(main.cpp PROPERTIES COMPILE_FLAGS $(CPPFLAGS))
-set_source_files_properties(Calculator.cpp PROPERTIES COMPILE_FLAGS "${CPPFLAGS} -O0")
-set_source_files_properties(EigenCalculator_Engine.cpp PROPERTIES COMPILE_FLAGS "${CPPFLAGS} -O0")
+set_source_files_properties(Calculator.cpp PROPERTIES COMPILE_FLAGS "${CPPFLAGS}") # -O0
+set_source_files_properties(EigenCalculator_Engine.cpp PROPERTIES COMPILE_FLAGS "${CPPFLAGS}") # -O0
 
-set(DEVICE_SYSTEM "THRUST_DEVICE_SYSTEM_OMP") #THRUST_DEVICE_SYSTEM_OMP THRUST_DEVICE_SYSTEM_TBB
+set(DEVICE_SYSTEM "THRUST_DEVICE_BACKEND_OMP") #THRUST_DEVICE_SYSTEM_OMP THRUST_DEVICE_SYSTEM_TBB
 
 #INCLUDE ("OptimizeForArchitecture")
 #OptimizeForArchitecture ()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fopenmp -DTHRUST_DEVICE_SYSTEM=${DEVICE_SYSTEM}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -msse -O2") #  -msse3 -msse4  -march=native -mtune=native  -Ofast
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fopenmp -DTHRUST_DEVICE_BACKEND=${DEVICE_SYSTEM}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -msse -msse3 -Ofast") #  -msse3 -msse4  -march=native -mtune=native  -Ofast
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 
 if(OPENMP_FOUND)
@@ -45,7 +45,7 @@ FIND_PACKAGE (OPENCL)
 
 FIND_PACKAGE(Eigen3)
 
-#find_package(CUDA)
+FIND_PACKAGE(CUDA)
 INCLUDE ("FindThrust")
 
 #set( CMAKE_AUTOMOC ON )
@@ -66,7 +66,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(SphereSim_SOURCES main.cpp 	GLWidget.cpp	OpenClCalculator.cpp 	StatusViewer.cpp	Spheres.cpp	ExponentialSlider.cpp	ExponentialInput.cpp	Ui_Control.cpp	Calculator.cpp	EigenCalculator_Engine.cpp	ExceptionHandler.cpp	PlotWidget.cpp	StartDialog.cpp	FileCalculator.cpp	ThrustCalculator.cpp	EigenCalculator_PairCollider.cpp	EigenCalculator_EfficientPairCollider.cpp	EigenCalculator_StripeCollider.cpp	EigenCalculator_CellSortCollider.cpp	EigenCalculator_CellCountCollider.cpp	EigenCalculator_CellForce.cpp	EigenCalculator_PairGravitation.cpp	EigenCalculator_CellGravitation.cpp)
-SET(SphereSim_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Spheres.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	Calculator.h	EigenCalculator_Engine.h	ExceptionHandler.h		PlotWidget.h	StartDialog.h	FileCalculator.h	ThrustCalculator.h		EigenCalculator_PairCollider.h		EigenCalculator_EfficientPairCollider.h		EigenCalculator_StripeCollider.h	EigenCalculator_CellSortCollider.h		EigenCalculator_CellCountCollider.h		EigenCalculator_CellForce.h		EigenCalculator_PairGravitation.h	EigenCalculator_CellGravitation.h EigenCalculator_Force.h EigenCalculator_PairCollider.h NanosecondTimer.h FramesCounter.h)
+SET(SphereSim_HEADERS 			GLWidget.h		OpenClCalculator.h 		StatusViewer.h 		Spheres.h	ExponentialSlider.h		ExponentialInput.h		Ui_Control.h	Calculator.h	EigenCalculator_Engine.h	ExceptionHandler.h		PlotWidget.h	StartDialog.h	FileCalculator.h	ThrustCalculator.h		EigenCalculator_PairCollider.h		EigenCalculator_EfficientPairCollider.h		EigenCalculator_StripeCollider.h	EigenCalculator_CellSortCollider.h		EigenCalculator_CellCountCollider.h		EigenCalculator_CellForce.h		EigenCalculator_PairGravitation.h	EigenCalculator_CellGravitation.h EigenCalculator_Force.h EigenCalculator_PairCollider.h NanosecondTimer.h FramesCounter.h CudaCalculator.h)
 QT5_WRAP_CPP(SphereSim_HEADERS_MOC ${SphereSim_HEADERS})
 
 SET(SphereSim_UI Calculations_Qt5.ui Rendering_Qt5.ui StartDialog_Qt5.ui)
@@ -86,7 +86,10 @@ QT5_CREATE_TRANSLATION(qm_files "./" ${SphereSim_HEADERS_UI} ${SphereSim_HEADERS
 #message("QT_LIBRARIES: ${QT_LIBRARIES}\n")
 #message("QT_DEBUG_LIBRARIES: ${QT_DEBUG_LIBRARIES}\n")
 
-ADD_EXECUTABLE(SphereSim ${SphereSim_SOURCES} ${SphereSim_HEADERS_MOC} ${SphereSim_HEADERS_UI} ${qm_files} ${SphereSim_resources})
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
+cuda_compile(Cuda_O CudaCalculator.cu)
+
+CUDA_ADD_EXECUTABLE(SphereSim ${SphereSim_SOURCES} ${SphereSim_HEADERS_MOC} ${SphereSim_HEADERS_UI} ${qm_files} ${SphereSim_resources} ${Cuda_O})
 
 TARGET_LINK_LIBRARIES(SphereSim ${OPENGL_LIBRARIES} ${cllib} ${OPENCL_LIBRARIES} qwt gomp)
 
