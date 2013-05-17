@@ -32,6 +32,9 @@ protected:
 			
 			// nach Kontaktmechanik mit Poisson-Zahlen:
 			d_ = both_r_ - d;
+			if(d_/both_r_ > 0.05){
+				F::stopSoon();
+			}
 			//*
 			R = 1/((1/F::spheres[i].size)+(1/F::spheres[j].size));
 			//_E_ = 1/(((1-spheres[i].poisson*spheres[i].poisson)/(_E))+((1-spheres[j].poisson*spheres[j].poisson)/(_E)));

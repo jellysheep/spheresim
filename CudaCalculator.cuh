@@ -42,8 +42,8 @@ protected:
 	//EigenCalculator_Force<dims,_3D_>** forces;
 	int numForces;
 	
-	void cu_EulerPolygon();
-	void cu_RungeKutta();
+	void cu_methodEulerPolygon();
+	void cu_methodRungeKutta();
 	void cu_addStandardForces();
 	eVector** k;
 

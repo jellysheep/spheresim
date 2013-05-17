@@ -21,6 +21,10 @@ protected:
 	scalar** both_r;
 	scalar _E;
 	
+	void stopSoon(){
+		calc->stopSoon();
+	}
+	
 public:
 	EigenCalculator_Force(EigenCalculator_Engine<dims,_3D_>* c){
 		calc = c;

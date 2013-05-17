@@ -89,6 +89,13 @@ protected:
 	QDateTime curSimTime;
 	QTime curTimer;
 	
+	bool stop_soon;
+	void stopSoon(){
+		//stop_soon = true;
+		//running = false;
+		//std::cout<<"supposed to stop...\n";
+	}
+	
 public:
 	Calculator();
 	

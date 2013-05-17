@@ -58,8 +58,10 @@ protected:
 	
 	void addForce(EigenCalculator_Force<dims,_3D_>* force);
 	
-	void EulerPolygon();
-	void RungeKutta();
+	void methodEulerPolygon();
+	void methodRungeKutta();
+	void methodLeapfrog();
+	bool leapfrogFirstStepMade;
 	void addStandardForces();
 	eVector** k;
 

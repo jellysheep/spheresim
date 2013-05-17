@@ -13,6 +13,8 @@
 
 Calculator::Calculator(){
 	
+	stop_soon = false;
+	
 	glWidget = NULL;
 	
 	QObject::connect(this, SIGNAL(destroyed()), 
@@ -462,6 +464,11 @@ void Calculator::run(){
 				}
 				
 				newFrame = true;
+			}
+			
+			if(stop_soon){
+				stop_soon = false;
+				emit stop();
 			}
 		}
 	}

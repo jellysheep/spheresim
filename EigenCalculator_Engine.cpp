@@ -37,12 +37,22 @@ void EigenCalculator_Engine<dims,_3D_>::addForce(EigenCalculator_Force<dims,_3D_
 	}
 }
 
+int omp_thread_count() {
+    int n = 0;
+    #pragma omp parallel reduction(+:n)
+    n += 1;
+    return n;
+}
 
 template <int dims, bool _3D_>
 EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
-	//omp_set_num_threads(1);
+	//omp_set_num_threads(4);
 	srand(2);
 	//srand(NanosecondTimer::getNS());
+	
+	cout<<"Info: Calculating with "<<omp_get_num_threads()<<"|"<<omp_thread_count()<<" threads.\n";
+	
+	leapfrogFirstStepMade = false;
 	
 	_E = curUnit.size*curUnit.size*E*1000000.0;
 		
@@ -247,7 +257,7 @@ void EigenCalculator_Engine<dims,_3D_>::calcWallResistance(){
 
 #define sqr(x) ((x)*(x))
 template <int dims, bool _3D_>
-void EigenCalculator_Engine<dims,_3D_>::EulerPolygon(){
+void EigenCalculator_Engine<dims,_3D_>::methodEulerPolygon(){
 	
 	for(int i = 0; i<numForces; i++){
 		forces[i]->calcForces();
@@ -329,7 +339,58 @@ void EigenCalculator_Engine<dims,_3D_>::addStandardForces(){
 }
 
 template <int dims, bool _3D_>
-void EigenCalculator_Engine<dims,_3D_>::RungeKutta(){
+void EigenCalculator_Engine<dims,_3D_>::methodLeapfrog(){
+	// description here: https://de.wikipedia.org/wiki/Leapfrog-Verfahren#Darstellung_als_Mehrschrittverfahren
+	
+	timeInterval = std::min((double)timeInterval, 1.0/minFps);
+	
+	for(int i = 0; i<spheresCount; i++){
+		spheresForce[i].setZero();
+	}
+	
+	if(!leapfrogFirstStepMade){
+		leapfrogFirstStepMade = true;
+		for(int i = 0; i<spheresCount; i++){
+			spheresOldPos[i] = spheresPos[i];
+		}
+		//////
+		for(int i = 0; i<numForces; i++){
+			forces[i]->calcForces();
+		}
+		if(wallResistance){
+			calcWallResistance();
+		}
+		addStandardForces();
+		//////
+		for(int i = 0; i<spheresCount; i++){
+			spheresPos[i] = spheresOldPos[i] + spheresSpeed[i]*timeInterval + 0.5*spheresForce[i]/spheres[i].mass*timeInterval*timeInterval;
+		}
+	}else{
+		//////
+		for(int i = 0; i<numForces; i++){
+			forces[i]->calcForces();
+		}
+		if(wallResistance){
+			calcWallResistance();
+		}
+		addStandardForces();
+		//////
+		eVector tmp;
+		for(int i = 0; i<spheresCount; i++){
+			//tmp is x(t-2)
+			tmp = spheresOldPos[i];
+			//spheresOldPos is x(t-1)
+			spheresOldPos[i] = spheresPos[i];
+			//spheresPos becomes x(t)
+			spheresPos[i] = 2*spheresOldPos[i] - tmp + spheresForce[i]/spheres[i].mass*timeInterval*timeInterval;
+			
+			spheresSpeed[i] = (spheresPos[i]-spheresOldPos[i])/timeInterval;
+		}
+	}
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::methodRungeKutta(){
 	
 	timeInterval = std::min((double)timeInterval, 1.0/minFps);
 	
@@ -423,10 +484,11 @@ void EigenCalculator_Engine<dims,_3D_>::doStep(){
 		spheresForce[i].setZero();
 	}*/
 	
-	if(useRungeKutta){
-		RungeKutta();
+	if(usemethodRungeKutta){
+		methodRungeKutta();
 	}else{
-		EulerPolygon();
+		//methodEulerPolygon();
+		methodLeapfrog();
 	}
 	
 	#if useSSE
@@ -884,7 +946,7 @@ void EigenCalculator_Engine<dims,_3D_>::paintGL(bool b){
 		forces[i]->paintGL();
 	}
 
-	return;
+	//return;
 	for(double x = 0; x < curUnit.size*boxSize.s0; x+=gridWidth){
 		for(double y = 0; y < curUnit.size*boxSize.s1; y+=gridWidth){
 			glBegin(GL_LINE_STRIP);
