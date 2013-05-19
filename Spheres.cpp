@@ -7,11 +7,11 @@
 bool use3D = false;
 bool fastRender = true;
 
-int spheresCount = 100;
+int spheresCount = 1000;
 int maxShowSpheresCount = 20000;
 bool manySpheres = (std::min(spheresCount,maxShowSpheresCount)>20);
 
-vector3 boxSize = (vector3){1,1,1};
+vector3 boxSize = (vector3){2,2,1};
 //Erdradius: 0.006 Mio.km
 vector2 sphereSize = (vector2){0.01,0.01};
 

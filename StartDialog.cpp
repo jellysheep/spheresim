@@ -70,6 +70,7 @@ void StartDialog::accepted_(){
 	}else{
 		use3D = false;
 	}
+	curveSteps = (use3D?3:6);
 	
 	///magnitude:
 	if(dlg->planets->isChecked()){
