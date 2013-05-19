@@ -13,6 +13,8 @@
 
 #include <QDateTime>
 
+#include <QSettings>
+
 class GLWidget;
 class PlotWidget;
 
@@ -27,6 +29,13 @@ class PlotWidget;
 	saveInVar_(stream,x);					\
 	std::cout<<#x<<": "<<x<<"\n";		\
 }
+
+#define addSetting(val) sets->setValue(QString("%1_%2").arg(sets_i++, 2, 10, (QChar)'0').arg(#val), val);
+#define addSetting_(name, val) sets->setValue(name, val);
+#define readSetting(val) setValue(sets, QString("%1_%2").arg(sets_i++, 2, 10, (QChar)'0').arg(#val), val);
+//val = sets->value(QString("%1_%2").arg(sets_i++, 2, 10, (QChar)'0').arg(#val), 1);
+#define readSetting_(name, val) setValue(sets, name, val);
+//val = sets->value(name, 1);
 
 class Calculator : public QThread, public FramesCounter{
 	Q_OBJECT
@@ -65,6 +74,13 @@ protected:
 	
 	std::fstream f, f2;
 	
+	void saveGeneralOptions(QSettings* sets);
+	void saveSpheres(QSettings* sets, bool withSpeed=true);
+	void loadGeneralOptions(QSettings* sets);
+	void loadSpheres(QSettings* sets);
+	template <typename T>
+	void setValue(QSettings* sets, QString name, T& value);
+	
 	std::istringstream iss;
 	std::string line;
 	float readHexFloat(std::fstream& f);
@@ -96,6 +112,8 @@ protected:
 		//std::cout<<"supposed to stop...\n";
 	}
 	
+	virtual void setSphere(int i, Sphere* s)=0;
+	
 public:
 	Calculator();
 	
@@ -120,6 +138,7 @@ public:
 	bool isRunning();
 	
 	virtual Sphere* getSphere(int i)=0;
+	virtual Sphere* getSphereWithSpeed(int i)=0;
 	
 	///get latest spheres (at 'write' position in buffer)
 	virtual Sphere* getDirectSphere(int i)=0;
@@ -201,7 +220,7 @@ public slots:
 	
 	void saveConfig();
 	
-	virtual void loadConfig() = 0;
+	virtual void loadConfig();
 	
 	virtual void updateMagnitude()=0;
 

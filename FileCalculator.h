@@ -35,7 +35,9 @@ public:
 	FileCalculator();
 	
 	Sphere* getSphere(int i);
+	Sphere* getSphereWithSpeed(int i);
 	Sphere* getDirectSphere(int i);
+	void setSphere(int i, Sphere* s);
 	
 	void fpsChanged(scalar timeInterval);
 	

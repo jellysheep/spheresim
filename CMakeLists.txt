@@ -22,7 +22,7 @@ ADD_CUSTOM_TARGET(profile rm -f CMakeFiles/SphereSim.dir/main.cpp.o COMMAND CPPF
 #ADD_CUSTOM_TARGET(main DEPENDS main.cpp.o)
 #SET_TARGET_PROPERTIES(main PROPERTIES COMPILE_FLAGS -DPROFILING)
 set_source_files_properties(main.cpp PROPERTIES COMPILE_FLAGS $(CPPFLAGS))
-set_source_files_properties(Calculator.cpp PROPERTIES COMPILE_FLAGS "${CPPFLAGS}") # -O0
+set_source_files_properties(Calculator.cpp PROPERTIES COMPILE_FLAGS "${CPPFLAGS} -O2") # -O0
 set_source_files_properties(EigenCalculator_Engine.cpp PROPERTIES COMPILE_FLAGS "${CPPFLAGS}") # -O0
 
 set(DEVICE_SYSTEM "THRUST_DEVICE_BACKEND_OMP") #THRUST_DEVICE_SYSTEM_OMP THRUST_DEVICE_SYSTEM_TBB

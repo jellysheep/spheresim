@@ -73,7 +73,9 @@ public:
 	void fpsChanged(scalar timeInterval);
 	
 	Sphere* getSphere(int i);
+	Sphere* getSphereWithSpeed(int i);
 	Sphere* getDirectSphere(int i);
+	void setSphere(int i, Sphere* s);
 	
 	scalar getTemperature();
 	
@@ -87,7 +89,7 @@ public:
 	void updateElasticity();
 	void updateGridSize();
 	
-	void loadConfig();
+	void loadConfig_();
 	
 	void setGridWith(scalar s);
 	

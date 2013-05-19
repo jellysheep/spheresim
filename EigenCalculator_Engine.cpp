@@ -599,6 +599,35 @@ Sphere* EigenCalculator_Engine<dims,_3D_>::getSphere(int i){
 	#endif
 	return &spheres[i];
 }
+template <int dims, bool _3D_>
+Sphere* EigenCalculator_Engine<dims,_3D_>::getSphereWithSpeed(int i){
+	if(renderBuffer[bufferReadIndex][i]==eVector::Zero()) return NULL;
+	spheres[i].pos.s0 = spheresPos[i](0);
+	spheres[i].pos.s1 = spheresPos[i](1);
+	if(_3D_){
+		spheres[i].pos.s2 = spheresPos[i](2);
+	}
+	spheres[i].speed.s0 = spheresSpeed[i](0);
+	spheres[i].speed.s1 = spheresSpeed[i](1);
+	if(_3D_){
+		spheres[i].speed.s2 = spheresSpeed[i](2);
+	}
+	return &spheres[i];
+}
+
+template <int dims, bool _3D_>
+void EigenCalculator_Engine<dims,_3D_>::setSphere(int i, Sphere* s){
+	spheresPos[i](0) = s->pos.s0;
+	spheresPos[i](1) = s->pos.s1;
+	if(_3D_){
+		spheresPos[i](2) = s->pos.s2;
+	}
+	spheresSpeed[i](0) = s->speed.s0;
+	spheresSpeed[i](1) = s->speed.s1;
+	if(_3D_){
+		spheresSpeed[i](2) = s->speed.s2;
+	}
+}
 
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::fpsChanged(scalar timeInt){
@@ -746,13 +775,45 @@ void EigenCalculator_Engine<dims,_3D_>::maxSphereCountChanged_subclass(int i){
 	readNum_render = readNum_render_new;
 }
 
-
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 	f2.open(file, std::fstream::in);
 	bool b = true;
 	if (f2.is_open())
 	{
+		
+		/*
+		sets->beginGroup("General");
+		int sets_i = 0;
+		
+		readSetting(use3D);
+		readSetting(spheresCount);
+		readSetting(maxShowSpheresCount);
+		readSetting(boxSize.s0);
+		readSetting(boxSize.s1);
+		if(use3D){
+			readSetting(boxSize.s2);
+		}
+		readSetting(sphereSize.s0);
+		readSetting(sphereSize.s1);
+		readSetting(renderFpsMax);
+		readSetting(renderFps);
+		
+		readSetting(speed);
+		readSetting(fps);
+		readSetting(minFps);
+		
+		readSetting(max_speed);
+		readSetting(E);
+		readSetting(poisson);
+		readSetting(elastic);
+		readSetting(gravity_abs);
+		readSetting(G_fact);
+		readSetting(airResistance);
+		readSetting(wallResistance);
+		
+		sets->endGroup();
+		*/
 		//readLine();
 		int _3d;
 		saveInVar(f2, _3d);
@@ -918,7 +979,7 @@ void EigenCalculator_Engine<dims,_3D_>::loadConfig(const char* file){
 }
 
 template <int dims, bool _3D_>
-void EigenCalculator_Engine<dims,_3D_>::loadConfig(){
+void EigenCalculator_Engine<dims,_3D_>::loadConfig_(){
 	const char* file = (std::string(filename)+getConfigFileExtension()).c_str();
 	
 	const char* filter = (std::string("SphereSim View File (*.")+getConfigFileExtension()+")").c_str();

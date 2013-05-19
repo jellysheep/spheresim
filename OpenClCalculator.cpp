@@ -390,8 +390,16 @@ Sphere* OpenClCalculator::getSphere(int i){
 	return &c_CPU_render[bufferReadIndex][i];
 }
 
+Sphere* OpenClCalculator::getSphereWithSpeed(int i){
+	return getSphere(i);
+}
+
 Sphere* OpenClCalculator::getDirectSphere(int i){
 	return &c_CPU_render[bufferWriteIndex][i];
+}
+
+void OpenClCalculator::setSphere(int i, Sphere* s){
+	//TODO
 }
 
 void OpenClCalculator::doStep(){

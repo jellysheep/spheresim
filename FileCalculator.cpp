@@ -209,6 +209,14 @@ Sphere* FileCalculator::getSphere(int i){
 	return &spheres2[i];
 }
 
+Sphere* FileCalculator::getSphereWithSpeed(int i){
+	return getSphere(i);
+}
+
+void FileCalculator::setSphere(int i, Sphere* s){
+	//nothing to do
+}
+
 Sphere* FileCalculator::getDirectSphere(int i){
 	spheres2[i].pos = renderBuffer[bufferWriteIndex][i];
 	return &spheres2[i];

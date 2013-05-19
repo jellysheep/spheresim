@@ -94,71 +94,75 @@ void Calculator::initFileSave(){
 	
 	printf("File: %s\n", file);
 	
-	f.open(file, std::fstream::out|std::fstream::trunc);
-	//magic number, identifying SphereSim files
-	f<<"# "<<getViewFileExtension()<<'\n';
-	f<<"# SphereSim"<<(use3D?3:2)<<" View File\n\n";
-	f<<"# h=hexadecimal, d=decimal values in line\n";
-	f<<"\n# 3D:";
-	addHex(f, (use3D?1:0));
-	f<<"\n# sphere count:";
-	addHex(f, spheresCount);
-	f<<"\n# max. display sphere count:";
-	addHex(f, maxShowSpheresCount);
+	QSettings* sets = new QSettings(str, QSettings::IniFormat);
+	sets->clear();
 	
-	f<<"\n# box size (x,y"<<(use3D?",z":"")<<"):";
-	addHex(f, boxSize.s0);
-	addHex(f, boxSize.s1);
+	saveGeneralOptions(sets);
+	saveSpheres(sets, false);
+	
+	sets->sync();
+	
+	saveBool = true;
+}
+void Calculator::saveGeneralOptions(QSettings* sets){
+	sets->beginGroup("General");
+	int sets_i = 0;
+	
+	addSetting(use3D);
+	addSetting(spheresCount);
+	addSetting(maxShowSpheresCount);
+	addSetting(boxSize.s0);
+	addSetting(boxSize.s1);
 	if(use3D){
-		addHex(f, boxSize.s2);
+		addSetting(boxSize.s2);
 	}
-	f<<"\n# sphere size (min,max):";
-	addHex(f, sphereSize.s0);
-	addHex(f, sphereSize.s1);
+	addSetting(sphereSize.s0);
+	addSetting(sphereSize.s1);
+	addSetting(renderFpsMax);
+	addSetting(renderFps);
 	
-	f<<"\n# render fps max:";
-	addHex(f, renderFpsMax);
-	f<<"\n# render fps:";
-	addHex(f, renderFps);
+	addSetting(speed);
+	addSetting(fps);
+	addSetting(minFps);
 	
-	f<<"\n# speed:";
-	addHex(f, speed);
-	f<<"\n# fps:";
-	addHex(f, fps);
-	f<<"\n# minFps:";
-	addHex(f, minFps);
+	addSetting(max_speed);
+	addSetting(E);
+	addSetting(poisson);
+	addSetting(elastic);
+	addSetting(gravity_abs);
+	addSetting(G_fact);
+	addSetting(airResistance);
+	addSetting(wallResistance);
 	
-	f<<"\n# initial max. speed:";
-	addHex(f, max_speed);
-	f<<"\n# E modulus:";
-	addHex(f, E);
-	f<<"\n# poisson's value:";
-	addHex(f, poisson);
-	f<<"\n# elasticity:";
-	addHex(f, elastic);
-	f<<"\n# gravity:";
-	addHex(f, gravity_abs);
-	f<<"\n# gravitation factor:";
-	addHex(f, G_fact);
-	f<<"\n# air resistance factor:";
-	addHex(f, airResistance);
-	f<<"\n# wall resistance:";
-	addHex(f, (wallResistance?1:0));
-	f<<"\n\n# sizes, masses and initial positions of the spheres (r,m,x,y"<<(use3D?",z":"")<<"):";
+	sets->endGroup();
+}
+void Calculator::saveSpheres(QSettings* sets, bool withSpeed){
+	int spheresCountNext10Pot = (int)(log(spheresCount-1)/log(10))+1;
 	Sphere* c;
 	for(int i = 0; i<spheresCount; i++){
-		c = getSphere(i);
-		addHex(f, c->size);
-		addHex(f, c->mass, false);
-		addHex(f, c->pos.s0, false);
-		addHex(f, c->pos.s1, false);
-		if(use3D){
-			addHex(f, c->pos.s2, false);
+		sets->beginGroup(QString("Sphere_%1").arg(i, spheresCountNext10Pot, 10, (QChar)'0'));
+		if(withSpeed){
+			c = getSphereWithSpeed(i);
+		}else{
+			c = getSphere(i);
 		}
+		addSetting_("size", c->size);
+		addSetting_("size", c->size);
+		addSetting_("mass", c->mass);
+		addSetting_("x", c->pos.s0);
+		addSetting_("y", c->pos.s1);
+		if(use3D){
+			addSetting_("z", c->pos.s2);
+		}
+		if(withSpeed){
+			addSetting_("v_x", c->speed.s0);
+			addSetting_("v_y", c->speed.s1);
+			if(use3D){
+				addSetting_("v_z", c->speed.s2);
+			}
+		}
+		sets->endGroup();
 	}
-	f<<"\n\n# positions of the spheres (x,y"<<(use3D?",z":"")<<"):";
-	saveBool = true;
-	//~ f.close();
 }
 void Calculator::saveConfig(){
 	const char* filter = (std::string("SphereSim Config File (*.")+getConfigFileExtension()+")").c_str();
@@ -173,76 +177,94 @@ void Calculator::saveConfig(){
 	
 	printf("File: %s\n", file);
 	
-	f2.open(file, std::fstream::out|std::fstream::trunc);
-	//magic number, identifying SphereSim files
-	f2<<"# "<<getViewFileExtension()<<'\n';
-	f2<<"# SphereSim"<<(use3D?3:2)<<" View File\n\n";
-	f2<<"# h=hexadecimal, d=decimal values in line\n";
-	f2<<"\n# 3D:";
-	addHex(f2, (use3D?1:0));
-	f2<<"\n# sphere count:";
-	addHex(f2, spheresCount);
-	f2<<"\n# max. display sphere count:";
-	addHex(f2, maxShowSpheresCount);
+	QSettings* sets = new QSettings(str, QSettings::IniFormat);
+	sets->clear();
 	
-	f2<<"\n# box size (x,y"<<(use3D?",z":"")<<"):";
-	addHex(f2, boxSize.s0);
-	addHex(f2, boxSize.s1);
+	saveGeneralOptions(sets);
+	saveSpheres(sets);
+	
+	sets->sync();
+}
+#define newTemplate(type, func) \
+template <> \
+void Calculator::setValue<type>(QSettings* sets, QString name, type& value){ \
+	value = sets->value(name).func(); \
+}
+newTemplate(int, toInt)
+newTemplate(float, toFloat)
+newTemplate(double, toDouble)
+newTemplate(bool, toBool)
+newTemplate(long long, toLongLong)
+void Calculator::loadGeneralOptions(QSettings* sets){
+	sets->beginGroup("General");
+	int sets_i = 0;
+	
+	readSetting(use3D);
+	readSetting(spheresCount);
+	readSetting(maxShowSpheresCount);
+	readSetting(boxSize.s0);
+	readSetting(boxSize.s1);
 	if(use3D){
-		addHex(f2, boxSize.s2);
+		readSetting(boxSize.s2);
 	}
-	f2<<"\n# sphere size (min,max):";
-	addHex(f2, sphereSize.s0);
-	addHex(f2, sphereSize.s1);
+	readSetting(sphereSize.s0);
+	readSetting(sphereSize.s1);
+	readSetting(renderFpsMax);
+	readSetting(renderFps);
 	
-	f2<<"\n# render fps max:";
-	addHex(f2, renderFpsMax);
-	f2<<"\n# render fps:";
-	addHex(f2, renderFps);
+	readSetting(speed);
+	readSetting(fps);
+	readSetting(minFps);
 	
-	f2<<"\n# speed:";
-	addHex(f2, speed);
-	f2<<"\n# fps:";
-	addHex(f2, fps);
-	f2<<"\n# minFps:";
-	addHex(f2, minFps);
+	readSetting(max_speed);
+	readSetting(E);
+	readSetting(poisson);
+	readSetting(elastic);
+	readSetting(gravity_abs);
+	readSetting(G_fact);
+	readSetting(airResistance);
+	readSetting(wallResistance);
 	
-	f2<<"\n# initial max. speed:";
-	addHex(f2, max_speed);
-	f2<<"\n# E modulus:";
-	addHex(f2, E);
-	f2<<"\n# poisson's value:";
-	addHex(f2, poisson);
-	f2<<"\n# elasticity:";
-	addHex(f2, elastic);
-	f2<<"\n# gravity:";
-	addHex(f2, gravity_abs);
-	f2<<"\n# gravitation factor:";
-	addHex(f2, G_fact);
-	f2<<"\n# air resistance factor:";
-	addHex(f2, airResistance);
-	f2<<"\n# wall resistance:";
-	addHex(f2, (wallResistance?1:0));
-	f2<<"\n\n# fixed flag, sizes, masses, initial positions and speeds of the spheres (f,r,m,x,y"<<(use3D?",z":"")<<",vx,vy"<<(use3D?",vz":"")<<"):";
+	sets->endGroup();
+}
+void Calculator::loadSpheres(QSettings* sets){
+	int spheresCountNext10Pot = (int)(log(spheresCount-1)/log(10))+1;
 	Sphere* c;
 	for(int i = 0; i<spheresCount; i++){
-		c = getSphere(i);
-		addHex(f2, (int)c->fixed);
-		addHex(f2, c->size, false);
-		addHex(f2, c->mass, false);
-		addHex(f2, c->pos.s0, false);
-		addHex(f2, c->pos.s1, false);
+		c = new Sphere();
+		sets->beginGroup(QString("Sphere_%1").arg(i, spheresCountNext10Pot, 10, (QChar)'0'));
+		readSetting_("size", c->size);
+		readSetting_("mass", c->mass);
+		readSetting_("x", c->pos.s0);
+		readSetting_("y", c->pos.s1);
 		if(use3D){
-			addHex(f2, c->pos.s2, false);
+			readSetting_("z", c->pos.s2);
 		}
-		addHex(f2, c->speed.s0, false);
-		addHex(f2, c->speed.s1, false);
+		readSetting_("v_x", c->speed.s0);
+		readSetting_("v_y", c->speed.s1);
 		if(use3D){
-			addHex(f2, c->speed.s2, false);
+			readSetting_("v_z", c->speed.s2);
 		}
+		sets->endGroup();
+		this->setSphere(i, c);
 	}
-	f2<<"\n\n# "<<getConfigFileExtension()<<" end of file";
-	f2.close();
+}
+void Calculator::loadConfig(){
+	const char* filter = (std::string("SphereSim Config File (*.")+getConfigFileExtension()+")").c_str();
+	QString str = QFileDialog::getOpenFileName(0, ("Open config"), (std::string("./save.")+getConfigFileExtension()).c_str(), (filter));
+	if(str == ""){
+		std::cerr<<"File could not be opened!"<<std::endl;
+		return;
+	}
+	const char* file = (const char*) str.toStdString().c_str();
+	
+	printf("File: %s\n", file);
+	
+	QSettings* sets = new QSettings(str, QSettings::IniFormat);
+	
+	loadGeneralOptions(sets);
+	loadSpheres(sets);
+	
 }
 void Calculator::readLine(std::fstream& f){
 	bool retry;
