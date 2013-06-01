@@ -7,7 +7,7 @@
 bool use3D = false;
 bool fastRender = true;
 
-int spheresCount = 1000;
+int spheresCount = 2000;
 int maxShowSpheresCount = 20000;
 bool manySpheres = (std::min(spheresCount,maxShowSpheresCount)>20);
 
@@ -26,7 +26,7 @@ scalar timeInterval = speed*speedCorrection/fps;
 scalar max_speed = 0;//0.5;
 scalar E = 2*0.05;//((200)/1000000.0)/2; //Silikonkautschuk
 scalar poisson = 0.5; //Gummi
-scalar elastic = 1.0;//0.93;//0.05;//0.9;//0.999;//0.9;
+scalar elastic = 0.8;//0.93;//0.05;//0.9;//0.999;//0.9;
 scalar gravity_abs = 9.81;
 vector gravity = (vector){0,-gravity_abs, 0};
 bool saveBool = false, renderBool = true, playBool = false;

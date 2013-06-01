@@ -80,11 +80,11 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	//addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
 	addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
 	
-	//~ if(magnitude == 1){
+	if(magnitude == 1){
 		addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
-	//~ }else{
-		//~ addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
-	//~ }
+	}else{
+		addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
+	}
 	
 	
 	k = new eVector*[spheresCount];
