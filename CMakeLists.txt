@@ -29,7 +29,7 @@ set(DEVICE_SYSTEM "THRUST_DEVICE_BACKEND_OMP") #THRUST_DEVICE_SYSTEM_OMP THRUST_
 
 #INCLUDE ("OptimizeForArchitecture")
 #OptimizeForArchitecture ()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fopenmp -DTHRUST_DEVICE_BACKEND=${DEVICE_SYSTEM}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fopenmp -DTHRUST_DEVICE_BACKEND=${DEVICE_SYSTEM}") #-g
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -msse -msse3 -Ofast") #  -msse3 -msse4  -march=native -mtune=native  -Ofast
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 
@@ -45,8 +45,8 @@ FIND_PACKAGE (OPENCL)
 
 FIND_PACKAGE(Eigen3)
 
-FIND_PACKAGE(CUDA)
-INCLUDE ("FindThrust")
+#FIND_PACKAGE(CUDA)
+#INCLUDE ("FindThrust")
 
 #set( CMAKE_AUTOMOC ON )
 #find_package( Qt REQUIRED )
@@ -86,10 +86,10 @@ QT5_CREATE_TRANSLATION(qm_files "./" ${SphereSim_HEADERS_UI} ${SphereSim_HEADERS
 #message("QT_LIBRARIES: ${QT_LIBRARIES}\n")
 #message("QT_DEBUG_LIBRARIES: ${QT_DEBUG_LIBRARIES}\n")
 
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
-cuda_compile(Cuda_O CudaCalculator.cu)
+#set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS};-gencode arch=compute_20,code=sm_20)
+#cuda_compile(Cuda_O CudaCalculator.cu)
 
-CUDA_ADD_EXECUTABLE(SphereSim ${SphereSim_SOURCES} ${SphereSim_HEADERS_MOC} ${SphereSim_HEADERS_UI} ${qm_files} ${SphereSim_resources} ${Cuda_O})
+ADD_EXECUTABLE(SphereSim ${SphereSim_SOURCES} ${SphereSim_HEADERS_MOC} ${SphereSim_HEADERS_UI} ${qm_files} ${SphereSim_resources} ${Cuda_O})
 
 TARGET_LINK_LIBRARIES(SphereSim ${OPENGL_LIBRARIES} ${cllib} ${OPENCL_LIBRARIES} qwt gomp)
 

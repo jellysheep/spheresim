@@ -34,7 +34,8 @@ class PlotWidget;
 #define addSetting_(name, val) sets->setValue(name, val);
 #define readSetting(val) setValue(sets, QString("%1_%2").arg(sets_i++, 2, 10, (QChar)'0').arg(#val), val);
 //val = sets->value(QString("%1_%2").arg(sets_i++, 2, 10, (QChar)'0').arg(#val), 1);
-#define readSetting_(name, val) setValue(sets, name, val);
+//#define readSetting_(name, val) setValue(sets, name, val);
+#define readSetting_(name, val) {setValue(sets, name, val);printf("read value %s (%f) into var %s\n", name, val, #val);}
 //val = sets->value(name, 1);
 
 class Calculator : public QThread, public FramesCounter{

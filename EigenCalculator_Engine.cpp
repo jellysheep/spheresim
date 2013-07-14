@@ -76,15 +76,15 @@ EigenCalculator_Engine<dims,_3D_>::EigenCalculator_Engine():Calculator(){
 	
 	//addForce(new EigenCalculator_PairCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_EfficientPairCollider<dims,_3D_>(this));
-	//addForce(new EigenCalculator_StripeCollider<dims,_3D_>(this));
+	addForce(new EigenCalculator_StripeCollider<dims,_3D_>(this));
 	//addForce(new EigenCalculator_CellSortCollider<dims,_3D_>(this));
-	addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
+	//addForce(new EigenCalculator_CellCountCollider<dims,_3D_>(this));
 	
-	if(magnitude == 1){
+	//if(magnitude == 1){
 		addForce(new EigenCalculator_PairGravitation<dims,_3D_>(this));
-	}else{
-		addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
-	}
+	//}else{
+	//	addForce(new EigenCalculator_CellGravitation<dims,_3D_>(this));
+	//}
 	
 	
 	k = new eVector*[spheresCount];
@@ -617,15 +617,17 @@ Sphere* EigenCalculator_Engine<dims,_3D_>::getSphereWithSpeed(int i){
 
 template <int dims, bool _3D_>
 void EigenCalculator_Engine<dims,_3D_>::setSphere(int i, Sphere* s){
-	spheresPos[i](0) = s->pos.s0;
-	spheresPos[i](1) = s->pos.s1;
-	if(_3D_){
-		spheresPos[i](2) = s->pos.s2;
-	}
-	spheresSpeed[i](0) = s->speed.s0;
-	spheresSpeed[i](1) = s->speed.s1;
-	if(_3D_){
-		spheresSpeed[i](2) = s->speed.s2;
+	if(i<spheresCount){
+		spheresPos[i](0) = s->pos.s0;
+		spheresPos[i](1) = s->pos.s1;
+		if(_3D_){
+			spheresPos[i](2) = s->pos.s2;
+		}
+		spheresSpeed[i](0) = s->speed.s0;
+		spheresSpeed[i](1) = s->speed.s1;
+		if(_3D_){
+			spheresSpeed[i](2) = s->speed.s2;
+		}
 	}
 }
 

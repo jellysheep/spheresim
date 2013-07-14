@@ -271,24 +271,29 @@
 <context>
     <name>Dialog</name>
     <message>
+        <location filename="build_mingw/ui_Dialog_Qt5.h" line="87"/>
         <source>SphereSim</source>
-        <translation type="obsolete">SphereSim</translation>
+        <translation type="unfinished">SphereSim</translation>
     </message>
     <message>
+        <location filename="build_mingw/ui_Dialog_Qt5.h" line="88"/>
         <source>OpenCL kernel</source>
-        <translation type="obsolete">OpenCL-Engine</translation>
+        <translation type="unfinished">OpenCL-Engine</translation>
     </message>
     <message>
+        <location filename="build_mingw/ui_Dialog_Qt5.h" line="89"/>
         <source>C++ with Eigen library</source>
-        <translation type="obsolete">C++ mit Eigen-Bibliothek</translation>
+        <translation type="unfinished">C++ mit Eigen-Bibliothek</translation>
     </message>
     <message>
+        <location filename="build_mingw/ui_Dialog_Qt5.h" line="90"/>
         <source>Thrust library</source>
-        <translation type="obsolete">Thrust-Bibliothek</translation>
+        <translation type="unfinished">Thrust-Bibliothek</translation>
     </message>
     <message>
+        <location filename="build_mingw/ui_Dialog_Qt5.h" line="91"/>
         <source>Read spheres from file</source>
-        <translation type="obsolete">Teilchenbewegungen von Datei laden</translation>
+        <translation type="unfinished">Teilchenbewegungen von Datei laden</translation>
     </message>
 </context>
 <context>
