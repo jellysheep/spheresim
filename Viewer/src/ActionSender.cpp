@@ -47,7 +47,9 @@ QByteArray ActionSender::sendReplyAction(const char actionGroup, const char acti
 	int endIndex, startIndex;
 	bool allDataReceived = false, dataStarted = false;
 	while(!allDataReceived){
-		socket->waitForReadyRead(1000);
+		if(!socket->waitForReadyRead(1000)){
+			break;
+		}
 		data = socket->readAll();
 		if(!dataStarted){
 			startIndex = data.indexOf(Connection::startByte);
@@ -85,4 +87,8 @@ QByteArray ActionSender::sendReplyAction(const char actionGroup, const char acti
 
 const QString ActionSender::getVersion(){
 	return sendReplyAction(ActionGroups::basic, BasicActions::getVersion);
+}
+
+const QString ActionSender::getTrueString(){
+	return sendReplyAction(ActionGroups::basic, BasicActions::getTrueString);
 }

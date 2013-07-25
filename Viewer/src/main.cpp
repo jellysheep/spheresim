@@ -19,6 +19,8 @@ int main(int argc, char** argv){
 	ActionSender actSend(Connection::defaultAddress, Connection::defaultPort);
 	const QString version = actSend.getVersion();
 	qDebug()<<version;
+	const QString trueStr = actSend.getTrueString();
+	qDebug()<<trueStr;
 	//app.exec();
 	
 	return 0;

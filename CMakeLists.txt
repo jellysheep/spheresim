@@ -26,3 +26,4 @@ set(HEADERS
 
 add_subdirectory(Server)
 add_subdirectory(Viewer)
+add_subdirectory(Tester)

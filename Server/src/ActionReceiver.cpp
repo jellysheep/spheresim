@@ -106,7 +106,10 @@ void ActionReceiver::handleAction(const char actionGroup, const char action, con
 void ActionReceiver::handleBasicAction(const char actionGroup, const char action, const QByteArray data){
 	switch(action){
 	case BasicActions::getVersion:
-		sendVersion();
+		sendReply("SphereSim Server v" VERSION_STR);
+		break;
+	case BasicActions::getTrueString:
+		sendReply("true");
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
@@ -116,6 +119,7 @@ void ActionReceiver::handleBasicAction(const char actionGroup, const char action
 
 void ActionReceiver::handleUnknownAction(const char actionGroup, const char action, const QByteArray data){
 	qWarning()<<"ActionReceiver: Warning: received unknown action group or action ("<<(int)actionGroup<<(int)action<<")";
+	sendReply("unknown");
 }
 
 void ActionReceiver::sendReply(const QByteArray& arr){
@@ -128,10 +132,6 @@ void ActionReceiver::sendReply(const QByteArray& arr){
 	}else{
 		qDebug()<<"ActionReceiver: sending"<<Connection::startByte<<"[data]"<<Connection::endByte;
 	}
-}
-
-void ActionReceiver::sendVersion(){
-	sendReply("SphereSim Server v" VERSION_STR);
 }
 
 void ActionReceiver::disconnected(){

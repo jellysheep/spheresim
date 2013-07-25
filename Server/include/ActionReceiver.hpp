@@ -59,10 +59,6 @@ namespace SphereSim{
 		 * Takes client socket. */
 		ActionReceiver(QTcpSocket* sock);
 		
-		/* method sendVersion:
-		 * Returns server version to the client. */
-		void sendVersion();
-		
 	public slots:
 		/* slot readData:
 		 * Reads data from client. */

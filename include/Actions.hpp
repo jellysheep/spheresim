@@ -21,7 +21,8 @@ namespace SphereSim{
 	 */
 	namespace BasicActions{
 		enum Action{
-			getVersion = 1
+			getVersion = 1,
+			getTrueString
 		};
 	}
 	

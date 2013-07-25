@@ -42,11 +42,13 @@ namespace SphereSim{
 		ActionSender(const QString& addr, const quint16 port);
 		ActionSender(const char* addr, const quint16 port);
 		
-		/*
-		 * method getVersion:
-		 * Asks server for the version number and returns it.
-		 */
+		/* method getVersion:
+		 * Asks server for the version number and returns it. */
 		const QString getVersion();
+		
+		/* method getTrueString:
+		 * Asks server for a "true" string and returns it. */
+		const QString getTrueString();
 	};
 	
 }
