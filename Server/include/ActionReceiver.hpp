@@ -22,45 +22,47 @@ namespace SphereSim{
 	private:
 		QTcpSocket* socket;
 		
-		/* bool answeringRequest:
-		 * Flag if currently a client request is answered.
+		/* QByteArray requestData:
+		 * Collected data from a client request. */
+		QByteArray requestData;
+		
+		/* bool collectingRequestData:
+		 * Flag if currently data from a client request is being collected.
 		 * If true, no new requests are accepted. */
-		bool answeringRequest;
+		bool collectingRequestData;
+		
+		/* method processData:
+		 * Processes received request data. */
+		void processData(QByteArray arr);
+		
+		/* method processRequest:
+		 * Processes and answers received request. */
+		void processRequest();
 		
 		/* method handleBasicAction:
-		 * Handles basic action requests.
-		 */
-		void handleBasicAction(const char* data);
+		 * Handles basic action requests. */
+		void handleBasicAction(const char actionGroup, const char action, const QByteArray data);
 		
 		/* method handleUnknownAction:
-		 * Handles unknown action requests.
-		 */
-		void handleUnknownAction(const char* data);
+		 * Handles unknown action requests. */
+		void handleUnknownAction(const char actionGroup, const char action, const QByteArray data);
 		
 	public:
-		/*
-		 * constructor:
-		 * Takes client socket. 
-		 */
+		/* constructor:
+		 * Takes client socket. */
 		ActionReceiver(QTcpSocket* sock);
 		
-		/*
-		 * method sendVersion:
-		 * Returns server version to the client.
-		 */
+		/* method sendVersion:
+		 * Returns server version to the client. */
 		void sendVersion();
 		
 	public slots:
-		/*
-		 * slot readData:
-		 * Reads data from client.
-		 */
+		/* slot readData:
+		 * Reads data from client. */
 		void readData();
 		
-		/*
-		 * slot disconnected:
-		 * Executed when connection was released.
-		 */
+		/* slot disconnected:
+		 * Executed when connection was released. */
 		void disconnected();
 	};
 	

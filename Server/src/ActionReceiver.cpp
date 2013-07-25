@@ -1,14 +1,14 @@
 
 #include <ActionReceiver.hpp>
 #include <Version.hpp>
+#include <Connection.hpp>
 
 #include <QTcpSocket>
 
 using namespace SphereSim;
 
 ActionReceiver::ActionReceiver(QTcpSocket* sock){
-	qDebug()<<"ActionReceiver: constructor called";
-	answeringRequest = false;
+	collectingRequestData = false;
 	socket = sock;
 	connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
 	connect(socket, SIGNAL(disconnected()), SLOT(disconnected()));
@@ -17,37 +17,101 @@ ActionReceiver::ActionReceiver(QTcpSocket* sock){
 }
 
 void ActionReceiver::readData(){
-	qDebug()<<"ActionReceiver: new data available";
-	if(!answeringRequest){
-		answeringRequest = true;
-		char* data = new char[2];
-		qint64 result = socket->read(data, 2);
-		if(result >= 2){
-			switch(data[0]){
-			case ActionGroups::basic:
-				handleBasicAction(data);
-				break;
-			default:
-				handleUnknownAction(data);
-				break;
+	QByteArray arr = socket->readAll();
+	
+	processData(arr);
+}
+
+void ActionReceiver::processData(QByteArray arr){
+	int endIndex, startIndex;
+	endIndex = arr.indexOf(Connection::endByte);
+	startIndex = arr.indexOf(Connection::startByte);
+	
+	qDebug()<<"ActionReceiver: new data available: "<<arr;
+	if(endIndex<0){
+		if(startIndex<0){
+			///no endByte or startByte
+			if(collectingRequestData){
+				qDebug()<<"ActionReceiver: appending data to array";
+				requestData.append(arr);
+			}
+		}else{
+			///only startByte
+			if(!collectingRequestData){
+				qDebug()<<"ActionReceiver: creating new data array";
+				//what if last request did not end correctly? next request would be skipped (waiting for endByte)...
+				collectingRequestData = true;
+				requestData = arr.right(arr.size()-startIndex-1);
 			}
 		}
-		answeringRequest = false;
+	}else{
+		if(startIndex<0){
+			///only endByte
+			if(collectingRequestData){
+				qDebug()<<"ActionReceiver: appending data and finishing array";
+				requestData.append(arr.left(endIndex));
+				collectingRequestData = false;
+				processRequest();
+			}
+		}else{
+			///startByte and endByte
+			if(startIndex<endIndex){
+				///startByte before endByte
+				qDebug()<<"ActionReceiver: creating and finishing new data array";
+				requestData = arr.mid(startIndex+1, endIndex-startIndex-1);
+				collectingRequestData = false;
+				processRequest();
+				processData(arr.right(arr.size()-endIndex-1));
+			}else{
+				///endByte before startByte
+				if(collectingRequestData){
+					qDebug()<<"ActionReceiver: finishing and creating new data array";
+					requestData.append(arr.left(endIndex));
+					collectingRequestData = false;
+					processRequest();
+					processData(arr.right(arr.size()-endIndex-1));
+				}
+			}
+		}
 	}
 }
 
-void ActionReceiver::handleBasicAction(const char* data){
-	switch(data[1]){
+void ActionReceiver::processRequest(){
+	QByteArray data = QByteArray::fromBase64(requestData);
+	char actionGroup = data[0];
+	char action = data[1];
+	if(data.size()>2){
+		data = data.right(2);
+	}else{
+		data.clear();
+	}
+	if(data.size()<50){
+		qDebug()<<"ActionReceiver: receiving"<<Connection::startByte<<((int)actionGroup)<<((int)action)<<data<<Connection::endByte;
+	}else{
+		qDebug()<<"ActionReceiver: receiving"<<Connection::startByte<<((int)actionGroup)<<((int)action)<<"[data]"<<Connection::endByte;
+	}
+	switch(actionGroup){
+	case ActionGroups::basic:
+		handleBasicAction(actionGroup, action, data);
+		break;
+	default:
+		handleUnknownAction(actionGroup, action, data);
+		break;
+	}
+}
+
+void ActionReceiver::handleBasicAction(const char actionGroup, const char action, const QByteArray data){
+	switch(action){
 	case BasicActions::getVersion:
 		sendVersion();
 		break;
 	default:
-		handleUnknownAction(data);
+		handleUnknownAction(actionGroup, action, data);
 		break;
 	}
 }
 
-void ActionReceiver::handleUnknownAction(const char* data){
+void ActionReceiver::handleUnknownAction(const char actionGroup, const char action, const QByteArray data){
 	
 }
 
