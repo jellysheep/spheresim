@@ -24,9 +24,6 @@ void ActionSender::sendAction(const char actionGroup, const char action, const Q
 	data.append(actionGroup);
 	data.append(action);
 	data.append(arr);
-	if(arr.size()<50){
-		qDebug()<<"ActionSender: sending raw"<<data;
-	}
 	data = data.toBase64();
 	data.prepend(Connection::startByte);
 	data.append(Connection::endByte);
@@ -42,14 +39,50 @@ void ActionSender::sendAction(const char actionGroup, const char action){
 	sendAction(actionGroup, action, arr);
 }
 
-const QString ActionSender::getVersion(){
-	sendAction(ActionGroups::basic, BasicActions::getVersion);
-	const static int length = 40;
-	char* retData = new char[length];
-	socket->waitForReadyRead();
-	qint64 result = socket->read(retData, length);
-	if(result > 0){
-		return QByteArray(retData, result);
+QByteArray ActionSender::sendReplyAction(const char actionGroup, const char action, const QByteArray& arr){
+	socket->readAll(); ///clear buffer
+	sendAction(actionGroup, action, arr);
+	
+	QByteArray retData, data;
+	int endIndex, startIndex;
+	bool allDataReceived = false, dataStarted = false;
+	while(!allDataReceived){
+		socket->waitForReadyRead(1000);
+		data = socket->readAll();
+		if(!dataStarted){
+			startIndex = data.indexOf(Connection::startByte);
+			if(startIndex>=0){
+				dataStarted = true;
+				endIndex = data.indexOf(Connection::endByte);
+				if(endIndex>=0){
+					retData = data.mid(startIndex+1, endIndex-startIndex-1);
+					allDataReceived = true;
+					break;
+				}else{
+					retData = data.right(startIndex+1);
+					continue;
+				}
+			}
+		}else{
+			endIndex = data.indexOf(Connection::endByte);
+			if(endIndex>=0){
+				retData.append(data.left(endIndex));
+				allDataReceived = true;
+				break;
+			}else{
+				retData.append(data);
+				continue;
+			}
+		}
 	}
-	return QString("error");
+	retData = QByteArray::fromBase64(retData);
+	return retData;
+}
+QByteArray ActionSender::sendReplyAction(const char actionGroup, const char action){
+	QByteArray arr;
+	return sendReplyAction(actionGroup, action, arr);
+}
+
+const QString ActionSender::getVersion(){
+	return sendReplyAction(ActionGroups::basic, BasicActions::getVersion);
 }

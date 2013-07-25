@@ -26,6 +26,13 @@ namespace SphereSim{
 		 */
 		void sendAction(const char actionGroup, const char action, const QByteArray& data);
 		void sendAction(const char actionGroup, const char action);
+		
+		/*
+		 * method sendReplyAction:
+		 * Sends action request and data to server and return server reply. 
+		 */
+		QByteArray sendReplyAction(const char actionGroup, const char action, const QByteArray& data);
+		QByteArray sendReplyAction(const char actionGroup, const char action);
 	public:
 		/*
 		 * constructor:

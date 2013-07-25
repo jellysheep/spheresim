@@ -18,6 +18,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 find_package(Qt5Core REQUIRED)
 
 set(HEADERS
+	${PROJECT_SOURCE_DIR}/VERSION
 	${PROJECT_INCLUDE_DIR}/Actions.hpp
 	${PROJECT_INCLUDE_DIR}/Connection.hpp
 	${PROJECT_INCLUDE_DIR}/Version.hpp

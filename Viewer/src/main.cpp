@@ -12,7 +12,7 @@ using namespace SphereSim;
  * method main:
  * Creates instance of ActionSender to build up connection to server.
  * Starts QCoreApplication.
-*/
+ */
 
 int main(int argc, char** argv){
 	QCoreApplication app(argc, argv);

@@ -27,7 +27,6 @@ void ActionReceiver::processData(QByteArray arr){
 	endIndex = arr.indexOf(Connection::endByte);
 	startIndex = arr.indexOf(Connection::startByte);
 	
-	qDebug()<<"ActionReceiver: new data available: "<<arr;
 	if(endIndex<0){
 		if(startIndex<0){
 			///no endByte or startByte
@@ -81,7 +80,7 @@ void ActionReceiver::processRequest(){
 	char actionGroup = data[0];
 	char action = data[1];
 	if(data.size()>2){
-		data = data.right(2);
+		data = data.right(data.length()-2);
 	}else{
 		data.clear();
 	}
@@ -90,6 +89,10 @@ void ActionReceiver::processRequest(){
 	}else{
 		qDebug()<<"ActionReceiver: receiving"<<Connection::startByte<<((int)actionGroup)<<((int)action)<<"[data]"<<Connection::endByte;
 	}
+	handleBasicAction(actionGroup, action, data);
+}
+
+void ActionReceiver::handleAction(const char actionGroup, const char action, const QByteArray data){
 	switch(actionGroup){
 	case ActionGroups::basic:
 		handleBasicAction(actionGroup, action, data);
@@ -112,11 +115,23 @@ void ActionReceiver::handleBasicAction(const char actionGroup, const char action
 }
 
 void ActionReceiver::handleUnknownAction(const char actionGroup, const char action, const QByteArray data){
-	
+	qWarning()<<"ActionReceiver: Warning: received unknown action group or action ("<<(int)actionGroup<<(int)action<<")";
+}
+
+void ActionReceiver::sendReply(const QByteArray& arr){
+	QByteArray data = arr.toBase64();
+	data.prepend(Connection::startByte);
+	data.append(Connection::endByte);
+	socket->write(data);
+	if(arr.size()<50){
+		qDebug()<<"ActionReceiver: sending"<<Connection::startByte<<arr<<Connection::endByte<<data;
+	}else{
+		qDebug()<<"ActionReceiver: sending"<<Connection::startByte<<"[data]"<<Connection::endByte;
+	}
 }
 
 void ActionReceiver::sendVersion(){
-	socket->write("SphereSim Server v" VERSION_STR);
+	sendReply("SphereSim Server v" VERSION_STR);
 }
 
 void ActionReceiver::disconnected(){

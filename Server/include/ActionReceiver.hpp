@@ -4,7 +4,6 @@
 
 #include <Actions.hpp>
 
-#include <QtGlobal>
 #include <QObject>
 
 class QTcpSocket;
@@ -39,6 +38,10 @@ namespace SphereSim{
 		 * Processes and answers received request. */
 		void processRequest();
 		
+		/* method handleAction:
+		 * Handles any action request. */
+		void handleAction(const char actionGroup, const char action, const QByteArray data);
+		
 		/* method handleBasicAction:
 		 * Handles basic action requests. */
 		void handleBasicAction(const char actionGroup, const char action, const QByteArray data);
@@ -46,6 +49,10 @@ namespace SphereSim{
 		/* method handleUnknownAction:
 		 * Handles unknown action requests. */
 		void handleUnknownAction(const char actionGroup, const char action, const QByteArray data);
+		
+		/* method sendReply:
+		 * Sends encoded reply to client. */
+		void sendReply(const QByteArray& data);
 		
 	public:
 		/* constructor:
