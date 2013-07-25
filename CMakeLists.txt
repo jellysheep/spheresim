@@ -1,7 +1,7 @@
 project(SphereSim)
 cmake_minimum_required(VERSION 2.8)
 
-set(VERSION 2.0.0)
+file(STRINGS "VERSION" VERSION)
 add_definitions("-DVERSION=${VERSION}")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

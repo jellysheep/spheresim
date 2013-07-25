@@ -1,0 +1,12 @@
+SphereSim:
+Physical simulation of particle movements.
+
+SphereSim2: 
+second version and complete rewrite of the SphereSim software.
+
+Homepage: https://sourceforge.net/projects/spheresim/
+
+SphereSim is released under the BSD 3-Clause License. 
+Please refer to "LICENSE" file for details.
+
+This software is still in alpha stage, so some things may still be unstable. 
