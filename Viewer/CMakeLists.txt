@@ -1,16 +1,19 @@
-PROJECT(SphereSim_Viewer)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+project(SphereSim_Viewer)
+cmake_minimum_required(VERSION 2.8)
 
 set (PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set (PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-SET(SOURCES
+set(SOURCES
 	${PROJECT_SOURCE_DIR}/main.cpp
+	${PROJECT_SOURCE_DIR}/ActionSender.cpp
 )
-SET(HEADERS )
+set(HEADERS ${HEADERS}
+	${PROJECT_INCLUDE_DIR}/ActionSender.hpp
+)
 
 include_directories("${PROJECT_BINARY_DIR}")
 include_directories("${PROJECT_INCLUDE_DIR}")
 
-ADD_EXECUTABLE(SphereSim_Viewer ${SOURCES} ${HEADERS})
-TARGET_LINK_LIBRARIES(SphereSim_Viewer)
+add_executable(SphereSim_Viewer ${SOURCES} ${HEADERS})
+target_link_libraries(SphereSim_Viewer)

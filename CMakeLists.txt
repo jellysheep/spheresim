@@ -1,5 +1,5 @@
-PROJECT(SphereSim)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+project(SphereSim)
+cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -9,6 +9,10 @@ set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
+
+set(HEADERS
+	${PROJECT_INCLUDE_DIR}/Actions.hpp
+)
 
 add_subdirectory(Server)
 add_subdirectory(Viewer)
