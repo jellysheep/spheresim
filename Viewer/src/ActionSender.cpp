@@ -19,13 +19,15 @@ ActionSender::ActionSender(const char* addr, const quint16 port)
 }
 
 const QString ActionSender::getVersion(){
-	const static char data[] = {1,2,3};
+	const static char data[] = {ActionGroups::basic, BasicActions::getVersion};
 	socket->write(data);
-	char* retData = new char[6];
+	const static int length = 40;
+	char* retData = new char[length];
+	for(int i = 0; i<length; i++) retData[i] = 0;
 	socket->waitForReadyRead();
-	qint64 result = socket->read(retData, 6);
-	if(result == 6){
-		return retData;
+	qint64 result = socket->read(retData, length);
+	if(result > 0){
+		return QString(retData);
 	}
-	return "error";
+	return QString("error");
 }

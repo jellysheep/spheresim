@@ -1,6 +1,9 @@
 project(SphereSim)
 cmake_minimum_required(VERSION 2.8)
 
+set(VERSION 2.0.0)
+add_definitions("-DVERSION=${VERSION}")
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -16,6 +19,8 @@ find_package(Qt5Core REQUIRED)
 
 set(HEADERS
 	${PROJECT_INCLUDE_DIR}/Actions.hpp
+	${PROJECT_INCLUDE_DIR}/Connection.hpp
+	${PROJECT_INCLUDE_DIR}/Version.hpp
 )
 
 add_subdirectory(Server)

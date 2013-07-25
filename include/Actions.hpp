@@ -5,13 +5,23 @@
 namespace SphereSim{
 	
 	/*
-	 * enum Actions:
-	 * Lists actions provided by the server and requested by the clients. 
+	 * namespace ActionGroups:
+	 * Lists action groups provided by the server and requested by the clients.
 	 * Actions are used for TCP communication between clients and server.
 	 */
-	namespace Actions{
+	namespace ActionGroups{
+		enum Group{
+			basic = 1
+		};
+	}
+	
+	/*
+	 * namespace BasicActions:
+	 * Basic actions concerning client and server software.
+	 */
+	namespace BasicActions{
 		enum Action{
-			getVersion
+			getVersion = 1
 		};
 	}
 	

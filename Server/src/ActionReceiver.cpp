@@ -1,5 +1,6 @@
 
 #include <ActionReceiver.hpp>
+#include <Version.hpp>
 
 #include <QTcpSocket>
 
@@ -18,18 +19,40 @@ ActionReceiver::ActionReceiver(QTcpSocket* sock){
 void ActionReceiver::readData(){
 	qDebug()<<"ActionReceiver: new data available";
 	if(!answeringRequest){
-		char* data = new char[3];
-		qint64 result = socket->read(data, 3);
-		if(result == 3){
-			if(data[0] == 1 && data[1] == 2 && data[2] == 3){
-				sendVersion();
+		answeringRequest = true;
+		char* data = new char[2];
+		qint64 result = socket->read(data, 2);
+		if(result >= 2){
+			switch(data[0]){
+			case ActionGroups::basic:
+				handleBasicAction(data);
+				break;
+			default:
+				handleUnknownAction(data);
+				break;
 			}
 		}
+		answeringRequest = false;
 	}
 }
 
+void ActionReceiver::handleBasicAction(const char* data){
+	switch(data[1]){
+	case BasicActions::getVersion:
+		sendVersion();
+		break;
+	default:
+		handleUnknownAction(data);
+		break;
+	}
+}
+
+void ActionReceiver::handleUnknownAction(const char* data){
+	
+}
+
 void ActionReceiver::sendVersion(){
-	socket->write("2.0.01");
+	socket->write("SphereSim Server v" VERSION_STR);
 }
 
 void ActionReceiver::disconnected(){

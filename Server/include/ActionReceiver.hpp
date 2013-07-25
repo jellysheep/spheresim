@@ -27,6 +27,16 @@ namespace SphereSim{
 		 * If true, no new requests are accepted. */
 		bool answeringRequest;
 		
+		/* method handleBasicAction:
+		 * Handles basic action requests.
+		 */
+		void handleBasicAction(const char* data);
+		
+		/* method handleUnknownAction:
+		 * Handles unknown action requests.
+		 */
+		void handleUnknownAction(const char* data);
+		
 	public:
 		/*
 		 * constructor:
