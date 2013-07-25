@@ -18,16 +18,24 @@ ActionSender::ActionSender(const char* addr, const quint16 port)
 	:ActionSender(QString(addr),port){
 }
 
-const QString ActionSender::getVersion(){
-	const static char data[] = {ActionGroups::basic, BasicActions::getVersion};
+void ActionSender::sendAction(const char actionGroup, const char action, const QByteArray& data){
+	socket->putChar(actionGroup);
+	socket->putChar(action);
 	socket->write(data);
+}
+void ActionSender::sendAction(const char actionGroup, const char action){
+	const static QByteArray arr;
+	sendAction(actionGroup, action, arr);
+}
+
+const QString ActionSender::getVersion(){
+	sendAction(ActionGroups::basic, BasicActions::getVersion);
 	const static int length = 40;
 	char* retData = new char[length];
-	for(int i = 0; i<length; i++) retData[i] = 0;
 	socket->waitForReadyRead();
 	qint64 result = socket->read(retData, length);
 	if(result > 0){
-		return QString(retData);
+		return QByteArray(retData, result);
 	}
 	return QString("error");
 }

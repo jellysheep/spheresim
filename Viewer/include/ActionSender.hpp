@@ -19,6 +19,13 @@ namespace SphereSim{
 	class ActionSender{
 	private:
 		QTcpSocket* socket;
+		
+		/*
+		 * method sendAction:
+		 * Sends action request and data to server. 
+		 */
+		void sendAction(const char actionGroup, const char action, const QByteArray& data);
+		void sendAction(const char actionGroup, const char action);
 	public:
 		/*
 		 * constructor:
