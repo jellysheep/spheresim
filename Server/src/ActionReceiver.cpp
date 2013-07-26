@@ -2,6 +2,7 @@
 #include <ActionReceiver.hpp>
 #include <Version.hpp>
 #include <Connection.hpp>
+#include <SphereManager.hpp>
 
 #include <QTcpSocket>
 

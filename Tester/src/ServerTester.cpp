@@ -18,13 +18,19 @@ ServerTester::ServerTester(const char* addr, const quint16 port)
 }
 
 void ServerTester::runTests(){
-	verify(sender->getTrueString() == "true");
-}
-
-void ServerTester::verify(bool b){
-	if(b){
-		qDebug()<<"test passed";
+	testCounter = 0;
+	successCounter = 0;
+	
+	Console::out<<"ServerTester: ";
+	Console::bold<<sender->getVersion()<<'\n';
+	
+	verifyGreater(sender->getVersion().length(), 0);
+	verifyEqual(sender->getTrueString(), "true");
+	
+	Console::out<<"ServerTester: ";
+	if(testCounter == successCounter){
+		Console::greenBold<<"all "<<testCounter<<" tests passed.\n";
 	}else{
-		qDebug()<<"test failed";
+		Console::redBold<<(testCounter-successCounter)<<" out of "<<testCounter<<" tests failed.\n";
 	}
 }

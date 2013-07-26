@@ -3,6 +3,8 @@
 #define _SERVERTESTER_HPP_
 
 #include <Actions.hpp>
+#include <Console.hpp>
+#include <Version.hpp>
 
 #include <QtGlobal>
 
@@ -18,6 +20,8 @@ namespace SphereSim{
 	class ServerTester{
 	private:
 		ActionSender* sender;
+		int testCounter;
+		int successCounter;
 	public:
 		/*
 		 * constructor:
@@ -35,9 +39,29 @@ namespace SphereSim{
 		
 		/*
 		 * method verify:
-		 * Verifies a boolean result.
+		 * Verifies a comparison.
 		 */
-		void verify(bool b);
+		#define verify(name,op,invOp)						\
+		template<typename T1, typename T2>					\
+		void verify##name(T1 t1, T2 t2){					\
+			Console::out<<"ServerTester: ";					\
+			Console::bold<<"test "<<++testCounter<<": ";	\
+			if(t1 op t2){									\
+				Console::greenBold<<"test passed.\n";		\
+				successCounter++;							\
+			}else{											\
+				Console::redBold<<"test failed: ";			\
+				/*Console::out<<"ServerTester: ";*/			\
+				Console::out<<t1;							\
+				Console::bold<<" " TOSTR(invOp) " ";		\
+				Console::out<<t2<<"\n";						\
+			}												\
+		}
+		verify(Equal,==,!=);
+		verify(Greater,>,<=);
+		verify(Smaller,<,>=);
+		verify(GreaterOrEqual,>=,<);
+		verify(SmallerOrEqual,<=,>);
 	};
 	
 }

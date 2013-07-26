@@ -11,6 +11,8 @@ include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${VIEWER_INCLUDE_DIR}")
 
+add_definitions("-DQT_NO_DEBUG_OUTPUT")
+
 set(SOURCES
 	${PROJECT_SOURCE_DIR}/main.cpp
 	${VIEWER_SOURCE_DIR}/ActionSender.cpp

@@ -8,6 +8,7 @@
 
 class QTcpSocket;
 class QHostAddress;
+class SphereManager;
 
 namespace SphereSim{
 	
@@ -53,6 +54,10 @@ namespace SphereSim{
 		/* method sendReply:
 		 * Sends encoded reply to client. */
 		void sendReply(const QByteArray& data);
+		
+		/* SphereManager sphMan:
+		 * Stores sphere data. */
+		SphereManager* sphMan;
 		
 	public:
 		/* constructor:
