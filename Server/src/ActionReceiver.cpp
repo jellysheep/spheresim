@@ -12,15 +12,20 @@ using namespace SphereSim;
 ActionReceiver::ActionReceiver(QTcpSocket* sock){
 	collectingRequestData = false;
 	socket = sock;
-	connect(socket, SIGNAL(disconnected()), socket, SLOT(deleteLater()));
-	connect(socket, SIGNAL(disconnected()), SLOT(disconnected()));
 	connect(socket, SIGNAL(disconnected()), SLOT(deleteLater()));
 	connect(socket, SIGNAL(readyRead()), SLOT(readData()));
+	sphMan = new SphereManager();
+}
+
+ActionReceiver::~ActionReceiver(){
+	socket->close();
+	qDebug()<<"ActionReceiver: disconnected";
+	delete socket;
+	delete sphMan;
 }
 
 void ActionReceiver::readData(){
 	QByteArray arr = socket->readAll();
-	
 	processData(arr);
 }
 
@@ -143,8 +148,4 @@ void ActionReceiver::sendReply(const QByteArray& arr){
 	}else{
 		qDebug()<<"ActionReceiver: sending"<<Connection::startByte<<"[data]"<<Connection::endByte;
 	}
-}
-
-void ActionReceiver::disconnected(){
-	qDebug()<<"ActionReceiver: disconnected";
 }

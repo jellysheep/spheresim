@@ -11,7 +11,6 @@ using namespace SphereSim;
 /*
  * method main:
  * Creates instance of ActionSender to build up connection to server.
- * Starts QCoreApplication.
  */
 
 int main(int argc, char** argv){
@@ -21,7 +20,6 @@ int main(int argc, char** argv){
 	qDebug()<<version;
 	const QString trueStr = actSend.getTrueString();
 	qDebug()<<trueStr;
-	//app.exec();
 	
 	return 0;
 }

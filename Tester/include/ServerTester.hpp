@@ -19,37 +19,38 @@ namespace SphereSim{
 	 */
 	class ServerTester{
 	private:
+		/* field sender:
+		 * Holds the client object to communicate with server. */
 		ActionSender* sender;
+		
+		/* field testCounter:
+		 * Tells how many tests have been done. */
 		int testCounter;
+		
+		/* field testCounter:
+		 * Tells how many of the tests have been successful. */
 		int successCounter;
+		
 	public:
-		/*
-		 * constructor:
-		 * Starts a ServerTester with the specified address and port.
-		 */
+		/* constructor:
+		 * Starts a ServerTester with the specified address and port. */
 		ServerTester(const QHostAddress& addr, const quint16 port);
 		ServerTester(const QString& addr, const quint16 port);
 		ServerTester(const char* addr, const quint16 port);
 		
 		~ServerTester();
 		
-		/*
-		 * method runTests:
-		 * Runs all tests (of a specific action group) on the server and verifies the replies.
-		 */
+		/* method runTests:
+		 * Runs all tests (of a specific action group) on the server and verifies the replies. */
 		void runTests();
-		void runTests(ActionGroups::Group actionGroup);
+		void runTests(ActionGroups::Group actionGroup, const char* groupName);
 		
-		/*
-		 * method runBasicActionTests:
-		 * Runs all tests of the basic actions.
-		 */
+		/* method runBasicActionTests:
+		 * Runs all tests of the basic actions. */
 		void runBasicActionTests();
 		
-		/*
-		 * method verify:
-		 * Verifies a comparison.
-		 */
+		/* method verify:
+		 * Verifies a comparison and displays result on console. */
 		#define verify(t1,op,t2)							\
 			verify##op(t1,t2,TOSTR(t1),TOSTR(t2));
 		#define verifyFunc(name,op,invOp)					\

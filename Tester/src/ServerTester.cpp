@@ -22,14 +22,19 @@ ServerTester::~ServerTester(){
 	delete sender;
 }
 
+#define runTests_(x) \
+	runTests(x, TOSTR(x));
+
 void ServerTester::runTests(){
-	runTests(ActionGroups::basic);
+	runTests_(ActionGroups::basic);
 }
 
-void ServerTester::runTests(ActionGroups::Group actionGroup){
+void ServerTester::runTests(ActionGroups::Group actionGroup, const char* groupName){
 	testCounter = 0;
 	successCounter = 0;
 	
+	Console::out<<"ServerTester: ";
+	Console::bold<<"Testing "<<groupName<<". \n";
 	switch(actionGroup){
 	case ActionGroups::basic:
 		runBasicActionTests();

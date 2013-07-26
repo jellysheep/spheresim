@@ -20,6 +20,8 @@ namespace SphereSim{
 	class ActionServer:private QObject{
 		Q_OBJECT
 	private:
+		/* field server:
+		 * Holds the listening server object. */
 		QTcpServer* server;
 	public:
 		/*

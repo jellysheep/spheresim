@@ -11,7 +11,8 @@ namespace SphereSim{
 	 */
 	namespace ActionGroups{
 		enum Group{
-			basic = 1
+			basic = 1,
+			spheresUpdating
 		};
 	}
 	
@@ -24,6 +25,18 @@ namespace SphereSim{
 			getVersion = 1,
 			getTrueString,
 			terminateServer
+		};
+	}
+	
+	/*
+	 * namespace SpheresUpdatingActions:
+	 * Actions that update the spheres.
+	 */
+	namespace SpheresUpdatingActions{
+		enum Action{
+			add = 1,
+			remove,
+			change
 		};
 	}
 	

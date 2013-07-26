@@ -14,6 +14,8 @@ namespace SphereSim{
 	private:
 		
 	public:
+		/* field spheres:
+		 * Holds the spheres managed by the server. */
 		Sphere* spheres;
 	};
 	

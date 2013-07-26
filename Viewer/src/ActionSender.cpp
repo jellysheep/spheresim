@@ -40,14 +40,17 @@ ActionSender::ActionSender(const char* addr, const quint16 port)
 }
 
 ActionSender::~ActionSender(){
-	delete addr;
 	if(createdOwnServer){
 		sendReplyAction(ActionGroups::basic, BasicActions::terminateServer);
 		process.waitForFinished(200);
 		qDebug()<<"ActionSender: killing Server.\n";
 		process.terminate();
+		process.waitForFinished(200);
 		process.kill();
 	}
+	socket->close();
+	delete addr;
+	delete socket;
 }
 
 void ActionSender::sendAction(const char actionGroup, const char action, const QByteArray& arr){

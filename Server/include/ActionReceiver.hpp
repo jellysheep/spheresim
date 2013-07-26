@@ -8,9 +8,10 @@
 
 class QTcpSocket;
 class QHostAddress;
-class SphereManager;
 
 namespace SphereSim{
+	
+	class SphereManager;
 	
 	/*
 	 * class ActionReceiver:
@@ -20,13 +21,15 @@ namespace SphereSim{
 		Q_OBJECT
 		
 	private:
+		/* field socket:
+		 * Holds the socket of the connection. */
 		QTcpSocket* socket;
 		
-		/* QByteArray requestData:
+		/* field requestData:
 		 * Collected data from a client request. */
 		QByteArray requestData;
 		
-		/* bool collectingRequestData:
+		/* field collectingRequestData:
 		 * Flag if currently data from a client request is being collected.
 		 * If true, no new requests are accepted. */
 		bool collectingRequestData;
@@ -55,7 +58,7 @@ namespace SphereSim{
 		 * Sends encoded reply to client. */
 		void sendReply(const QByteArray& data);
 		
-		/* SphereManager sphMan:
+		/* field sphMan:
 		 * Stores sphere data. */
 		SphereManager* sphMan;
 		
@@ -64,14 +67,12 @@ namespace SphereSim{
 		 * Takes client socket. */
 		ActionReceiver(QTcpSocket* sock);
 		
+		~ActionReceiver();
+		
 	public slots:
 		/* slot readData:
 		 * Reads data from client. */
 		void readData();
-		
-		/* slot disconnected:
-		 * Executed when connection was released. */
-		void disconnected();
 	};
 	
 }
