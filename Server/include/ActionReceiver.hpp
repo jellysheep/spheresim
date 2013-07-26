@@ -16,7 +16,7 @@ namespace SphereSim{
 	 * class ActionReceiver:
 	 * Takes client socket and replies to client requests.
 	 */
-	class ActionReceiver:QObject{
+	class ActionReceiver:public QObject{
 		Q_OBJECT
 		
 	private:

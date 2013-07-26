@@ -22,7 +22,8 @@ namespace SphereSim{
 	namespace BasicActions{
 		enum Action{
 			getVersion = 1,
-			getTrueString
+			getTrueString,
+			terminateServer
 		};
 	}
 	

@@ -23,18 +23,22 @@ ServerTester::~ServerTester(){
 }
 
 void ServerTester::runTests(){
+	runTests(ActionGroups::basic);
+}
+
+void ServerTester::runTests(ActionGroups::Group actionGroup){
 	testCounter = 0;
 	successCounter = 0;
 	
-	verify(sender->isConnected(), Equal, true);
-	
-	if(sender->isConnected()){
+	switch(actionGroup){
+	case ActionGroups::basic:
+		runBasicActionTests();
+		break;
+	default:
 		Console::out<<"ServerTester: ";
-		Console::bold<<sender->getVersion()<<'\n';
+		Console::bold<<"Unknown action group requested. \n";
+		break;
 	}
-	
-	verify(sender->getVersion().length(), Greater, 0);
-	verify(sender->getTrueString(), Equal, "true");
 	
 	Console::out<<"ServerTester: ";
 	if(testCounter == successCounter){
@@ -42,4 +46,16 @@ void ServerTester::runTests(){
 	}else{
 		Console::redBold<<(testCounter-successCounter)<<" out of "<<testCounter<<" tests failed.\n";
 	}
+}
+
+void ServerTester::runBasicActionTests(){
+	verify(sender->isConnected(), Equal, true);
+	if(sender->isConnected()){
+		Console::out<<"ServerTester: ";
+		Console::bold<<"SphereSim Tester v" VERSION_STR<<'\n';
+		Console::out<<"ServerTester: ";
+		Console::bold<<sender->getVersion()<<'\n';
+	}
+	verify(sender->getVersion().length(), Greater, 0);
+	verify(sender->getTrueString(), Equal, "true");
 }

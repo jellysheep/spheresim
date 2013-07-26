@@ -29,3 +29,8 @@ void ActionServer::newConnection(){
 	QTcpSocket* socket = server->nextPendingConnection();
 	new ActionReceiver(socket);
 }
+
+ActionServer::~ActionServer(){
+	server->close();
+	delete server;
+}

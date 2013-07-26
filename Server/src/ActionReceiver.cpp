@@ -5,6 +5,7 @@
 #include <SphereManager.hpp>
 
 #include <QTcpSocket>
+#include <QCoreApplication>
 
 using namespace SphereSim;
 
@@ -112,6 +113,14 @@ void ActionReceiver::handleBasicAction(const char actionGroup, const char action
 	case BasicActions::getTrueString:
 		sendReply("true");
 		break;
+	case BasicActions::terminateServer:
+		sendReply("Server terminating...");
+		qDebug()<<"Server terminating...";
+		socket->close();
+		delete socket;
+		emit QCoreApplication::instance()->quit();
+		deleteLater();
+		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
 		break;
@@ -119,7 +128,8 @@ void ActionReceiver::handleBasicAction(const char actionGroup, const char action
 }
 
 void ActionReceiver::handleUnknownAction(const char actionGroup, const char action, const QByteArray data){
-	qWarning()<<"ActionReceiver: Warning: received unknown action group or action ("<<(int)actionGroup<<(int)action<<")";
+	qWarning()<<"ActionReceiver: Warning: received unknown action group or action"
+		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
 	sendReply("unknown");
 }
 

@@ -30,6 +30,8 @@ namespace SphereSim{
 		ActionServer(const QString& addr, const quint16 port);
 		ActionServer(const char* addr, const quint16 port);
 		
+		~ActionServer();
+		
 	public slots:
 		/*
 		 * slot newConnection:

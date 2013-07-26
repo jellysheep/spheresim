@@ -28,6 +28,7 @@ namespace SphereSim{
 		bool connectedFlag;
 		int connectionTryCount;
 		QProcess process;
+		bool createdOwnServer;
 		
 		/*
 		 * method sendAction:
@@ -69,7 +70,6 @@ namespace SphereSim{
 		void connected(){
 			connectedFlag = true;
 		}
-		void error(QAbstractSocket::SocketError err);
 	};
 	
 }

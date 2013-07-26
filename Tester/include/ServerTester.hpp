@@ -35,9 +35,16 @@ namespace SphereSim{
 		
 		/*
 		 * method runTests:
-		 * Runs all tests on the server and verifies replies.
+		 * Runs all tests (of a specific action group) on the server and verifies the replies.
 		 */
 		void runTests();
+		void runTests(ActionGroups::Group actionGroup);
+		
+		/*
+		 * method runBasicActionTests:
+		 * Runs all tests of the basic actions.
+		 */
+		void runBasicActionTests();
 		
 		/*
 		 * method verify:
