@@ -3,6 +3,7 @@
 #include <ServerTester.hpp>
 
 #include <QTcpServer>
+#include <QProcess>
 
 using namespace SphereSim;
 
@@ -17,15 +18,23 @@ ServerTester::ServerTester(const char* addr, const quint16 port)
 	:ServerTester(QString(addr),port){
 }
 
+ServerTester::~ServerTester(){
+	delete sender;
+}
+
 void ServerTester::runTests(){
 	testCounter = 0;
 	successCounter = 0;
 	
-	Console::out<<"ServerTester: ";
-	Console::bold<<sender->getVersion()<<'\n';
+	verify(sender->isConnected(), Equal, true);
 	
-	verifyGreater(sender->getVersion().length(), 0);
-	verifyEqual(sender->getTrueString(), "true");
+	if(sender->isConnected()){
+		Console::out<<"ServerTester: ";
+		Console::bold<<sender->getVersion()<<'\n';
+	}
+	
+	verify(sender->getVersion().length(), Greater, 0);
+	verify(sender->getTrueString(), Equal, "true");
 	
 	Console::out<<"ServerTester: ";
 	if(testCounter == successCounter){

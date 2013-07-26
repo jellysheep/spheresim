@@ -5,6 +5,9 @@
 #include <Actions.hpp>
 
 #include <QtGlobal>
+#include <QObject>
+#include <QAbstractSocket>
+#include <QProcess>
 
 class QTcpSocket;
 class QHostAddress;
@@ -16,9 +19,15 @@ namespace SphereSim{
 	 * Starts client and builds up connection to server.
 	 * Sends actions to server when requested.
 	 */
-	class ActionSender{
+	class ActionSender:QObject{
+		Q_OBJECT
 	private:
+		QHostAddress* addr;
+		quint16 port;
 		QTcpSocket* socket;
+		bool connectedFlag;
+		int connectionTryCount;
+		QProcess process;
 		
 		/*
 		 * method sendAction:
@@ -42,6 +51,8 @@ namespace SphereSim{
 		ActionSender(const QString& addr, const quint16 port);
 		ActionSender(const char* addr, const quint16 port);
 		
+		~ActionSender();
+		
 		/* method getVersion:
 		 * Asks server for the version number and returns it. */
 		const QString getVersion();
@@ -49,6 +60,16 @@ namespace SphereSim{
 		/* method getTrueString:
 		 * Asks server for a "true" string and returns it. */
 		const QString getTrueString();
+		
+		/* method isConnected:
+		 * Shows if socket is connected. */
+		bool isConnected();
+	
+	public slots:
+		void connected(){
+			connectedFlag = true;
+		}
+		void error(QAbstractSocket::SocketError err);
 	};
 	
 }

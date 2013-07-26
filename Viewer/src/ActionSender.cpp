@@ -1,22 +1,46 @@
 
 #include <ActionSender.hpp>
 #include <Connection.hpp>
+#include <Console.hpp>
 
 #include <QTcpSocket>
 #include <QHostAddress>
+#include <QProcess>
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(const QHostAddress& addr, const quint16 port){
+ActionSender::ActionSender(const QHostAddress& a, const quint16 p){
 	qDebug()<<"ActionSender: constructor called";
+	addr = new QHostAddress(a);
+	port = p;
+	connectedFlag = false;
 	socket = new QTcpSocket();
-	socket->connectToHost(addr, port);
+	connect(socket, SIGNAL(connected()), SLOT(connected()));
+	connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), SLOT(error(QAbstractSocket::SocketError)));
+	connectionTryCount = 0;
+	while(connectionTryCount<1000 && !connectedFlag){
+		socket->connectToHost(*addr, port);
+		connectionTryCount++;
+		socket->waitForConnected(100);
+		if(!connectedFlag){
+			qDebug()<<"ActionSender: retrying to connect to host.\n";
+			if(connectionTryCount<=1){
+				qDebug()<<"ActionSender: starting Server.\n";
+				process.start("SphereSim_Server");
+			}
+		}
+	}
 }
 ActionSender::ActionSender(const QString& addr, const quint16 port)
 	:ActionSender(QHostAddress(addr),port){
 }
 ActionSender::ActionSender(const char* addr, const quint16 port)
 	:ActionSender(QString(addr),port){
+}
+
+ActionSender::~ActionSender(){
+	qDebug()<<"ActionSender: killing Server.\n";
+	process.kill();
 }
 
 void ActionSender::sendAction(const char actionGroup, const char action, const QByteArray& arr){
@@ -91,4 +115,16 @@ const QString ActionSender::getVersion(){
 
 const QString ActionSender::getTrueString(){
 	return sendReplyAction(ActionGroups::basic, BasicActions::getTrueString);
+}
+
+bool ActionSender::isConnected(){
+	socket->waitForConnected(10);
+	return connectedFlag;
+}
+
+void ActionSender::error(QAbstractSocket::SocketError err){
+	/*if(!connectedFlag){
+		Console::red<<"retrying to connect to host\n";
+		socket->connectToHost(*addr, port);
+	}*/
 }

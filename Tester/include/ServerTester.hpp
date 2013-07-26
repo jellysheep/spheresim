@@ -31,6 +31,8 @@ namespace SphereSim{
 		ServerTester(const QString& addr, const quint16 port);
 		ServerTester(const char* addr, const quint16 port);
 		
+		~ServerTester();
+		
 		/*
 		 * method runTests:
 		 * Runs all tests on the server and verifies replies.
@@ -41,9 +43,12 @@ namespace SphereSim{
 		 * method verify:
 		 * Verifies a comparison.
 		 */
-		#define verify(name,op,invOp)						\
+		#define verify(t1,op,t2)							\
+			verify##op(t1,t2,TOSTR(t1),TOSTR(t2));
+		#define verifyFunc(name,op,invOp)					\
 		template<typename T1, typename T2>					\
-		void verify##name(T1 t1, T2 t2){					\
+		void verify##name(T1 t1, T2 t2, 					\
+				const char* nameT1, const char* nameT2){	\
 			Console::out<<"ServerTester: ";					\
 			Console::bold<<"test "<<++testCounter<<": ";	\
 			if(t1 op t2){									\
@@ -51,17 +56,18 @@ namespace SphereSim{
 				successCounter++;							\
 			}else{											\
 				Console::redBold<<"test failed: ";			\
-				/*Console::out<<"ServerTester: ";*/			\
-				Console::out<<t1;							\
-				Console::bold<<" " TOSTR(invOp) " ";		\
-				Console::out<<t2<<"\n";						\
+				Console::out<<"\n              ";			\
+				Console::bold<<nameT1;						\
+				Console::out<<" [\""<<t1<<"\"] ";			\
+				Console::bold<<TOSTR(invOp) " "<<nameT2;	\
+				Console::out<<" [\""<<t2<<"\"]\n";			\
 			}												\
 		}
-		verify(Equal,==,!=);
-		verify(Greater,>,<=);
-		verify(Smaller,<,>=);
-		verify(GreaterOrEqual,>=,<);
-		verify(SmallerOrEqual,<=,>);
+		verifyFunc(Equal,==,!=);
+		verifyFunc(Greater,>,<=);
+		verifyFunc(Smaller,<,>=);
+		verifyFunc(GreaterOrEqual,>=,<);
+		verifyFunc(SmallerOrEqual,<=,>);
 	};
 	
 }
