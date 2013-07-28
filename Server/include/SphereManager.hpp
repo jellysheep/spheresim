@@ -1,3 +1,12 @@
+/**
+ * \file
+ * \author Max Mertens <mail@sheepstyle.comeze.com>
+ * \section LICENSE
+ * Copyright (c) 2013, Max Mertens.
+ * All rights reserved.
+ * This file is licensed under the "BSD 3-Clause License". 
+ * Full license text is under the file "LICENSE" provided with this code.
+ */
 
 #ifndef _SPHEREMANAGER_HPP_
 #define _SPHEREMANAGER_HPP_
@@ -6,16 +15,14 @@
 
 namespace SphereSim{
 	
-	/*
-	 * class SphereManager:
-	 * Manages sphere data.
+	/**
+	 * \brief Manages sphere data.
 	 */
 	class SphereManager{
 	private:
 		
 	public:
-		/* field spheres:
-		 * Holds the spheres managed by the server. */
+		/** \brief Holds the spheres managed by the server. */
 		Sphere* spheres;
 	};
 	

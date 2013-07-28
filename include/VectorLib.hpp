@@ -1,3 +1,12 @@
+/**
+ * \file
+ * \author Max Mertens <mail@sheepstyle.comeze.com>
+ * \section LICENSE
+ * Copyright (c) 2013, Max Mertens.
+ * All rights reserved.
+ * This file is licensed under the "BSD 3-Clause License". 
+ * Full license text is under the file "LICENSE" provided with this code.
+ */
 
 #ifndef _VECTORLIB_HPP_
 #define _VECTORLIB_HPP_
@@ -62,6 +71,9 @@
 	}
 
 //floating type and dimension (1 to 4)
+/**
+ * \brief Provides methods to calculate with vectors.
+ */
 template <typename T, unsigned short dim>
 class LibVector{
 private:

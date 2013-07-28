@@ -1,13 +1,21 @@
+/**
+ * \file
+ * \author Max Mertens <mail@sheepstyle.comeze.com>
+ * \section LICENSE
+ * Copyright (c) 2013, Max Mertens.
+ * All rights reserved.
+ * This file is licensed under the "BSD 3-Clause License". 
+ * Full license text is under the file "LICENSE" provided with this code.
+ */
 
 #ifndef _ACTIONS_HPP_
 #define _ACTIONS_HPP_
 
 namespace SphereSim{
 	
-	/*
-	 * namespace ActionGroups:
-	 * Lists action groups provided by the server and requested by the clients.
-	 * Actions are used for TCP communication between clients and server.
+	/**
+	 * \brief Lists action groups provided by the server and requested by the clients;
+	 * actions are used for TCP communication between clients and server.
 	 */
 	namespace ActionGroups{
 		enum Group{
@@ -16,9 +24,8 @@ namespace SphereSim{
 		};
 	}
 	
-	/*
-	 * namespace BasicActions:
-	 * Basic actions concerning client and server software.
+	/**
+	 * \brief Basic actions concerning client and server software.
 	 */
 	namespace BasicActions{
 		enum Action{
@@ -28,9 +35,8 @@ namespace SphereSim{
 		};
 	}
 	
-	/*
-	 * namespace SpheresUpdatingActions:
-	 * Actions that update the spheres.
+	/**
+	 * \brief Actions that update the spheres.
 	 */
 	namespace SpheresUpdatingActions{
 		enum Action{

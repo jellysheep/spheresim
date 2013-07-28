@@ -1,3 +1,12 @@
+/**
+ * \file
+ * \author Max Mertens <mail@sheepstyle.comeze.com>
+ * \section LICENSE
+ * Copyright (c) 2013, Max Mertens.
+ * All rights reserved.
+ * This file is licensed under the "BSD 3-Clause License". 
+ * Full license text is under the file "LICENSE" provided with this code.
+ */
 
 #ifndef _ACTIONRECEIVER_HPP_
 #define _ACTIONRECEIVER_HPP_
@@ -13,65 +22,76 @@ namespace SphereSim{
 	
 	class SphereManager;
 	
-	/*
-	 * class ActionReceiver:
-	 * Takes client socket and replies to client requests.
+	/**
+	 * \brief Takes client socket and replies to client requests.
 	 */
 	class ActionReceiver:public QObject{
 		Q_OBJECT
 		
 	private:
-		/* field socket:
-		 * Holds the socket of the connection. */
+		/** \brief Holds the socket of the connection. */
 		QTcpSocket* socket;
 		
-		/* field requestData:
-		 * Collected data from a client request. */
+		/** \brief Collected data from a client request. */
 		QByteArray requestData;
 		
-		/* field collectingRequestData:
-		 * Flag if currently data from a client request is being collected.
-		 * If true, no new requests are accepted. */
+		/** \brief Flag if currently data from a client request is being collected;
+		 * if true, no new requests are accepted. */
 		bool collectingRequestData;
 		
-		/* method processData:
-		 * Processes received request data. */
-		void processData(QByteArray arr);
+		/**
+		 * \brief Processes received request data.
+		 * \param byteArray Data from network stream to process.
+		 */
+		void processData(QByteArray byteArray);
 		
-		/* method processRequest:
-		 * Processes and answers received request. */
+		/** \brief Processes and answers received request. */
 		void processRequest();
 		
-		/* method handleAction:
-		 * Handles any action request. */
+		/**
+		 * \brief Handles any action request.
+		 * \param actionGroup Action group that will be handled.
+		 * \param action Action that will be handled.
+		 * \param data Data sent with the action request.
+		 */
 		void handleAction(const char actionGroup, const char action, const QByteArray data);
 		
-		/* method handleBasicAction:
-		 * Handles basic action requests. */
+		/**
+		 * \brief Handles basic action requests.
+		 * \param actionGroup Action group that will be handled.
+		 * \param action Action that will be handled.
+		 * \param data Data sent with the action request.
+		 */
 		void handleBasicAction(const char actionGroup, const char action, const QByteArray data);
 		
-		/* method handleUnknownAction:
-		 * Handles unknown action requests. */
+		/**
+		 * \brief Handles all unknown action requests.
+		 * \param actionGroup Action group that will be handled.
+		 * \param action Action that will be handled.
+		 * \param data Data sent with the action request.
+		 */
 		void handleUnknownAction(const char actionGroup, const char action, const QByteArray data);
 		
-		/* method sendReply:
-		 * Sends encoded reply to client. */
+		/**
+		 * \brief Sends encoded reply to client.
+		 * \param data Data which is sent as a reply to the client.
+		 */
 		void sendReply(const QByteArray& data);
 		
-		/* field sphMan:
-		 * Stores sphere data. */
+		/** \brief Stores sphere data. */
 		SphereManager* sphMan;
 		
 	public:
-		/* constructor:
-		 * Takes client socket. */
+		/**
+		 * \brief Starts a new server that handles the request from the new client.
+		 * \param sock Socket of the connection to the client.
+		 */
 		ActionReceiver(QTcpSocket* sock);
 		
 		~ActionReceiver();
 		
 	public slots:
-		/* slot readData:
-		 * Reads data from client. */
+		/** \brief Reads data from client. */
 		void readData();
 	};
 	

@@ -46,6 +46,15 @@ set(HEADERS
 	${PROJECT_INCLUDE_DIR}/Console.hpp
 )
 
+#documentation:
+FIND_PACKAGE(Doxygen)
+if (NOT DOXYGEN_FOUND)
+	message(WARNING "Doxygen is needed to build the documentation.")
+endif()
+configure_file(Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
+add_custom_target (docs COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
+	SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
+
 add_subdirectory(Server)
 add_subdirectory(Viewer)
 add_subdirectory(Tester)

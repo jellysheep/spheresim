@@ -1,3 +1,12 @@
+/**
+ * \file
+ * \author Max Mertens <mail@sheepstyle.comeze.com>
+ * \section LICENSE
+ * Copyright (c) 2013, Max Mertens.
+ * All rights reserved.
+ * This file is licensed under the "BSD 3-Clause License". 
+ * Full license text is under the file "LICENSE" provided with this code.
+ */
 
 #ifndef _ACTIONSERVER_HPP_
 #define _ACTIONSERVER_HPP_
@@ -12,32 +21,40 @@ class QHostAddress;
 
 namespace SphereSim{
 	
-	/*
-	 * class ActionServer:
-	 * Starts server and waits for incoming connections from clients.
-	 * Replies to client requests.
+	/**
+	 * \brief Starts server and waits for incoming connections from clients; 
+	 * replies to client requests.
 	 */
 	class ActionServer:private QObject{
 		Q_OBJECT
 	private:
-		/* field server:
-		 * Holds the listening server object. */
+		/** \brief Holds the listening server object. */
 		QTcpServer* server;
 	public:
-		/*
-		 * constructor:
-		 * Starts a QTcpServer and listens to the specified port.
+		/**
+		 * \brief Starts a QTcpServer and listens to the specified port.
+		 * \param addr The address that the server will be listening to. 
+		 * \param port The port that the server will be listening to. 
 		 */
 		ActionServer(const QHostAddress& addr, const quint16 port);
+		/**
+		 * \brief Starts a QTcpServer and listens to the specified port.
+		 * \param addr The address that the server will be listening to. 
+		 * \param port The port that the server will be listening to. 
+		 */
 		ActionServer(const QString& addr, const quint16 port);
+		/**
+		 * \brief Starts a QTcpServer and listens to the specified port.
+		 * \param addr The address that the server will be listening to. 
+		 * \param port The port that the server will be listening to. 
+		 */
 		ActionServer(const char* addr, const quint16 port);
 		
 		~ActionServer();
 		
 	public slots:
-		/*
-		 * slot newConnection:
-		 * Receives connection from client and creates a new ActionReceiver for it. 
+		/**
+		 * \brief Receives connection from client and creates a new ActionReceiver for it. 
 		 */
 		void newConnection();
 	};

@@ -1,3 +1,12 @@
+/**
+ * \file
+ * \author Max Mertens <mail@sheepstyle.comeze.com>
+ * \section LICENSE
+ * Copyright (c) 2013, Max Mertens.
+ * All rights reserved.
+ * This file is licensed under the "BSD 3-Clause License". 
+ * Full license text is under the file "LICENSE" provided with this code.
+ */
 
 #include <ActionReceiver.hpp>
 #include <Version.hpp>
@@ -29,33 +38,33 @@ void ActionReceiver::readData(){
 	processData(arr);
 }
 
-void ActionReceiver::processData(QByteArray arr){
+void ActionReceiver::processData(QByteArray byteArray){
 	int endIndex, startIndex;
-	endIndex = arr.indexOf(Connection::endByte);
-	startIndex = arr.indexOf(Connection::startByte);
+	endIndex = byteArray.indexOf(Connection::endByte);
+	startIndex = byteArray.indexOf(Connection::startByte);
 	
 	if(endIndex<0){
 		if(startIndex<0){
 			///no endByte or startByte
 			if(collectingRequestData){
-				qDebug()<<"ActionReceiver: appending data to array";
-				requestData.append(arr);
+				qDebug()<<"ActionReceiver: appending data to byteArrayay";
+				requestData.append(byteArray);
 			}
 		}else{
 			///only startByte
 			if(!collectingRequestData){
-				qDebug()<<"ActionReceiver: creating new data array";
+				qDebug()<<"ActionReceiver: creating new data byteArrayay";
 				//what if last request did not end correctly? next request would be skipped (waiting for endByte)...
 				collectingRequestData = true;
-				requestData = arr.right(arr.size()-startIndex-1);
+				requestData = byteArray.right(byteArray.size()-startIndex-1);
 			}
 		}
 	}else{
 		if(startIndex<0){
 			///only endByte
 			if(collectingRequestData){
-				qDebug()<<"ActionReceiver: appending data and finishing array";
-				requestData.append(arr.left(endIndex));
+				qDebug()<<"ActionReceiver: appending data and finishing byteArrayay";
+				requestData.append(byteArray.left(endIndex));
 				collectingRequestData = false;
 				processRequest();
 			}
@@ -63,19 +72,19 @@ void ActionReceiver::processData(QByteArray arr){
 			///startByte and endByte
 			if(startIndex<endIndex){
 				///startByte before endByte
-				qDebug()<<"ActionReceiver: creating and finishing new data array";
-				requestData = arr.mid(startIndex+1, endIndex-startIndex-1);
+				qDebug()<<"ActionReceiver: creating and finishing new data byteArrayay";
+				requestData = byteArray.mid(startIndex+1, endIndex-startIndex-1);
 				collectingRequestData = false;
 				processRequest();
-				processData(arr.right(arr.size()-endIndex-1));
+				processData(byteArray.right(byteArray.size()-endIndex-1));
 			}else{
 				///endByte before startByte
 				if(collectingRequestData){
-					qDebug()<<"ActionReceiver: finishing and creating new data array";
-					requestData.append(arr.left(endIndex));
+					qDebug()<<"ActionReceiver: finishing and creating new data byteArrayay";
+					requestData.append(byteArray.left(endIndex));
 					collectingRequestData = false;
 					processRequest();
-					processData(arr.right(arr.size()-endIndex-1));
+					processData(byteArray.right(byteArray.size()-endIndex-1));
 				}
 			}
 		}

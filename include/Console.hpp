@@ -1,3 +1,12 @@
+/**
+ * \file
+ * \author Max Mertens <mail@sheepstyle.comeze.com>
+ * \section LICENSE
+ * Copyright (c) 2013, Max Mertens.
+ * All rights reserved.
+ * This file is licensed under the "BSD 3-Clause License". 
+ * Full license text is under the file "LICENSE" provided with this code.
+ */
 
 #ifndef _CONSOLE_HPP_
 #define _CONSOLE_HPP_
@@ -24,9 +33,8 @@ namespace{
 		};
 	}
 	
-	/*
-	 * class InternalConsole:
-	 * Manages formatted console output.
+	/**
+	 * \brief Helper class that manages formatted console output. 
 	 */
 	class InternalConsole{
 	private:
@@ -40,9 +48,9 @@ namespace{
 		
 	public:
 		
-		/*
-		 * method operator<<:
-		 * Outputs formatted string.
+		/**
+		 * \brief Outputs formatted string.
+		 * \param t Object to be printed to console.
 		 */
 		template<typename T>
 		InternalConsole& operator<<(T t){
@@ -67,9 +75,8 @@ namespace{
 	};
 	QTextStream InternalConsole::console(stdout);
 	
-	/*
-	 * class Console:
-	 * Manages formatted console output.
+	/**
+	 * \brief Class that manages formatted console output.
 	 */
 	class Console{
 	private:
