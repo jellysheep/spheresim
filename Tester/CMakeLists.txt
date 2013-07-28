@@ -23,8 +23,9 @@ set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/ServerTester.hpp
 )
 
-qt5_wrap_cpp(HEADERS_MOC ${HEADERS})
-
-add_executable(SphereSim_Tester ${SOURCES} ${HEADERS_MOC})
+add_executable(SphereSim_Tester ${SOURCES} ${HEADERS})
 target_link_libraries(SphereSim_Tester)
 qt5_use_modules(SphereSim_Tester Core Network)
+
+install(TARGETS SphereSim_Tester
+	RUNTIME DESTINATION bin)

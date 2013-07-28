@@ -1,0 +1,44 @@
+
+# Maintainer: Max Mertens <mail at sheepstyle dot comeze dot com> 
+
+pkgname=mingw-w64-spheresim-git
+_gitname=spheresim
+pkgver=2.0.4
+pkgrel=1
+pkgdesc="Physical simulation of particle movements. Second version and complete rewrite."
+arch=('any')
+url="http://sourceforge.net/projects/spheresim/"
+license=('BSD 3-clause')
+depends=('mingw-w64-crt')
+makedepends=('mingw-w64-gcc' 'mingw-w64-cmake')
+options=('!strip' '!buildflags')
+conflicts=('mingw-w64-spheresim')
+provides=('mingw-w64-spheresim')
+
+#source=("cmake-toolchain.cmake")
+
+#md5sums=('dd2b2db48187dff84050fe191d309d81')
+
+_architectures="x86_64-w64-mingw32 i686-w64-mingw32"
+
+build() { 
+	unset LDFLAGS
+
+	cd $srcdir/$_gitname
+	for _arch in ${_architectures}; do
+		mkdir build-${_arch} && pushd build-${_arch}
+		${_arch}-cmake \
+		-DBUILD_SHARED_LIBS:BOOL=ON \
+		-DCMAKE_INSTALL_PREFIX:PATH= \
+		..
+		make
+		popd
+	done
+}
+
+package() {
+	for _arch in ${_architectures}; do
+		cd ${srcdir}/$_gitname/build-${_arch}
+		make DESTDIR=${pkgdir} install
+	done
+}

@@ -26,10 +26,17 @@ include_directories("${PROJECT_SOURCE_DIR}")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+set(CMAKE_AUTOMOC ON)
+
 find_package(Qt5Core REQUIRED)
+find_package(Qt5Network REQUIRED)
+
+#for mingw-w64 compatibility:
+set(Qt5Core_LIBRARIES Qt5Core)
+set(Qt5Network_LIBRARIES Qt5Network)
+set(QT_MOC_EXECUTABLE moc-qt5)
 
 set(HEADERS
-	${PROJECT_SOURCE_DIR}/VERSION
 	${PROJECT_INCLUDE_DIR}/Actions.hpp
 	${PROJECT_INCLUDE_DIR}/Connection.hpp
 	${PROJECT_INCLUDE_DIR}/Version.hpp

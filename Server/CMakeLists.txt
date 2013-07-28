@@ -19,8 +19,9 @@ set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/SphereManager.hpp
 )
 
-qt5_wrap_cpp(HEADERS_MOC ${HEADERS})
-
-add_executable(SphereSim_Server ${SOURCES} ${HEADERS_MOC})
+add_executable(SphereSim_Server ${SOURCES} ${HEADERS})
 target_link_libraries(SphereSim_Server)
 qt5_use_modules(SphereSim_Server Core Network)
+
+install(TARGETS SphereSim_Server
+	RUNTIME DESTINATION bin)

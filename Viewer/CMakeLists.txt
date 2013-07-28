@@ -15,8 +15,9 @@ set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/ActionSender.hpp
 )
 
-qt5_wrap_cpp(HEADERS_MOC ${HEADERS})
-
-add_executable(SphereSim_Viewer ${SOURCES} ${HEADERS_MOC})
+add_executable(SphereSim_Viewer ${SOURCES} ${HEADERS})
 target_link_libraries(SphereSim_Viewer)
 qt5_use_modules(SphereSim_Viewer Core Network)
+
+install(TARGETS SphereSim_Viewer
+	RUNTIME DESTINATION bin)
