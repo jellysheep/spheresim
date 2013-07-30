@@ -19,7 +19,17 @@
 class Sphere{
 public:
 	Vector3 pos, speed, acc;
-	Scalar mass;
+	Scalar radius, mass;
+	
+	Sphere(Vector3 x, Vector3 v, Vector3 a, Scalar r, Scalar m){
+		pos = x;
+		speed = v;
+		acc = a;
+		radius = r;
+		mass = m;
+	}
+	Sphere():Sphere(Vector3(),Vector3(),Vector3(),0,0){
+	}
 };
 
 #endif

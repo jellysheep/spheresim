@@ -10,4 +10,15 @@
 
 #include <SphereManager.hpp>
 
+using namespace SphereSim;
 
+SphereManager::SphereManager(){
+	count = 0;
+}
+
+int SphereManager::addSphere(Sphere s){
+	return count;
+}
+int SphereManager::addSphere(){
+	return addSphere(Sphere());
+}

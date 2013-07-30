@@ -20,10 +20,16 @@ namespace SphereSim{
 	 */
 	class SphereManager{
 	private:
+		unsigned int count;
 		
 	public:
 		/** \brief Holds the spheres managed by the server. */
 		Sphere* spheres;
+		
+		SphereManager();
+		
+		int addSphere(Sphere s);
+		int addSphere();
 	};
 	
 }
