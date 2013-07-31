@@ -14,6 +14,7 @@ using namespace SphereSim;
 
 SphereManager::SphereManager(){
 	count = 0;
+	spheres = NULL;
 }
 
 int SphereManager::addSphere(Sphere s){
