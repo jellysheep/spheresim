@@ -13,3 +13,11 @@ SphereSim is released under the BSD 3-Clause License.
 Please refer to "LICENSE" file for details.
 
 This software is still in alpha stage, so some things may still be unstable. 
+
+Build instructions:
+* Install dependencies (Qt5, CMake, Eigen3).
+* Execute the following in a shell:
+	$ mkdir build
+	$ cd build
+	$ cmake ../
+	$ make
