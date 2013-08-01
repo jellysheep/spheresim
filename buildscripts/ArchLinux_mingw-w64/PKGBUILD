@@ -3,9 +3,9 @@
 
 pkgname=mingw-w64-spheresim-git
 _gitname=spheresim
-pkgver=2.0.4
+pkgver=2.0.5
 pkgrel=1
-pkgdesc="Physical simulation of particle movements. Second version and complete rewrite."
+pkgdesc="Physical simulation of particle movements. Second version and complete rewrite. (mingw-w64)"
 arch=('any')
 url="http://sourceforge.net/projects/spheresim/"
 license=('BSD 3-clause')
@@ -15,11 +15,16 @@ options=('!strip' '!buildflags')
 conflicts=('mingw-w64-spheresim')
 provides=('mingw-w64-spheresim')
 
-#source=("cmake-toolchain.cmake")
+source=("${_gitname}::git://git.code.sf.net/p/spheresim/code")
 
-#md5sums=('dd2b2db48187dff84050fe191d309d81')
+md5sums=('SKIP')
 
 _architectures="x86_64-w64-mingw32 i686-w64-mingw32"
+
+pkgver(){
+	cd $_gitname
+	cat VERSION
+}
 
 build() { 
 	unset LDFLAGS
@@ -39,6 +44,7 @@ build() {
 package() {
 	for _arch in ${_architectures}; do
 		cd ${srcdir}/$_gitname/build-${_arch}
-		make DESTDIR=${pkgdir} install
+		make DESTDIR=${pkgdir}/${_arch} install
 	done
+	install $srcdir/$_gitname/LICENSE $pkgdir/
 }

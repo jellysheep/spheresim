@@ -3,7 +3,7 @@
 
 pkgname=spheresim-git
 _gitname=spheresim
-pkgver=2.0.4
+pkgver=2.0.5
 pkgrel=1
 pkgdesc="Physical simulation of particle movements. Second version and complete rewrite."
 arch=('i686' 'x86_64')
@@ -15,25 +15,26 @@ options=()
 conflicts=('spheresim')
 provides=('spheresim')
 
-#source=("${_gitname}::git://git.code.sf.net/p/spheresim/code")
+source=("${_gitname}::git://git.code.sf.net/p/spheresim/code")
 
-#md5sums=('SKIP')
+md5sums=('SKIP')
 
 pkgver(){
-  cd $_gitname
-  cat VERSION
+	cd $_gitname
+	cat VERSION
 }
 
 build(){
-  cd $_gitname
-  rm -rf build
-  mkdir build
-  cd build
-  cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/usr
-  make
+	cd $_gitname
+	mkdir build || true
+	cd build
+	cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/usr
+	make
 }
 
 package(){
-  cd $_gitname/build
-  make DESTDIR="$pkgdir" install
+	cd $_gitname/build
+	make DESTDIR="$pkgdir" install
+	mkdir -p $pkgdir/usr/share/licenses/$_gitname/
+	install $srcdir/$_gitname/LICENSE $pkgdir/usr/share/licenses/$_gitname/
 }
