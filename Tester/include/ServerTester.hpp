@@ -31,10 +31,10 @@ namespace SphereSim{
 		ActionSender* sender;
 		
 		/** \brief Tells how many tests have been done. */
-		int testCounter;
+		unsigned int testCounter;
 		
 		/** \brief Tells how many of the tests have been successful. */
-		int successCounter;
+		unsigned int successCounter;
 		
 	public:
 		/**

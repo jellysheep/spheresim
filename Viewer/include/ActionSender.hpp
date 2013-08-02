@@ -43,7 +43,7 @@ namespace SphereSim{
 		bool connectedFlag;
 		
 		/** \brief Tells how often connection creating was tried. */
-		int connectionTryCount;
+		unsigned int connectionTryCount;
 		
 		/** \brief Process of the automatically started server. */
 		QProcess process;
@@ -57,13 +57,13 @@ namespace SphereSim{
 		 * \param action Requested action.
 		 * \param data Data that will be sent with the action request.
 		 */
-		void sendAction(const char actionGroup, const char action, const QByteArray& data);
+		void sendAction(const unsigned char actionGroup, const unsigned char action, const QByteArray& data);
 		/**
 		 * \brief Sends an action request to the server.
 		 * \param actionGroup Group of the requested action.
 		 * \param action Requested action.
 		 */
-		void sendAction(const char actionGroup, const char action);
+		void sendAction(const unsigned char actionGroup, const unsigned char action);
 		
 		/**
 		 * \brief Sends an action request and data to the server and returns server reply.
@@ -72,14 +72,14 @@ namespace SphereSim{
 		 * \param data Data that will be sent with the action request.
 		 * \return Reply data from the server.
 		 */
-		QByteArray sendReplyAction(const char actionGroup, const char action, const QByteArray& data);
+		QByteArray sendReplyAction(const unsigned char actionGroup, const unsigned char action, const QByteArray& data);
 		/**
 		 * \brief Sends an action request to the server and returns server reply.
 		 * \param actionGroup Group of the requested action.
 		 * \param action Requested action.
 		 * \return Reply data from the server.
 		 */
-		QByteArray sendReplyAction(const char actionGroup, const char action);
+		QByteArray sendReplyAction(const unsigned char actionGroup, const unsigned char action);
 		
 	public:
 		/**
@@ -125,19 +125,19 @@ namespace SphereSim{
 		 * \brief Requests the server to add one sphere.
 		 * \return Current sphere count reported by server.
 		 */
-		int addSphere();
+		unsigned int addSphere();
 		
 		/**
 		 * \brief Requests the server to remove the last sphere.
 		 * \return Current sphere count reported by server.
 		 */
-		int removeLastSphere();
+		unsigned int removeLastSphere();
 		
 		/**
 		 * \brief Requests the server to send the current sphere count.
 		 * \return Current sphere count reported by server.
 		 */
-		int getSphereCount();
+		unsigned int getSphereCount();
 	
 	public slots:
 		void connected(){

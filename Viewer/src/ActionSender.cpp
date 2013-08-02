@@ -62,7 +62,7 @@ ActionSender::~ActionSender(){
 	delete socket;
 }
 
-void ActionSender::sendAction(const char actionGroup, const char action, const QByteArray& arr){
+void ActionSender::sendAction(const unsigned char actionGroup, const unsigned char action, const QByteArray& arr){
 	QByteArray data;
 	data.append(actionGroup);
 	data.append(action);
@@ -77,12 +77,12 @@ void ActionSender::sendAction(const char actionGroup, const char action, const Q
 		qDebug()<<"ActionSender: sending"<<Connection::startByte<<((int)actionGroup)<<((int)action)<<"[data]"<<Connection::endByte;
 	}
 }
-void ActionSender::sendAction(const char actionGroup, const char action){
+void ActionSender::sendAction(const unsigned char actionGroup, const unsigned char action){
 	QByteArray arr;
 	sendAction(actionGroup, action, arr);
 }
 
-QByteArray ActionSender::sendReplyAction(const char actionGroup, const char action, const QByteArray& arr){
+QByteArray ActionSender::sendReplyAction(const unsigned char actionGroup, const unsigned char action, const QByteArray& arr){
 	socket->readAll(); ///clear buffer
 	sendAction(actionGroup, action, arr);
 	
@@ -123,7 +123,7 @@ QByteArray ActionSender::sendReplyAction(const char actionGroup, const char acti
 	retData = QByteArray::fromBase64(retData);
 	return retData;
 }
-QByteArray ActionSender::sendReplyAction(const char actionGroup, const char action){
+QByteArray ActionSender::sendReplyAction(const unsigned char actionGroup, const unsigned char action){
 	QByteArray arr;
 	return sendReplyAction(actionGroup, action, arr);
 }
@@ -141,14 +141,14 @@ bool ActionSender::isConnected(){
 	return connectedFlag;
 }
 
-int ActionSender::addSphere(){
+unsigned int ActionSender::addSphere(){
 	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::addOne)).toInt();
 }
 
-int ActionSender::removeLastSphere(){
+unsigned int ActionSender::removeLastSphere(){
 	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::removeLast)).toInt();
 }
 
-int ActionSender::getSphereCount(){
+unsigned int ActionSender::getSphereCount(){
 	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getCount)).toInt();
 }

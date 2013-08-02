@@ -90,8 +90,8 @@ void ActionReceiver::processData(QByteArray byteArray){
 
 void ActionReceiver::processRequest(){
 	QByteArray data = QByteArray::fromBase64(requestData);
-	char actionGroup = data[0];
-	char action = data[1];
+	unsigned char actionGroup = data[0];
+	unsigned char action = data[1];
 	if(data.size()>2){
 		data = data.right(data.length()-2);
 	}else{
@@ -105,7 +105,7 @@ void ActionReceiver::processRequest(){
 	handleAction(actionGroup, action, data);
 }
 
-void ActionReceiver::handleAction(const char actionGroup, const char action, const QByteArray data){
+void ActionReceiver::handleAction(const unsigned char actionGroup, const unsigned char action, const QByteArray data){
 	switch(actionGroup){
 	case ActionGroups::basic:
 		handleBasicAction(actionGroup, action, data);
@@ -119,7 +119,7 @@ void ActionReceiver::handleAction(const char actionGroup, const char action, con
 	}
 }
 
-void ActionReceiver::handleBasicAction(const char actionGroup, const char action, const QByteArray data){
+void ActionReceiver::handleBasicAction(const unsigned char actionGroup, const unsigned char action, const QByteArray data){
 	switch(action){
 	case BasicActions::getVersion:
 		sendReply("SphereSim Server v" VERSION_STR);
@@ -141,7 +141,7 @@ void ActionReceiver::handleBasicAction(const char actionGroup, const char action
 	}
 }
 
-void ActionReceiver::handleSpheresUpdatingAction(const char actionGroup, const char action, const QByteArray data){
+void ActionReceiver::handleSpheresUpdatingAction(const unsigned char actionGroup, const unsigned char action, const QByteArray data){
 	switch(action){
 	case SpheresUpdatingActions::addOne:
 		sendReply(QString::number(sphMan.addSphere()).toUtf8());
@@ -159,13 +159,13 @@ void ActionReceiver::handleSpheresUpdatingAction(const char actionGroup, const c
 	}
 }
 
-void ActionReceiver::handleUnknownActionGroup(const char actionGroup, const char action, const QByteArray data){
+void ActionReceiver::handleUnknownActionGroup(const unsigned char actionGroup, const unsigned char action, const QByteArray data){
 	qWarning()<<"ActionReceiver: Warning: received unknown action group"
 		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
 	sendReply("unknown action group");
 }
 
-void ActionReceiver::handleUnknownAction(const char actionGroup, const char action, const QByteArray data){
+void ActionReceiver::handleUnknownAction(const unsigned char actionGroup, const unsigned char action, const QByteArray data){
 	qWarning()<<"ActionReceiver: Warning: received unknown action"
 		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
 	sendReply("unknown action");

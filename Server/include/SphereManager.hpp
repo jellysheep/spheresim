@@ -32,29 +32,29 @@ namespace SphereSim{
 		 * \brief Adds a specific sphere.
 		 * \return Current sphere count.
 		 */
-		int addSphere(Sphere s);
+		unsigned int addSphere(Sphere s);
 		/**
 		 * \brief Adds a new sphere.
 		 * \return Current sphere count.
 		 */
-		int addSphere();
+		unsigned int addSphere();
 		
 		/**
 		 * \brief Removes the last sphere.
 		 * \return Current sphere count.
 		 */
-		int removeLastSphere();
+		unsigned int removeLastSphere();
 		/**
 		 * \brief Removes a specific sphere.
 		 * \return Current sphere count.
 		 */
-		int removeSphere(unsigned int i);
+		unsigned int removeSphere(unsigned int i);
 		
 		/**
 		 * \brief Returns the current sphere count.
 		 * \return Current sphere count.
 		 */
-		int getCount();
+		unsigned int getCount();
 	};
 	
 }

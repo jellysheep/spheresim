@@ -18,23 +18,23 @@ SphereManager::SphereManager(){
 	qDebug()<<"ActionSender: constructor called";
 }
 
-int SphereManager::addSphere(Sphere s){
+unsigned int SphereManager::addSphere(Sphere s){
 	qDebug()<<"ActionSender: addSphere";
 	spheres.append(s);
 	return getCount();
 }
-int SphereManager::addSphere(){
+unsigned int SphereManager::addSphere(){
 	return addSphere(Sphere());
 }
 
-int SphereManager::removeSphere(unsigned int i){
+unsigned int SphereManager::removeSphere(unsigned int i){
 	qDebug()<<"ActionSender: removeSphere";
-	if(i>=0 && getCount()>i){
+	if(getCount()>i){
 		spheres.remove(i);
 	}
 	return getCount();
 }
-int SphereManager::removeLastSphere(){
+unsigned int SphereManager::removeLastSphere(){
 	if(getCount()>0){
 		return removeSphere(getCount()-1);
 	}else{
@@ -42,7 +42,7 @@ int SphereManager::removeLastSphere(){
 	}
 }
 
-int SphereManager::getCount(){
+unsigned int SphereManager::getCount(){
 	qDebug()<<"ActionSender: getGount";
 	return spheres.size();
 }
