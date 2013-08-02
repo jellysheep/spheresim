@@ -11,7 +11,6 @@
 #include <ActionReceiver.hpp>
 #include <Version.hpp>
 #include <Connection.hpp>
-#include <SphereManager.hpp>
 
 #include <QTcpSocket>
 #include <QCoreApplication>
@@ -23,14 +22,12 @@ ActionReceiver::ActionReceiver(QTcpSocket* sock){
 	socket = sock;
 	connect(socket, SIGNAL(disconnected()), SLOT(deleteLater()));
 	connect(socket, SIGNAL(readyRead()), SLOT(readData()));
-	sphMan = new SphereManager();
 }
 
 ActionReceiver::~ActionReceiver(){
 	socket->close();
 	qDebug()<<"ActionReceiver: disconnected";
 	delete socket;
-	delete sphMan;
 }
 
 void ActionReceiver::readData(){
@@ -105,7 +102,7 @@ void ActionReceiver::processRequest(){
 	}else{
 		qDebug()<<"ActionReceiver: receiving"<<Connection::startByte<<((int)actionGroup)<<((int)action)<<"[data]"<<Connection::endByte;
 	}
-	handleBasicAction(actionGroup, action, data);
+	handleAction(actionGroup, action, data);
 }
 
 void ActionReceiver::handleAction(const char actionGroup, const char action, const QByteArray data){
@@ -113,8 +110,11 @@ void ActionReceiver::handleAction(const char actionGroup, const char action, con
 	case ActionGroups::basic:
 		handleBasicAction(actionGroup, action, data);
 		break;
+	case ActionGroups::spheresUpdating:
+		handleSpheresUpdatingAction(actionGroup, action, data);
+		break;
 	default:
-		handleUnknownAction(actionGroup, action, data);
+		handleUnknownActionGroup(actionGroup, action, data);
 		break;
 	}
 }
@@ -141,10 +141,34 @@ void ActionReceiver::handleBasicAction(const char actionGroup, const char action
 	}
 }
 
-void ActionReceiver::handleUnknownAction(const char actionGroup, const char action, const QByteArray data){
-	qWarning()<<"ActionReceiver: Warning: received unknown action group or action"
+void ActionReceiver::handleSpheresUpdatingAction(const char actionGroup, const char action, const QByteArray data){
+	switch(action){
+	case SpheresUpdatingActions::addOne:
+		sendReply(QString::number(sphMan.addSphere()).toUtf8());
+		break;
+	case SpheresUpdatingActions::removeLast:
+		sendReply(QString::number(sphMan.removeLastSphere()).toUtf8());
+		break;
+	//
+	case SpheresUpdatingActions::getCount:
+		sendReply(QString::number(sphMan.getCount()).toUtf8());
+		break;
+	default:
+		handleUnknownAction(actionGroup, action, data);
+		break;
+	}
+}
+
+void ActionReceiver::handleUnknownActionGroup(const char actionGroup, const char action, const QByteArray data){
+	qWarning()<<"ActionReceiver: Warning: received unknown action group"
 		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
-	sendReply("unknown");
+	sendReply("unknown action group");
+}
+
+void ActionReceiver::handleUnknownAction(const char actionGroup, const char action, const QByteArray data){
+	qWarning()<<"ActionReceiver: Warning: received unknown action"
+		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
+	sendReply("unknown action");
 }
 
 void ActionReceiver::sendReply(const QByteArray& arr){

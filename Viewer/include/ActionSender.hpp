@@ -80,6 +80,7 @@ namespace SphereSim{
 		 * \return Reply data from the server.
 		 */
 		QByteArray sendReplyAction(const char actionGroup, const char action);
+		
 	public:
 		/**
 		 * \brief Starts a QTcpSocket with the specified address and port.
@@ -119,6 +120,24 @@ namespace SphereSim{
 		 * \return True if connected, false if not.
 		 */
 		bool isConnected();
+		
+		/**
+		 * \brief Requests the server to add one sphere.
+		 * \return Current sphere count reported by server.
+		 */
+		int addSphere();
+		
+		/**
+		 * \brief Requests the server to remove the last sphere.
+		 * \return Current sphere count reported by server.
+		 */
+		int removeLastSphere();
+		
+		/**
+		 * \brief Requests the server to send the current sphere count.
+		 * \return Current sphere count reported by server.
+		 */
+		int getSphereCount();
 	
 	public slots:
 		void connected(){

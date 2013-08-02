@@ -13,6 +13,8 @@
 
 #include <Sphere.hpp>
 
+#include <QVector>
+
 namespace SphereSim{
 	
 	/**
@@ -20,16 +22,39 @@ namespace SphereSim{
 	 */
 	class SphereManager{
 	private:
-		unsigned int count;
+		/** \brief Holds the spheres managed by the server. */
+		QVector<Sphere> spheres;
 		
 	public:
-		/** \brief Holds the spheres managed by the server. */
-		Sphere* spheres;
-		
 		SphereManager();
 		
+		/**
+		 * \brief Adds a specific sphere.
+		 * \return Current sphere count.
+		 */
 		int addSphere(Sphere s);
+		/**
+		 * \brief Adds a new sphere.
+		 * \return Current sphere count.
+		 */
 		int addSphere();
+		
+		/**
+		 * \brief Removes the last sphere.
+		 * \return Current sphere count.
+		 */
+		int removeLastSphere();
+		/**
+		 * \brief Removes a specific sphere.
+		 * \return Current sphere count.
+		 */
+		int removeSphere(unsigned int i);
+		
+		/**
+		 * \brief Returns the current sphere count.
+		 * \return Current sphere count.
+		 */
+		int getCount();
 	};
 	
 }

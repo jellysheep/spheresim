@@ -140,3 +140,15 @@ bool ActionSender::isConnected(){
 	socket->waitForConnected(10);
 	return connectedFlag;
 }
+
+int ActionSender::addSphere(){
+	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::addOne)).toInt();
+}
+
+int ActionSender::removeLastSphere(){
+	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::removeLast)).toInt();
+}
+
+int ActionSender::getSphereCount(){
+	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getCount)).toInt();
+}

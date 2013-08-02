@@ -12,6 +12,7 @@
 #define _ACTIONRECEIVER_HPP_
 
 #include <Actions.hpp>
+#include <SphereManager.hpp>
 
 #include <QObject>
 
@@ -19,8 +20,6 @@ class QTcpSocket;
 class QHostAddress;
 
 namespace SphereSim{
-	
-	class SphereManager;
 	
 	/**
 	 * \brief Takes client socket and replies to client requests.
@@ -65,9 +64,25 @@ namespace SphereSim{
 		void handleBasicAction(const char actionGroup, const char action, const QByteArray data);
 		
 		/**
-		 * \brief Handles all unknown action requests.
+		 * \brief Handles requests that updates spheres.
 		 * \param actionGroup Action group that will be handled.
 		 * \param action Action that will be handled.
+		 * \param data Data sent with the action request.
+		 */
+		void handleSpheresUpdatingAction(const char actionGroup, const char action, const QByteArray data);
+		
+		/**
+		 * \brief Handles all unknown action group requests.
+		 * \param actionGroup Action group that is unknown.
+		 * \param action Action that will be handled.
+		 * \param data Data sent with the action request.
+		 */
+		void handleUnknownActionGroup(const char actionGroup, const char action, const QByteArray data);
+		
+		/**
+		 * \brief Handles all unknown action requests.
+		 * \param actionGroup Action group that will be handled.
+		 * \param action Action that is unknown.
 		 * \param data Data sent with the action request.
 		 */
 		void handleUnknownAction(const char actionGroup, const char action, const QByteArray data);
@@ -79,7 +94,7 @@ namespace SphereSim{
 		void sendReply(const QByteArray& data);
 		
 		/** \brief Stores sphere data. */
-		SphereManager* sphMan;
+		SphereManager sphMan;
 		
 	public:
 		/**

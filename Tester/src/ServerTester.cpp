@@ -38,6 +38,7 @@ ServerTester::~ServerTester(){
 
 void ServerTester::runTests(){
 	runTests_(ActionGroups::basic);
+	runTests_(ActionGroups::spheresUpdating);
 }
 
 void ServerTester::runTests(ActionGroups::Group actionGroup, const char* groupName){
@@ -49,6 +50,9 @@ void ServerTester::runTests(ActionGroups::Group actionGroup, const char* groupNa
 	switch(actionGroup){
 	case ActionGroups::basic:
 		runBasicActionTests();
+		break;
+	case ActionGroups::spheresUpdating:
+		runSpheresUpdatingActionTests();
 		break;
 	default:
 		Console::out<<"ServerTester: ";
@@ -74,4 +78,22 @@ void ServerTester::runBasicActionTests(){
 	}
 	verify(sender->getVersion().length(), Greater, 0);
 	verify(sender->getTrueString(), Equal, "true");
+}
+
+void ServerTester::runSpheresUpdatingActionTests(){
+	verify(sender->getSphereCount(), Equal, 0);
+	verify(sender->addSphere(), Equal, 1);
+	verify(sender->getSphereCount(), Equal, 1);
+	verify(sender->addSphere(), Equal, 2);
+	verify(sender->getSphereCount(), Equal, 2);
+	verify(sender->removeLastSphere(), Equal, 1);
+	verify(sender->getSphereCount(), Equal, 1);
+	verify(sender->addSphere(), Equal, 2);
+	verify(sender->getSphereCount(), Equal, 2);
+	verify(sender->removeLastSphere(), Equal, 1);
+	verify(sender->getSphereCount(), Equal, 1);
+	verify(sender->removeLastSphere(), Equal, 0);
+	verify(sender->getSphereCount(), Equal, 0);
+	verify(sender->removeLastSphere(), Equal, 0);
+	verify(sender->getSphereCount(), Equal, 0);
 }

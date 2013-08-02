@@ -72,6 +72,9 @@ namespace SphereSim{
 		/** \brief Runs all tests of the basic actions. */
 		void runBasicActionTests();
 		
+		/** \brief Runs all tests of the sphere updating actions. */
+		void runSpheresUpdatingActionTests();
+		
 		/** \brief Verifies a comparison and displays result on console. */
 		#define verify(t1,op,t2)							\
 			verify##op(t1,t2,TOSTR(t1),TOSTR(t2));

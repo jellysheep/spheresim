@@ -10,16 +10,39 @@
 
 #include <SphereManager.hpp>
 
+#include <QDebug>
+
 using namespace SphereSim;
 
 SphereManager::SphereManager(){
-	count = 0;
-	spheres = NULL;
+	qDebug()<<"ActionSender: constructor called";
 }
 
 int SphereManager::addSphere(Sphere s){
-	return count;
+	qDebug()<<"ActionSender: addSphere";
+	spheres.append(s);
+	return getCount();
 }
 int SphereManager::addSphere(){
 	return addSphere(Sphere());
+}
+
+int SphereManager::removeSphere(unsigned int i){
+	qDebug()<<"ActionSender: removeSphere";
+	if(i>=0 && getCount()>i){
+		spheres.remove(i);
+	}
+	return getCount();
+}
+int SphereManager::removeLastSphere(){
+	if(getCount()>0){
+		return removeSphere(getCount()-1);
+	}else{
+		return getCount();
+	}
+}
+
+int SphereManager::getCount(){
+	qDebug()<<"ActionSender: getGount";
+	return spheres.size();
 }

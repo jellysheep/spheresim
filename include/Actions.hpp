@@ -40,9 +40,10 @@ namespace SphereSim{
 	 */
 	namespace SpheresUpdatingActions{
 		enum Action{
-			add = 1,
-			remove,
-			change
+			addOne = 1,
+			removeLast,
+			changeOne,
+			getCount
 		};
 	}
 	
