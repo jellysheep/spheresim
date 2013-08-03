@@ -42,8 +42,10 @@ namespace SphereSim{
 		enum Action{
 			addOne = 1,
 			removeLast,
-			changeOne,
-			getCount
+			updateOne,
+			getCount,
+			getOne,
+			getOneFull
 		};
 	}
 	

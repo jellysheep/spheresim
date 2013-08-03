@@ -11,9 +11,11 @@
 #include <ActionReceiver.hpp>
 #include <Version.hpp>
 #include <Connection.hpp>
+#include <SphereTransmit.hpp>
 
 #include <QTcpSocket>
 #include <QCoreApplication>
+#include <QDataStream>
 
 using namespace SphereSim;
 
@@ -105,7 +107,7 @@ void ActionReceiver::processRequest(){
 	handleAction(actionGroup, action, data);
 }
 
-void ActionReceiver::handleAction(const unsigned char actionGroup, const unsigned char action, const QByteArray data){
+void ActionReceiver::handleAction(const unsigned char actionGroup, const unsigned char action, QByteArray data){
 	switch(actionGroup){
 	case ActionGroups::basic:
 		handleBasicAction(actionGroup, action, data);
@@ -119,7 +121,7 @@ void ActionReceiver::handleAction(const unsigned char actionGroup, const unsigne
 	}
 }
 
-void ActionReceiver::handleBasicAction(const unsigned char actionGroup, const unsigned char action, const QByteArray data){
+void ActionReceiver::handleBasicAction(const unsigned char actionGroup, const unsigned char action, QByteArray data){
 	switch(action){
 	case BasicActions::getVersion:
 		sendReply("SphereSim Server v" VERSION_STR);
@@ -141,7 +143,12 @@ void ActionReceiver::handleBasicAction(const unsigned char actionGroup, const un
 	}
 }
 
-void ActionReceiver::handleSpheresUpdatingAction(const unsigned char actionGroup, const unsigned char action, const QByteArray data){
+void ActionReceiver::handleSpheresUpdatingAction(const unsigned char actionGroup, const unsigned char action, QByteArray data){
+	int i;
+	Sphere s;
+	QDataStream stream(&data, QIODevice::ReadOnly);
+	QByteArray retData;
+	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	switch(action){
 	case SpheresUpdatingActions::addOne:
 		sendReply(QString::number(sphMan.addSphere()).toUtf8());
@@ -149,9 +156,25 @@ void ActionReceiver::handleSpheresUpdatingAction(const unsigned char actionGroup
 	case SpheresUpdatingActions::removeLast:
 		sendReply(QString::number(sphMan.removeLastSphere()).toUtf8());
 		break;
-	//
+	case SpheresUpdatingActions::updateOne:
+		stream>>i;
+		readFullSphere(stream, s);
+		sphMan.updateSphere(i, s);
+		break;
 	case SpheresUpdatingActions::getCount:
 		sendReply(QString::number(sphMan.getCount()).toUtf8());
+		break;
+	case SpheresUpdatingActions::getOne:
+		stream>>i;
+		s = sphMan.getSphere(i);
+		writeSphere(retStream, s);
+		sendReply(retData);
+		break;
+	case SpheresUpdatingActions::getOneFull:
+		stream>>i;
+		s = sphMan.getSphere(i);
+		writeFullSphere(retStream, s);
+		sendReply(retData);
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
@@ -159,13 +182,13 @@ void ActionReceiver::handleSpheresUpdatingAction(const unsigned char actionGroup
 	}
 }
 
-void ActionReceiver::handleUnknownActionGroup(const unsigned char actionGroup, const unsigned char action, const QByteArray data){
+void ActionReceiver::handleUnknownActionGroup(const unsigned char actionGroup, const unsigned char action, QByteArray data){
 	qWarning()<<"ActionReceiver: Warning: received unknown action group"
 		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
 	sendReply("unknown action group");
 }
 
-void ActionReceiver::handleUnknownAction(const unsigned char actionGroup, const unsigned char action, const QByteArray data){
+void ActionReceiver::handleUnknownAction(const unsigned char actionGroup, const unsigned char action, QByteArray data){
 	qWarning()<<"ActionReceiver: Warning: received unknown action"
 		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
 	sendReply("unknown action");

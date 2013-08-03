@@ -30,6 +30,7 @@ namespace SphereSim{
 		
 		/**
 		 * \brief Adds a specific sphere.
+		 * \param s Sphere to add.
 		 * \return Current sphere count.
 		 */
 		unsigned int addSphere(Sphere s);
@@ -46,6 +47,7 @@ namespace SphereSim{
 		unsigned int removeLastSphere();
 		/**
 		 * \brief Removes a specific sphere.
+		 * \param i Index of the sphere to remove.
 		 * \return Current sphere count.
 		 */
 		unsigned int removeSphere(unsigned int i);
@@ -55,6 +57,21 @@ namespace SphereSim{
 		 * \return Current sphere count.
 		 */
 		unsigned int getCount();
+		
+		/**
+		 * \brief Updates a specific sphere.
+		 * \param i Index of the sphere to update.
+		 * \param s Sphere data to update.
+		 * \return Current sphere count.
+		 */
+		unsigned int updateSphere(unsigned int i, Sphere s);
+		
+		/**
+		 * \brief Gets a specific sphere.
+		 * \param i Index of the sphere to get.
+		 * \return Copy of the requested sphere.
+		 */
+		Sphere getSphere(unsigned int i);
 	};
 	
 }

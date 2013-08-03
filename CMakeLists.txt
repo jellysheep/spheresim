@@ -48,6 +48,7 @@ set(HEADERS
 	${PROJECT_INCLUDE_DIR}/VectorLib.hpp
 	${PROJECT_INCLUDE_DIR}/Vector.hpp
 	${PROJECT_INCLUDE_DIR}/Sphere.hpp
+	${PROJECT_INCLUDE_DIR}/SphereTransmit.hpp
 	${PROJECT_INCLUDE_DIR}/Console.hpp
 )
 

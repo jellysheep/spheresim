@@ -12,6 +12,7 @@
  */
 
 #include <Actions.hpp>
+#include <Sphere.hpp>
 
 #include <QtGlobal>
 #include <QObject>
@@ -57,7 +58,7 @@ namespace SphereSim{
 		 * \param action Requested action.
 		 * \param data Data that will be sent with the action request.
 		 */
-		void sendAction(const unsigned char actionGroup, const unsigned char action, const QByteArray& data);
+		void sendAction(const unsigned char actionGroup, const unsigned char action, QByteArray& data);
 		/**
 		 * \brief Sends an action request to the server.
 		 * \param actionGroup Group of the requested action.
@@ -72,7 +73,7 @@ namespace SphereSim{
 		 * \param data Data that will be sent with the action request.
 		 * \return Reply data from the server.
 		 */
-		QByteArray sendReplyAction(const unsigned char actionGroup, const unsigned char action, const QByteArray& data);
+		QByteArray sendReplyAction(const unsigned char actionGroup, const unsigned char action, QByteArray& data);
 		/**
 		 * \brief Sends an action request to the server and returns server reply.
 		 * \param actionGroup Group of the requested action.
@@ -138,6 +139,27 @@ namespace SphereSim{
 		 * \return Current sphere count reported by server.
 		 */
 		unsigned int getSphereCount();
+		
+		/**
+		 * \brief Requests the server to update one sphere.
+		 * \param i Index of the sphere to update.
+		 * \param s Sphere data to update.
+		 */
+		void updateSphere(unsigned int i, Sphere s);
+		
+		/**
+		 * \brief Requests the server to send one sphere.
+		 * \param i Index of the sphere to send.
+		 * \param s Sphere data to update.
+		 */
+		void getSphere(unsigned int i, Sphere& s);
+		
+		/**
+		 * \brief Requests the server to send one full sphere.
+		 * \param i Index of the sphere to send.
+		 * \param s Sphere data to update.
+		 */
+		void getFullSphere(unsigned int i, Sphere& s);
 	
 	public slots:
 		void connected(){

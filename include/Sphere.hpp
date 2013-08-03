@@ -13,23 +13,27 @@
 
 #include <Vector.hpp>
 
-/**
- * \brief Holds physical data of one sphere.
- */
-class Sphere{
-public:
-	Vector3 pos, speed, acc;
-	Scalar radius, mass;
-	
-	Sphere(Vector3 x, Vector3 v, Vector3 a, Scalar r, Scalar m){
-		pos = x;
-		speed = v;
-		acc = a;
-		radius = r;
-		mass = m;
-	}
-	Sphere():Sphere(Vector3(),Vector3(),Vector3(),0,0){
-	}
-};
+class QDataStream;
+
+namespace SphereSim{
+	/**
+	 * \brief Holds physical data of one sphere.
+	 */
+	class Sphere{
+	public:
+		Vector3 pos, speed, acc;
+		Scalar radius, mass;
+		
+		Sphere(Vector3 x, Vector3 v, Vector3 a, Scalar r, Scalar m){
+			pos = x;
+			speed = v;
+			acc = a;
+			radius = r;
+			mass = m;
+		}
+		Sphere():Sphere(Vector3(0,0,0),Vector3(0,0,0),Vector3(0,0,0),0,0){
+		}
+	};
+}
 
 #endif

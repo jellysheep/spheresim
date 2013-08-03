@@ -53,7 +53,7 @@ namespace SphereSim{
 		 * \param action Action that will be handled.
 		 * \param data Data sent with the action request.
 		 */
-		void handleAction(const unsigned char actionGroup, const unsigned char action, const QByteArray data);
+		void handleAction(const unsigned char actionGroup, const unsigned char action, QByteArray data);
 		
 		/**
 		 * \brief Handles basic action requests.
@@ -61,7 +61,7 @@ namespace SphereSim{
 		 * \param action Action that will be handled.
 		 * \param data Data sent with the action request.
 		 */
-		void handleBasicAction(const unsigned char actionGroup, const unsigned char action, const QByteArray data);
+		void handleBasicAction(const unsigned char actionGroup, const unsigned char action, QByteArray data);
 		
 		/**
 		 * \brief Handles requests that updates spheres.
@@ -69,7 +69,7 @@ namespace SphereSim{
 		 * \param action Action that will be handled.
 		 * \param data Data sent with the action request.
 		 */
-		void handleSpheresUpdatingAction(const unsigned char actionGroup, const unsigned char action, const QByteArray data);
+		void handleSpheresUpdatingAction(const unsigned char actionGroup, const unsigned char action, QByteArray data);
 		
 		/**
 		 * \brief Handles all unknown action group requests.
@@ -77,7 +77,7 @@ namespace SphereSim{
 		 * \param action Action that will be handled.
 		 * \param data Data sent with the action request.
 		 */
-		void handleUnknownActionGroup(const unsigned char actionGroup, const unsigned char action, const QByteArray data);
+		void handleUnknownActionGroup(const unsigned char actionGroup, const unsigned char action, QByteArray data);
 		
 		/**
 		 * \brief Handles all unknown action requests.
@@ -85,7 +85,7 @@ namespace SphereSim{
 		 * \param action Action that is unknown.
 		 * \param data Data sent with the action request.
 		 */
-		void handleUnknownAction(const unsigned char actionGroup, const unsigned char action, const QByteArray data);
+		void handleUnknownAction(const unsigned char actionGroup, const unsigned char action, QByteArray data);
 		
 		/**
 		 * \brief Sends encoded reply to client.

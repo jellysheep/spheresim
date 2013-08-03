@@ -46,3 +46,19 @@ unsigned int SphereManager::getCount(){
 	qDebug()<<"ActionSender: getGount";
 	return spheres.size();
 }
+
+unsigned int SphereManager::updateSphere(unsigned int i, Sphere s){
+	qDebug()<<"ActionSender: updateSphere";
+	if(getCount()>i){
+		spheres[i] = s;
+	}
+	return getCount();
+}
+
+Sphere SphereManager::getSphere(unsigned int i){
+	if(getCount()>i){
+		return spheres[i];
+	}else{
+		return Sphere();
+	}
+}

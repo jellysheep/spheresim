@@ -11,10 +11,12 @@
 #include <ActionSender.hpp>
 #include <Connection.hpp>
 #include <Console.hpp>
+#include <SphereTransmit.hpp>
 
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QProcess>
+#include <QDataStream>
 
 using namespace SphereSim;
 
@@ -62,7 +64,7 @@ ActionSender::~ActionSender(){
 	delete socket;
 }
 
-void ActionSender::sendAction(const unsigned char actionGroup, const unsigned char action, const QByteArray& arr){
+void ActionSender::sendAction(const unsigned char actionGroup, const unsigned char action, QByteArray& arr){
 	QByteArray data;
 	data.append(actionGroup);
 	data.append(action);
@@ -82,7 +84,7 @@ void ActionSender::sendAction(const unsigned char actionGroup, const unsigned ch
 	sendAction(actionGroup, action, arr);
 }
 
-QByteArray ActionSender::sendReplyAction(const unsigned char actionGroup, const unsigned char action, const QByteArray& arr){
+QByteArray ActionSender::sendReplyAction(const unsigned char actionGroup, const unsigned char action, QByteArray& arr){
 	socket->readAll(); ///clear buffer
 	sendAction(actionGroup, action, arr);
 	
@@ -151,4 +153,29 @@ unsigned int ActionSender::removeLastSphere(){
 
 unsigned int ActionSender::getSphereCount(){
 	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getCount)).toInt();
+}
+
+void ActionSender::updateSphere(unsigned int i, Sphere s){
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<i;
+	writeFullSphere(stream, s);
+	sendAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::updateOne, arr);
+}
+
+void ActionSender::getSphere(unsigned int i, Sphere& s){
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<i;
+	QByteArray retArr = sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getOne, arr);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	readSphere(retStream, s);
+}
+void ActionSender::getFullSphere(unsigned int i, Sphere& s){
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<i;
+	QByteArray retArr = sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getOneFull, arr);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	readFullSphere(retStream, s);
 }
