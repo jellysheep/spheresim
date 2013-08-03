@@ -36,6 +36,12 @@ namespace SphereSim{
 		/** \brief Tells how many of the tests have been successful. */
 		unsigned int successCounter;
 		
+		/** \brief Tells if the current test is successful. */
+		bool testSuccess;
+		
+		/** \brief Tells which action is currently tested. */
+		QString testActionName;
+		
 	public:
 		/**
 		 * \brief Starts a ServerTester with the specified address and port.
@@ -77,23 +83,27 @@ namespace SphereSim{
 		
 		/** \brief Verifies a comparison and displays result on console. */
 		#define verify(t1,op,t2)							\
-			verify##op(t1,t2,TOSTR(t1),TOSTR(t2));
+			verify##op(t1,t2,__LINE__,TOSTR(t1),TOSTR(t2));
 		#define verifyFunc(name,op,invOp)					\
 		template<typename T1, typename T2>					\
-		void verify##name(T1 t1, T2 t2, 					\
+		void verify##name(T1 t1, T2 t2, unsigned int line,	\
 				const char* nameT1, const char* nameT2){	\
-			Console::out<<"ServerTester: ";					\
-			Console::bold<<"test "<<++testCounter<<": ";	\
+			if(!testSuccess) return;						\
 			if(t1 op t2){									\
-				Console::greenBold<<"test passed.\n";		\
-				successCounter++;							\
 			}else{											\
 				Console::redBold<<"test failed: ";			\
 				Console::out<<"\n              ";			\
 				Console::bold<<nameT1;						\
 				Console::out<<" [\""<<t1<<"\"] ";			\
 				Console::bold<<TOSTR(invOp) " "<<nameT2;	\
-				Console::out<<" [\""<<t2<<"\"]\n";			\
+				Console::out<<" [\""<<t2<<"\"]";			\
+				Console::out<<"\n              ";			\
+				Console::out<<"(line "<<line;				\
+				if(testActionName.length()>0){				\
+					Console::out<<", "<<testActionName;		\
+				}											\
+				Console::out<<")\n";						\
+				testSuccess = false;						\
 			}												\
 		}
 		verifyFunc(Equal,==,!=);
@@ -101,6 +111,21 @@ namespace SphereSim{
 		verifyFunc(Smaller,<,>=);
 		verifyFunc(GreaterOrEqual,>=,<);
 		verifyFunc(SmallerOrEqual,<=,>);
+		
+		/**
+		 * \brief Informs that a new test will be started.
+		 * \param actionName Name of the action that will be tested.
+		 */
+		void startTest(const char* actionName);
+		
+		/** \brief Informs that a test is complete. */
+		void endTest();
+		
+		/**
+		 * \brief Informs that a test is complete and a new test will be started.
+		 * \param actionName Name of the action that will be tested.
+		 */
+		void startNewTest(const char* actionName);
 	};
 	
 }

@@ -14,6 +14,13 @@
 #include <QTcpServer>
 #include <QProcess>
 
+#define runTests_(x) \
+	runTests(x, TOSTR(x));
+#define startTest_(x) \
+	startTest(TOSTR(x));
+#define startNewTest_(x) \
+	startNewTest(TOSTR(x));
+
 using namespace SphereSim;
 
 ServerTester::ServerTester(const QHostAddress& addr, const quint16 port){
@@ -32,9 +39,6 @@ ServerTester::ServerTester(const char* addr, const quint16 port)
 ServerTester::~ServerTester(){
 	delete sender;
 }
-
-#define runTests_(x) \
-	runTests(x, TOSTR(x));
 
 void ServerTester::runTests(){
 	runTests_(ActionGroups::basic);
@@ -69,15 +73,21 @@ void ServerTester::runTests(ActionGroups::Group actionGroup, const char* groupNa
 }
 
 void ServerTester::runBasicActionTests(){
-	verify(sender->isConnected(), Equal, true);
+	startTest_(Connection);
+		verify(sender->isConnected(), Equal, true);
+	endTest();
 	if(sender->isConnected()){
 		Console::out<<"ServerTester: ";
 		Console::bold<<"SphereSim Tester v" VERSION_STR<<'\n';
 		Console::out<<"ServerTester: ";
 		Console::bold<<sender->getVersion()<<'\n';
 	}
-	verify(sender->getVersion().length(), Greater, 0);
-	verify(sender->getTrueString(), Equal, "true");
+	startTest_(BasicActions::getVersion);
+		verify(sender->getVersion().length(), Greater, 0);
+	startNewTest_(BasicActions::getTrueString);
+		verify(sender->getTrueString(), Equal, "true");
+	endTest();
+	
 }
 
 void ServerTester::runSpheresUpdatingActionTests(){
@@ -105,71 +115,93 @@ void ServerTester::runSpheresUpdatingActionTests(){
 	s.acc(2) = 9;
 	s.mass = 10;
 	s.radius = 11;
-	Sphere sphere;
-	sender->getSphere(0, sphere);
-	verify(sphere.pos(0), Equal, 0);
-	verify(sphere.pos(1), Equal, 0);
-	verify(sphere.pos(2), Equal, 0);
-	verify(sphere.speed(0), Equal, 0);
-	verify(sphere.speed(1), Equal, 0);
-	verify(sphere.speed(2), Equal, 0);
-	verify(sphere.acc(0), Equal, 0);
-	verify(sphere.acc(1), Equal, 0);
-	verify(sphere.acc(2), Equal, 0);
-	verify(sphere.mass, Equal, 0);
-	verify(sphere.radius, Equal, 0);
-	sphere = s;
-	sender->getSphere(0, sphere);
-	verify(sphere.pos(0), Equal, 0);
-	verify(sphere.pos(1), Equal, 0);
-	verify(sphere.pos(2), Equal, 0);
-	verify(sphere.speed(0), Equal, 4);
-	verify(sphere.speed(1), Equal, 5);
-	verify(sphere.speed(2), Equal, 6);
-	verify(sphere.acc(0), Equal, 7);
-	verify(sphere.acc(1), Equal, 8);
-	verify(sphere.acc(2), Equal, 9);
-	verify(sphere.mass, Equal, 10);
-	verify(sphere.radius, Equal, 0);
-	sphere = Sphere();
-	sender->getFullSphere(0, sphere);
-	verify(sphere.pos(0), Equal, 0);
-	verify(sphere.pos(1), Equal, 0);
-	verify(sphere.pos(2), Equal, 0);
-	verify(sphere.speed(0), Equal, 0);
-	verify(sphere.speed(1), Equal, 0);
-	verify(sphere.speed(2), Equal, 0);
-	verify(sphere.acc(0), Equal, 0);
-	verify(sphere.acc(1), Equal, 0);
-	verify(sphere.acc(2), Equal, 0);
-	verify(sphere.mass, Equal, 0);
-	verify(sphere.radius, Equal, 0);
-	sender->updateSphere(0, s);
-	sphere = Sphere();
-	sender->getSphere(0, sphere);
-	verify(sphere.pos(0), Equal, 1);
-	verify(sphere.pos(1), Equal, 2);
-	verify(sphere.pos(2), Equal, 3);
-	verify(sphere.speed(0), Equal, 0);
-	verify(sphere.speed(1), Equal, 0);
-	verify(sphere.speed(2), Equal, 0);
-	verify(sphere.acc(0), Equal, 0);
-	verify(sphere.acc(1), Equal, 0);
-	verify(sphere.acc(2), Equal, 0);
-	verify(sphere.mass, Equal, 0);
-	verify(sphere.radius, Equal, 11);
-	sphere = Sphere();
-	sender->getFullSphere(0, sphere);
-	verify(sphere.pos(0), Equal, 1);
-	verify(sphere.pos(1), Equal, 2);
-	verify(sphere.pos(2), Equal, 3);
-	verify(sphere.speed(0), Equal, 4);
-	verify(sphere.speed(1), Equal, 5);
-	verify(sphere.speed(2), Equal, 6);
-	verify(sphere.acc(0), Equal, 7);
-	verify(sphere.acc(1), Equal, 8);
-	verify(sphere.acc(2), Equal, 9);
-	verify(sphere.mass, Equal, 10);
-	verify(sphere.radius, Equal, 11);
-	
+	startTest_(SpheresUpdatingActions::getOne);
+		Sphere sphere;
+		sender->getSphere(0, sphere);
+		verify(sphere.pos(0), Equal, 0);
+		verify(sphere.pos(1), Equal, 0);
+		verify(sphere.pos(2), Equal, 0);
+		verify(sphere.speed(0), Equal, 0);
+		verify(sphere.speed(1), Equal, 0);
+		verify(sphere.speed(2), Equal, 0);
+		verify(sphere.acc(0), Equal, 0);
+		verify(sphere.acc(1), Equal, 0);
+		verify(sphere.acc(2), Equal, 0);
+		verify(sphere.mass, Equal, 0);
+		verify(sphere.radius, Equal, 0);
+	startNewTest_(SpheresUpdatingActions::getOne);
+		sphere = s;
+		sender->getSphere(0, sphere);
+		verify(sphere.pos(0), Equal, 0);
+		verify(sphere.pos(1), Equal, 0);
+		verify(sphere.pos(2), Equal, 0);
+		verify(sphere.speed(0), Equal, 4);
+		verify(sphere.speed(1), Equal, 5);
+		verify(sphere.speed(2), Equal, 6);
+		verify(sphere.acc(0), Equal, 7);
+		verify(sphere.acc(1), Equal, 8);
+		verify(sphere.acc(2), Equal, 9);
+		verify(sphere.mass, Equal, 10);
+		verify(sphere.radius, Equal, 0);
+	startNewTest_(SpheresUpdatingActions::getOneFull);
+		sphere = Sphere();
+		sender->getFullSphere(0, sphere);
+		verify(sphere.pos(0), Equal, 0);
+		verify(sphere.pos(1), Equal, 0);
+		verify(sphere.pos(2), Equal, 0);
+		verify(sphere.speed(0), Equal, 0);
+		verify(sphere.speed(1), Equal, 0);
+		verify(sphere.speed(2), Equal, 0);
+		verify(sphere.acc(0), Equal, 0);
+		verify(sphere.acc(1), Equal, 0);
+		verify(sphere.acc(2), Equal, 0);
+		verify(sphere.mass, Equal, 0);
+		verify(sphere.radius, Equal, 0);
+	startNewTest_(SpheresUpdatingActions::updateOne);
+		sender->updateSphere(0, s);
+		sphere = Sphere();
+		sender->getSphere(0, sphere);
+		verify(sphere.pos(0), Equal, 1);
+		verify(sphere.pos(1), Equal, 2);
+		verify(sphere.pos(2), Equal, 3);
+		verify(sphere.speed(0), Equal, 0);
+		verify(sphere.speed(1), Equal, 0);
+		verify(sphere.speed(2), Equal, 0);
+		verify(sphere.acc(0), Equal, 0);
+		verify(sphere.acc(1), Equal, 0);
+		verify(sphere.acc(2), Equal, 0);
+		verify(sphere.mass, Equal, 0);
+		verify(sphere.radius, Equal, 11);
+	startNewTest_(SpheresUpdatingActions::getOneFull);
+		sphere = Sphere();
+		sender->getFullSphere(0, sphere);
+		verify(sphere.pos(0), Equal, 1);
+		verify(sphere.pos(1), Equal, 2);
+		verify(sphere.pos(2), Equal, 3);
+		verify(sphere.speed(0), Equal, 4);
+		verify(sphere.speed(1), Equal, 5);
+		verify(sphere.speed(2), Equal, 6);
+		verify(sphere.acc(0), Equal, 7);
+		verify(sphere.acc(1), Equal, 8);
+		verify(sphere.acc(2), Equal, 9);
+		verify(sphere.mass, Equal, 10);
+		verify(sphere.radius, Equal, 11);
+	endTest();
+}
+
+void ServerTester::startTest(const char* actionName){
+	testSuccess = true;
+	testActionName = actionName;
+	Console::out<<"ServerTester: ";
+	Console::bold<<"test "<<++testCounter<<": ";
+}
+void ServerTester::endTest(){
+	if(testSuccess){
+		successCounter++;
+		Console::greenBold<<"test passed. \n";
+	}
+}
+void ServerTester::startNewTest(const char* actionName){
+	endTest();
+	startTest(actionName);
 }
