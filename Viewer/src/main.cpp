@@ -25,9 +25,9 @@ using namespace SphereSim;
 int main(int argc, char** argv){
 	QCoreApplication app(argc, argv);
 	ActionSender actSend(Connection::defaultAddress, Connection::defaultPort);
-	const QString version = actSend.getVersion();
+	QString version = actSend.getVersion();
 	qDebug()<<version;
-	const QString trueStr = actSend.getTrueString();
+	QString trueStr = actSend.getTrueString();
 	qDebug()<<trueStr;
 	
 	return 0;

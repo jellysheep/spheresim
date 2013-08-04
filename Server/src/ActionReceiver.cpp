@@ -38,7 +38,7 @@ void ActionReceiver::readData(){
 }
 
 void ActionReceiver::processData(QByteArray byteArray){
-	int endIndex, startIndex;
+	qint16 endIndex, startIndex;
 	endIndex = byteArray.indexOf(Connection::endByte);
 	startIndex = byteArray.indexOf(Connection::startByte);
 	
@@ -92,8 +92,8 @@ void ActionReceiver::processData(QByteArray byteArray){
 
 void ActionReceiver::processRequest(){
 	QByteArray data = QByteArray::fromBase64(requestData);
-	unsigned char actionGroup = data[0];
-	unsigned char action = data[1];
+	quint8 actionGroup = data[0];
+	quint8 action = data[1];
 	if(data.size()>2){
 		data = data.right(data.length()-2);
 	}else{
@@ -107,7 +107,7 @@ void ActionReceiver::processRequest(){
 	handleAction(actionGroup, action, data);
 }
 
-void ActionReceiver::handleAction(const unsigned char actionGroup, const unsigned char action, QByteArray data){
+void ActionReceiver::handleAction(quint8 actionGroup, quint8 action, QByteArray data){
 	switch(actionGroup){
 	case ActionGroups::basic:
 		handleBasicAction(actionGroup, action, data);
@@ -124,7 +124,7 @@ void ActionReceiver::handleAction(const unsigned char actionGroup, const unsigne
 	}
 }
 
-void ActionReceiver::handleBasicAction(const unsigned char actionGroup, const unsigned char action, QByteArray data){
+void ActionReceiver::handleBasicAction(quint8 actionGroup, quint8 action, QByteArray data){
 	switch(action){
 	case BasicActions::getVersion:
 		sendReply("SphereSim Server v" VERSION_STR);
@@ -146,8 +146,8 @@ void ActionReceiver::handleBasicAction(const unsigned char actionGroup, const un
 	}
 }
 
-void ActionReceiver::handleSpheresUpdatingAction(const unsigned char actionGroup, const unsigned char action, QByteArray data){
-	int i;
+void ActionReceiver::handleSpheresUpdatingAction(quint8 actionGroup, quint8 action, QByteArray data){
+	quint16 i;
 	Sphere s;
 	QDataStream stream(&data, QIODevice::ReadOnly);
 	QByteArray retData;
@@ -185,7 +185,7 @@ void ActionReceiver::handleSpheresUpdatingAction(const unsigned char actionGroup
 	}
 }
 
-void ActionReceiver::handleCalculationAction(const unsigned char actionGroup, const unsigned char action, QByteArray data){
+void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, QByteArray data){
 	QDataStream stream(&data, QIODevice::ReadOnly);
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
@@ -208,13 +208,13 @@ void ActionReceiver::handleCalculationAction(const unsigned char actionGroup, co
 	}
 }
 
-void ActionReceiver::handleUnknownActionGroup(const unsigned char actionGroup, const unsigned char action, QByteArray data){
+void ActionReceiver::handleUnknownActionGroup(quint8 actionGroup, quint8 action, QByteArray data){
 	qWarning()<<"ActionReceiver: Warning: received unknown action group"
 		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
 	sendReply("unknown action group");
 }
 
-void ActionReceiver::handleUnknownAction(const unsigned char actionGroup, const unsigned char action, QByteArray data){
+void ActionReceiver::handleUnknownAction(quint8 actionGroup, quint8 action, QByteArray data){
 	qWarning()<<"ActionReceiver: Warning: received unknown action"
 		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
 	sendReply("unknown action");

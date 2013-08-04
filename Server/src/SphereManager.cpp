@@ -18,23 +18,23 @@ SphereManager::SphereManager():sphCalc(),spheres(sphCalc.getSpheres()){
 	qDebug()<<"SphereManager: constructor called";
 }
 
-unsigned int SphereManager::addSphere(Sphere s){
+quint16 SphereManager::addSphere(Sphere s){
 	qDebug()<<"SphereManager: addSphere";
 	spheres.append(s);
 	return getCount();
 }
-unsigned int SphereManager::addSphere(){
+quint16 SphereManager::addSphere(){
 	return addSphere(Sphere());
 }
 
-unsigned int SphereManager::removeSphere(unsigned int i){
+quint16 SphereManager::removeSphere(quint16 i){
 	qDebug()<<"SphereManager: removeSphere";
 	if(getCount()>i){
 		spheres.remove(i);
 	}
 	return getCount();
 }
-unsigned int SphereManager::removeLastSphere(){
+quint16 SphereManager::removeLastSphere(){
 	if(getCount()>0){
 		return removeSphere(getCount()-1);
 	}else{
@@ -42,12 +42,12 @@ unsigned int SphereManager::removeLastSphere(){
 	}
 }
 
-unsigned int SphereManager::getCount(){
+quint16 SphereManager::getCount(){
 	qDebug()<<"SphereManager: getGount";
 	return spheres.size();
 }
 
-unsigned int SphereManager::updateSphere(unsigned int i, Sphere s){
+quint16 SphereManager::updateSphere(quint16 i, Sphere s){
 	qDebug()<<"SphereManager: updateSphere";
 	qDebug()<<"SphereManager: before:";
 	qDebug()<<"SphereCalculator: pos "<<i<<": "<<s.pos(0)<<s.pos(1)<<s.pos(2);
@@ -63,7 +63,7 @@ unsigned int SphereManager::updateSphere(unsigned int i, Sphere s){
 	return getCount();
 }
 
-Sphere SphereManager::getSphere(unsigned int i){
+Sphere SphereManager::getSphere(quint16 i){
 	qDebug()<<"SphereManager: getSphere";
 	if(getCount()>i){
 		return spheres[i];
@@ -72,7 +72,7 @@ Sphere SphereManager::getSphere(unsigned int i){
 	}
 }
 
-unsigned int SphereManager::calculateStep(){
+quint16 SphereManager::calculateStep(){
 	qDebug()<<"SphereManager: calculateStep";
 	return sphCalc.doStep();
 }

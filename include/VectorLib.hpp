@@ -74,7 +74,7 @@
 /**
  * \brief Provides methods to calculate with vectors.
  */
-template <typename T, unsigned short dim>
+template <typename T, quint8 dim>
 class LibVector{
 private:
 	LibVector(){}
@@ -98,7 +98,7 @@ public:
 		return w;
 	}
 	
-	inline T operator()(unsigned char index){
+	inline T operator()(quint8 index){
 		switch(index){
 		case 0:
 			return x;
@@ -112,7 +112,7 @@ public:
 			return x;
 		}
 	}
-	inline T operator[](unsigned char index){
+	inline T operator[](quint8 index){
 		return operator()(index);
 	}
 	
@@ -155,13 +155,13 @@ public:
 	genType(float,f)
 	genType(double,d)
 	genType(long double,ld)
-	genType(char,c)
-	genType(unsigned char,uc)
-	genType(short,s)
-	genType(unsigned short,us)
-	genType(int,i)
-	genType(unsigned int,ui)
-	genType(long,l)
-	genType(unsigned long,ul)
+	genType(qint8,c)
+	genType(quint8,uc)
+	genType(qint16,s)
+	genType(quint16,us)
+	genType(qint32,i)
+	genType(quint32,ui)
+	genType(qint64,l)
+	genType(quint64,ul)
 
 #endif

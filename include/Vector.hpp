@@ -11,11 +11,10 @@
 #ifndef _VECTOR_HPP_
 #define _VECTOR_HPP_
 
-//#define USE_EIGEN_LIBRARY 1
-//#define USE_DOUBLE 1
+#include <QtGlobal>
 
 #if USE_DOUBLE
-	#define FLOATING_TYPE double
+	#define FLOATING_TYPE qreal
 #else
 	#define FLOATING_TYPE float
 #endif

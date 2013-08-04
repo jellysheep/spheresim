@@ -54,7 +54,7 @@ namespace SphereSim{
 		 * \param action Action that will be handled.
 		 * \param data Data sent with the action request.
 		 */
-		void handleAction(const unsigned char actionGroup, const unsigned char action, QByteArray data);
+		void handleAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
 		/**
 		 * \brief Handles basic action requests.
@@ -62,7 +62,7 @@ namespace SphereSim{
 		 * \param action Action that will be handled.
 		 * \param data Data sent with the action request.
 		 */
-		void handleBasicAction(const unsigned char actionGroup, const unsigned char action, QByteArray data);
+		void handleBasicAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
 		/**
 		 * \brief Handles requests that updates spheres.
@@ -70,7 +70,7 @@ namespace SphereSim{
 		 * \param action Action that will be handled.
 		 * \param data Data sent with the action request.
 		 */
-		void handleSpheresUpdatingAction(const unsigned char actionGroup, const unsigned char action, QByteArray data);
+		void handleSpheresUpdatingAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
 		/**
 		 * \brief Handles requests that calculate spheres physics.
@@ -78,7 +78,7 @@ namespace SphereSim{
 		 * \param action Action that will be handled.
 		 * \param data Data sent with the action request.
 		 */
-		void handleCalculationAction(const unsigned char actionGroup, const unsigned char action, QByteArray data);
+		void handleCalculationAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
 		/**
 		 * \brief Handles all unknown action group requests.
@@ -86,7 +86,7 @@ namespace SphereSim{
 		 * \param action Action that will be handled.
 		 * \param data Data sent with the action request.
 		 */
-		void handleUnknownActionGroup(const unsigned char actionGroup, const unsigned char action, QByteArray data);
+		void handleUnknownActionGroup(quint8 actionGroup, quint8 action, QByteArray data);
 		
 		/**
 		 * \brief Handles all unknown action requests.
@@ -94,7 +94,7 @@ namespace SphereSim{
 		 * \param action Action that is unknown.
 		 * \param data Data sent with the action request.
 		 */
-		void handleUnknownAction(const unsigned char actionGroup, const unsigned char action, QByteArray data);
+		void handleUnknownAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
 		/**
 		 * \brief Sends encoded reply to client.

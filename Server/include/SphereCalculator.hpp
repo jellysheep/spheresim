@@ -29,7 +29,7 @@ namespace SphereSim{
 		/** \brief Holds the spheres in an array. */
 		Sphere* sphArr;
 		/** \brief Holds the current spheres count. */
-		int sphCount;
+		quint16 sphCount;
 		/** \brief Holds the current box size. */
 		Vector3 boxSize;
 		/** \brief Holds the current step length (time in s). */
@@ -57,7 +57,7 @@ namespace SphereSim{
 		 * \brief Calculates the sphere movements for one step.
 		 * \return Millisecond time used to calculate the step.
 		 */
-		unsigned int doStep();
+		quint16 doStep();
 		
 		/**
 		 * \brief Sets the time step.

@@ -23,16 +23,16 @@
 
 using namespace SphereSim;
 
-ServerTester::ServerTester(const QHostAddress& addr, const quint16 port){
+ServerTester::ServerTester(QHostAddress addr, quint16 port){
 	qDebug()<<"ServerTester: constructor called";
 	sender = new ActionSender(addr, port);
 	testCounter = 0;
 	successCounter = 0;
 }
-ServerTester::ServerTester(const QString& addr, const quint16 port)
+ServerTester::ServerTester(QString addr, quint16 port)
 	:ServerTester(QHostAddress(addr),port){
 }
-ServerTester::ServerTester(const char* addr, const quint16 port)
+ServerTester::ServerTester(const char* addr, quint16 port)
 	:ServerTester(QString(addr),port){
 }
 
@@ -224,11 +224,11 @@ void ServerTester::runCalculationActionTests(){
 	sender->updateSphere(0, s);
 	startTest_(CalculationActions::doOneStep);
 		// simulate bouncing sphere
-		unsigned int expectedTurningPoints = 7;
-		unsigned int stepTime, turningPoints = 0;
+		quint16 expectedTurningPoints = 5, turningPoints = 0;
+		quint16 stepTime;
 		Scalar pos = s.pos(1), oldPos;
 		Scalar gradient = 0, oldGradient;
-		for(int i = (int)((expectedTurningPoints/3.0f)/timeStep); i>=0; i--){
+		for(quint16 i = (quint16)((expectedTurningPoints/3.0f)/timeStep)+1; i>0; i--){
 			stepTime = sender->calculateStep();
 			verify(stepTime, Greater, 0);
 			sender->getSphere(0, s);

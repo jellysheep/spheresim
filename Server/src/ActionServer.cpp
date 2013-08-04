@@ -15,7 +15,7 @@
 
 using namespace SphereSim;
 
-ActionServer::ActionServer(const QHostAddress& addr, const quint16 port){
+ActionServer::ActionServer(QHostAddress addr, quint16 port){
 	qDebug()<<"ActionServer: constructor called";
 	server = new QTcpServer();
 	connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
@@ -26,10 +26,10 @@ ActionServer::ActionServer(const QHostAddress& addr, const quint16 port){
 		qDebug()<<"ActionServer: listening did not succeed.";
 	}
 }
-ActionServer::ActionServer(const QString& addr, const quint16 port)
+ActionServer::ActionServer(QString addr, quint16 port)
 	:ActionServer(QHostAddress(addr),port){
 }
-ActionServer::ActionServer(const char* addr, const quint16 port)
+ActionServer::ActionServer(const char* addr, quint16 port)
 	:ActionServer(QString(addr),port){
 }
 

@@ -36,7 +36,7 @@ void SphereCalculator::calculateForces(){
 	Scalar d, force, E_;
 	E_ = 1/(((1-poisson*poisson)/E)+((1-poisson*poisson)/E));
 	Vector3 _force;
-	for(int i = 0; i<sphCount; ++i, ++s){
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
 		_s = *s;
 		_s.pos += 0.5f*timeStep*_s.speed;
 		_force = Vector3(0,-9.81*_s.mass,0);
@@ -59,14 +59,14 @@ void SphereCalculator::moveStep(){
 	Sphere* s = &sphArr[0];
 	Sphere _s;
 	Scalar timeStepSqr = timeStep*timeStep;
-	for(int i = 0; i<sphCount; ++i, ++s){
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
 		_s = *s;
 		s->pos += s->speed*timeStep + 0.5f*_s.acc*timeStepSqr;
 		s->speed += _s.acc*timeStep;
 	}
 }
 
-unsigned int SphereCalculator::doStep(){
+quint16 SphereCalculator::doStep(){
 	updateData();
 	calculateForces();
 	moveStep();

@@ -20,7 +20,7 @@
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(const QHostAddress& a, const quint16 p){
+ActionSender::ActionSender(QHostAddress a, quint16 p){
 	qDebug()<<"ActionSender: constructor called";
 	addr = new QHostAddress(a);
 	port = p;
@@ -43,10 +43,10 @@ ActionSender::ActionSender(const QHostAddress& a, const quint16 p){
 		}
 	}
 }
-ActionSender::ActionSender(const QString& addr, const quint16 port)
+ActionSender::ActionSender(QString addr, quint16 port)
 	:ActionSender(QHostAddress(addr),port){
 }
-ActionSender::ActionSender(const char* addr, const quint16 port)
+ActionSender::ActionSender(const char* addr, quint16 port)
 	:ActionSender(QString(addr),port){
 }
 
@@ -64,7 +64,7 @@ ActionSender::~ActionSender(){
 	delete socket;
 }
 
-void ActionSender::sendAction(const unsigned char actionGroup, const unsigned char action, QByteArray& arr){
+void ActionSender::sendAction(quint8 actionGroup, quint8 action, QByteArray& arr){
 	QByteArray data;
 	data.append(actionGroup);
 	data.append(action);
@@ -79,17 +79,17 @@ void ActionSender::sendAction(const unsigned char actionGroup, const unsigned ch
 		qDebug()<<"ActionSender: sending"<<Connection::startByte<<((int)actionGroup)<<((int)action)<<"[data]"<<Connection::endByte;
 	}
 }
-void ActionSender::sendAction(const unsigned char actionGroup, const unsigned char action){
+void ActionSender::sendAction(quint8 actionGroup, quint8 action){
 	QByteArray arr;
 	sendAction(actionGroup, action, arr);
 }
 
-QByteArray ActionSender::sendReplyAction(const unsigned char actionGroup, const unsigned char action, QByteArray& arr){
+QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action, QByteArray& arr){
 	socket->readAll(); ///clear buffer
 	sendAction(actionGroup, action, arr);
 	
 	QByteArray retData, data;
-	int endIndex, startIndex;
+	qint16 endIndex, startIndex;
 	bool allDataReceived = false, dataStarted = false;
 	while(!allDataReceived){
 		if(!socket->waitForReadyRead(1000)){
@@ -125,16 +125,16 @@ QByteArray ActionSender::sendReplyAction(const unsigned char actionGroup, const 
 	retData = QByteArray::fromBase64(retData);
 	return retData;
 }
-QByteArray ActionSender::sendReplyAction(const unsigned char actionGroup, const unsigned char action){
+QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action){
 	QByteArray arr;
 	return sendReplyAction(actionGroup, action, arr);
 }
 
-const QString ActionSender::getVersion(){
+QString ActionSender::getVersion(){
 	return sendReplyAction(ActionGroups::basic, BasicActions::getVersion);
 }
 
-const QString ActionSender::getTrueString(){
+QString ActionSender::getTrueString(){
 	return sendReplyAction(ActionGroups::basic, BasicActions::getTrueString);
 }
 
@@ -143,19 +143,19 @@ bool ActionSender::isConnected(){
 	return connectedFlag;
 }
 
-unsigned int ActionSender::addSphere(){
+quint16 ActionSender::addSphere(){
 	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::addOne)).toUInt();
 }
 
-unsigned int ActionSender::removeLastSphere(){
+quint16 ActionSender::removeLastSphere(){
 	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::removeLast)).toUInt();
 }
 
-unsigned int ActionSender::getSphereCount(){
+quint16 ActionSender::getSphereCount(){
 	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getCount)).toUInt();
 }
 
-void ActionSender::updateSphere(unsigned int i, Sphere s){
+void ActionSender::updateSphere(quint16 i, Sphere s){
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<i;
@@ -163,7 +163,7 @@ void ActionSender::updateSphere(unsigned int i, Sphere s){
 	sendAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::updateOne, arr);
 }
 
-void ActionSender::getSphere(unsigned int i, Sphere& s){
+void ActionSender::getSphere(quint16 i, Sphere& s){
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<i;
@@ -171,7 +171,7 @@ void ActionSender::getSphere(unsigned int i, Sphere& s){
 	QDataStream retStream(&retArr, QIODevice::ReadOnly);
 	readSphere(retStream, s);
 }
-void ActionSender::getFullSphere(unsigned int i, Sphere& s){
+void ActionSender::getFullSphere(quint16 i, Sphere& s){
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<i;
@@ -180,7 +180,7 @@ void ActionSender::getFullSphere(unsigned int i, Sphere& s){
 	readFullSphere(retStream, s);
 }
 
-unsigned int ActionSender::calculateStep(){
+quint16 ActionSender::calculateStep(){
 	return QString(sendReplyAction(ActionGroups::calculation, CalculationActions::doOneStep)).toUInt();
 }
 

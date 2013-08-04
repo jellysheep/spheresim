@@ -44,7 +44,7 @@ namespace SphereSim{
 		bool connectedFlag;
 		
 		/** \brief Tells how often connection creating was tried. */
-		unsigned int connectionTryCount;
+		quint16 connectionTryCount;
 		
 		/** \brief Process of the automatically started server. */
 		QProcess process;
@@ -58,13 +58,13 @@ namespace SphereSim{
 		 * \param action Requested action.
 		 * \param data Data that will be sent with the action request.
 		 */
-		void sendAction(const unsigned char actionGroup, const unsigned char action, QByteArray& data);
+		void sendAction(quint8 actionGroup, quint8 action, QByteArray& data);
 		/**
 		 * \brief Sends an action request to the server.
 		 * \param actionGroup Group of the requested action.
 		 * \param action Requested action.
 		 */
-		void sendAction(const unsigned char actionGroup, const unsigned char action);
+		void sendAction(quint8 actionGroup, quint8 action);
 		
 		/**
 		 * \brief Sends an action request and data to the server and returns server reply.
@@ -73,14 +73,14 @@ namespace SphereSim{
 		 * \param data Data that will be sent with the action request.
 		 * \return Reply data from the server.
 		 */
-		QByteArray sendReplyAction(const unsigned char actionGroup, const unsigned char action, QByteArray& data);
+		QByteArray sendReplyAction(quint8 actionGroup, quint8 action, QByteArray& data);
 		/**
 		 * \brief Sends an action request to the server and returns server reply.
 		 * \param actionGroup Group of the requested action.
 		 * \param action Requested action.
 		 * \return Reply data from the server.
 		 */
-		QByteArray sendReplyAction(const unsigned char actionGroup, const unsigned char action);
+		QByteArray sendReplyAction(quint8 actionGroup, quint8 action);
 		
 	public:
 		/**
@@ -88,19 +88,19 @@ namespace SphereSim{
 		 * \param addr The address that the socket will be connecting to.
 		 * \param port The port that the socket will be connecting to.
 		 */
-		ActionSender(const QHostAddress& addr, const quint16 port);
+		ActionSender(QHostAddress addr, quint16 port);
 		/**
 		 * \brief Starts a QTcpSocket with the specified address and port.
 		 * \param addr The address that the socket will be connecting to.
 		 * \param port The port that the socket will be connecting to.
 		 */
-		ActionSender(const QString& addr, const quint16 port);
+		ActionSender(QString addr, quint16 port);
 		/**
 		 * \brief Starts a QTcpSocket with the specified address and port.
 		 * \param addr The address that the socket will be connecting to.
 		 * \param port The port that the socket will be connecting to.
 		 */
-		ActionSender(const char* addr, const quint16 port);
+		ActionSender(const char* addr, quint16 port);
 		
 		~ActionSender();
 		
@@ -108,13 +108,13 @@ namespace SphereSim{
 		 * \brief Asks server for the version number and returns it.
 		 * \return The version string reported by the server.
 		 */
-		const QString getVersion();
+		QString getVersion();
 		
 		/**
 		 * \brief Asks server for a "true" string and returns it.
 		 * \return The "true" string sent by the server.
 		 */
-		const QString getTrueString();
+		QString getTrueString();
 		
 		/**
 		 * \brief Shows if socket is connected.
@@ -126,46 +126,46 @@ namespace SphereSim{
 		 * \brief Requests the server to add one sphere.
 		 * \return Current sphere count reported by server.
 		 */
-		unsigned int addSphere();
+		quint16 addSphere();
 		
 		/**
 		 * \brief Requests the server to remove the last sphere.
 		 * \return Current sphere count reported by server.
 		 */
-		unsigned int removeLastSphere();
+		quint16 removeLastSphere();
 		
 		/**
 		 * \brief Requests the server to send the current sphere count.
 		 * \return Current sphere count reported by server.
 		 */
-		unsigned int getSphereCount();
+		quint16 getSphereCount();
 		
 		/**
 		 * \brief Requests the server to update one sphere.
 		 * \param i Index of the sphere to update.
 		 * \param s Sphere data to update.
 		 */
-		void updateSphere(unsigned int i, Sphere s);
+		void updateSphere(quint16 i, Sphere s);
 		
 		/**
 		 * \brief Requests the server to send one sphere.
 		 * \param i Index of the sphere to send.
 		 * \param s Sphere data to update.
 		 */
-		void getSphere(unsigned int i, Sphere& s);
+		void getSphere(quint16 i, Sphere& s);
 		
 		/**
 		 * \brief Requests the server to send one full sphere.
 		 * \param i Index of the sphere to send.
 		 * \param s Sphere data to update.
 		 */
-		void getFullSphere(unsigned int i, Sphere& s);
+		void getFullSphere(quint16 i, Sphere& s);
 		
 		/**
 		 * \brief Requests the server to calculate one step.
 		 * \return Time in ms needed to calculate the step.
 		 */
-		unsigned int calculateStep();
+		quint16 calculateStep();
 		
 		/**
 		 * \brief Requests the server to set the time step.

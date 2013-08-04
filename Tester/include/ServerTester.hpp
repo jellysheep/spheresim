@@ -31,10 +31,10 @@ namespace SphereSim{
 		ActionSender* sender;
 		
 		/** \brief Tells how many tests have been done. */
-		unsigned int testCounter;
+		quint16 testCounter;
 		
 		/** \brief Tells how many of the tests have been successful. */
-		unsigned int successCounter;
+		quint16 successCounter;
 		
 		/** \brief Tells if the current test is successful. */
 		bool testSuccess;
@@ -48,19 +48,19 @@ namespace SphereSim{
 		 * \param addr The address that the socket will be connecting to.
 		 * \param port The port that the socket will be connecting to.
 		 */
-		ServerTester(const QHostAddress& addr, const quint16 port);
+		ServerTester(QHostAddress addr, quint16 port);
 		/**
 		 * \brief Starts a ServerTester with the specified address and port. 
 		 * \param addr The address that the socket will be connecting to.
 		 * \param port The port that the socket will be connecting to.
 		 */
-		ServerTester(const QString& addr, const quint16 port);
+		ServerTester(QString addr, quint16 port);
 		/**
 		 * \brief Starts a ServerTester with the specified address and port. 
 		 * \param addr The address that the socket will be connecting to.
 		 * \param port The port that the socket will be connecting to.
 		 */
-		ServerTester(const char* addr, const quint16 port);
+		ServerTester(const char* addr, quint16 port);
 		
 		~ServerTester();
 		
@@ -89,7 +89,7 @@ namespace SphereSim{
 			verify##op(t1,t2,__LINE__,TOSTR(t1),TOSTR(t2));
 		#define verifyFunc(name,op,invOp)					\
 		template<typename T1, typename T2>					\
-		void verify##name(T1 t1, T2 t2, unsigned int line,	\
+		void verify##name(T1 t1, T2 t2, quint16 line,		\
 				const char* nameT1, const char* nameT2){	\
 			if(!testSuccess) return;						\
 			if(t1 op t2){									\

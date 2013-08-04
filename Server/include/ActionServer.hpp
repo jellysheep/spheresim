@@ -36,19 +36,19 @@ namespace SphereSim{
 		 * \param addr The address that the server will be listening to. 
 		 * \param port The port that the server will be listening to. 
 		 */
-		ActionServer(const QHostAddress& addr, const quint16 port);
+		ActionServer(QHostAddress addr, quint16 port);
 		/**
 		 * \brief Starts a QTcpServer and listens to the specified port.
 		 * \param addr The address that the server will be listening to. 
 		 * \param port The port that the server will be listening to. 
 		 */
-		ActionServer(const QString& addr, const quint16 port);
+		ActionServer(QString addr, quint16 port);
 		/**
 		 * \brief Starts a QTcpServer and listens to the specified port.
 		 * \param addr The address that the server will be listening to. 
 		 * \param port The port that the server will be listening to. 
 		 */
-		ActionServer(const char* addr, const quint16 port);
+		ActionServer(const char* addr, quint16 port);
 		
 		~ActionServer();
 		

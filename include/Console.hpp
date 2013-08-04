@@ -39,10 +39,10 @@ namespace{
 	class InternalConsole{
 	private:
 		InternalConsole():color(Color::white),font(0){}
-		InternalConsole(unsigned int c, unsigned int f):color(c),font(f){}
+		InternalConsole(quint16 c, quint16 f):color(c),font(f){}
 		
-		unsigned int color;
-		unsigned int font;
+		quint16 color;
+		quint16 font;
 		
 		static QTextStream console;
 		
