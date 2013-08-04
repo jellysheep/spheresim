@@ -160,6 +160,24 @@ namespace SphereSim{
 		 * \param s Sphere data to update.
 		 */
 		void getFullSphere(unsigned int i, Sphere& s);
+		
+		/**
+		 * \brief Requests the server to calculate one step.
+		 * \return Time in ms needed to calculate the step.
+		 */
+		unsigned int calculateStep();
+		
+		/**
+		 * \brief Requests the server to set the time step.
+		 * \param timeStep Requested time step in seconds.
+		 */
+		void setTimeStep(Scalar timeStep);
+		
+		/**
+		 * \brief Requests the server to send the time step.
+		 * \return Sent time step in seconds.
+		 */
+		Scalar getTimeStep();
 	
 	public slots:
 		void connected(){

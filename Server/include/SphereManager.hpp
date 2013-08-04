@@ -12,6 +12,7 @@
 #define _SPHEREMANAGER_HPP_
 
 #include <Sphere.hpp>
+#include <SphereCalculator.hpp>
 
 #include <QVector>
 
@@ -22,8 +23,17 @@ namespace SphereSim{
 	 */
 	class SphereManager{
 	private:
+		/** \brief Provides physical calculations for the spheres. */
+		SphereCalculator sphCalc;
+		
 		/** \brief Holds the spheres managed by the server. */
-		QVector<Sphere> spheres;
+		QVector<Sphere>& spheres;
+		
+		/**
+		 * \brief Gets the SphereCalculator.
+		 * \return Requested SphereCalculator.
+		 */
+		SphereCalculator& getSphereCalculator();
 		
 	public:
 		SphereManager();
@@ -72,6 +82,14 @@ namespace SphereSim{
 		 * \return Copy of the requested sphere.
 		 */
 		Sphere getSphere(unsigned int i);
+		
+		/**
+		 * \brief Calculates the sphere movements for one step.
+		 * \return Millisecond time used to calculate the step.
+		 */
+		unsigned int calculateStep();
+		
+		friend class ActionReceiver;
 	};
 	
 }

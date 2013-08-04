@@ -41,8 +41,10 @@ ServerTester::~ServerTester(){
 }
 
 void ServerTester::runTests(){
+	Console::out<<"\n";
 	runTests_(ActionGroups::basic);
 	runTests_(ActionGroups::spheresUpdating);
+	runTests_(ActionGroups::calculation);
 }
 
 void ServerTester::runTests(ActionGroups::Group actionGroup, const char* groupName){
@@ -58,6 +60,9 @@ void ServerTester::runTests(ActionGroups::Group actionGroup, const char* groupNa
 	case ActionGroups::spheresUpdating:
 		runSpheresUpdatingActionTests();
 		break;
+	case ActionGroups::calculation:
+		runCalculationActionTests();
+		break;
 	default:
 		Console::out<<"ServerTester: ";
 		Console::bold<<"Unknown action group requested. \n";
@@ -70,6 +75,7 @@ void ServerTester::runTests(ActionGroups::Group actionGroup, const char* groupNa
 	}else{
 		Console::redBold<<(testCounter-successCounter)<<" out of "<<testCounter<<" tests failed.\n";
 	}
+	Console::out<<"\n";
 }
 
 void ServerTester::runBasicActionTests(){
@@ -91,16 +97,22 @@ void ServerTester::runBasicActionTests(){
 }
 
 void ServerTester::runSpheresUpdatingActionTests(){
-	verify(sender->getSphereCount(), Equal, 0);
-	verify(sender->addSphere(), Equal, 1);
-	verify(sender->addSphere(), Equal, 2);
-	verify(sender->getSphereCount(), Equal, 2);
-	verify(sender->removeLastSphere(), Equal, 1);
-	verify(sender->addSphere(), Equal, 2);
-	verify(sender->removeLastSphere(), Equal, 1);
-	verify(sender->removeLastSphere(), Equal, 0);
-	verify(sender->removeLastSphere(), Equal, 0);
-	verify(sender->getSphereCount(), Equal, 0);
+	startTest_(SpheresUpdatingActions::getCount);
+		verify(sender->getSphereCount(), Equal, 0);
+	startNewTest_(SpheresUpdatingActions::addOne);
+		verify(sender->addSphere(), Equal, 1);
+		verify(sender->addSphere(), Equal, 2);
+	startNewTest_(SpheresUpdatingActions::getCount);
+		verify(sender->getSphereCount(), Equal, 2);
+	startNewTest_(SpheresUpdatingActions::removeLast);
+		verify(sender->removeLastSphere(), Equal, 1);
+		verify(sender->addSphere(), Equal, 2);
+		verify(sender->removeLastSphere(), Equal, 1);
+		verify(sender->removeLastSphere(), Equal, 0);
+		verify(sender->removeLastSphere(), Equal, 0);
+	startNewTest_(SpheresUpdatingActions::getCount);
+		verify(sender->getSphereCount(), Equal, 0);
+	endTest();
 	
 	sender->addSphere();
 	Sphere s;
@@ -186,6 +198,51 @@ void ServerTester::runSpheresUpdatingActionTests(){
 		verify(sphere.acc(2), Equal, 9);
 		verify(sphere.mass, Equal, 10);
 		verify(sphere.radius, Equal, 11);
+	endTest();
+	sender->removeLastSphere();
+}
+
+void ServerTester::runCalculationActionTests(){
+	Scalar timeStep = 0.01;
+	startTest_(CalculationActions::setTimeStep);
+		sender->setTimeStep(timeStep);
+		verify(timeStep, Equal, sender->getTimeStep());
+	endTest();
+	Sphere s;
+	s.pos(0) = 0.5;
+	s.pos(1) = 0.5;
+	s.pos(2) = 0.5;
+	s.speed(0) = 0;
+	s.speed(1) = 0;
+	s.speed(2) = 0;
+	s.acc(0) = 0;
+	s.acc(1) = 0;
+	s.acc(2) = 0;
+	s.mass = 1;
+	s.radius = 0.1;
+	sender->addSphere();
+	sender->updateSphere(0, s);
+	startTest_(CalculationActions::doOneStep);
+		// simulate bouncing sphere
+		unsigned int expectedTurningPoints = 7;
+		unsigned int stepTime, turningPoints = 0;
+		Scalar pos = s.pos(1), oldPos;
+		Scalar gradient = 0, oldGradient;
+		for(int i = (int)((expectedTurningPoints/3.0f)/timeStep); i>=0; i--){
+			stepTime = sender->calculateStep();
+			verify(stepTime, Greater, 0);
+			sender->getSphere(0, s);
+			oldPos = pos;
+			pos = s.pos(1);
+			oldGradient = gradient;
+			gradient = pos-oldPos;
+			if(gradient*oldGradient < 0 || gradient == 0){
+				// turning point detected
+				turningPoints++;
+			}
+		}
+		verify(turningPoints, GreaterOrEqual, expectedTurningPoints-1);
+		verify(turningPoints, SmallerOrEqual, expectedTurningPoints+1);
 	endTest();
 }
 

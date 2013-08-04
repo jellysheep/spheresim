@@ -50,6 +50,8 @@ set(HEADERS
 	${PROJECT_INCLUDE_DIR}/Sphere.hpp
 	${PROJECT_INCLUDE_DIR}/SphereTransmit.hpp
 	${PROJECT_INCLUDE_DIR}/Console.hpp
+	${PROJECT_INCLUDE_DIR}/Dimension.hpp
+	${PROJECT_INCLUDE_DIR}/Wall.hpp
 )
 
 #documentation:

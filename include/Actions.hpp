@@ -20,7 +20,8 @@ namespace SphereSim{
 	namespace ActionGroups{
 		enum Group{
 			basic = 1,
-			spheresUpdating
+			spheresUpdating,
+			calculation
 		};
 	}
 	
@@ -46,6 +47,17 @@ namespace SphereSim{
 			getCount,
 			getOne,
 			getOneFull
+		};
+	}
+	
+	/**
+	 * \brief Actions that calculate the physical movements.
+	 */
+	namespace CalculationActions{
+		enum Action{
+			doOneStep = 1,
+			setTimeStep,
+			getTimeStep
 		};
 	}
 	

@@ -13,6 +13,7 @@
 
 #include <Actions.hpp>
 #include <SphereManager.hpp>
+#include <SphereCalculator.hpp>
 
 #include <QObject>
 
@@ -72,6 +73,14 @@ namespace SphereSim{
 		void handleSpheresUpdatingAction(const unsigned char actionGroup, const unsigned char action, QByteArray data);
 		
 		/**
+		 * \brief Handles requests that calculate spheres physics.
+		 * \param actionGroup Action group that will be handled.
+		 * \param action Action that will be handled.
+		 * \param data Data sent with the action request.
+		 */
+		void handleCalculationAction(const unsigned char actionGroup, const unsigned char action, QByteArray data);
+		
+		/**
 		 * \brief Handles all unknown action group requests.
 		 * \param actionGroup Action group that is unknown.
 		 * \param action Action that will be handled.
@@ -95,6 +104,9 @@ namespace SphereSim{
 		
 		/** \brief Stores sphere data. */
 		SphereManager sphMan;
+		
+		/** \brief Stores sphere data. */
+		SphereCalculator& sphCalc;
 		
 	public:
 		/**

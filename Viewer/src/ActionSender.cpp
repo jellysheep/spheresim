@@ -144,15 +144,15 @@ bool ActionSender::isConnected(){
 }
 
 unsigned int ActionSender::addSphere(){
-	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::addOne)).toInt();
+	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::addOne)).toUInt();
 }
 
 unsigned int ActionSender::removeLastSphere(){
-	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::removeLast)).toInt();
+	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::removeLast)).toUInt();
 }
 
 unsigned int ActionSender::getSphereCount(){
-	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getCount)).toInt();
+	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getCount)).toUInt();
 }
 
 void ActionSender::updateSphere(unsigned int i, Sphere s){
@@ -178,4 +178,23 @@ void ActionSender::getFullSphere(unsigned int i, Sphere& s){
 	QByteArray retArr = sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getOneFull, arr);
 	QDataStream retStream(&retArr, QIODevice::ReadOnly);
 	readFullSphere(retStream, s);
+}
+
+unsigned int ActionSender::calculateStep(){
+	return QString(sendReplyAction(ActionGroups::calculation, CalculationActions::doOneStep)).toUInt();
+}
+
+void ActionSender::setTimeStep(Scalar timeStep){
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<timeStep;
+	sendAction(ActionGroups::calculation, CalculationActions::setTimeStep, arr);
+}
+
+Scalar ActionSender::getTimeStep(){
+	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::getTimeStep);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	Scalar timeStep;
+	retStream>>timeStep;
+	return timeStep;
 }

@@ -19,7 +19,7 @@
 
 using namespace SphereSim;
 
-ActionReceiver::ActionReceiver(QTcpSocket* sock){
+ActionReceiver::ActionReceiver(QTcpSocket* sock):sphMan(),sphCalc(sphMan.getSphereCalculator()){
 	collectingRequestData = false;
 	socket = sock;
 	connect(socket, SIGNAL(disconnected()), SLOT(deleteLater()));
@@ -115,6 +115,9 @@ void ActionReceiver::handleAction(const unsigned char actionGroup, const unsigne
 	case ActionGroups::spheresUpdating:
 		handleSpheresUpdatingAction(actionGroup, action, data);
 		break;
+	case ActionGroups::calculation:
+		handleCalculationAction(actionGroup, action, data);
+		break;
 	default:
 		handleUnknownActionGroup(actionGroup, action, data);
 		break;
@@ -182,6 +185,29 @@ void ActionReceiver::handleSpheresUpdatingAction(const unsigned char actionGroup
 	}
 }
 
+void ActionReceiver::handleCalculationAction(const unsigned char actionGroup, const unsigned char action, QByteArray data){
+	QDataStream stream(&data, QIODevice::ReadOnly);
+	QByteArray retData;
+	QDataStream retStream(&retData, QIODevice::WriteOnly);
+	Scalar s;
+	switch(action){
+	case CalculationActions::doOneStep:
+		sendReply(QString::number(sphMan.calculateStep()).toUtf8());
+		break;
+	case CalculationActions::setTimeStep:
+		stream>>s;
+		sphCalc.setTimeStep(s);
+		break;
+	case CalculationActions::getTimeStep:
+		retStream<<sphCalc.getTimeStep();
+		sendReply(retData);
+		break;
+	default:
+		handleUnknownAction(actionGroup, action, data);
+		break;
+	}
+}
+
 void ActionReceiver::handleUnknownActionGroup(const unsigned char actionGroup, const unsigned char action, QByteArray data){
 	qWarning()<<"ActionReceiver: Warning: received unknown action group"
 		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
@@ -200,7 +226,7 @@ void ActionReceiver::sendReply(const QByteArray& arr){
 	data.append(Connection::endByte);
 	socket->write(data);
 	if(arr.size()<50){
-		qDebug()<<"ActionReceiver: sending"<<Connection::startByte<<arr<<Connection::endByte<<data;
+		qDebug()<<"ActionReceiver: sending"<<Connection::startByte<<data<<Connection::endByte<<data;
 	}else{
 		qDebug()<<"ActionReceiver: sending"<<Connection::startByte<<"[data]"<<Connection::endByte;
 	}

@@ -81,6 +81,9 @@ namespace SphereSim{
 		/** \brief Runs all tests of the sphere updating actions. */
 		void runSpheresUpdatingActionTests();
 		
+		/** \brief Runs all tests of the sphere calculating sphere movements. */
+		void runCalculationActionTests();
+		
 		/** \brief Verifies a comparison and displays result on console. */
 		#define verify(t1,op,t2)							\
 			verify##op(t1,t2,__LINE__,TOSTR(t1),TOSTR(t2));
