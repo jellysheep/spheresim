@@ -10,8 +10,9 @@
 
 #include <ActionSender.hpp>
 #include <Connection.hpp>
+#include <ui_MainWindow.h>
 
-#include <QCoreApplication>
+#include <QApplication>
 #include <QString>
 #include <QDebug>
 
@@ -23,12 +24,19 @@ using namespace SphereSim;
  */
 
 int main(int argc, char** argv){
-	QCoreApplication app(argc, argv);
+	QApplication app(argc, argv);
+	app.setStyle("fusion");
+	
+	QMainWindow qMainWindow;
+	Ui::MainWindow mainWindow;
+	mainWindow.setupUi(&qMainWindow);
+	qMainWindow.show();
+	
 	ActionSender actSend(Connection::defaultAddress, Connection::defaultPort);
 	QString version = actSend.getVersion();
 	qDebug()<<version;
 	QString trueStr = actSend.getTrueString();
 	qDebug()<<trueStr;
 	
-	return 0;
+	return app.exec();
 }
