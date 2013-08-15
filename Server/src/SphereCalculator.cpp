@@ -9,6 +9,7 @@
  */
 
 #include <SphereCalculator.hpp>
+#include <Console.hpp>
 
 #include <QDebug>
 #include <cmath>
@@ -20,6 +21,7 @@ SphereCalculator::SphereCalculator(){
 	updateData();
 	boxSize = Vector3(1,1,1);
 	timeStep = 0.002;
+	setIntegratorMethod(IntegratorMethods::RungeKutta4);
 }
 
 QVector<Sphere>& SphereCalculator::getSpheres(){
@@ -29,7 +31,7 @@ QVector<Sphere>& SphereCalculator::getSpheres(){
 void SphereCalculator::calculateForces(){
 	qDebug()<<"SphereCalculator: calculating "<<sphCount<<" sphere forces";
 	
-	static Scalar E = 50000, poisson = 0.5;
+	static Scalar E = 5000, poisson = 0.5;
 	
 	Sphere* s = &sphArr[0];
 	Sphere _s;
@@ -38,7 +40,6 @@ void SphereCalculator::calculateForces(){
 	Vector3 _force;
 	for(quint16 i = 0; i<sphCount; ++i, ++s){
 		_s = *s;
-		_s.pos += 0.5f*timeStep*_s.speed;
 		_force = Vector3(0,-9.81*_s.mass,0);
 		for(int dim = 0; dim<3; dim++){
 			if((d = (_s.radius - _s.pos(dim))) > 0){
@@ -54,22 +55,10 @@ void SphereCalculator::calculateForces(){
 	}
 }
 
-void SphereCalculator::moveStep(){
-	qDebug()<<"SphereCalculator: moving "<<sphCount<<" spheres";
-	Sphere* s = &sphArr[0];
-	Sphere _s;
-	Scalar timeStepSqr = timeStep*timeStep;
-	for(quint16 i = 0; i<sphCount; ++i, ++s){
-		_s = *s;
-		s->pos += s->speed*timeStep + 0.5f*_s.acc*timeStepSqr;
-		s->speed += _s.acc*timeStep;
-	}
-}
-
 quint16 SphereCalculator::doStep(){
 	updateData();
-	calculateForces();
-	moveStep();
+	qDebug()<<"SphereCalculator: moving "<<sphCount<<" spheres";
+	(this->*stepMethod)();
 	return 1;
 }
 
@@ -84,4 +73,145 @@ void SphereCalculator::setTimeStep(Scalar timeSt){
 
 Scalar SphereCalculator::getTimeStep(){
 	return timeStep;
+}
+
+void SphereCalculator::doEulerCauchyStep(){
+	calculateForces();
+	Sphere* s = &sphArr[0];
+	Sphere _s;
+	Scalar timeStepSqr = timeStep*timeStep;
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
+		_s = *s;
+		s->pos += _s.speed*timeStep + 0.5f*_s.acc*timeStepSqr;
+		s->speed += _s.acc*timeStep;
+	}
+}
+
+void SphereCalculator::doMidpointStep(){
+	QVector<Vector3> oldPos(sphCount), oldAcc(sphCount);
+	Sphere* s = &sphArr[0];
+	Sphere _s;
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
+		oldAcc[i] = s->acc;
+		oldPos[i] = s->pos;
+		s->pos += s->speed*timeStep/2;
+	}
+	calculateForces();
+	s = &sphArr[0];
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
+		_s = *s;
+		s->pos = oldPos[i] + s->speed*timeStep + 0.5*s->acc*timeStep*timeStep;
+		s->speed += s->acc*timeStep;
+	}
+}
+
+void SphereCalculator::doRungeKutta4Step(){
+	QVector<Vector3> k1(sphCount), k2(sphCount), k3(sphCount), k4(sphCount),
+		k5(sphCount), k6(sphCount), k7(sphCount), k8(sphCount), oldPos(sphCount);
+	Sphere* s = &sphArr[0];
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
+		oldPos[i] = s->pos;
+		k1[i] = s->speed;
+	}
+	calculateForces();
+	s = &sphArr[0];
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
+		k5[i] = s->acc;
+		k2[i] = k1[i] + 0.5*timeStep*k5[i];
+		s->pos += 0.5*timeStep*k1[i];
+		s->speed = k1[i] + 0.5*timeStep*k5[i];
+	}
+	calculateForces();
+	s = &sphArr[0];
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
+		k6[i] = s->acc;
+		k3[i] = k1[i] + 0.5*timeStep*k6[i];
+		s->pos = oldPos[i] + 0.5*timeStep*k2[i];
+		s->speed = k1[i] + 0.5*timeStep*k6[i];
+	}
+	calculateForces();
+	s = &sphArr[0];
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
+		k7[i] = s->acc;
+		k4[i] = k1[i] + timeStep*k7[i];
+		s->pos = oldPos[i] + 0.5*timeStep*k3[i];
+		s->speed = k1[i] + timeStep*k7[i]; //
+	}
+	calculateForces();
+	s = &sphArr[0];
+	Scalar q, q_max = 0;
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
+		k8[i] = s->acc;
+		
+		s->pos = oldPos[i] + timeStep/6.0 * (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]);
+		s->speed = k1[i] + timeStep/6.0 * (k5[i] + 2*k6[i] + 2*k7[i] + k8[i]);
+		
+		q = std::abs((k3[i][0]-k2[i][0])/(k2[i][0]-k1[i][0]));
+		q_max = fmax(q, q_max);
+		q = std::abs((k3[i][1]-k2[i][1])/(k2[i][1]-k1[i][1]));
+		q_max = fmax(q, q_max);
+		q = std::abs((k3[i][2]-k2[i][2])/(k2[i][2]-k1[i][2]));
+		q_max = fmax(q, q_max);
+	}
+	if(q_max>0.1){
+		Console::redBold<<"SphereCalculator: RK4: q ("<<q_max<<") too big, use smaller time step.\n";
+	}
+}
+
+void SphereCalculator::doLeapfrogStep(){
+	QVector<Vector3> oldAcc(sphCount);
+	Sphere* s = &sphArr[0];
+	Sphere _s;
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
+		oldAcc[i] = s->acc;
+		s->pos += s->speed*timeStep;
+	}
+	calculateForces();
+	s = &sphArr[0];
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
+		_s = *s;
+		s->pos += 0.5*s->acc*timeStep*timeStep;
+		s->speed += 0.5*(oldAcc[i]+s->acc)*timeStep;
+	}
+}
+
+void SphereCalculator::doSemiImplicitEulerStep(){
+	calculateForces();
+	Sphere* s = &sphArr[0];
+	Sphere _s;
+	for(quint16 i = 0; i<sphCount; ++i, ++s){
+		_s = *s;
+		s->speed += _s.acc*timeStep;
+		s->pos += s->speed*timeStep;
+	}
+}
+
+void SphereCalculator::setIntegratorMethod(quint8 integrMethod){
+	integratorMethod = integrMethod;
+	
+	switch(integrMethod){
+	case IntegratorMethods::EulerCauchy:
+		stepMethod = &SphereCalculator::doEulerCauchyStep;
+		break;
+	case IntegratorMethods::Midpoint:
+		stepMethod = &SphereCalculator::doMidpointStep;
+		break;
+	case IntegratorMethods::RungeKutta4:
+		stepMethod = &SphereCalculator::doRungeKutta4Step;
+		break;
+	case IntegratorMethods::Leapfrog:
+		stepMethod = &SphereCalculator::doLeapfrogStep;
+		break;
+	case IntegratorMethods::SemiImplicitEuler:
+		stepMethod = &SphereCalculator::doSemiImplicitEulerStep;
+		break;
+	default:
+		integrMethod = IntegratorMethods::RungeKutta4;
+		stepMethod = &SphereCalculator::doRungeKutta4Step;
+		break;
+	}
+}
+
+quint8 SphereCalculator::getIntegratorMethod(){
+	return integratorMethod;
 }

@@ -57,7 +57,9 @@ namespace SphereSim{
 		enum Action{
 			doOneStep = 1,
 			setTimeStep,
-			getTimeStep
+			getTimeStep,
+			setIntegratorMethod,
+			getIntegratorMethod
 		};
 	}
 	

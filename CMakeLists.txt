@@ -52,6 +52,7 @@ set(HEADERS
 	${PROJECT_INCLUDE_DIR}/Console.hpp
 	${PROJECT_INCLUDE_DIR}/Dimension.hpp
 	${PROJECT_INCLUDE_DIR}/Wall.hpp
+	${PROJECT_INCLUDE_DIR}/Integrators.hpp
 )
 
 #documentation:

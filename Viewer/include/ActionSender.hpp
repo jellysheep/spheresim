@@ -178,6 +178,18 @@ namespace SphereSim{
 		 * \return Sent time step in seconds.
 		 */
 		Scalar getTimeStep();
+		
+		/**
+		 * \brief Requests the server to set the integrator method.
+		 * \param integratorMethod Requested integrator method.
+		 */
+		void setIntegratorMethod(quint8 integratorMethod);
+		
+		/**
+		 * \brief Requests the server to send the integrator method.
+		 * \return Sent integrator method.
+		 */
+		quint8 getIntegratorMethod();
 	
 	public slots:
 		void connected(){

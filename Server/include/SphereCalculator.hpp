@@ -12,6 +12,7 @@
 #define _SPHERECALCULATOR_HPP_
 
 #include <Sphere.hpp>
+#include <Integrators.hpp>
 
 #include <QVector>
 
@@ -44,11 +45,29 @@ namespace SphereSim{
 		/** \brief Calculates the current sphere forces. */
 		void calculateForces();
 		
-		/** \brief Calculates one step of the sphere movements. */
-		void moveStep();
-		
 		/** \brief Updates local data about spheres. */
 		void updateData();
+		
+		/** \brief Stores which method is used to solve the differential equations. */
+		quint8 integratorMethod;
+		
+		/** \brief Integrates one step of the differential equations using the Euler Cauchy method. */
+		void doEulerCauchyStep();
+		
+		/** \brief Integrates one step of the differential equations using the Midpoint method. */
+		void doMidpointStep();
+		
+		/** \brief Integrates one step of the differential equations using the Runge Kutta method (RK4). */
+		void doRungeKutta4Step();
+		
+		/** \brief Integrates one step of the differential equations using the leapfrog method. */
+		void doLeapfrogStep();
+		
+		/** \brief Integrates one step of the differential equations using the Semi-implicit Euler method. */
+		void doSemiImplicitEulerStep();
+		
+		/** \brief Stores the method used to calculate one step of the sphere movements. */
+		void (SphereCalculator::*stepMethod)();
 		
 	public:
 		SphereCalculator();
@@ -70,6 +89,18 @@ namespace SphereSim{
 		 * \return Requested time step in seconds.
 		 */
 		Scalar getTimeStep();
+		
+		/**
+		 * \brief Sets the integrator method.
+		 * \param integrMethod Requested integrator method.
+		 */
+		void setIntegratorMethod(quint8 integrMethod);
+		
+		/**
+		 * \brief Gets the integrator method.
+		 * \return Requested integrator method.
+		 */
+		quint8 getIntegratorMethod();
 		
 		friend class SphereManager;
 	};

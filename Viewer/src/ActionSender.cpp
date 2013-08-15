@@ -198,3 +198,18 @@ Scalar ActionSender::getTimeStep(){
 	retStream>>timeStep;
 	return timeStep;
 }
+
+void ActionSender::setIntegratorMethod(quint8 integratorMethod){
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<integratorMethod;
+	sendAction(ActionGroups::calculation, CalculationActions::setIntegratorMethod, arr);
+}
+
+quint8 ActionSender::getIntegratorMethod(){
+	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::getIntegratorMethod);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	quint8 integratorMethod;
+	retStream>>integratorMethod;
+	return integratorMethod;
+}

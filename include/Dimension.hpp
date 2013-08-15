@@ -13,7 +13,7 @@
 
 #include <QTextStream>
 
-namespace{
+namespace SphereSim{
 	
 	/**
 	 * \brief Helper class that saves dimension state.

@@ -23,16 +23,16 @@ typedef FLOATING_TYPE Scalar;
 #if USE_EIGEN_LIBRARY
 	//#define NDEBUG
 	#include <Eigen/Dense>
-	typedef Eigen::Matrix<FLOATING_TYPE, 1, 1> Vector1;
-	typedef Eigen::Matrix<FLOATING_TYPE, 2, 1> Vector2;
-	typedef Eigen::Matrix<FLOATING_TYPE, 3, 1> Vector3;
-	typedef Eigen::Matrix<FLOATING_TYPE, 4, 1> Vector4;
+	typedef Eigen::Matrix<Scalar, 1, 1> Vector1;
+	typedef Eigen::Matrix<Scalar, 2, 1> Vector2;
+	typedef Eigen::Matrix<Scalar, 3, 1> Vector3;
+	typedef Eigen::Matrix<Scalar, 4, 1> Vector4;
 #else
 	#include <VectorLib.hpp>
-	typedef LibVector<FLOATING_TYPE, 1> Vector1;
-	typedef LibVector<FLOATING_TYPE, 2> Vector2;
-	typedef LibVector<FLOATING_TYPE, 3> Vector3;
-	typedef LibVector<FLOATING_TYPE, 4> Vector4;
+	typedef LibVector<Scalar, 1> Vector1;
+	typedef LibVector<Scalar, 2> Vector2;
+	typedef LibVector<Scalar, 3> Vector3;
+	typedef LibVector<Scalar, 4> Vector4;
 #endif
 
 #endif

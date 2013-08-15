@@ -10,6 +10,7 @@
 
 #include <ActionSender.hpp>
 #include <ServerTester.hpp>
+#include <Integrators.hpp>
 
 #include <QTcpServer>
 #include <QProcess>
@@ -20,6 +21,14 @@
 	startTest(TOSTR(x));
 #define startNewTest_(x) \
 	startNewTest(TOSTR(x));
+
+#define runCalculationActionTests_internal_(integratorMethod){			\
+	startTest_(integratorMethod);										\
+		sender->setIntegratorMethod(integratorMethod);					\
+		verify(sender->getIntegratorMethod(), Equal, integratorMethod);	\
+		runCalculationActionTests_internal();							\
+	endTest();															\
+}
 
 using namespace SphereSim;
 
@@ -203,15 +212,25 @@ void ServerTester::runSpheresUpdatingActionTests(){
 }
 
 void ServerTester::runCalculationActionTests(){
-	Scalar timeStep = 0.01;
+	Scalar timeStep = 0.0002;
 	startTest_(CalculationActions::setTimeStep);
 		sender->setTimeStep(timeStep);
 		verify(timeStep, Equal, sender->getTimeStep());
 	endTest();
+	sender->addSphere();
+	
+	runCalculationActionTests_internal_(IntegratorMethods::EulerCauchy);
+	runCalculationActionTests_internal_(IntegratorMethods::Midpoint);
+	runCalculationActionTests_internal_(IntegratorMethods::RungeKutta4);
+	runCalculationActionTests_internal_(IntegratorMethods::Leapfrog);
+	runCalculationActionTests_internal_(IntegratorMethods::SemiImplicitEuler);
+}
+
+void ServerTester::runCalculationActionTests_internal(){
 	Sphere s;
-	s.pos(0) = 0.5;
-	s.pos(1) = 0.5;
-	s.pos(2) = 0.5;
+	s.pos(0) = 0.11;
+	s.pos(1) = 0.11;
+	s.pos(2) = 0.11;
 	s.speed(0) = 0;
 	s.speed(1) = 0;
 	s.speed(2) = 0;
@@ -220,30 +239,27 @@ void ServerTester::runCalculationActionTests(){
 	s.acc(2) = 0;
 	s.mass = 1;
 	s.radius = 0.1;
-	sender->addSphere();
 	sender->updateSphere(0, s);
-	startTest_(CalculationActions::doOneStep);
-		// simulate bouncing sphere
-		quint16 expectedTurningPoints = 5, turningPoints = 0;
-		quint16 stepTime;
-		Scalar pos = s.pos(1), oldPos;
-		Scalar gradient = 0, oldGradient;
-		for(quint16 i = (quint16)((expectedTurningPoints/3.0f)/timeStep)+1; i>0; i--){
-			stepTime = sender->calculateStep();
-			verify(stepTime, Greater, 0);
-			sender->getSphere(0, s);
-			oldPos = pos;
-			pos = s.pos(1);
-			oldGradient = gradient;
-			gradient = pos-oldPos;
-			if(gradient*oldGradient < 0 || gradient == 0){
-				// turning point detected
-				turningPoints++;
-			}
+	
+	quint16 expectedTurningPoints = 3, turningPoints = 0;
+	quint16 stepTime;
+	Scalar pos = s.pos(1), oldPos;
+	Scalar gradient = 0, oldGradient;
+	for(quint16 i = 650*expectedTurningPoints; i>0; i--){
+		stepTime = sender->calculateStep();
+		verify(stepTime, Greater, 0);
+		sender->getSphere(0, s);
+		oldPos = pos;
+		pos = s.pos(1);
+		oldGradient = gradient;
+		gradient = pos-oldPos;
+		if(gradient*oldGradient < 0 || oldGradient == 0){
+			// turning point detected
+			turningPoints++;
 		}
-		verify(turningPoints, GreaterOrEqual, expectedTurningPoints-1);
-		verify(turningPoints, SmallerOrEqual, expectedTurningPoints+1);
-	endTest();
+	}
+	verify(turningPoints, GreaterOrEqual, expectedTurningPoints-1);
+	verify(turningPoints, SmallerOrEqual, expectedTurningPoints+1);
 }
 
 void ServerTester::startTest(const char* actionName){

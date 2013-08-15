@@ -190,6 +190,7 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	Scalar s;
+	quint8 integratorMethod;
 	switch(action){
 	case CalculationActions::doOneStep:
 		sendReply(QString::number(sphMan.calculateStep()).toUtf8());
@@ -200,6 +201,14 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 		break;
 	case CalculationActions::getTimeStep:
 		retStream<<sphCalc.getTimeStep();
+		sendReply(retData);
+		break;
+	case CalculationActions::setIntegratorMethod:
+		stream>>integratorMethod;
+		sphCalc.setIntegratorMethod(integratorMethod);
+		break;
+	case CalculationActions::getIntegratorMethod:
+		retStream<<sphCalc.getIntegratorMethod();
 		sendReply(retData);
 		break;
 	default:
