@@ -37,6 +37,7 @@ ServerTester::ServerTester(QHostAddress addr, quint16 port){
 	sender = new ActionSender(addr, port);
 	testCounter = 0;
 	successCounter = 0;
+	testSuccess = true;
 }
 ServerTester::ServerTester(QString addr, quint16 port)
 	:ServerTester(QHostAddress(addr),port){
