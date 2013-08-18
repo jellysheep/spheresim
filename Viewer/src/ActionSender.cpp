@@ -73,11 +73,6 @@ void ActionSender::sendAction(quint8 actionGroup, quint8 action, QByteArray& arr
 	data.prepend(Connection::startByte);
 	data.append(Connection::endByte);
 	socket->write(data);
-	if(arr.size()<50){
-		qDebug()<<"ActionSender: sending"<<Connection::startByte<<((int)actionGroup)<<((int)action)<<arr<<Connection::endByte<<data;
-	}else{
-		qDebug()<<"ActionSender: sending"<<Connection::startByte<<((int)actionGroup)<<((int)action)<<"[data]"<<Connection::endByte;
-	}
 }
 void ActionSender::sendAction(quint8 actionGroup, quint8 action){
 	QByteArray arr;

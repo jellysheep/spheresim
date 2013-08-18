@@ -29,8 +29,6 @@ QVector<Sphere>& SphereCalculator::getSpheres(){
 }
 
 void SphereCalculator::calculateForces(){
-	qDebug()<<"SphereCalculator: calculating "<<sphCount<<" sphere forces";
-	
 	static Scalar E = 5000, poisson = 0.5;
 	
 	Sphere* s = &sphArr[0];
@@ -57,7 +55,6 @@ void SphereCalculator::calculateForces(){
 
 quint16 SphereCalculator::doStep(){
 	updateData();
-	qDebug()<<"SphereCalculator: moving "<<sphCount<<" spheres";
 	(this->*stepMethod)();
 	return 1;
 }
@@ -107,9 +104,6 @@ void SphereCalculator::doMidpointStep(){
 
 void SphereCalculator::doRungeKutta4Step(){
 	quint16 steps = doRungeKutta4Step_internal(timeStep);
-	if(steps>1){
-		Console::greenBold<<"SphereCalculator: "<<steps<<" steps used.\n";
-	}
 }
 
 quint16 SphereCalculator::doRungeKutta4Step_internal(Scalar step){

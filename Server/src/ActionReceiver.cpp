@@ -46,13 +46,11 @@ void ActionReceiver::processData(QByteArray byteArray){
 		if(startIndex<0){
 			///no endByte or startByte
 			if(collectingRequestData){
-				qDebug()<<"ActionReceiver: appending data to byteArrayay";
 				requestData.append(byteArray);
 			}
 		}else{
 			///only startByte
 			if(!collectingRequestData){
-				qDebug()<<"ActionReceiver: creating new data byteArrayay";
 				//what if last request did not end correctly? next request would be skipped (waiting for endByte)...
 				collectingRequestData = true;
 				requestData = byteArray.right(byteArray.size()-startIndex-1);
@@ -62,7 +60,6 @@ void ActionReceiver::processData(QByteArray byteArray){
 		if(startIndex<0){
 			///only endByte
 			if(collectingRequestData){
-				qDebug()<<"ActionReceiver: appending data and finishing byteArrayay";
 				requestData.append(byteArray.left(endIndex));
 				collectingRequestData = false;
 				processRequest();
@@ -71,7 +68,6 @@ void ActionReceiver::processData(QByteArray byteArray){
 			///startByte and endByte
 			if(startIndex<endIndex){
 				///startByte before endByte
-				qDebug()<<"ActionReceiver: creating and finishing new data byteArrayay";
 				requestData = byteArray.mid(startIndex+1, endIndex-startIndex-1);
 				collectingRequestData = false;
 				processRequest();
@@ -79,7 +75,6 @@ void ActionReceiver::processData(QByteArray byteArray){
 			}else{
 				///endByte before startByte
 				if(collectingRequestData){
-					qDebug()<<"ActionReceiver: finishing and creating new data byteArrayay";
 					requestData.append(byteArray.left(endIndex));
 					collectingRequestData = false;
 					processRequest();
@@ -98,11 +93,6 @@ void ActionReceiver::processRequest(){
 		data = data.right(data.length()-2);
 	}else{
 		data.clear();
-	}
-	if(data.size()<50){
-		qDebug()<<"ActionReceiver: receiving"<<Connection::startByte<<((int)actionGroup)<<((int)action)<<data<<Connection::endByte;
-	}else{
-		qDebug()<<"ActionReceiver: receiving"<<Connection::startByte<<((int)actionGroup)<<((int)action)<<"[data]"<<Connection::endByte;
 	}
 	handleAction(actionGroup, action, data);
 }
@@ -237,9 +227,4 @@ void ActionReceiver::sendReply(const QByteArray& arr){
 	data.prepend(Connection::startByte);
 	data.append(Connection::endByte);
 	socket->write(data);
-	if(arr.size()<50){
-		qDebug()<<"ActionReceiver: sending"<<Connection::startByte<<data<<Connection::endByte<<data;
-	}else{
-		qDebug()<<"ActionReceiver: sending"<<Connection::startByte<<"[data]"<<Connection::endByte;
-	}
 }
