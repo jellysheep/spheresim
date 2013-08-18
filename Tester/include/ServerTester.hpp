@@ -118,6 +118,10 @@ namespace SphereSim{
 		verifyFunc(GreaterOrEqual,>=,<);
 		verifyFunc(SmallerOrEqual,<=,>);
 		
+		#define verifyApproxEqual(t1,t2,line,str1,str2)		\
+			verifySmallerOrEqual(fabs(t1-t2),0.0001*(t1+t2),\
+			line,"| " str1 " - " str2 " |","0.0001*(t1+t2)");
+		
 		/**
 		 * \brief Informs that a new test will be started.
 		 * \param actionName Name of the action that will be tested.

@@ -59,6 +59,12 @@ namespace SphereSim{
 		
 		/** \brief Integrates one step of the differential equations using the Runge Kutta method (RK4). */
 		void doRungeKutta4Step();
+		/**
+		 * \brief Integrates one step of the differential equations using the Runge Kutta method (RK4).
+		 * \param step Time step in seconds.
+		 * \return Internal steps used.
+		 */
+		quint16 doRungeKutta4Step_internal(Scalar step);
 		
 		/** \brief Integrates one step of the differential equations using the leapfrog method. */
 		void doLeapfrogStep();

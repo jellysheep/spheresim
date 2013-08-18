@@ -190,6 +190,12 @@ namespace SphereSim{
 		 * \return Sent integrator method.
 		 */
 		quint8 getIntegratorMethod();
+		
+		/**
+		 * \brief Asks server for the floating type and returns it.
+		 * \return The floating type string sent by the server.
+		 */
+		QString getFloatingType();
 	
 	public slots:
 		void connected(){

@@ -106,8 +106,16 @@ void SphereCalculator::doMidpointStep(){
 }
 
 void SphereCalculator::doRungeKutta4Step(){
+	quint16 steps = doRungeKutta4Step_internal(timeStep);
+	if(steps>1){
+		Console::greenBold<<"SphereCalculator: "<<steps<<" steps used.\n";
+	}
+}
+
+quint16 SphereCalculator::doRungeKutta4Step_internal(Scalar step){
 	QVector<Vector3> k1(sphCount), k2(sphCount), k3(sphCount), k4(sphCount),
 		k5(sphCount), k6(sphCount), k7(sphCount), k8(sphCount), oldPos(sphCount);
+	Scalar q, q_max = 0;
 	Sphere* s = &sphArr[0];
 	for(quint16 i = 0; i<sphCount; ++i, ++s){
 		oldPos[i] = s->pos;
@@ -117,34 +125,17 @@ void SphereCalculator::doRungeKutta4Step(){
 	s = &sphArr[0];
 	for(quint16 i = 0; i<sphCount; ++i, ++s){
 		k5[i] = s->acc;
-		k2[i] = k1[i] + 0.5*timeStep*k5[i];
-		s->pos += 0.5*timeStep*k1[i];
-		s->speed = k1[i] + 0.5*timeStep*k5[i];
+		k2[i] = k1[i] + 0.5*step*k5[i];
+		s->pos += 0.5*step*k1[i];
+		s->speed = k1[i] + 0.5*step*k5[i];
 	}
 	calculateForces();
 	s = &sphArr[0];
 	for(quint16 i = 0; i<sphCount; ++i, ++s){
 		k6[i] = s->acc;
-		k3[i] = k1[i] + 0.5*timeStep*k6[i];
-		s->pos = oldPos[i] + 0.5*timeStep*k2[i];
-		s->speed = k1[i] + 0.5*timeStep*k6[i];
-	}
-	calculateForces();
-	s = &sphArr[0];
-	for(quint16 i = 0; i<sphCount; ++i, ++s){
-		k7[i] = s->acc;
-		k4[i] = k1[i] + timeStep*k7[i];
-		s->pos = oldPos[i] + 0.5*timeStep*k3[i];
-		s->speed = k1[i] + timeStep*k7[i]; //
-	}
-	calculateForces();
-	s = &sphArr[0];
-	Scalar q, q_max = 0;
-	for(quint16 i = 0; i<sphCount; ++i, ++s){
-		k8[i] = s->acc;
-		
-		s->pos = oldPos[i] + timeStep/6.0 * (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]);
-		s->speed = k1[i] + timeStep/6.0 * (k5[i] + 2*k6[i] + 2*k7[i] + k8[i]);
+		k3[i] = k1[i] + 0.5*step*k6[i];
+		s->pos = oldPos[i] + 0.5*step*k2[i];
+		s->speed = k1[i] + 0.5*step*k6[i];
 		
 		q = std::abs((k3[i][0]-k2[i][0])/(k2[i][0]-k1[i][0]));
 		q_max = fmax(q, q_max);
@@ -154,7 +145,28 @@ void SphereCalculator::doRungeKutta4Step(){
 		q_max = fmax(q, q_max);
 	}
 	if(q_max>0.1){
-		Console::redBold<<"SphereCalculator: RK4: q ("<<q_max<<") too big, use smaller time step.\n";
+		quint16 steps = 0;
+		steps += doRungeKutta4Step_internal(step/2);
+		steps += doRungeKutta4Step_internal(step/2);
+		return steps;
+	}else{
+		calculateForces();
+		s = &sphArr[0];
+		for(quint16 i = 0; i<sphCount; ++i, ++s){
+			k7[i] = s->acc;
+			k4[i] = k1[i] + step*k7[i];
+			s->pos = oldPos[i] + 0.5*step*k3[i];
+			s->speed = k1[i] + step*k7[i]; //
+		}
+		calculateForces();
+		s = &sphArr[0];
+		for(quint16 i = 0; i<sphCount; ++i, ++s){
+			k8[i] = s->acc;
+			
+			s->pos = oldPos[i] + step/6.0 * (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]);
+			s->speed = k1[i] + step/6.0 * (k5[i] + 2*k6[i] + 2*k7[i] + k8[i]);
+		}
+		return 1;
 	}
 }
 

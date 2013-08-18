@@ -140,6 +140,9 @@ void ActionReceiver::handleBasicAction(quint8 actionGroup, quint8 action, QByteA
 		emit QCoreApplication::instance()->quit();
 		deleteLater();
 		break;
+	case BasicActions::getFloatingType:
+		sendReply(TOSTR(FLOATING_TYPE));
+		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
 		break;

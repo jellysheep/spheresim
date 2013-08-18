@@ -32,7 +32,8 @@ namespace SphereSim{
 		enum Action{
 			getVersion = 1,
 			getTrueString,
-			terminateServer
+			terminateServer,
+			getFloatingType
 		};
 	}
 	

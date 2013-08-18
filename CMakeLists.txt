@@ -6,8 +6,6 @@ set(CMAKE_MODULE_PATH ${SphereSim_SOURCE_DIR}/cmake)
 file(STRINGS "VERSION" VERSION)
 add_definitions("-DVERSION=${VERSION}")
 
-set(USE_DOUBLE 1)
-add_definitions("-DUSE_DOUBLE=${USE_DOUBLE}")
 set(USE_EIGEN_LIBRARY 1)
 if(USE_EIGEN_LIBRARY GREATER 0)
 	find_package(Eigen3 REQUIRED)

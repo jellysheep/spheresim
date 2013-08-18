@@ -138,6 +138,10 @@ QString ActionSender::getTrueString(){
 	return sendReplyAction(ActionGroups::basic, BasicActions::getTrueString);
 }
 
+QString ActionSender::getFloatingType(){
+	return sendReplyAction(ActionGroups::basic, BasicActions::getFloatingType);
+}
+
 bool ActionSender::isConnected(){
 	socket->waitForConnected(10);
 	return connectedFlag;
