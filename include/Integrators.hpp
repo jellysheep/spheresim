@@ -18,11 +18,11 @@ namespace SphereSim{
 	/** \brief Defines methods for numerically solving differential equations. */
 	namespace IntegratorMethods{
 		enum Method{
-			EulerCauchy,
-			Midpoint,
-			RungeKutta4,
-			Leapfrog,
-			SemiImplicitEuler
+			HeunEuler21,
+			BogackiShampine32,
+			RungeKuttaFehlberg54,
+			CashKarp54,
+			DormandPrince54
 		};
 	}
 }

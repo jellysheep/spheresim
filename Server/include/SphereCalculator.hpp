@@ -13,6 +13,7 @@
 
 #include <Sphere.hpp>
 #include <Integrators.hpp>
+#include <ButcherTableau.hpp>
 
 #include <QVector>
 
@@ -42,8 +43,13 @@ namespace SphereSim{
 		 */
 		QVector<Sphere>& getSpheres();
 		
-		/** \brief Calculates the current sphere forces. */
-		void calculateForces();
+		/**
+		 * \brief Calculates the current sphere acceleration.
+		 * \param sphereIndex Index of the sphere to be calculated.
+		 * \param sphere Sphere to be calculated.
+		 * \return Calculated current acceleration of the sphere.
+		 */
+		Vector3 sphereAcceleration(quint16 sphereIndex, Sphere sphere);
 		
 		/** \brief Updates local data about spheres. */
 		void updateData();
@@ -51,29 +57,11 @@ namespace SphereSim{
 		/** \brief Stores which method is used to solve the differential equations. */
 		quint8 integratorMethod;
 		
-		/** \brief Integrates one step of the differential equations using the Euler Cauchy method. */
-		void doEulerCauchyStep();
+		/** \brief Integrates one step of the differential equations using the Runge Kutta method defined by the Butcher tableau. */
+		void integrateRungeKuttaStep();
 		
-		/** \brief Integrates one step of the differential equations using the Midpoint method. */
-		void doMidpointStep();
-		
-		/** \brief Integrates one step of the differential equations using the Runge Kutta method (RK4). */
-		void doRungeKutta4Step();
-		/**
-		 * \brief Integrates one step of the differential equations using the Runge Kutta method (RK4).
-		 * \param step Time step in seconds.
-		 * \return Internal steps used.
-		 */
-		quint16 doRungeKutta4Step_internal(Scalar step);
-		
-		/** \brief Integrates one step of the differential equations using the leapfrog method. */
-		void doLeapfrogStep();
-		
-		/** \brief Integrates one step of the differential equations using the Semi-implicit Euler method. */
-		void doSemiImplicitEulerStep();
-		
-		/** \brief Stores the method used to calculate one step of the sphere movements. */
-		void (SphereCalculator::*stepMethod)();
+		/** \brief Stores the Butcher tableau used in the integrator. */
+		ButcherTableau butcherTableau;
 		
 	public:
 		SphereCalculator();

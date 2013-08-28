@@ -16,12 +16,14 @@ set(SOURCES
 	${PROJECT_SOURCE_DIR}/ActionReceiver.cpp
 	${PROJECT_SOURCE_DIR}/SphereManager.cpp
 	${PROJECT_SOURCE_DIR}/SphereCalculator.cpp
+	${PROJECT_SOURCE_DIR}/ButcherTableau.cpp
 )
 set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/ActionServer.hpp
 	${PROJECT_INCLUDE_DIR}/ActionReceiver.hpp
 	${PROJECT_INCLUDE_DIR}/SphereManager.hpp
 	${PROJECT_INCLUDE_DIR}/SphereCalculator.hpp
+	${PROJECT_INCLUDE_DIR}/ButcherTableau.hpp
 )
 
 add_executable(SphereSim_Server ${SOURCES} ${HEADERS})

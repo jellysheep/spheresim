@@ -215,18 +215,18 @@ void ServerTester::runSpheresUpdatingActionTests(){
 }
 
 void ServerTester::runCalculationActionTests(){
-	Scalar timeStep = 0.0002;
+	Scalar timeStep = 0.01;
 	startTest_(CalculationActions::setTimeStep);
 		sender->setTimeStep(timeStep);
 		verify(timeStep, ApproxEqual, sender->getTimeStep());
 	endTest();
 	sender->addSphere();
 	
-	runCalculationActionTests_internal_(IntegratorMethods::EulerCauchy);
-	runCalculationActionTests_internal_(IntegratorMethods::Midpoint);
-	runCalculationActionTests_internal_(IntegratorMethods::RungeKutta4);
-	runCalculationActionTests_internal_(IntegratorMethods::Leapfrog);
-	runCalculationActionTests_internal_(IntegratorMethods::SemiImplicitEuler);
+	runCalculationActionTests_internal_(IntegratorMethods::HeunEuler21);
+	runCalculationActionTests_internal_(IntegratorMethods::BogackiShampine32);
+	runCalculationActionTests_internal_(IntegratorMethods::RungeKuttaFehlberg54);
+	runCalculationActionTests_internal_(IntegratorMethods::CashKarp54);
+	runCalculationActionTests_internal_(IntegratorMethods::DormandPrince54);
 }
 
 void ServerTester::runCalculationActionTests_internal(){
@@ -244,14 +244,18 @@ void ServerTester::runCalculationActionTests_internal(){
 	s.radius = 0.1;
 	sender->updateSphere(0, s);
 	
-	quint16 expectedTurningPoints = 3, turningPoints = 0;
+	quint16 expectedTurningPoints = 10, turningPoints = 0;
+	quint16 steps = 17*expectedTurningPoints;
 	quint16 stepTime;
-	Scalar pos = s.pos(1), oldPos;
+	Scalar pos = s.pos(1), oldPos, beginEnergy, endEnergy, speedSqr;
+	Sphere lastFreeSphere = s;
+	speedSqr = s.speed(1)*s.speed(1);
+	beginEnergy = 0.5*s.mass*speedSqr + s.mass*9.81*s.pos(1);
 	Scalar gradient = 0, oldGradient;
-	for(quint16 i = 650*expectedTurningPoints; i>0; i--){
+	for(quint16 i = 0; i<steps; i++){
 		stepTime = sender->calculateStep();
 		verify(stepTime, Greater, 0.0);
-		sender->getSphere(0, s);
+		sender->getFullSphere(0, s);
 		oldPos = pos;
 		pos = s.pos(1);
 		oldGradient = gradient;
@@ -260,9 +264,19 @@ void ServerTester::runCalculationActionTests_internal(){
 			// turning point detected
 			turningPoints++;
 		}
+		if(fabs(s.acc(1)+9.81)<0.000001){
+			lastFreeSphere = s;
+		}
 	}
-	verify(turningPoints, GreaterOrEqual, expectedTurningPoints-1);
-	verify(turningPoints, SmallerOrEqual, expectedTurningPoints+1);
+	s = lastFreeSphere;
+	speedSqr = s.speed(1)*s.speed(1);
+	endEnergy = 0.5*s.mass*speedSqr + s.mass*9.81*s.pos(1);
+	Scalar relError = 1.0-(beginEnergy/endEnergy);
+	Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/steps);
+	Console::out<<"relative error after "<<steps<<" steps: "<<relError<<" \t";
+	Console::out<<"relative error per step: "<<relErrorPerStep<<" \t";
+	verify(turningPoints, GreaterOrEqual, expectedTurningPoints*0.9);
+	verify(turningPoints, SmallerOrEqual, expectedTurningPoints*1.1);
 }
 
 void ServerTester::startTest(const char* actionName){
