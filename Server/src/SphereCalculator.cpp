@@ -22,13 +22,14 @@ SphereCalculator::SphereCalculator(){
 	boxSize = Vector3(1,1,1);
 	timeStep = 0.002;
 	setIntegratorMethod(IntegratorMethods::RungeKuttaFehlberg54);
+	calculationCounter = 0;
 }
 
 QVector<Sphere>& SphereCalculator::getSpheres(){
 	return spheres;
 }
 
-Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere){
+Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff){
 	static const Scalar E = 5000, poisson = 0.5;
 	static const Scalar E_ = 1/(((1-poisson*poisson)/E)+((1-poisson*poisson)/E));
 	
@@ -47,6 +48,7 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere)
 		}
 	}
 	acc = _force/sphere.mass;
+	calculationCounter++;
 	return acc;
 }
 
@@ -72,38 +74,62 @@ Scalar SphereCalculator::getTimeStep(){
 void SphereCalculator::integrateRungeKuttaStep(){
 	Sphere* s = &sphArr[0];
 	Sphere sphere, origSphere;
-	Vector3 acc;
+	Vector3 acc, pos, speed, pos_, speed_, error_pos, error_speed;
+	Scalar error_pos_, error_speed_;
 	const quint8 integratorOrder = butcherTableau.order;
 	Vector3 k_acc[integratorOrder];
 	Vector3 k_speed[integratorOrder];
-	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex, ++s){
-		origSphere = *s;
-		sphere = origSphere;
-		k_acc[0] = sphereAcceleration(sphereIndex, sphere);
-		k_speed[0] = sphere.speed;
-		for(quint8 n = 1; n<integratorOrder; n++){
-			sphere.pos = origSphere.pos;
-			for(quint8 j = 0; j<n; j++){
-				sphere.pos += timeStep*butcherTableau.a[n][j]*k_speed[j];
-			}
-			k_acc[n] = sphereAcceleration(sphereIndex, sphere);
-			
-			k_speed[n] = origSphere.speed;
-			for(quint8 j = 0; j<n; j++){
-				k_speed[n] += timeStep*butcherTableau.a[n][j]*k_acc[j];
-			}
-		}
-		
+	quint16 stepCount;
+	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex){
+		integrateRungeKuttaStep(sphereIndex, timeStep, 0.0);
+	}
+}
+
+quint16 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff){
+	Sphere sphere = sphArr[sphereIndex];
+	Sphere origSphere = sphere;
+	const quint8 integratorOrder = butcherTableau.order;
+	Vector3 k_acc[integratorOrder];
+	Vector3 k_speed[integratorOrder];
+	
+	k_acc[0] = sphereAcceleration(sphereIndex, sphere, timeDiff);
+	k_speed[0] = sphere.speed;
+	for(quint8 n = 1; n<integratorOrder; n++){
 		sphere.pos = origSphere.pos;
-		sphere.speed = origSphere.speed;
-		for(quint8 j = 0; j<integratorOrder; j++){
-			sphere.pos += timeStep*butcherTableau.b[j]*k_speed[j];
-			sphere.speed += timeStep*butcherTableau.b[j]*k_acc[j];
+		for(quint8 j = 0; j<n; j++){
+			sphere.pos += stepLength*butcherTableau.a[n][j]*k_speed[j];
 		}
+		k_acc[n] = sphereAcceleration(sphereIndex, sphere, timeDiff);
 		
-		s->pos = sphere.pos;
-		s->speed = sphere.speed;
-		s->acc = k_acc[0];
+		k_speed[n] = origSphere.speed;
+		for(quint8 j = 0; j<n; j++){
+			k_speed[n] += stepLength*butcherTableau.a[n][j]*k_acc[j];
+		}
+	}
+	
+	Vector3 pos = origSphere.pos;
+	Vector3 pos_ = pos;
+	Vector3 speed = origSphere.speed;
+	Vector3 speed_ = speed;
+	for(quint8 j = 0; j<integratorOrder; j++){
+		pos += stepLength*butcherTableau.b[j]*k_speed[j];
+		pos_ += stepLength*butcherTableau.b_[j]*k_speed[j];
+		speed += stepLength*butcherTableau.b[j]*k_acc[j];
+		speed_ += stepLength*butcherTableau.b_[j]*k_acc[j];
+	}
+	
+	Scalar error_pos_ = (pos-pos_).norm();
+	Scalar error_speed_ = (speed-speed_).norm();
+	if(error_pos_>1.0e-05 || error_speed_>1.0e-05){
+		quint16 stepCount = 0;
+		stepCount += integrateRungeKuttaStep(sphereIndex, stepLength/2, timeDiff);
+		stepCount += integrateRungeKuttaStep(sphereIndex, stepLength/2, timeDiff+(stepLength/2));
+		return stepCount;
+	}else{
+		sphArr[sphereIndex].pos = pos;
+		sphArr[sphereIndex].speed = speed;
+		sphArr[sphereIndex].acc = (speed-origSphere.speed)/stepLength;
+		return 1;
 	}
 }
 
@@ -166,4 +192,14 @@ void SphereCalculator::setIntegratorMethod(quint8 integrMethod){
 
 quint8 SphereCalculator::getIntegratorMethod(){
 	return integratorMethod;
+}
+
+quint32 SphereCalculator::popCalculationCounter(){
+	if(sphCount>0){
+		quint32 counter = calculationCounter/sphCount;
+		calculationCounter = 0;
+		return counter;
+	}else{
+		return 0;
+	}
 }

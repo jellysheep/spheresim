@@ -215,7 +215,7 @@ void ServerTester::runSpheresUpdatingActionTests(){
 }
 
 void ServerTester::runCalculationActionTests(){
-	Scalar timeStep = 0.01;
+	Scalar timeStep = 0.1;
 	startTest_(CalculationActions::setTimeStep);
 		sender->setTimeStep(timeStep);
 		verify(timeStep, ApproxEqual, sender->getTimeStep());
@@ -244,8 +244,9 @@ void ServerTester::runCalculationActionTests_internal(){
 	s.radius = 0.1;
 	sender->updateSphere(0, s);
 	
+	sender->popCalculationCounter();
 	quint16 expectedTurningPoints = 10, turningPoints = 0;
-	quint16 steps = 17*expectedTurningPoints;
+	quint16 steps = (quint16)(0.17/sender->getTimeStep()*expectedTurningPoints);
 	quint16 stepTime;
 	Scalar pos = s.pos(1), oldPos, beginEnergy, endEnergy, speedSqr;
 	Sphere lastFreeSphere = s;
@@ -275,6 +276,10 @@ void ServerTester::runCalculationActionTests_internal(){
 	Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/steps);
 	Console::out<<"relative error after "<<steps<<" steps: "<<relError<<" \t";
 	Console::out<<"relative error per step: "<<relErrorPerStep<<" \t";
+	quint32 realSteps = sender->popCalculationCounter();
+	Console::out<<"real steps: "<<realSteps<<" \t";
+	Scalar integratorWorth = 10-0.1*log(fabs(relError))-log(realSteps);
+	Console::out<<"integrator worth: "<<integratorWorth<<" \t";
 	verify(turningPoints, GreaterOrEqual, expectedTurningPoints*0.9);
 	verify(turningPoints, SmallerOrEqual, expectedTurningPoints*1.1);
 }

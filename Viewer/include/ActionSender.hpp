@@ -196,6 +196,12 @@ namespace SphereSim{
 		 * \return The floating type string sent by the server.
 		 */
 		QString getFloatingType();
+		
+		/**
+		 * \brief Requests the server to send the used calculation steps.
+		 * \return Sent used calculation steps.
+		 */
+		quint32 popCalculationCounter();
 	
 	public slots:
 		void connected(){

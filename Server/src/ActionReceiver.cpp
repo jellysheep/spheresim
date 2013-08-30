@@ -204,6 +204,10 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 		retStream<<sphCalc.getIntegratorMethod();
 		sendReply(retData);
 		break;
+	case CalculationActions::popCalculationCounter:
+		retStream<<sphCalc.popCalculationCounter();
+		sendReply(retData);
+		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
 		break;

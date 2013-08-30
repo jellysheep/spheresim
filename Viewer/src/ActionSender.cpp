@@ -212,3 +212,11 @@ quint8 ActionSender::getIntegratorMethod(){
 	retStream>>integratorMethod;
 	return integratorMethod;
 }
+
+quint32 ActionSender::popCalculationCounter(){
+	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::popCalculationCounter);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	quint32 calculationCounter;
+	retStream>>calculationCounter;
+	return calculationCounter;
+}

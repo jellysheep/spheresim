@@ -47,9 +47,10 @@ namespace SphereSim{
 		 * \brief Calculates the current sphere acceleration.
 		 * \param sphereIndex Index of the sphere to be calculated.
 		 * \param sphere Sphere to be calculated.
+		 * \param timeDiff Time difference (in s) used for the movements of other spheres.
 		 * \return Calculated current acceleration of the sphere.
 		 */
-		Vector3 sphereAcceleration(quint16 sphereIndex, Sphere sphere);
+		Vector3 sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff);
 		
 		/** \brief Updates local data about spheres. */
 		void updateData();
@@ -60,8 +61,21 @@ namespace SphereSim{
 		/** \brief Integrates one step of the differential equations using the Runge Kutta method defined by the Butcher tableau. */
 		void integrateRungeKuttaStep();
 		
+		/** \brief Integrates one step of one sphere. */
+		/**
+		 * \brief Integrates one step of one sphere.
+		 * \param sphereIndex Index of the sphere to be integrated.
+		 * \param stepLength Current step length (time in s).
+		 * \param timeDiff Time difference (in s) used for the movements of other spheres.
+		 * \return Number of steps used to integrate.
+		 */
+		quint16 integrateRungeKuttaStep(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff);
+		
 		/** \brief Stores the Butcher tableau used in the integrator. */
 		ButcherTableau butcherTableau;
+		
+		/** \brief Stores the used calculation steps. */
+		quint32 calculationCounter;
 		
 	public:
 		SphereCalculator();
@@ -95,6 +109,12 @@ namespace SphereSim{
 		 * \return Requested integrator method.
 		 */
 		quint8 getIntegratorMethod();
+		
+		/**
+		 * \brief Gets and resets the used calculation steps.
+		 * \return Requested used calculation steps.
+		 */
+		quint32 popCalculationCounter();
 		
 		friend class SphereManager;
 	};

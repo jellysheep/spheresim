@@ -7,7 +7,7 @@ set (PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set (VIEWER_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Viewer/include)
 set (VIEWER_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Viewer/src)
 
-set(USE_DOUBLE 0)
+set(USE_DOUBLE 1)
 add_definitions("-DUSE_DOUBLE=${USE_DOUBLE}")
 
 include_directories("${PROJECT_INCLUDE_DIR}")

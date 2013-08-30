@@ -3,7 +3,7 @@
 
 pkgname=mingw-w64-spheresim-git
 _gitname=spheresim
-pkgver=2.1.0
+pkgver=2.1.1
 pkgrel=1
 pkgdesc="Physical simulation of particle movements. Second version and complete rewrite. (mingw-w64)"
 arch=('any')
