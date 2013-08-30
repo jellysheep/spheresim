@@ -15,10 +15,10 @@
 
 using namespace SphereSim;
 
-ButcherTableau::ButcherTableau():order(0),a{},b{},b_{},c{}{
+ButcherTableau::ButcherTableau():order(0){
 }
 
-ButcherTableau::ButcherTableau(quint8 _order, const Scalar* _a, const Scalar* _b, const Scalar* _b_, const Scalar* _c):order(_order),a{},b{},b_{},c{}{
+ButcherTableau::ButcherTableau(quint8 _order, const Scalar* _a, const Scalar* _b, const Scalar* _b_, const Scalar* _c):order(_order){
 	quint16 counter = 0;
 	Scalar checksum;
 	for(quint8 x = 0; x<order; x++){
