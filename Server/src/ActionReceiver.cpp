@@ -184,6 +184,7 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	Scalar s;
 	quint8 integratorMethod;
+	quint16 steps;
 	switch(action){
 	case CalculationActions::doOneStep:
 		sendReply(QString::number(sphMan.calculateStep()).toUtf8());
@@ -207,6 +208,10 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 	case CalculationActions::popCalculationCounter:
 		retStream<<sphCalc.popCalculationCounter();
 		sendReply(retData);
+		break;
+	case CalculationActions::doSomeSteps:
+		stream>>steps;
+		sendReply(QString::number(sphCalc.doSomeSteps(steps)).toUtf8());
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);

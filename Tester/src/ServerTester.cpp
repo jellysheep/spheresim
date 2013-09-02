@@ -215,7 +215,7 @@ void ServerTester::runSpheresUpdatingActionTests(){
 }
 
 void ServerTester::runCalculationActionTests(){
-	Scalar timeStep = 0.1;
+	Scalar timeStep = 0.01;
 	startTest_(CalculationActions::setTimeStep);
 		sender->setTimeStep(timeStep);
 		verify(timeStep, ApproxEqual, sender->getTimeStep());
@@ -244,9 +244,14 @@ void ServerTester::runCalculationActionTests_internal(){
 	s.radius = 0.1;
 	sender->updateSphere(0, s);
 	
+	if(sender->getTimeStep()>0.01){
+		sender->setTimeStep(0.01);
+	}
 	sender->popCalculationCounter();
-	quint16 expectedTurningPoints = 10, turningPoints = 0;
-	quint16 steps = (quint16)(0.17/sender->getTimeStep()*expectedTurningPoints);
+	quint16 expectedTurningPoints = 100, turningPoints = 0;
+	quint16 stepsPerFall = 2;
+	quint16 steps = stepsPerFall*expectedTurningPoints;
+	quint16 stepsAtOnce = (quint16)ceil(17.0/stepsPerFall*0.01/sender->getTimeStep());
 	quint16 stepTime;
 	Scalar pos = s.pos(1), oldPos, beginEnergy, endEnergy, speedSqr;
 	Sphere lastFreeSphere = s;
@@ -254,7 +259,7 @@ void ServerTester::runCalculationActionTests_internal(){
 	beginEnergy = 0.5*s.mass*speedSqr + s.mass*9.81*s.pos(1);
 	Scalar gradient = 0, oldGradient;
 	for(quint16 i = 0; i<steps; i++){
-		stepTime = sender->calculateStep();
+		stepTime = sender->calculateSomeSteps(stepsAtOnce);
 		verify(stepTime, Greater, 0.0);
 		sender->getFullSphere(0, s);
 		oldPos = pos;
@@ -274,7 +279,7 @@ void ServerTester::runCalculationActionTests_internal(){
 	endEnergy = 0.5*s.mass*speedSqr + s.mass*9.81*s.pos(1);
 	Scalar relError = 1.0-(beginEnergy/endEnergy);
 	Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/steps);
-	Console::out<<"relative error after "<<steps<<" steps: "<<relError<<" \t";
+	Console::out<<"relative error after "<<steps<<"*"<<stepsAtOnce<<" steps: "<<relError<<" \t";
 	Console::out<<"relative error per step: "<<relErrorPerStep<<" \t";
 	quint32 realSteps = sender->popCalculationCounter();
 	Console::out<<"real steps: "<<realSteps<<" \t";

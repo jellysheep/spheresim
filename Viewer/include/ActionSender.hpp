@@ -202,6 +202,13 @@ namespace SphereSim{
 		 * \return Sent used calculation steps.
 		 */
 		quint32 popCalculationCounter();
+		
+		/**
+		 * \brief Requests the server to calculate some steps.
+		 * \param steps Number of steps to calculate.
+		 * \return Time in ms needed to calculate the steps.
+		 */
+		quint16 calculateSomeSteps(quint16 steps);
 	
 	public slots:
 		void connected(){

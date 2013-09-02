@@ -116,6 +116,13 @@ namespace SphereSim{
 		 */
 		quint32 popCalculationCounter();
 		
+		/**
+		 * \brief Calculates the sphere movements for some steps.
+		 * \param steps Number of steps to calculate.
+		 * \return Millisecond time used to calculate the steps.
+		 */
+		quint16 doSomeSteps(quint16 steps);
+		
 		friend class SphereManager;
 	};
 	

@@ -220,3 +220,10 @@ quint32 ActionSender::popCalculationCounter(){
 	retStream>>calculationCounter;
 	return calculationCounter;
 }
+
+quint16 ActionSender::calculateSomeSteps(quint16 steps){
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<steps;
+	return QString(sendReplyAction(ActionGroups::calculation, CalculationActions::doSomeSteps, arr)).toUInt();
+}

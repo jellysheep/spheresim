@@ -61,7 +61,8 @@ namespace SphereSim{
 			getTimeStep,
 			setIntegratorMethod,
 			getIntegratorMethod,
-			popCalculationCounter
+			popCalculationCounter,
+			doSomeSteps
 		};
 	}
 	

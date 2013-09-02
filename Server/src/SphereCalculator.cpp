@@ -203,3 +203,11 @@ quint32 SphereCalculator::popCalculationCounter(){
 		return 0;
 	}
 }
+
+quint16 SphereCalculator::doSomeSteps(quint16 steps){
+	updateData();
+	for(quint16 i = 0; i<steps; i++){
+		integrateRungeKuttaStep();
+	}
+	return 1;
+}
