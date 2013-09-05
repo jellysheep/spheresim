@@ -26,7 +26,7 @@
 	startTest_(integratorMethod);										\
 		sender->setIntegratorMethod(integratorMethod);					\
 		verify(sender->getIntegratorMethod(), Equal, integratorMethod);	\
-		runCalculationActionTests_internal();							\
+		runCalculationActionTests_internal(TOSTR(integratorMethod));	\
 	endTest();															\
 }
 
@@ -229,7 +229,7 @@ void ServerTester::runCalculationActionTests(){
 	runCalculationActionTests_internal_(IntegratorMethods::DormandPrince54);
 }
 
-void ServerTester::runCalculationActionTests_internal(){
+void ServerTester::runCalculationActionTests_internal(const char* integratorMethod){
 	Sphere s;
 	s.pos(0) = 0.11;
 	s.pos(1) = 0.11;
@@ -272,12 +272,9 @@ void ServerTester::runCalculationActionTests_internal(){
 	endEnergy = sender->getTotalEnergy();
 	Scalar relError = 1.0-(beginEnergy/endEnergy);
 	Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/(steps*stepsAtOnce));
-	Console::out<<"relative error after "<<steps<<"*"<<stepsAtOnce<<" steps: "<<relError<<" \t";
-	Console::out<<"relative error per step: "<<relErrorPerStep<<" \t";
 	quint32 realSteps = sender->popCalculationCounter();
-	Console::out<<"real steps: "<<realSteps<<" \t";
 	Scalar integratorWorth = 5+log(steps*stepsAtOnce)-0.1*log(fabs(relError))-log(realSteps);
-	Console::out<<"integrator worth: "<<integratorWorth<<" \t";
+	Console::out<<"integrator worth: "<<integratorWorth<<" ("<<integratorMethod<<"). \t";
 	verify(turningPoints, GreaterOrEqual, expectedTurningPoints*0.9);
 	verify(turningPoints, SmallerOrEqual, expectedTurningPoints*1.1);
 }

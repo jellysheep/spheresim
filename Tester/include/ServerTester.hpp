@@ -84,8 +84,11 @@ namespace SphereSim{
 		/** \brief Runs all tests of the sphere calculating sphere movements. */
 		void runCalculationActionTests();
 		
-		/** \brief Simulates a bouncing sphere. */
-		void runCalculationActionTests_internal();
+		/**
+		 * \brief Simulates a bouncing sphere.
+		 * \param integratorMethod Name of the used integrator method.
+		 */
+		void runCalculationActionTests_internal(const char* integratorMethod);
 		
 		/** \brief Verifies a comparison and displays result on console. */
 		#define verify(t1,op,t2)							\
