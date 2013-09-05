@@ -179,7 +179,7 @@ void ActionSender::getFullSphere(quint16 i, Sphere& s){
 	readFullSphere(retStream, s);
 }
 
-quint16 ActionSender::calculateStep(){
+quint32 ActionSender::calculateStep(){
 	return QString(sendReplyAction(ActionGroups::calculation, CalculationActions::doOneStep)).toUInt();
 }
 
@@ -221,9 +221,17 @@ quint32 ActionSender::popCalculationCounter(){
 	return calculationCounter;
 }
 
-quint16 ActionSender::calculateSomeSteps(quint16 steps){
+quint32 ActionSender::calculateSomeSteps(quint32 steps){
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<steps;
 	return QString(sendReplyAction(ActionGroups::calculation, CalculationActions::doSomeSteps, arr)).toUInt();
+}
+
+Scalar ActionSender::getTotalEnergy(){
+	QByteArray retArr = sendReplyAction(ActionGroups::information, InformationActions::getTotalEnergy);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	Scalar totalEnergy;
+	retStream>>totalEnergy;
+	return totalEnergy;
 }

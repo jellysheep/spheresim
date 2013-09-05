@@ -21,7 +21,8 @@ namespace SphereSim{
 		enum Group{
 			basic = 1,
 			spheresUpdating,
-			calculation
+			calculation,
+			information
 		};
 	}
 	
@@ -63,6 +64,15 @@ namespace SphereSim{
 			getIntegratorMethod,
 			popCalculationCounter,
 			doSomeSteps
+		};
+	}
+	
+	/**
+	 * \brief Actions that inform about sphere properties.
+	 */
+	namespace InformationActions{
+		enum Action{
+			getTotalEnergy = 1
 		};
 	}
 	

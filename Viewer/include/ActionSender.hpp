@@ -165,7 +165,7 @@ namespace SphereSim{
 		 * \brief Requests the server to calculate one step.
 		 * \return Time in ms needed to calculate the step.
 		 */
-		quint16 calculateStep();
+		quint32 calculateStep();
 		
 		/**
 		 * \brief Requests the server to set the time step.
@@ -208,7 +208,13 @@ namespace SphereSim{
 		 * \param steps Number of steps to calculate.
 		 * \return Time in ms needed to calculate the steps.
 		 */
-		quint16 calculateSomeSteps(quint16 steps);
+		quint32 calculateSomeSteps(quint32 steps);
+		
+		/**
+		 * \brief Requests the server to send the total energy.
+		 * \return Sent total energy.
+		 */
+		Scalar getTotalEnergy();
 	
 	public slots:
 		void connected(){

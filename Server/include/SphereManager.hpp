@@ -87,7 +87,7 @@ namespace SphereSim{
 		 * \brief Calculates the sphere movements for one step.
 		 * \return Millisecond time used to calculate the step.
 		 */
-		quint16 calculateStep();
+		quint32 calculateStep();
 		
 		friend class ActionReceiver;
 	};

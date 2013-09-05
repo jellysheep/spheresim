@@ -59,7 +59,7 @@ Sphere SphereManager::getSphere(quint16 i){
 	}
 }
 
-quint16 SphereManager::calculateStep(){
+quint32 SphereManager::calculateStep(){
 	return sphCalc.doStep();
 }
 

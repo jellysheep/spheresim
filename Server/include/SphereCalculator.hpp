@@ -69,7 +69,7 @@ namespace SphereSim{
 		 * \param timeDiff Time difference (in s) used for the movements of other spheres.
 		 * \return Number of steps used to integrate.
 		 */
-		quint16 integrateRungeKuttaStep(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff);
+		quint32 integrateRungeKuttaStep(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff);
 		
 		/** \brief Stores the Butcher tableau used in the integrator. */
 		ButcherTableau butcherTableau;
@@ -84,7 +84,7 @@ namespace SphereSim{
 		 * \brief Calculates the sphere movements for one step.
 		 * \return Millisecond time used to calculate the step.
 		 */
-		quint16 doStep();
+		quint32 doStep();
 		
 		/**
 		 * \brief Sets the time step.
@@ -121,7 +121,13 @@ namespace SphereSim{
 		 * \param steps Number of steps to calculate.
 		 * \return Millisecond time used to calculate the steps.
 		 */
-		quint16 doSomeSteps(quint16 steps);
+		quint32 doSomeSteps(quint32 steps);
+		
+		/**
+		 * \brief Gets the total energy.
+		 * \return Requested total energy.
+		 */
+		Scalar getTotalEnergy();
 		
 		friend class SphereManager;
 	};

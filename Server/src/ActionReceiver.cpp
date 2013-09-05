@@ -108,6 +108,9 @@ void ActionReceiver::handleAction(quint8 actionGroup, quint8 action, QByteArray 
 	case ActionGroups::calculation:
 		handleCalculationAction(actionGroup, action, data);
 		break;
+	case ActionGroups::information:
+		handleInformationAction(actionGroup, action, data);
+		break;
 	default:
 		handleUnknownActionGroup(actionGroup, action, data);
 		break;
@@ -184,7 +187,7 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	Scalar s;
 	quint8 integratorMethod;
-	quint16 steps;
+	quint32 steps;
 	switch(action){
 	case CalculationActions::doOneStep:
 		sendReply(QString::number(sphMan.calculateStep()).toUtf8());
@@ -212,6 +215,21 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 	case CalculationActions::doSomeSteps:
 		stream>>steps;
 		sendReply(QString::number(sphCalc.doSomeSteps(steps)).toUtf8());
+		break;
+	default:
+		handleUnknownAction(actionGroup, action, data);
+		break;
+	}
+}
+
+void ActionReceiver::handleInformationAction(quint8 actionGroup, quint8 action, QByteArray data){
+	QDataStream stream(&data, QIODevice::ReadOnly);
+	QByteArray retData;
+	QDataStream retStream(&retData, QIODevice::WriteOnly);
+	switch(action){
+	case InformationActions::getTotalEnergy:
+		retStream<<sphCalc.getTotalEnergy();
+		sendReply(retData);
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);

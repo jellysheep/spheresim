@@ -248,17 +248,15 @@ void ServerTester::runCalculationActionTests_internal(){
 		sender->setTimeStep(0.01);
 	}
 	sender->popCalculationCounter();
-	quint16 expectedTurningPoints = 100, turningPoints = 0;
+	quint16 expectedTurningPoints = 10, turningPoints = 0;
 	quint16 stepsPerFall = 2;
-	quint16 steps = stepsPerFall*expectedTurningPoints;
-	quint16 stepsAtOnce = (quint16)ceil(17.0/stepsPerFall*0.01/sender->getTimeStep());
-	quint16 stepTime;
-	Scalar pos = s.pos(1), oldPos, beginEnergy, endEnergy, speedSqr;
-	Sphere lastFreeSphere = s;
-	speedSqr = s.speed(1)*s.speed(1);
-	beginEnergy = 0.5*s.mass*speedSqr + s.mass*9.81*s.pos(1);
+	quint32 steps = stepsPerFall*expectedTurningPoints;
+	quint32 stepsAtOnce = (quint32)ceil(17.0/stepsPerFall*0.01/sender->getTimeStep());
+	quint32 stepTime;
+	Scalar pos = s.pos(1), oldPos, beginEnergy, endEnergy;
+	beginEnergy = sender->getTotalEnergy();
 	Scalar gradient = 0, oldGradient;
-	for(quint16 i = 0; i<steps; i++){
+	for(quint32 i = 0; i<steps; i++){
 		stepTime = sender->calculateSomeSteps(stepsAtOnce);
 		verify(stepTime, Greater, 0.0);
 		sender->getFullSphere(0, s);
@@ -270,20 +268,15 @@ void ServerTester::runCalculationActionTests_internal(){
 			// turning point detected
 			turningPoints++;
 		}
-		if(fabs(s.acc(1)+9.81)<0.000001){
-			lastFreeSphere = s;
-		}
 	}
-	s = lastFreeSphere;
-	speedSqr = s.speed(1)*s.speed(1);
-	endEnergy = 0.5*s.mass*speedSqr + s.mass*9.81*s.pos(1);
+	endEnergy = sender->getTotalEnergy();
 	Scalar relError = 1.0-(beginEnergy/endEnergy);
-	Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/steps);
+	Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/(steps*stepsAtOnce));
 	Console::out<<"relative error after "<<steps<<"*"<<stepsAtOnce<<" steps: "<<relError<<" \t";
 	Console::out<<"relative error per step: "<<relErrorPerStep<<" \t";
 	quint32 realSteps = sender->popCalculationCounter();
 	Console::out<<"real steps: "<<realSteps<<" \t";
-	Scalar integratorWorth = 10-0.1*log(fabs(relError))-log(realSteps);
+	Scalar integratorWorth = 5+log(steps*stepsAtOnce)-0.1*log(fabs(relError))-log(realSteps);
 	Console::out<<"integrator worth: "<<integratorWorth<<" \t";
 	verify(turningPoints, GreaterOrEqual, expectedTurningPoints*0.9);
 	verify(turningPoints, SmallerOrEqual, expectedTurningPoints*1.1);
