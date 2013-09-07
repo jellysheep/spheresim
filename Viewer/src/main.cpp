@@ -20,7 +20,7 @@ using namespace SphereSim;
 
 /*
  * method main:
- * Creates instance of ActionSender to build up connection to server.
+ * Builds up a connection to server and opens main window.
  */
 
 int main(int argc, char** argv){

@@ -17,7 +17,7 @@
    <iconset resource="MainWindow.qrc">
     <normaloff>:/logo/Logo_S.png</normaloff>:/logo/Logo_S.png</iconset>
   </property>
-  <widget class="QGLWidget" name="glWidget"/>
+  <widget class="GLWidget" name="glWidget"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -195,9 +195,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QGLWidget</class>
+   <class>GLWidget</class>
    <extends>QWidget</extends>
-   <header location="global">qglwidget.h</header>
+   <header>GLWidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
