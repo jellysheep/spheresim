@@ -22,7 +22,8 @@ namespace SphereSim{
 			basic = 1,
 			spheresUpdating,
 			calculation,
-			information
+			information,
+			physicalConstants
 		};
 	}
 	
@@ -73,6 +74,19 @@ namespace SphereSim{
 	namespace InformationActions{
 		enum Action{
 			getTotalEnergy = 1
+		};
+	}
+	
+	/**
+	 * \brief Actions that read or update physical constants.
+	 */
+	namespace PhysicalConstantsActions{
+		enum Action{
+			setSphereE,
+			setSpherePoisson,
+			setWallE,
+			setWallPoisson,
+			setEarthGravity
 		};
 	}
 	

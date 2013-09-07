@@ -111,6 +111,9 @@ void ActionReceiver::handleAction(quint8 actionGroup, quint8 action, QByteArray 
 	case ActionGroups::information:
 		handleInformationAction(actionGroup, action, data);
 		break;
+	case ActionGroups::physicalConstants:
+		handlePhysicalConstantsAction(actionGroup, action, data);
+		break;
 	default:
 		handleUnknownActionGroup(actionGroup, action, data);
 		break;
@@ -230,6 +233,40 @@ void ActionReceiver::handleInformationAction(quint8 actionGroup, quint8 action, 
 	case InformationActions::getTotalEnergy:
 		retStream<<sphCalc.getTotalEnergy();
 		sendReply(retData);
+		break;
+	default:
+		handleUnknownAction(actionGroup, action, data);
+		break;
+	}
+}
+
+void ActionReceiver::handlePhysicalConstantsAction(quint8 actionGroup, quint8 action, QByteArray data){
+	QDataStream stream(&data, QIODevice::ReadOnly);
+	QByteArray retData;
+	QDataStream retStream(&retData, QIODevice::WriteOnly);
+	Scalar s, s2, s3;
+	switch(action){
+	case PhysicalConstantsActions::setSphereE:
+		stream>>s;
+		sphCalc.setSphereE(s);
+		break;
+	case PhysicalConstantsActions::setSpherePoisson:
+		stream>>s;
+		sphCalc.setSpherePoisson(s);
+		break;
+	case PhysicalConstantsActions::setWallE:
+		stream>>s;
+		sphCalc.setWallE(s);
+		break;
+	case PhysicalConstantsActions::setWallPoisson:
+		stream>>s;
+		sphCalc.setWallPoisson(s);
+		break;
+	case PhysicalConstantsActions::setEarthGravity:
+		stream>>s;
+		stream>>s2;
+		stream>>s3;
+		sphCalc.setEarthGravity(Vector3(s, s2, s3));
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);

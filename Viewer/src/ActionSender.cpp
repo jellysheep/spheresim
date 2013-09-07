@@ -235,3 +235,40 @@ Scalar ActionSender::getTotalEnergy(){
 	retStream>>totalEnergy;
 	return totalEnergy;
 }
+
+void ActionSender::setSphereE(Scalar E_sphere){
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<E_sphere;
+	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setSphereE, arr);
+}
+
+void ActionSender::setSpherePoisson(Scalar poisson_sphere){
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<poisson_sphere;
+	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setSpherePoisson, arr);
+}
+
+void ActionSender::setWallE(Scalar E_wall){
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<E_wall;
+	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setWallE, arr);
+}
+
+void ActionSender::setWallPoisson(Scalar poisson_wall){
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<poisson_wall;
+	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setWallPoisson, arr);
+}
+
+void ActionSender::setEarthGravity(Vector3 earthGravity){
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<earthGravity(0);
+	stream<<earthGravity(1);
+	stream<<earthGravity(2);
+	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setEarthGravity, arr);
+}

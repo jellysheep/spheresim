@@ -14,6 +14,7 @@
 #include <Sphere.hpp>
 #include <Integrators.hpp>
 #include <ButcherTableau.hpp>
+#include <PhysicalConstants.hpp>
 
 #include <QVector>
 
@@ -77,6 +78,15 @@ namespace SphereSim{
 		/** \brief Stores the used calculation steps. */
 		quint32 calculationCounter;
 		
+		/** \brief Stores the used physical constants. */
+		PhysicalConstants physicalConstants;
+		
+		/** \brief Updates the E modulus (E*) used for sphere-sphere collisions. */
+		void updateSphereSphereE();
+		
+		/** \brief Updates the E modulus (E*) used for sphere-wall collisions. */
+		void updateSphereWallE();
+		
 	public:
 		SphereCalculator();
 		
@@ -128,6 +138,36 @@ namespace SphereSim{
 		 * \return Requested total energy.
 		 */
 		Scalar getTotalEnergy();
+		
+		/**
+		 * \brief Sets the sphere E modulus.
+		 * \param E_sphere Requested sphere E modulus.
+		 */
+		void setSphereE(Scalar E_sphere);
+		
+		/**
+		 * \brief Sets the sphere poisson number.
+		 * \param poisson_sphere Requested sphere poisson number.
+		 */
+		void setSpherePoisson(Scalar poisson_sphere);
+		
+		/**
+		 * \brief Sets the wall E modulus.
+		 * \param E_wall Requested wall E modulus.
+		 */
+		void setWallE(Scalar E_wall);
+		
+		/**
+		 * \brief Sets the wall poisson number.
+		 * \param poisson_wall Requested wall poisson number.
+		 */
+		void setWallPoisson(Scalar poisson_wall);
+		
+		/**
+		 * \brief Sets the earth gravity.
+		 * \param earthGravity Requested earth gravity.
+		 */
+		void setEarthGravity(Vector3 earthGravity);
 		
 		friend class SphereManager;
 	};

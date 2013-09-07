@@ -16,9 +16,6 @@
 
 using namespace SphereSim;
 
-static const Scalar E = 5000, poisson = 0.5;
-static const Scalar E_ = 1/(((1-poisson*poisson)/E)+((1-poisson*poisson)/E));
-
 SphereCalculator::SphereCalculator(){
 	qDebug()<<"SphereCalculator: constructor called";
 	updateData();
@@ -26,6 +23,11 @@ SphereCalculator::SphereCalculator(){
 	timeStep = 0.002;
 	setIntegratorMethod(IntegratorMethods::RungeKuttaFehlberg54);
 	calculationCounter = 0;
+	setSphereE(5000);
+	setSpherePoisson(0.5);
+	setWallE(5000);
+	setWallPoisson(0.5);
+	setEarthGravity(Vector3(0, -9.81, 0));
 }
 
 QVector<Sphere>& SphereCalculator::getSpheres(){
@@ -36,14 +38,14 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 	Scalar d, force;
 	Vector3 _force, acc;
 
-	_force = Vector3(0,-9.81*sphere.mass,0);
+	_force = physicalConstants.earthGravity*sphere.mass;
 	for(quint8 dim = 0; dim<3; dim++){
 		if((d = (sphere.radius - sphere.pos(dim))) > 0){
-			force = 4.0f/3.0f*E_*std::sqrt(sphere.radius*std::pow(d,3));
+			force = 4.0f/3.0f*physicalConstants.E_sphere_wall*std::sqrt(sphere.radius*std::pow(d,3));
 			_force(dim) += force;
 		}
 		if((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0){
-			force = 4.0f/3.0f*E_*std::sqrt(sphere.radius*std::pow(d,3));
+			force = 4.0f/3.0f*physicalConstants.E_sphere_wall*std::sqrt(sphere.radius*std::pow(d,3));
 			_force(dim) -= force;
 		}
 	}
@@ -217,18 +219,54 @@ Scalar SphereCalculator::getTotalEnergy(){
 	Sphere sphere;
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex){
 		sphere = sphArr[sphereIndex];
-		sphereEnergy = sphere.mass*9.81*sphere.pos(1);
+		sphereEnergy = -sphere.mass*physicalConstants.earthGravity.dot(sphere.pos);
 		sphereEnergy += 0.5*sphere.mass*sphere.speed.squaredNorm();
 		
 		for(quint8 dim = 0; dim<3; dim++){
 			if((d = (sphere.radius - sphere.pos(dim))) > 0){
-				sphereEnergy += 8.0/15.0*E_*sqrt(sphere.radius)*pow(d, 2.5);
+				sphereEnergy += 8.0/15.0*physicalConstants.E_sphere_wall*sqrt(sphere.radius)*pow(d, 2.5);
 			}
 			if((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0){
-				sphereEnergy += 8.0/15.0*E_*sqrt(sphere.radius)*pow(d, 2.5);
+				sphereEnergy += 8.0/15.0*physicalConstants.E_sphere_wall*sqrt(sphere.radius)*pow(d, 2.5);
 			}
 		}
 		totalEnergy += sphereEnergy;
 	}
 	return totalEnergy;
+}
+
+void SphereCalculator::updateSphereSphereE(){
+	physicalConstants.E_sphere_sphere = 1/(((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere)
+		+((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere));
+}
+
+void SphereCalculator::updateSphereWallE(){
+	physicalConstants.E_sphere_wall = 1/(((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere)
+		+((1-physicalConstants.poisson_wall*physicalConstants.poisson_wall)/physicalConstants.E_wall));
+}
+
+void SphereCalculator::setSphereE(Scalar E_sphere){
+	physicalConstants.E_sphere = E_sphere;
+	updateSphereSphereE();
+	updateSphereWallE();
+}
+
+void SphereCalculator::setSpherePoisson(Scalar poisson_sphere){
+	physicalConstants.poisson_sphere = poisson_sphere;
+	updateSphereSphereE();
+	updateSphereWallE();
+}
+
+void SphereCalculator::setWallE(Scalar E_wall){
+	physicalConstants.E_wall = E_wall;
+	updateSphereWallE();
+}
+
+void SphereCalculator::setWallPoisson(Scalar poisson_wall){
+	physicalConstants.poisson_wall = poisson_wall;
+	updateSphereWallE();
+}
+
+void SphereCalculator::setEarthGravity(Vector3 earthGravity){
+	physicalConstants.earthGravity = earthGravity;
 }

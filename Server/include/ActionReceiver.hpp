@@ -81,12 +81,20 @@ namespace SphereSim{
 		void handleCalculationAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
 		/**
-		 * \brief Handles requests that informs about sphere properties.
+		 * \brief Handles requests that inform about sphere properties.
 		 * \param actionGroup Action group that will be handled.
 		 * \param action Action that will be handled.
 		 * \param data Data sent with the action request.
 		 */
 		void handleInformationAction(quint8 actionGroup, quint8 action, QByteArray data);
+		
+		/**
+		 * \brief Handles requests that read or update physical constants.
+		 * \param actionGroup Action group that will be handled.
+		 * \param action Action that will be handled.
+		 * \param data Data sent with the action request.
+		 */
+		void handlePhysicalConstantsAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
 		/**
 		 * \brief Handles all unknown action group requests.

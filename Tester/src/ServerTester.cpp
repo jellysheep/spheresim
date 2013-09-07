@@ -222,6 +222,12 @@ void ServerTester::runCalculationActionTests(){
 	endTest();
 	sender->addSphere();
 	
+	sender->setSphereE(5000);
+	sender->setSpherePoisson(0.5);
+	sender->setWallE(5000);
+	sender->setWallPoisson(0.5);
+	sender->setEarthGravity(Vector3(0, -9.81, 0));
+	
 	runCalculationActionTests_internal_(IntegratorMethods::HeunEuler21);
 	runCalculationActionTests_internal_(IntegratorMethods::BogackiShampine32);
 	runCalculationActionTests_internal_(IntegratorMethods::RungeKuttaFehlberg54);
@@ -271,6 +277,7 @@ void ServerTester::runCalculationActionTests_internal(const char* integratorMeth
 	}
 	endEnergy = sender->getTotalEnergy();
 	Scalar relError = 1.0-(beginEnergy/endEnergy);
+	Console::out<<"rel. error: "<<relError<<" \t";
 	Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/(steps*stepsAtOnce));
 	quint32 realSteps = sender->popCalculationCounter();
 	Scalar integratorWorth = 5+log(steps*stepsAtOnce)-0.1*log(fabs(relError))-log(realSteps);

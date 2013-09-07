@@ -24,6 +24,7 @@ set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/SphereManager.hpp
 	${PROJECT_INCLUDE_DIR}/SphereCalculator.hpp
 	${PROJECT_INCLUDE_DIR}/ButcherTableau.hpp
+	${PROJECT_INCLUDE_DIR}/PhysicalConstants.hpp
 )
 
 add_executable(SphereSim_Server ${SOURCES} ${HEADERS})

@@ -215,6 +215,36 @@ namespace SphereSim{
 		 * \return Sent total energy.
 		 */
 		Scalar getTotalEnergy();
+		
+		/**
+		 * \brief Requests the server to set the sphere E modulus.
+		 * \param E_sphere Requested sphere E modulus.
+		 */
+		void setSphereE(Scalar E_sphere);
+		
+		/**
+		 * \brief Requests the server to set the sphere poisson number.
+		 * \param poisson_sphere Requested sphere poisson number.
+		 */
+		void setSpherePoisson(Scalar poisson_sphere);
+		
+		/**
+		 * \brief Requests the server to set the wall E modulus.
+		 * \param E_wall Requested wall E modulus.
+		 */
+		void setWallE(Scalar E_wall);
+		
+		/**
+		 * \brief Requests the server to set the wall poisson number.
+		 * \param poisson_wall Requested wall poisson number.
+		 */
+		void setWallPoisson(Scalar poisson_wall);
+		
+		/**
+		 * \brief Requests the server to set the earth gravity.
+		 * \param earthGravity Requested earth gravity.
+		 */
+		void setEarthGravity(Vector3 earthGravity);
 	
 	public slots:
 		void connected(){
