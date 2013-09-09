@@ -59,6 +59,28 @@ namespace SphereSim{
 		/** \brief Stores the last server status received from server. */
 		quint8 lastServerStatus;
 		
+		/** \brief True if a server reply to a client request appeared. */
+		bool receivedServerReply;
+		
+		/** \brief Data of the last server reply. */
+		QByteArray lastServerReplyData;
+		
+		/** \brief Partial data from a server reply. */
+		QByteArray replyData;
+		
+		/** \brief Flag if currently data from a server reply is being collected;
+		 * if true, no new replies are accepted. */
+		bool collectingReplyData;
+		
+		/**
+		 * \brief Processes received reply data.
+		 * \param byteArray Data from network stream to process.
+		 */
+		void processData(QByteArray byteArray);
+		
+		/** \brief Processes and answers received reply. */
+		void processReply();
+		
 		/**
 		 * \brief Sends an action request and data to the server.
 		 * \param actionGroup Group of the requested action.
@@ -263,6 +285,9 @@ namespace SphereSim{
 		void connected(){
 			connectedFlag = true;
 		}
+		
+		/** \brief Reads data from server. */
+		void readData();
 	};
 	
 }

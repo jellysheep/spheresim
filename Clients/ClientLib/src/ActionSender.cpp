@@ -17,6 +17,7 @@
 #include <QHostAddress>
 #include <QProcess>
 #include <QDataStream>
+#include <QCoreApplication>
 
 using namespace SphereSim;
 
@@ -26,8 +27,11 @@ ActionSender::ActionSender(QHostAddress a, quint16 p):frameBuffer(60){
 	port = p;
 	connectedFlag = false;
 	createdOwnServer = false;
+	receivedServerReply = false;
+	lastServerStatus = ServerStatusReplies::acknowledge;
 	socket = new QTcpSocket();
 	connect(socket, SIGNAL(connected()), SLOT(connected()));
+	connect(socket, SIGNAL(readyRead()), SLOT(readData()));
 	connectionTryCount = 0;
 	while(connectionTryCount<1000 && !connectedFlag){
 		socket->connectToHost(*addr, port);
@@ -80,51 +84,77 @@ void ActionSender::sendAction(quint8 actionGroup, quint8 action){
 }
 
 QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action, QByteArray& arr){
-	socket->readAll(); ///clear buffer
 	sendAction(actionGroup, action, arr);
-	
-	QByteArray retData, data;
-	qint16 endIndex, startIndex;
-	bool allDataReceived = false, dataStarted = false;
-	while(!allDataReceived){
-		if(!socket->waitForReadyRead(1000)){
-			break;
-		}
-		data = socket->readAll();
-		if(!dataStarted){
-			startIndex = data.indexOf(Connection::startByte);
-			if(startIndex>=0){
-				dataStarted = true;
-				endIndex = data.indexOf(Connection::endByte);
-				if(endIndex>=0){
-					retData = data.mid(startIndex+1, endIndex-startIndex-1);
-					allDataReceived = true;
-					break;
-				}else{
-					retData = data.right(startIndex+1);
-					continue;
-				}
-			}
-		}else{
-			endIndex = data.indexOf(Connection::endByte);
-			if(endIndex>=0){
-				retData.append(data.left(endIndex));
-				allDataReceived = true;
-				break;
-			}else{
-				retData.append(data);
-				continue;
-			}
-		}
+	while(!receivedServerReply){
+		QCoreApplication::processEvents();
 	}
-	lastServerStatus = retData.at(0);
-	retData = retData.right(retData.size()-1);
-	retData = QByteArray::fromBase64(retData);
-	return retData;
+	receivedServerReply = false;
+	return lastServerReplyData;
 }
+
 QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action){
 	QByteArray arr;
 	return sendReplyAction(actionGroup, action, arr);
+}
+
+void ActionSender::readData(){
+	QByteArray arr = socket->readAll();
+	processData(arr);
+}
+
+void ActionSender::processData(QByteArray byteArray){
+	qint16 endIndex, startIndex;
+	endIndex = byteArray.indexOf(Connection::endByte);
+	startIndex = byteArray.indexOf(Connection::startByte);
+	
+	if(endIndex<0){
+		if(startIndex<0){
+			///no endByte or startByte
+			if(collectingReplyData){
+				replyData.append(byteArray);
+			}
+		}else{
+			///only startByte
+			if(!collectingReplyData){
+				//what if last reply did not end correctly? next reply would be skipped (waiting for endByte)...
+				collectingReplyData = true;
+				replyData = byteArray.right(byteArray.size()-startIndex-1);
+			}
+		}
+	}else{
+		if(startIndex<0){
+			///only endByte
+			if(collectingReplyData){
+				replyData.append(byteArray.left(endIndex));
+				collectingReplyData = false;
+				processReply();
+			}
+		}else{
+			///startByte and endByte
+			if(startIndex<endIndex){
+				///startByte before endByte
+				replyData = byteArray.mid(startIndex+1, endIndex-startIndex-1);
+				collectingReplyData = false;
+				processReply();
+				processData(byteArray.right(byteArray.size()-endIndex-1));
+			}else{
+				///endByte before startByte
+				if(collectingReplyData){
+					replyData.append(byteArray.left(endIndex));
+					collectingReplyData = false;
+					processReply();
+					processData(byteArray.right(byteArray.size()-endIndex-1));
+				}
+			}
+		}
+	}
+}
+
+void ActionSender::processReply(){
+	QByteArray data = QByteArray::fromBase64(replyData);
+	lastServerStatus = data[0];
+	lastServerReplyData = data.right(data.length()-1);
+	receivedServerReply = true;
 }
 
 void ActionSender::updateSphereCount(quint16 sphereCount){

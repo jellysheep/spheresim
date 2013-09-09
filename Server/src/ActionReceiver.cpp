@@ -287,8 +287,9 @@ void ActionReceiver::handleUnknownAction(quint8 actionGroup, quint8 action, QByt
 }
 
 void ActionReceiver::sendReply(quint8 serverStatus, const QByteArray& arr){
-	QByteArray data = arr.toBase64();
+	QByteArray data = arr;
 	data.prepend(serverStatus);
+	data = data.toBase64();
 	data.prepend(Connection::startByte);
 	data.append(Connection::endByte);
 	socket->write(data);
