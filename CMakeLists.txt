@@ -64,5 +64,4 @@ add_custom_target (docs COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxy
 	SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
 
 add_subdirectory(Server)
-add_subdirectory(Viewer)
-add_subdirectory(Tester)
+add_subdirectory(Clients)
