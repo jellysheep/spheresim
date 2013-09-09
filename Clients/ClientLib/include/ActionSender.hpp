@@ -13,6 +13,7 @@
 
 #include <Actions.hpp>
 #include <Sphere.hpp>
+#include <FrameBuffer.hpp>
 
 #include <QtGlobal>
 #include <QObject>
@@ -52,6 +53,12 @@ namespace SphereSim{
 		/** \brief Tells if a server was automatically started. */
 		bool createdOwnServer;
 		
+		/** \brief Stores the spheres received from server. */
+		FrameBuffer<Sphere> frameBuffer;
+		
+		/** \brief Stores the last server status received from server. */
+		quint8 lastServerStatus;
+		
 		/**
 		 * \brief Sends an action request and data to the server.
 		 * \param actionGroup Group of the requested action.
@@ -81,6 +88,12 @@ namespace SphereSim{
 		 * \return Reply data from the server.
 		 */
 		QByteArray sendReplyAction(quint8 actionGroup, quint8 action);
+		
+		/**
+		 * \brief Updates the number of spheres and resizes the frame buffer.
+		 * \param sphereCount Number of spheres.
+		 */
+		void updateSphereCount(quint16 sphereCount);
 		
 	public:
 		/**

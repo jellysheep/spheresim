@@ -82,11 +82,24 @@ namespace SphereSim{
 	 */
 	namespace PhysicalConstantsActions{
 		enum Action{
-			setSphereE,
+			setSphereE = 1,
 			setSpherePoisson,
 			setWallE,
 			setWallPoisson,
 			setEarthGravity
+		};
+	}
+	
+	/**
+	 * \brief Server status replies.
+	 */
+	namespace ServerStatusReplies{
+		enum Replies{
+			acknowledge = 1,
+			unknownActionGroup,
+			unknownAction,
+			sendSphere,
+			terminating
 		};
 	}
 	

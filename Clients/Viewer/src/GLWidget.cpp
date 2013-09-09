@@ -14,6 +14,8 @@
 #include <QTimer>
 #include <GL/glu.h>
 
+using namespace SphereSim;
+
 GLWidget::GLWidget(QWidget* parent):QGLWidget(parent){
 	updateTimer = new QTimer(this);
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGL()));

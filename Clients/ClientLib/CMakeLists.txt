@@ -13,9 +13,11 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 set(SOURCES
 	${PROJECT_SOURCE_DIR}/ActionSender.cpp
+	${PROJECT_SOURCE_DIR}/FrameBuffer.cpp
 )
 set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/ActionSender.hpp
+	${PROJECT_INCLUDE_DIR}/FrameBuffer.hpp
 )
 
 add_library(SphereSim_ClientLib ${SOURCES} ${HEADERS})

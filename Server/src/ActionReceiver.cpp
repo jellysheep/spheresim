@@ -123,13 +123,13 @@ void ActionReceiver::handleAction(quint8 actionGroup, quint8 action, QByteArray 
 void ActionReceiver::handleBasicAction(quint8 actionGroup, quint8 action, QByteArray data){
 	switch(action){
 	case BasicActions::getVersion:
-		sendReply("SphereSim Server v" VERSION_STR);
+		sendReply(ServerStatusReplies::acknowledge, "SphereSim Server v" VERSION_STR);
 		break;
 	case BasicActions::getTrueString:
-		sendReply("true");
+		sendReply(ServerStatusReplies::acknowledge, "true");
 		break;
 	case BasicActions::terminateServer:
-		sendReply("Server terminating...");
+		sendReply(ServerStatusReplies::terminating, "Server terminating...");
 		qDebug()<<"Server terminating...";
 		socket->close();
 		delete socket;
@@ -137,7 +137,7 @@ void ActionReceiver::handleBasicAction(quint8 actionGroup, quint8 action, QByteA
 		deleteLater();
 		break;
 	case BasicActions::getFloatingType:
-		sendReply(TOSTR(FLOATING_TYPE));
+		sendReply(ServerStatusReplies::acknowledge, TOSTR(FLOATING_TYPE));
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
@@ -153,10 +153,10 @@ void ActionReceiver::handleSpheresUpdatingAction(quint8 actionGroup, quint8 acti
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	switch(action){
 	case SpheresUpdatingActions::addOne:
-		sendReply(QString::number(sphMan.addSphere()).toUtf8());
+		sendReply(ServerStatusReplies::acknowledge, QString::number(sphMan.addSphere()).toUtf8());
 		break;
 	case SpheresUpdatingActions::removeLast:
-		sendReply(QString::number(sphMan.removeLastSphere()).toUtf8());
+		sendReply(ServerStatusReplies::acknowledge, QString::number(sphMan.removeLastSphere()).toUtf8());
 		break;
 	case SpheresUpdatingActions::updateOne:
 		stream>>i;
@@ -164,19 +164,19 @@ void ActionReceiver::handleSpheresUpdatingAction(quint8 actionGroup, quint8 acti
 		sphMan.updateSphere(i, s);
 		break;
 	case SpheresUpdatingActions::getCount:
-		sendReply(QString::number(sphMan.getCount()).toUtf8());
+		sendReply(ServerStatusReplies::acknowledge, QString::number(sphMan.getCount()).toUtf8());
 		break;
 	case SpheresUpdatingActions::getOne:
 		stream>>i;
 		s = sphMan.getSphere(i);
 		writeSphere(retStream, s);
-		sendReply(retData);
+		sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
 	case SpheresUpdatingActions::getOneFull:
 		stream>>i;
 		s = sphMan.getSphere(i);
 		writeFullSphere(retStream, s);
-		sendReply(retData);
+		sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
@@ -193,7 +193,7 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 	quint32 steps;
 	switch(action){
 	case CalculationActions::doOneStep:
-		sendReply(QString::number(sphMan.calculateStep()).toUtf8());
+		sendReply(ServerStatusReplies::acknowledge, QString::number(sphMan.calculateStep()).toUtf8());
 		break;
 	case CalculationActions::setTimeStep:
 		stream>>s;
@@ -201,7 +201,7 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 		break;
 	case CalculationActions::getTimeStep:
 		retStream<<sphCalc.getTimeStep();
-		sendReply(retData);
+		sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
 	case CalculationActions::setIntegratorMethod:
 		stream>>integratorMethod;
@@ -209,15 +209,15 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 		break;
 	case CalculationActions::getIntegratorMethod:
 		retStream<<sphCalc.getIntegratorMethod();
-		sendReply(retData);
+		sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
 	case CalculationActions::popCalculationCounter:
 		retStream<<sphCalc.popCalculationCounter();
-		sendReply(retData);
+		sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
 	case CalculationActions::doSomeSteps:
 		stream>>steps;
-		sendReply(QString::number(sphCalc.doSomeSteps(steps)).toUtf8());
+		sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc.doSomeSteps(steps)).toUtf8());
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
@@ -232,7 +232,7 @@ void ActionReceiver::handleInformationAction(quint8 actionGroup, quint8 action, 
 	switch(action){
 	case InformationActions::getTotalEnergy:
 		retStream<<sphCalc.getTotalEnergy();
-		sendReply(retData);
+		sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
@@ -277,17 +277,18 @@ void ActionReceiver::handlePhysicalConstantsAction(quint8 actionGroup, quint8 ac
 void ActionReceiver::handleUnknownActionGroup(quint8 actionGroup, quint8 action, QByteArray data){
 	qWarning()<<"ActionReceiver: Warning: received unknown action group"
 		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
-	sendReply("unknown action group");
+	sendReply(ServerStatusReplies::unknownActionGroup, "unknown action group");
 }
 
 void ActionReceiver::handleUnknownAction(quint8 actionGroup, quint8 action, QByteArray data){
 	qWarning()<<"ActionReceiver: Warning: received unknown action"
 		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
-	sendReply("unknown action");
+	sendReply(ServerStatusReplies::unknownAction, "unknown action");
 }
 
-void ActionReceiver::sendReply(const QByteArray& arr){
+void ActionReceiver::sendReply(quint8 serverStatus, const QByteArray& arr){
 	QByteArray data = arr.toBase64();
+	data.prepend(serverStatus);
 	data.prepend(Connection::startByte);
 	data.append(Connection::endByte);
 	socket->write(data);

@@ -32,6 +32,8 @@
 
 using namespace SphereSim;
 
+const int ServerTester::framebuffer = 255;
+
 ServerTester::ServerTester(QHostAddress addr, quint16 port){
 	qDebug()<<"ServerTester: constructor called";
 	sender = new ActionSender(addr, port);
@@ -55,9 +57,10 @@ void ServerTester::runTests(){
 	runTests_(ActionGroups::basic);
 	runTests_(ActionGroups::spheresUpdating);
 	runTests_(ActionGroups::calculation);
+	runTests_(ServerTester::framebuffer);
 }
 
-void ServerTester::runTests(ActionGroups::Group actionGroup, const char* groupName){
+void ServerTester::runTests(quint8 actionGroup, const char* groupName){
 	testCounter = 0;
 	successCounter = 0;
 	
@@ -72,6 +75,9 @@ void ServerTester::runTests(ActionGroups::Group actionGroup, const char* groupNa
 		break;
 	case ActionGroups::calculation:
 		runCalculationActionTests();
+		break;
+	case ServerTester::framebuffer:
+		runFrameBufferTests();
 		break;
 	default:
 		Console::out<<"ServerTester: ";
@@ -284,6 +290,45 @@ void ServerTester::runCalculationActionTests_internal(const char* integratorMeth
 	Console::out<<"integrator worth: "<<integratorWorth<<" ("<<integratorMethod<<"). \t";
 	verify(turningPoints, GreaterOrEqual, expectedTurningPoints*0.9);
 	verify(turningPoints, SmallerOrEqual, expectedTurningPoints*1.1);
+}
+
+void ServerTester::runFrameBufferTests(){
+	quint16 bufferSize = 4;
+	quint16 elementsPerFrame = 4;
+	FrameBuffer<quint8> buffer(bufferSize, elementsPerFrame);
+	quint8 element;
+	startTest_(framebuffer);
+		for(quint8 i = 0; i<bufferSize+1; i++){
+			for(quint8 j = 0; j<elementsPerFrame; j++){
+				buffer.pushElement((quint8)(j+i*elementsPerFrame));
+			}
+			buffer.pushFrame();
+		}
+		for(quint8 i = 0; i<bufferSize; i++){
+			for(quint8 j = 0; j<elementsPerFrame; j++){
+				element = j+i*elementsPerFrame;
+				verify(buffer.popElement(), Equal, element);
+			}
+			buffer.popFrame();
+		}
+	endTest();
+	startTest_(framebuffer);
+		elementsPerFrame = 5;
+		buffer.setElementsPerFrame(elementsPerFrame);
+		for(quint8 i = 0; i<bufferSize+1; i++){
+			for(quint8 j = 0; j<elementsPerFrame; j++){
+				buffer.pushElement((quint8)(j+i*elementsPerFrame));
+			}
+			buffer.pushFrame();
+		}
+		for(quint8 i = 0; i<bufferSize; i++){
+			for(quint8 j = 0; j<elementsPerFrame; j++){
+				element = j+i*elementsPerFrame;
+				verify(buffer.popElement(), Equal, element);
+			}
+			buffer.popFrame();
+		}
+	endTest();
 }
 
 void ServerTester::startTest(const char* actionName){

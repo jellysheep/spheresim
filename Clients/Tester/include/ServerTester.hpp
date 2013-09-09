@@ -42,6 +42,8 @@ namespace SphereSim{
 		/** \brief Tells which action is currently tested. */
 		QString testActionName;
 		
+		static const int framebuffer;
+		
 	public:
 		/**
 		 * \brief Starts a ServerTester with the specified address and port.
@@ -73,7 +75,7 @@ namespace SphereSim{
 		 * \param actionGroup Group of the actions that will be tested.
 		 * \param groupName Name of the specified action group. Used for console outputs.
 		 */
-		void runTests(ActionGroups::Group actionGroup, const char* groupName);
+		void runTests(quint8 actionGroup, const char* groupName);
 		
 		/** \brief Runs all tests of the basic actions. */
 		void runBasicActionTests();
@@ -89,6 +91,9 @@ namespace SphereSim{
 		 * \param integratorMethod Name of the used integrator method.
 		 */
 		void runCalculationActionTests_internal(const char* integratorMethod);
+		
+		/** \brief Runs all frame buffer tests. */
+		void runFrameBufferTests();
 		
 		/** \brief Verifies a comparison and displays result on console. */
 		#define verify(t1,op,t2)							\
@@ -122,8 +127,10 @@ namespace SphereSim{
 		verifyFunc(SmallerOrEqual,<=,>);
 		
 		#define verifyApproxEqual(t1,t2,line,str1,str2)		\
-			verifySmallerOrEqual(fabs(t1-t2),0.0001*(t1+t2),\
-			line,"| " str1 " - " str2 " |","0.0001*(t1+t2)");
+			verifySmallerOrEqual(fabs(t1-t2),				\
+			0.0001*(fabs(t1)+fabs(t2)),						\
+			line,"|" str1 " - " str2 "|",					\
+			"0.0001*(|" str1 "| + |" str2 "|)");
 		
 		/**
 		 * \brief Informs that a new test will be started.

@@ -20,7 +20,7 @@
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(QHostAddress a, quint16 p){
+ActionSender::ActionSender(QHostAddress a, quint16 p):frameBuffer(60){
 	qDebug()<<"ActionSender: constructor called";
 	addr = new QHostAddress(a);
 	port = p;
@@ -117,12 +117,18 @@ QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action, QByt
 			}
 		}
 	}
+	lastServerStatus = retData.at(0);
+	retData = retData.right(retData.size()-1);
 	retData = QByteArray::fromBase64(retData);
 	return retData;
 }
 QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action){
 	QByteArray arr;
 	return sendReplyAction(actionGroup, action, arr);
+}
+
+void ActionSender::updateSphereCount(quint16 sphereCount){
+	frameBuffer.setElementsPerFrame(sphereCount);
 }
 
 QString ActionSender::getVersion(){
@@ -143,15 +149,21 @@ bool ActionSender::isConnected(){
 }
 
 quint16 ActionSender::addSphere(){
-	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::addOne)).toUInt();
+	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::addOne)).toUInt();
+	updateSphereCount(sphereCount);
+	return sphereCount;
 }
 
 quint16 ActionSender::removeLastSphere(){
-	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::removeLast)).toUInt();
+	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::removeLast)).toUInt();
+	updateSphereCount(sphereCount);
+	return sphereCount;
 }
 
 quint16 ActionSender::getSphereCount(){
-	return QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getCount)).toUInt();
+	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getCount)).toUInt();
+	updateSphereCount(sphereCount);
+	return sphereCount;
 }
 
 void ActionSender::updateSphere(quint16 i, Sphere s){

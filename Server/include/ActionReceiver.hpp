@@ -114,9 +114,10 @@ namespace SphereSim{
 		
 		/**
 		 * \brief Sends encoded reply to client.
+		 * \param serverStatus Server status to be sent.
 		 * \param data Data which is sent as a reply to the client.
 		 */
-		void sendReply(const QByteArray& data);
+		void sendReply(quint8 serverStatus, const QByteArray& data);
 		
 		/** \brief Stores sphere data. */
 		SphereManager sphMan;
