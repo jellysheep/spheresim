@@ -18,12 +18,12 @@ using namespace SphereSim;
 
 GLWidget::GLWidget(QWidget* parent):QGLWidget(parent){
 	updateTimer = new QTimer(this);
-    connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGL()));
-    updateTimer->start(1000/60);
+	connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGL()));
+	updateTimer->start(1000/60);
 }
 
 void GLWidget::initializeGL(){
-    qglClearColor(QColor("lightgray"));
+	qglClearColor(QColor("lightgray"));
 	glEnable(GL_BLEND);
 	glEnable(GL_POINT_SMOOTH);
 	glEnable(GL_LINE_SMOOTH);
@@ -49,8 +49,8 @@ void GLWidget::resizeGL(int width, int height){
 
 void GLWidget::paintGL(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -59,12 +59,8 @@ void GLWidget::paintGL(){
 }
 
 void GLWidget::paintBackground(){
-	bool use3D = true;
 	glPushMatrix();
 	
-	if(!use3D){
-		glDisable(GL_POLYGON_SMOOTH);
-	}
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 	glBegin(GL_QUADS);
@@ -78,12 +74,8 @@ void GLWidget::paintBackground(){
 	glVertex3f( x,-y, f);
 	glVertex3f(-x,-y, f);
 	glEnd();
-	if(use3D){
-		glEnable(GL_LIGHTING);
-		glEnable(GL_DEPTH_TEST);
-	}else{
-		//glEnable(GL_POLYGON_SMOOTH);
-	}
+	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
 	
 	glPopMatrix();
 }

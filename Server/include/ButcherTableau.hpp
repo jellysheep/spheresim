@@ -38,6 +38,7 @@ namespace SphereSim{
 		Scalar c[10];
 		
 		ButcherTableau();
+		ButcherTableau(quint8 _order);
 		/**
 		 * \brief Initializes the Butcher tableau.
 		 * \param _order The Runge-Kutta method order and array size.

@@ -24,19 +24,22 @@ FrameBuffer<T>::FrameBuffer(quint16 bufferSize_){
 	elementWriteIndex = 0;
 	currentReadFrame = NULL;
 	currentWriteFrame = NULL;
+	skipNextFrame = false;
 }
 
 template <typename T>
 FrameBuffer<T>::FrameBuffer(quint16 bufferSize_, quint16 elementsPerFrame_){
 	bufferSize = bufferSize_;
 	elementsPerFrame = elementsPerFrame_;
-	frames = new T[bufferSize*elementsPerFrame];
+	quint32 totalElements = bufferSize*elementsPerFrame;
+	frames = new T[totalElements];
 	readIndex = 0;
 	writeIndex = 0;
 	elementReadIndex = 0;
 	elementWriteIndex = 0;
 	currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
 	currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
+	skipNextFrame = false;
 }
 
 template <typename T>
@@ -53,7 +56,8 @@ void FrameBuffer<T>::setElementsPerFrame(quint16 elementsPerFrame_){
 			delete[] frames;
 		}
 		elementsPerFrame = elementsPerFrame_;
-		frames = new T[bufferSize*elementsPerFrame];
+		quint32 totalElements = bufferSize*elementsPerFrame;
+		frames = new T[totalElements];
 		readIndex = 0;
 		writeIndex = 0;
 		currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
@@ -89,8 +93,7 @@ T FrameBuffer<T>::popElement(){
 	if(elementReadIndex<elementsPerFrame){
 		return currentReadFrame[elementReadIndex++];
 	}else{
-		T dummyElement;
-		return dummyElement;
+		return T();
 	}
 }
 
