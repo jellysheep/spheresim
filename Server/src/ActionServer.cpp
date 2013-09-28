@@ -4,7 +4,7 @@
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
- * This file is licensed under the "BSD 3-Clause License". 
+ * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code.
  */
 
@@ -12,10 +12,11 @@
 #include <ActionReceiver.hpp>
 
 #include <QTcpServer>
+#include <QStringList>
 
 using namespace SphereSim;
 
-ActionServer::ActionServer(QHostAddress addr, quint16 port){
+ActionServer::ActionServer(QStringList args, QHostAddress addr, quint16 port){
 	qDebug()<<"ActionServer: constructor called";
 	server = new QTcpServer();
 	connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
@@ -26,11 +27,11 @@ ActionServer::ActionServer(QHostAddress addr, quint16 port){
 		qDebug()<<"ActionServer: listening did not succeed.";
 	}
 }
-ActionServer::ActionServer(QString addr, quint16 port)
-	:ActionServer(QHostAddress(addr),port){
+ActionServer::ActionServer(QStringList args, QString addr, quint16 port)
+	:ActionServer(args, QHostAddress(addr),port){
 }
-ActionServer::ActionServer(const char* addr, quint16 port)
-	:ActionServer(QString(addr),port){
+ActionServer::ActionServer(QStringList args, const char* addr, quint16 port)
+	:ActionServer(args, QString(addr),port){
 }
 
 void ActionServer::newConnection(){

@@ -4,7 +4,7 @@
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
- * This file is licensed under the "BSD 3-Clause License". 
+ * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code.
  */
 
@@ -20,9 +20,10 @@ namespace SphereSim{
 	 * \brief Specifies default connection details for client and server. 
 	 */
 	namespace Connection{
-		const QString defaultAddress = "127.0.0.1";
-		const quint16 defaultPort = 8765;
-		const char startByte = '<', endByte = '>';
+		extern QString defaultListeningAddress;
+		extern QString defaultAddress;
+		extern quint16 defaultPort;
+		extern char startByte, endByte;
 	}
 	
 }

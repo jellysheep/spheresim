@@ -4,7 +4,7 @@
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
- * This file is licensed under the "BSD 3-Clause License". 
+ * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code.
  */
 
@@ -12,6 +12,7 @@
 #include <Connection.hpp>
 
 #include <QCoreApplication>
+#include <QStringList>
 
 using namespace SphereSim;
 
@@ -23,7 +24,8 @@ using namespace SphereSim;
 
 int main(int argc, char** argv){
 	QCoreApplication app(argc, argv);
-	ActionServer actSvr(Connection::defaultAddress, Connection::defaultPort);
+	QStringList args = app.arguments();
+	ActionServer actSvr(args, Connection::defaultListeningAddress, Connection::defaultPort);
 	app.exec();
 	
 	return 0;

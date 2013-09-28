@@ -10,7 +10,7 @@ add_definitions("-DUSE_DOUBLE=${USE_DOUBLE}")
 include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
 
-set(SOURCES
+set(SOURCES ${SOURCES}
 	${PROJECT_SOURCE_DIR}/main.cpp
 	${PROJECT_SOURCE_DIR}/ActionServer.cpp
 	${PROJECT_SOURCE_DIR}/ActionReceiver.cpp

@@ -4,7 +4,7 @@
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
- * This file is licensed under the "BSD 3-Clause License". 
+ * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code.
  */
 
@@ -34,18 +34,18 @@ using namespace SphereSim;
 
 const int ServerTester::framebuffer = 255;
 
-ServerTester::ServerTester(QHostAddress addr, quint16 port){
+ServerTester::ServerTester(QStringList args, QHostAddress addr, quint16 port){
 	qDebug()<<"ServerTester: constructor called";
-	sender = new ActionSender(addr, port);
+	sender = new ActionSender(args, addr, port);
 	testCounter = 0;
 	successCounter = 0;
 	testSuccess = true;
 }
-ServerTester::ServerTester(QString addr, quint16 port)
-	:ServerTester(QHostAddress(addr),port){
+ServerTester::ServerTester(QStringList args, QString addr, quint16 port)
+	:ServerTester(args,QHostAddress(addr),port){
 }
-ServerTester::ServerTester(const char* addr, quint16 port)
-	:ServerTester(QString(addr),port){
+ServerTester::ServerTester(QStringList args, const char* addr, quint16 port)
+	:ServerTester(args,QString(addr),port){
 }
 
 ServerTester::~ServerTester(){

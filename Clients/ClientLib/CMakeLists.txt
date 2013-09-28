@@ -11,7 +11,7 @@ include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${PROJECT_BINARY_DIR}")
 
-set(SOURCES
+set(SOURCES ${SOURCES}
 	${PROJECT_SOURCE_DIR}/ActionSender.cpp
 	${PROJECT_SOURCE_DIR}/FrameBuffer.cpp
 )

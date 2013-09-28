@@ -8,15 +8,15 @@
  * Full license text is under the file "LICENSE" provided with this code.
  */
 
-#ifndef _VERSION_HPP_
-#define _VERSION_HPP_
+#include <Connection.hpp>
 
-#ifndef VERSION
-	#define VERSION unknown
-#endif
-
-#define TOSTR2(x) #x
-#define TOSTR(x) TOSTR2(x)
-#define VERSION_STR TOSTR(VERSION)
-
-#endif
+namespace SphereSim{
+	
+	namespace Connection{
+		QString defaultListeningAddress = "127.0.0.1";
+		QString defaultAddress = "127.0.0.1";
+		quint16 defaultPort = 8765;
+		char startByte = '<', endByte = '>';
+	}
+	
+}

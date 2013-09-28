@@ -4,7 +4,7 @@
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
- * This file is licensed under the "BSD 3-Clause License". 
+ * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code.
  */
 
@@ -47,22 +47,25 @@ namespace SphereSim{
 	public:
 		/**
 		 * \brief Starts a ServerTester with the specified address and port.
+		 * \param args The arguments that the program was invoked with.
 		 * \param addr The address that the socket will be connecting to.
 		 * \param port The port that the socket will be connecting to.
 		 */
-		ServerTester(QHostAddress addr, quint16 port);
+		ServerTester(QStringList args, QHostAddress addr, quint16 port);
 		/**
-		 * \brief Starts a ServerTester with the specified address and port. 
+		 * \brief Starts a ServerTester with the specified address and port.
+		 * \param args The arguments that the program was invoked with.
 		 * \param addr The address that the socket will be connecting to.
 		 * \param port The port that the socket will be connecting to.
 		 */
-		ServerTester(QString addr, quint16 port);
+		ServerTester(QStringList args, QString addr, quint16 port);
 		/**
-		 * \brief Starts a ServerTester with the specified address and port. 
+		 * \brief Starts a ServerTester with the specified address and port.
+		 * \param args The arguments that the program was invoked with.
 		 * \param addr The address that the socket will be connecting to.
 		 * \param port The port that the socket will be connecting to.
 		 */
-		ServerTester(const char* addr, quint16 port);
+		ServerTester(QStringList args, const char* addr, quint16 port);
 		
 		~ServerTester();
 		

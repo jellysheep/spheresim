@@ -4,7 +4,7 @@
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
- * This file is licensed under the "BSD 3-Clause License". 
+ * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code.
  */
 
@@ -21,7 +21,7 @@
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(QHostAddress a, quint16 p):frameBuffer(60){
+ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuffer(60){
 	qDebug()<<"ActionSender: constructor called";
 	addr = new QHostAddress(a);
 	port = p;
@@ -47,11 +47,11 @@ ActionSender::ActionSender(QHostAddress a, quint16 p):frameBuffer(60){
 		}
 	}
 }
-ActionSender::ActionSender(QString addr, quint16 port)
-	:ActionSender(QHostAddress(addr),port){
+ActionSender::ActionSender(QStringList args, QString addr, quint16 port)
+	:ActionSender(args,QHostAddress(addr),port){
 }
-ActionSender::ActionSender(const char* addr, quint16 port)
-	:ActionSender(QString(addr),port){
+ActionSender::ActionSender(QStringList args, const char* addr, quint16 port)
+	:ActionSender(args,QString(addr),port){
 }
 
 ActionSender::~ActionSender(){

@@ -9,7 +9,7 @@ include_directories("${PROJECT_SOURCE_DIR}")
 
 add_definitions("-DQT_NO_DEBUG_OUTPUT")
 
-set(SOURCES
+set(SOURCES ${SOURCES}
 	${PROJECT_SOURCE_DIR}/main.cpp
 	${PROJECT_SOURCE_DIR}/ServerTester.cpp
 )

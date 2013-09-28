@@ -4,7 +4,7 @@
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
- * This file is licensed under the "BSD 3-Clause License". 
+ * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code.
  */
 
@@ -33,22 +33,25 @@ namespace SphereSim{
 	public:
 		/**
 		 * \brief Starts a QTcpServer and listens to the specified port.
+		 * \param args The arguments that the program was invoked with.
 		 * \param addr The address that the server will be listening to. 
 		 * \param port The port that the server will be listening to. 
 		 */
-		ActionServer(QHostAddress addr, quint16 port);
+		ActionServer(QStringList args, QHostAddress addr, quint16 port);
 		/**
 		 * \brief Starts a QTcpServer and listens to the specified port.
+		 * \param args The arguments that the program was invoked with.
 		 * \param addr The address that the server will be listening to. 
 		 * \param port The port that the server will be listening to. 
 		 */
-		ActionServer(QString addr, quint16 port);
+		ActionServer(QStringList args, QString addr, quint16 port);
 		/**
 		 * \brief Starts a QTcpServer and listens to the specified port.
+		 * \param args The arguments that the program was invoked with.
 		 * \param addr The address that the server will be listening to. 
 		 * \param port The port that the server will be listening to. 
 		 */
-		ActionServer(const char* addr, quint16 port);
+		ActionServer(QStringList args, const char* addr, quint16 port);
 		
 		~ActionServer();
 		
