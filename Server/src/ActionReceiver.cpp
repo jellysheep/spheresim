@@ -219,6 +219,12 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 		stream>>steps;
 		sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc.doSomeSteps(steps)).toUtf8());
 		break;
+	case CalculationActions::startSimulation:
+		sphCalc.startSimulation();
+		break;
+	case CalculationActions::stopSimulation:
+		sphCalc.stopSimulation();
+		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
 		break;

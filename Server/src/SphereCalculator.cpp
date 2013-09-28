@@ -9,9 +9,11 @@
  */
 
 #include <SphereCalculator.hpp>
+#include <SimulationWorker.hpp>
 #include <Console.hpp>
 
 #include <QDebug>
+#include <QThread>
 #include <cmath>
 
 using namespace SphereSim;
@@ -28,6 +30,13 @@ SphereCalculator::SphereCalculator(){
 	setWallE(5000);
 	setWallPoisson(0.5);
 	setEarthGravity(Vector3(0, -9.81, 0));
+	
+	simulationThread = NULL;
+	simulationWorker = NULL;
+}
+
+SphereCalculator::~SphereCalculator(){
+	stopSimulation();
 }
 
 QVector<Sphere>& SphereCalculator::getSpheres(){
@@ -269,4 +278,25 @@ void SphereCalculator::setWallPoisson(Scalar poisson_wall){
 
 void SphereCalculator::setEarthGravity(Vector3 earthGravity){
 	physicalConstants.earthGravity = earthGravity;
+}
+
+void SphereCalculator::startSimulation(){
+	if(simulationWorker == NULL){
+		simulationWorker = new SimulationWorker(this);
+		simulationThread = new QThread();
+		simulationWorker->moveToThread(simulationThread);
+		QObject::connect(simulationThread, SIGNAL(started()), simulationWorker, SLOT(work()));
+		QObject::connect(simulationWorker, SIGNAL(finished()), simulationThread, SLOT(quit()));
+		QObject::connect(simulationWorker, SIGNAL(finished()), simulationWorker, SLOT(deleteLater()));
+		QObject::connect(simulationThread, SIGNAL(finished()), simulationThread, SLOT(deleteLater()));
+		simulationThread->start();
+	}
+}
+
+void SphereCalculator::stopSimulation(){
+	if(simulationWorker != NULL){
+		simulationWorker->stop();
+		simulationThread = NULL;
+		simulationWorker = NULL;
+	}
 }

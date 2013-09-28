@@ -314,3 +314,11 @@ void ActionSender::setEarthGravity(Vector3 earthGravity){
 	stream<<earthGravity(2);
 	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setEarthGravity, arr);
 }
+
+void ActionSender::startSimulation(){
+	sendAction(ActionGroups::calculation, CalculationActions::startSimulation);
+}
+
+void ActionSender::stopSimulation(){
+	sendAction(ActionGroups::calculation, CalculationActions::stopSimulation);
+}

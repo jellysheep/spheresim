@@ -64,7 +64,9 @@ namespace SphereSim{
 			setIntegratorMethod,
 			getIntegratorMethod,
 			popCalculationCounter,
-			doSomeSteps
+			doSomeSteps,
+			startSimulation,
+			stopSimulation
 		};
 	}
 	

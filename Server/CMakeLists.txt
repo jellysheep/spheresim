@@ -17,6 +17,7 @@ set(SOURCES ${SOURCES}
 	${PROJECT_SOURCE_DIR}/SphereManager.cpp
 	${PROJECT_SOURCE_DIR}/SphereCalculator.cpp
 	${PROJECT_SOURCE_DIR}/ButcherTableau.cpp
+	${PROJECT_SOURCE_DIR}/SimulationWorker.cpp
 )
 set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/ActionServer.hpp
@@ -25,6 +26,7 @@ set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/SphereCalculator.hpp
 	${PROJECT_INCLUDE_DIR}/ButcherTableau.hpp
 	${PROJECT_INCLUDE_DIR}/PhysicalConstants.hpp
+	${PROJECT_INCLUDE_DIR}/SimulationWorker.hpp
 )
 
 add_executable(SphereSim_Server ${SOURCES} ${HEADERS})

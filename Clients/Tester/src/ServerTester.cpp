@@ -14,6 +14,7 @@
 
 #include <QTcpServer>
 #include <QProcess>
+#include <QtTest/QTest>
 
 #define runTests_(x) \
 	runTests(x, TOSTR(x));
@@ -226,8 +227,17 @@ void ServerTester::runCalculationActionTests(){
 		sender->setTimeStep(timeStep);
 		verify(timeStep, ApproxEqual, sender->getTimeStep());
 	endTest();
-	sender->addSphere();
 	
+	startTest_(CalculationActions::startSimulation);
+		for(quint16 i = 0; i<20; i++){
+			sender->startSimulation();
+			QTest::qWait(1);
+			sender->stopSimulation();
+			QTest::qWait(1);
+		}
+	endTest();
+	
+	sender->addSphere();
 	sender->setSphereE(5000);
 	sender->setSpherePoisson(0.5);
 	sender->setWallE(5000);

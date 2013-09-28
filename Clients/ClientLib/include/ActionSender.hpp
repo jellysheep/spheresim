@@ -283,6 +283,16 @@ namespace SphereSim{
 		 * \param earthGravity Requested earth gravity.
 		 */
 		void setEarthGravity(Vector3 earthGravity);
+		
+		/**
+		 * \brief Requests the server to start the simulation.
+		 */
+		void startSimulation();
+		
+		/**
+		 * \brief Requests the server to stop the simulation.
+		 */
+		void stopSimulation();
 	
 	public slots:
 		void connected(){

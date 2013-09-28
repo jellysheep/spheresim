@@ -18,9 +18,12 @@
 
 #include <QVector>
 
+class QTimer;
+
 namespace SphereSim{
 	
 	class SphereManager;
+	class SimulationWorker;
 	
 	/**
 	 * \brief Calculates sphere physics.
@@ -87,8 +90,18 @@ namespace SphereSim{
 		/** \brief Updates the E modulus (E*) used for sphere-wall collisions. */
 		void updateSphereWallE();
 		
+		/** \brief Thread used for simulation. */
+		QThread* simulationThread;
+		
+		/** \brief Worker used for simulation. */
+		SimulationWorker* simulationWorker;
+		
+		/** \brief Flag if the simulation is running. */
+		bool simulationRunning;
+		
 	public:
 		SphereCalculator();
+		~SphereCalculator();
 		
 		/**
 		 * \brief Calculates the sphere movements for one step.
@@ -169,7 +182,19 @@ namespace SphereSim{
 		 */
 		void setEarthGravity(Vector3 earthGravity);
 		
+		/**
+		 * \brief Starts the simulation.
+		 */
+		void startSimulation();
+		
+		/**
+		 * \brief Stops the simulation.
+		 */
+		void stopSimulation();
+		
 		friend class SphereManager;
+		friend class SimulationWorker;
+		
 	};
 	
 }
