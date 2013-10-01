@@ -20,6 +20,6 @@ set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/FrameBuffer.hpp
 )
 
-add_library(SphereSim_ClientLib ${SOURCES} ${HEADERS})
+add_library(SphereSim_ClientLib STATIC ${SOURCES} ${HEADERS})
 target_link_libraries(SphereSim_ClientLib)
 qt5_use_modules(SphereSim_ClientLib Core Network)

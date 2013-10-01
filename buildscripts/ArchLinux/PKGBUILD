@@ -29,7 +29,8 @@ build(){
 	mkdir build || true
 	cd build
 	cmake ../ -DCMAKE_INSTALL_PREFIX:PATH=/usr
-	make
+	CORE_COUNT=$(nproc)
+	make -j${CORE_COUNT}
 }
 
 package(){
