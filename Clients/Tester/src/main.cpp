@@ -13,6 +13,7 @@
 
 #include <QCoreApplication>
 #include <QStringList>
+#include <QTimer>
 
 using namespace SphereSim;
 
@@ -25,9 +26,7 @@ using namespace SphereSim;
 int main(int argc, char** argv){
 	QCoreApplication app(argc, argv);
 	QStringList args = app.arguments();
-	ServerTester svrTester(args, Connection::defaultAddress, Connection::defaultPort);
-	svrTester.runTests();
-	//app.exec();
-	
-	return 0;
+	ServerTester* svrTester = new ServerTester(args, Connection::defaultAddress, Connection::defaultPort);
+	QTimer::singleShot(0, svrTester, SLOT(runTests()));
+	return app.exec();
 }

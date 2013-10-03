@@ -201,9 +201,8 @@ namespace SphereSim{
 		
 		/**
 		 * \brief Requests the server to calculate one step.
-		 * \return Time in ms needed to calculate the step.
 		 */
-		quint32 calculateStep();
+		void calculateStep();
 		
 		/**
 		 * \brief Requests the server to set the time step.
@@ -244,9 +243,8 @@ namespace SphereSim{
 		/**
 		 * \brief Requests the server to calculate some steps.
 		 * \param steps Number of steps to calculate.
-		 * \return Time in ms needed to calculate the steps.
 		 */
-		quint32 calculateSomeSteps(quint32 steps);
+		void calculateSomeSteps(quint32 steps);
 		
 		/**
 		 * \brief Requests the server to send the total energy.
@@ -286,8 +284,9 @@ namespace SphereSim{
 		
 		/**
 		 * \brief Requests the server to start the simulation.
+		 * \param steps Number of steps to integrate (0 = unlimited).
 		 */
-		void startSimulation();
+		void startSimulation(quint32 steps);
 		
 		/**
 		 * \brief Requests the server to stop the simulation.

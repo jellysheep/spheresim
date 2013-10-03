@@ -19,7 +19,7 @@
 
 using namespace SphereSim;
 
-ActionReceiver::ActionReceiver(QTcpSocket* sock):sphMan(),sphCalc(sphMan.getSphereCalculator()){
+ActionReceiver::ActionReceiver(QTcpSocket* sock):sphCalc(){
 	collectingRequestData = false;
 	socket = sock;
 	connect(socket, SIGNAL(disconnected()), SLOT(deleteLater()));
@@ -153,28 +153,28 @@ void ActionReceiver::handleSpheresUpdatingAction(quint8 actionGroup, quint8 acti
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	switch(action){
 	case SpheresUpdatingActions::addOne:
-		sendReply(ServerStatusReplies::acknowledge, QString::number(sphMan.addSphere()).toUtf8());
+		sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc.addSphere()).toUtf8());
 		break;
 	case SpheresUpdatingActions::removeLast:
-		sendReply(ServerStatusReplies::acknowledge, QString::number(sphMan.removeLastSphere()).toUtf8());
+		sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc.removeLastSphere()).toUtf8());
 		break;
 	case SpheresUpdatingActions::updateOne:
 		stream>>i;
 		readFullSphere(stream, s);
-		sphMan.updateSphere(i, s);
+		sphCalc.updateSphere(i, s);
 		break;
 	case SpheresUpdatingActions::getCount:
-		sendReply(ServerStatusReplies::acknowledge, QString::number(sphMan.getCount()).toUtf8());
+		sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc.getCount()).toUtf8());
 		break;
 	case SpheresUpdatingActions::getOne:
 		stream>>i;
-		s = sphMan.getSphere(i);
+		s = sphCalc.getSphere(i);
 		writeSphere(retStream, s);
 		sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
 	case SpheresUpdatingActions::getOneFull:
 		stream>>i;
-		s = sphMan.getSphere(i);
+		s = sphCalc.getSphere(i);
 		writeFullSphere(retStream, s);
 		sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
@@ -193,7 +193,7 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 	quint32 steps;
 	switch(action){
 	case CalculationActions::doOneStep:
-		sendReply(ServerStatusReplies::acknowledge, QString::number(sphMan.calculateStep()).toUtf8());
+		sphCalc.doOneStep();
 		break;
 	case CalculationActions::setTimeStep:
 		stream>>s;
@@ -217,10 +217,11 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 		break;
 	case CalculationActions::doSomeSteps:
 		stream>>steps;
-		sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc.doSomeSteps(steps)).toUtf8());
+		sphCalc.doSomeSteps(steps);
 		break;
 	case CalculationActions::startSimulation:
-		sphCalc.startSimulation();
+		stream>>steps;
+		sphCalc.startSimulation(steps);
 		break;
 	case CalculationActions::stopSimulation:
 		sphCalc.stopSimulation();

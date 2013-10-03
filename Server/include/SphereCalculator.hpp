@@ -17,6 +17,7 @@
 #include <PhysicalConstants.hpp>
 
 #include <QVector>
+#include <QObject>
 
 class QTimer;
 
@@ -28,7 +29,9 @@ namespace SphereSim{
 	/**
 	 * \brief Calculates sphere physics.
 	 */
-	class SphereCalculator{
+	class SphereCalculator : QObject{
+		Q_OBJECT
+		
 	private:
 		/** \brief Holds the spheres managed by the server. */
 		QVector<Sphere> spheres;
@@ -104,10 +107,54 @@ namespace SphereSim{
 		~SphereCalculator();
 		
 		/**
-		 * \brief Calculates the sphere movements for one step.
-		 * \return Millisecond time used to calculate the step.
+		 * \brief Adds a specific sphere.
+		 * \param s Sphere to add.
+		 * \return Current sphere count.
 		 */
-		quint32 doStep();
+		quint16 addSphere(Sphere s);
+		/**
+		 * \brief Adds a new sphere.
+		 * \return Current sphere count.
+		 */
+		quint16 addSphere();
+		
+		/**
+		 * \brief Removes the last sphere.
+		 * \return Current sphere count.
+		 */
+		quint16 removeLastSphere();
+		/**
+		 * \brief Removes a specific sphere.
+		 * \param i Index of the sphere to remove.
+		 * \return Current sphere count.
+		 */
+		quint16 removeSphere(quint16 i);
+		
+		/**
+		 * \brief Returns the current sphere count.
+		 * \return Current sphere count.
+		 */
+		quint16 getCount();
+		
+		/**
+		 * \brief Updates a specific sphere.
+		 * \param i Index of the sphere to update.
+		 * \param s Sphere data to update.
+		 * \return Current sphere count.
+		 */
+		quint16 updateSphere(quint16 i, Sphere s);
+		
+		/**
+		 * \brief Gets a specific sphere.
+		 * \param i Index of the sphere to get.
+		 * \return Copy of the requested sphere.
+		 */
+		Sphere getSphere(quint16 i);
+		
+		/**
+		 * \brief Calculates the sphere movements for one step.
+		 */
+		void doOneStep();
 		
 		/**
 		 * \brief Sets the time step.
@@ -142,9 +189,8 @@ namespace SphereSim{
 		/**
 		 * \brief Calculates the sphere movements for some steps.
 		 * \param steps Number of steps to calculate.
-		 * \return Millisecond time used to calculate the steps.
 		 */
-		quint32 doSomeSteps(quint32 steps);
+		void doSomeSteps(quint32 steps);
 		
 		/**
 		 * \brief Gets the total energy.
@@ -184,8 +230,9 @@ namespace SphereSim{
 		
 		/**
 		 * \brief Starts the simulation.
+		 * \param steps Number of steps to integrate (0 = unlimited).
 		 */
-		void startSimulation();
+		void startSimulation(quint32 steps);
 		
 		/**
 		 * \brief Stops the simulation.
@@ -194,6 +241,9 @@ namespace SphereSim{
 		
 		friend class SphereManager;
 		friend class SimulationWorker;
+		
+	signals:
+		void requestingSimulationStop();
 		
 	};
 	

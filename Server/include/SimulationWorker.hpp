@@ -26,10 +26,10 @@ namespace SphereSim{
 	private:
 		SphereCalculator* sphCalc;
 		bool running;
+		quint32 steps;
 		
 	public:
-		SimulationWorker(SphereCalculator* sphCalc);
-		~SimulationWorker();
+		SimulationWorker(SphereCalculator* sphCalc, quint32 steps);
 		
 	public slots:
 		void work();

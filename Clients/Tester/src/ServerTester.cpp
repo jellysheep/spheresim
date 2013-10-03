@@ -41,6 +41,7 @@ ServerTester::ServerTester(QStringList args, QHostAddress addr, quint16 port){
 	testCounter = 0;
 	successCounter = 0;
 	testSuccess = true;
+	testResult = 0;
 }
 ServerTester::ServerTester(QStringList args, QString addr, quint16 port)
 	:ServerTester(args,QHostAddress(addr),port){
@@ -59,6 +60,7 @@ void ServerTester::runTests(){
 	runTests_(ActionGroups::spheresUpdating);
 	runTests_(ActionGroups::calculation);
 	runTests_(ServerTester::framebuffer);
+	qApp->exit(result());
 }
 
 void ServerTester::runTests(quint8 actionGroup, const char* groupName){
@@ -228,15 +230,6 @@ void ServerTester::runCalculationActionTests(){
 		verify(timeStep, ApproxEqual, sender->getTimeStep());
 	endTest();
 	
-	startTest_(CalculationActions::startSimulation);
-		for(quint16 i = 0; i<20; i++){
-			sender->startSimulation();
-			QTest::qWait(1);
-			sender->stopSimulation();
-			QTest::qWait(1);
-		}
-	endTest();
-	
 	sender->addSphere();
 	sender->setSphereE(5000);
 	sender->setSpherePoisson(0.5);
@@ -279,8 +272,12 @@ void ServerTester::runCalculationActionTests_internal(const char* integratorMeth
 	beginEnergy = sender->getTotalEnergy();
 	Scalar gradient = 0, oldGradient;
 	for(quint32 i = 0; i<steps; i++){
-		stepTime = sender->calculateSomeSteps(stepsAtOnce);
-		verify(stepTime, Greater, 0.0);
+		if(i%2 == 0){
+			sender->calculateSomeSteps(stepsAtOnce);
+		}else{
+			sender->startSimulation(stepsAtOnce);
+		}
+		QTest::qSleep(1);
 		sender->getFullSphere(0, s);
 		oldPos = pos;
 		pos = s.pos(1);
@@ -298,8 +295,8 @@ void ServerTester::runCalculationActionTests_internal(const char* integratorMeth
 	quint32 realSteps = sender->popCalculationCounter();
 	Scalar integratorWorth = 5+log(steps*stepsAtOnce)-0.1*log(fabs(relError))-log(realSteps);
 	Console::out<<"integrator worth: "<<integratorWorth<<" ("<<integratorMethod<<"). \t";
-	verify(turningPoints, GreaterOrEqual, expectedTurningPoints*0.9);
-	verify(turningPoints, SmallerOrEqual, expectedTurningPoints*1.1);
+	verify(turningPoints, GreaterOrEqual, expectedTurningPoints*0.8);
+	verify(turningPoints, SmallerOrEqual, expectedTurningPoints*1.2);
 }
 
 void ServerTester::runFrameBufferTests(){
@@ -356,4 +353,8 @@ void ServerTester::endTest(){
 void ServerTester::startNewTest(const char* actionName){
 	endTest();
 	startTest(actionName);
+}
+
+quint16 ServerTester::result(){
+	return testResult;
 }

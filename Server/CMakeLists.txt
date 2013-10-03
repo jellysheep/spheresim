@@ -14,7 +14,6 @@ set(SOURCES ${SOURCES}
 	${PROJECT_SOURCE_DIR}/main.cpp
 	${PROJECT_SOURCE_DIR}/ActionServer.cpp
 	${PROJECT_SOURCE_DIR}/ActionReceiver.cpp
-	${PROJECT_SOURCE_DIR}/SphereManager.cpp
 	${PROJECT_SOURCE_DIR}/SphereCalculator.cpp
 	${PROJECT_SOURCE_DIR}/ButcherTableau.cpp
 	${PROJECT_SOURCE_DIR}/SimulationWorker.cpp
@@ -22,7 +21,6 @@ set(SOURCES ${SOURCES}
 set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/ActionServer.hpp
 	${PROJECT_INCLUDE_DIR}/ActionReceiver.hpp
-	${PROJECT_INCLUDE_DIR}/SphereManager.hpp
 	${PROJECT_INCLUDE_DIR}/SphereCalculator.hpp
 	${PROJECT_INCLUDE_DIR}/ButcherTableau.hpp
 	${PROJECT_INCLUDE_DIR}/PhysicalConstants.hpp

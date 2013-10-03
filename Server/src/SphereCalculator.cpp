@@ -31,6 +31,7 @@ SphereCalculator::SphereCalculator(){
 	setWallPoisson(0.5);
 	setEarthGravity(Vector3(0, -9.81, 0));
 	
+	simulationRunning = false;
 	simulationThread = NULL;
 	simulationWorker = NULL;
 }
@@ -41,6 +42,50 @@ SphereCalculator::~SphereCalculator(){
 
 QVector<Sphere>& SphereCalculator::getSpheres(){
 	return spheres;
+}
+
+quint16 SphereCalculator::addSphere(Sphere s){
+	spheres.append(s);
+	updateData();
+	return getCount();
+}
+quint16 SphereCalculator::addSphere(){
+	return addSphere(Sphere());
+}
+
+quint16 SphereCalculator::removeSphere(quint16 i){
+	if(getCount()>i){
+		spheres.remove(i);
+		updateData();
+	}
+	return getCount();
+}
+quint16 SphereCalculator::removeLastSphere(){
+	if(getCount()>0){
+		return removeSphere(getCount()-1);
+	}else{
+		return getCount();
+	}
+}
+
+quint16 SphereCalculator::getCount(){
+	return spheres.size();
+}
+
+quint16 SphereCalculator::updateSphere(quint16 i, Sphere s){
+	if(getCount()>i){
+		spheres[i] = s;
+		updateData();
+	}
+	return getCount();
+}
+
+Sphere SphereCalculator::getSphere(quint16 i){
+	if(getCount()>i){
+		return spheres[i];
+	}else{
+		return Sphere();
+	}
 }
 
 Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff){
@@ -63,10 +108,8 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 	return acc;
 }
 
-quint32 SphereCalculator::doStep(){
-	updateData();
-	integrateRungeKuttaStep();
-	return 1;
+void SphereCalculator::doOneStep(){
+	startSimulation(1);
 }
 
 void SphereCalculator::updateData(){
@@ -214,16 +257,11 @@ quint32 SphereCalculator::popCalculationCounter(){
 	}
 }
 
-quint32 SphereCalculator::doSomeSteps(quint32 steps){
-	updateData();
-	for(quint32 i = 0; i<steps; i++){
-		integrateRungeKuttaStep();
-	}
-	return 1;
+void SphereCalculator::doSomeSteps(quint32 steps){
+	startSimulation(steps);
 }
 
 Scalar SphereCalculator::getTotalEnergy(){
-	updateData();
 	Scalar totalEnergy = 0.0, sphereEnergy, d;
 	Sphere sphere;
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex){
@@ -280,23 +318,23 @@ void SphereCalculator::setEarthGravity(Vector3 earthGravity){
 	physicalConstants.earthGravity = earthGravity;
 }
 
-void SphereCalculator::startSimulation(){
-	if(simulationWorker == NULL){
-		simulationWorker = new SimulationWorker(this);
+void SphereCalculator::startSimulation(quint32 steps){
+	if(simulationRunning == false){
+		simulationRunning = true;
+		simulationWorker = new SimulationWorker(this, steps);
 		simulationThread = new QThread();
 		simulationWorker->moveToThread(simulationThread);
 		QObject::connect(simulationThread, SIGNAL(started()), simulationWorker, SLOT(work()));
 		QObject::connect(simulationWorker, SIGNAL(finished()), simulationThread, SLOT(quit()));
 		QObject::connect(simulationWorker, SIGNAL(finished()), simulationWorker, SLOT(deleteLater()));
 		QObject::connect(simulationThread, SIGNAL(finished()), simulationThread, SLOT(deleteLater()));
+		QObject::connect(this, SIGNAL(requestingSimulationStop()), simulationWorker, SLOT(stop()));
 		simulationThread->start();
 	}
 }
 
 void SphereCalculator::stopSimulation(){
-	if(simulationWorker != NULL){
-		simulationWorker->stop();
-		simulationThread = NULL;
-		simulationWorker = NULL;
+	if(simulationRunning){
+		emit requestingSimulationStop();
 	}
 }

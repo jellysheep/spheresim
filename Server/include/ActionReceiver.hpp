@@ -12,7 +12,6 @@
 #define _ACTIONRECEIVER_HPP_
 
 #include <Actions.hpp>
-#include <SphereManager.hpp>
 #include <SphereCalculator.hpp>
 
 #include <QObject>
@@ -119,11 +118,8 @@ namespace SphereSim{
 		 */
 		void sendReply(quint8 serverStatus, const QByteArray& data);
 		
-		/** \brief Stores sphere data. */
-		SphereManager sphMan;
-		
-		/** \brief Stores sphere data. */
-		SphereCalculator& sphCalc;
+		/** \brief Stores and calculates sphere data. */
+		SphereCalculator sphCalc;
 		
 	public:
 		/**

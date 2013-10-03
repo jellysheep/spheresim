@@ -16,6 +16,7 @@
 #include <Version.hpp>
 
 #include <QtGlobal>
+#include <QObject>
 
 class ActionSender;
 class QHostAddress;
@@ -25,7 +26,9 @@ namespace SphereSim{
 	/**
 	 * \brief Sends actions to server and verifies server replies.
 	 */
-	class ServerTester{
+	class ServerTester : public QObject{
+		Q_OBJECT
+		
 	private:
 		/** \brief Holds the client object to communicate with server. */
 		ActionSender* sender;
@@ -43,6 +46,9 @@ namespace SphereSim{
 		QString testActionName;
 		
 		static const int framebuffer;
+		
+		/** \brief Test result value (0 = all tests passed, 1 = at least one test failed). */
+		quint16 testResult;
 		
 	public:
 		/**
@@ -69,10 +75,6 @@ namespace SphereSim{
 		
 		~ServerTester();
 		
-		/**
-		 * \brief Runs all tests on the server and verifies the replies.
-		 */
-		void runTests();
 		/**
 		 * \brief Runs all tests of a specific action group on the server and verifies the replies.
 		 * \param actionGroup Group of the actions that will be tested.
@@ -121,6 +123,7 @@ namespace SphereSim{
 				}											\
 				Console::out<<")\n";						\
 				testSuccess = false;						\
+				testResult = 1;								\
 			}												\
 		}
 		verifyFunc(Equal,==,!=);
@@ -149,6 +152,19 @@ namespace SphereSim{
 		 * \param actionName Name of the action that will be tested.
 		 */
 		void startNewTest(const char* actionName);
+		
+		/**
+		 * \brief Returns a test result value.
+		 * \return Test result value (0 = all tests passed, 1 = at least one test failed).
+		 */
+		quint16 result();
+		
+	public slots:
+		/**
+		 * \brief Runs all tests on the server and verifies the replies.
+		 */
+		void runTests();
+		
 	};
 	
 }

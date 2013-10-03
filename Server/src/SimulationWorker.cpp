@@ -16,19 +16,16 @@
 
 using namespace SphereSim;
 
-SimulationWorker::SimulationWorker(SphereCalculator* sphCalc_){
+SimulationWorker::SimulationWorker(SphereCalculator* sphCalc_, quint32 steps_){
 	sphCalc = sphCalc_;
+	steps = steps_;
 	running = true;
 }
 
-SimulationWorker::~SimulationWorker(){
-}
-
 void SimulationWorker::work(){
-	sphCalc->simulationRunning = true;
-	quint32 i = 0;
-	while(running){
-		sphCalc->doStep();
+	quint32 counter = 0;
+	while(running && (steps == 0 || (counter++)<steps)){
+		sphCalc->integrateRungeKuttaStep();
 	}
 	sphCalc->simulationRunning = false;
 	emit finished();

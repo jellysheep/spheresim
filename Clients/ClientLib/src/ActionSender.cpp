@@ -221,8 +221,8 @@ void ActionSender::getFullSphere(quint16 i, Sphere& s){
 	readFullSphere(retStream, s);
 }
 
-quint32 ActionSender::calculateStep(){
-	return QString(sendReplyAction(ActionGroups::calculation, CalculationActions::doOneStep)).toUInt();
+void ActionSender::calculateStep(){
+	sendAction(ActionGroups::calculation, CalculationActions::doOneStep);
 }
 
 void ActionSender::setTimeStep(Scalar timeStep){
@@ -263,11 +263,11 @@ quint32 ActionSender::popCalculationCounter(){
 	return calculationCounter;
 }
 
-quint32 ActionSender::calculateSomeSteps(quint32 steps){
+void ActionSender::calculateSomeSteps(quint32 steps){
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<steps;
-	return QString(sendReplyAction(ActionGroups::calculation, CalculationActions::doSomeSteps, arr)).toUInt();
+	sendAction(ActionGroups::calculation, CalculationActions::doSomeSteps, arr);
 }
 
 Scalar ActionSender::getTotalEnergy(){
@@ -315,8 +315,11 @@ void ActionSender::setEarthGravity(Vector3 earthGravity){
 	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setEarthGravity, arr);
 }
 
-void ActionSender::startSimulation(){
-	sendAction(ActionGroups::calculation, CalculationActions::startSimulation);
+void ActionSender::startSimulation(quint32 steps){
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<steps;
+	sendAction(ActionGroups::calculation, CalculationActions::startSimulation, arr);
 }
 
 void ActionSender::stopSimulation(){
