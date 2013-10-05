@@ -242,6 +242,19 @@ void ServerTester::runCalculationActionTests(){
 	runCalculationActionTests_internal_(IntegratorMethods::RungeKuttaFehlberg54);
 	runCalculationActionTests_internal_(IntegratorMethods::CashKarp54);
 	runCalculationActionTests_internal_(IntegratorMethods::DormandPrince54);
+	
+	sender->setIntegratorMethod(IntegratorMethods::CashKarp54);
+	startTest_(CalculationActions::startSimulation);
+		sender->startSimulation();
+		QTest::qWait(10);
+		sender->stopSimulation();
+		while(sender->getIsSimulating()){
+			QTest::qWait(10);
+		}
+		quint32 steps = sender->popCalculationCounter();
+		Console::out<<"real steps: "<<steps<<" \t";
+		verify(steps, Greater, 0);
+	endTest();
 }
 
 void ServerTester::runCalculationActionTests_internal(const char* integratorMethod){

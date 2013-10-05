@@ -241,6 +241,12 @@ namespace SphereSim{
 		quint32 popCalculationCounter();
 		
 		/**
+		 * \brief Requests the server to send the number of calculated steps.
+		 * \return Sent number of calculated steps.
+		 */
+		quint32 popStepCounter();
+		
+		/**
 		 * \brief Requests the server to calculate some steps.
 		 * \param steps Number of steps to calculate (0 = unlimited).
 		 */

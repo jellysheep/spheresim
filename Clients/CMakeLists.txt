@@ -12,3 +12,4 @@ set(HEADERS ${HEADERS}
 add_subdirectory(ClientLib)
 add_subdirectory(Tester)
 add_subdirectory(Viewer)
+add_subdirectory(Benchmark)

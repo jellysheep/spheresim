@@ -263,6 +263,14 @@ quint32 ActionSender::popCalculationCounter(){
 	return calculationCounter;
 }
 
+quint32 ActionSender::popStepCounter(){
+	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::popStepCounter);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	quint32 stepCounter;
+	retStream>>stepCounter;
+	return stepCounter;
+}
+
 void ActionSender::calculateSomeSteps(quint32 steps){
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);

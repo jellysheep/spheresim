@@ -82,8 +82,11 @@ namespace SphereSim{
 		/** \brief Stores the Butcher tableau used in the integrator. */
 		ButcherTableau butcherTableau;
 		
-		/** \brief Stores the used calculation steps. */
+		/** \brief Stores the calculation steps needed for simulation. */
 		quint32 calculationCounter;
+		
+		/** \brief Stores the calculated steps. */
+		quint32 stepCounter;
 		
 		/** \brief Stores the used physical constants. */
 		PhysicalConstants physicalConstants;
@@ -194,6 +197,12 @@ namespace SphereSim{
 		 * \return Requested used calculation steps.
 		 */
 		quint32 popCalculationCounter();
+		
+		/**
+		 * \brief Gets and resets the number of calculated steps.
+		 * \return Requested number of calculated steps.
+		 */
+		quint32 popStepCounter();
 		
 		/**
 		 * \brief Calculates the sphere movements for some steps.

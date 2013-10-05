@@ -26,6 +26,7 @@ SphereCalculator::SphereCalculator(){
 	timeStep = 0.002;
 	setIntegratorMethod(IntegratorMethods::RungeKuttaFehlberg54);
 	calculationCounter = 0;
+	stepCounter = 0;
 	setSphereE(5000);
 	setSpherePoisson(0.5);
 	setWallE(5000);
@@ -147,6 +148,7 @@ void SphereCalculator::integrateRungeKuttaStep(){
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex){
 		integrateRungeKuttaStep(sphereIndex, timeStep, 0.0);
 	}
+	stepCounter++;
 }
 
 quint32 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff){
@@ -266,6 +268,12 @@ quint32 SphereCalculator::popCalculationCounter(){
 	}else{
 		return 0;
 	}
+}
+
+quint32 SphereCalculator::popStepCounter(){
+	quint32 counter = stepCounter;
+	stepCounter = 0;
+	return counter;
 }
 
 void SphereCalculator::doSomeSteps(quint32 steps){

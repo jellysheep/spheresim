@@ -18,7 +18,7 @@
 
 using namespace SphereSim;
 
-/*
+/**
  * method main:
  * Builds up a connection to server and opens main window.
  */

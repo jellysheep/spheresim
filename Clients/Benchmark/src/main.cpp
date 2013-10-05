@@ -8,7 +8,7 @@
  * Full license text is under the file "LICENSE" provided with this code.
  */
 
-#include <ServerTester.hpp>
+#include <ServerBenchmark.hpp>
 #include <Connection.hpp>
 
 #include <QCoreApplication>
@@ -19,14 +19,14 @@ using namespace SphereSim;
 
 /**
  * method main:
- * Creates instance of ServerTester to test server actions.
+ * Creates instance of ServerBenchmark to benchmark server simulations.
  * Starts QCoreApplication.
  */
 
 int main(int argc, char** argv){
 	QCoreApplication app(argc, argv);
 	QStringList args = app.arguments();
-	ServerTester* svrTester = new ServerTester(args, Connection::defaultAddress, Connection::defaultPort);
-	QTimer::singleShot(0, svrTester, SLOT(runTests()));
+	ServerBenchmark* svrBenchmark = new ServerBenchmark(args, Connection::defaultAddress, Connection::defaultPort);
+	QTimer::singleShot(0, svrBenchmark, SLOT(runBenchmark()));
 	return app.exec();
 }

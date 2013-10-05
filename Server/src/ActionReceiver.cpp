@@ -215,6 +215,10 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 		retStream<<sphCalc.popCalculationCounter();
 		sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
+	case CalculationActions::popStepCounter:
+		retStream<<sphCalc.popStepCounter();
+		sendReply(ServerStatusReplies::acknowledge, retData);
+		break;
 	case CalculationActions::doSomeSteps:
 		stream>>steps;
 		sphCalc.doSomeSteps(steps);

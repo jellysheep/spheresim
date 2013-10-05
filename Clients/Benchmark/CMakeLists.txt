@@ -1,4 +1,4 @@
-project(SphereSim_Tester)
+project(SphereSim_Benchmark)
 cmake_minimum_required(VERSION 2.8)
 
 set (PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
@@ -12,16 +12,16 @@ add_definitions("-DQT_NO_DEBUG_OUTPUT")
 find_package(Qt5Test REQUIRED)
 
 set(SOURCES ${SOURCES}
-	${PROJECT_SOURCE_DIR}/ServerTester.cpp
+	${PROJECT_SOURCE_DIR}/ServerBenchmark.cpp
 	${PROJECT_SOURCE_DIR}/main.cpp
 )
 set(HEADERS ${HEADERS}
-	${PROJECT_INCLUDE_DIR}/ServerTester.hpp
+	${PROJECT_INCLUDE_DIR}/ServerBenchmark.hpp
 )
 
-add_executable(SphereSim_Tester ${SOURCES} ${HEADERS})
-target_link_libraries(SphereSim_Tester SphereSim_ClientLib)
-qt5_use_modules(SphereSim_Tester Core Network Test)
+add_executable(SphereSim_Benchmark ${SOURCES} ${HEADERS})
+target_link_libraries(SphereSim_Benchmark SphereSim_ClientLib)
+qt5_use_modules(SphereSim_Benchmark Core Network Test)
 
-install(TARGETS SphereSim_Tester
+install(TARGETS SphereSim_Benchmark
 	RUNTIME DESTINATION bin)
