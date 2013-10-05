@@ -17,14 +17,15 @@
 #include <PhysicalConstants.hpp>
 
 #include <QVector>
+#include <QMutex>
 #include <QObject>
 
 class QTimer;
 
 namespace SphereSim{
 	
-	class SphereManager;
 	class SimulationWorker;
+	class WorkQueue;
 	
 	/**
 	 * \brief Calculates sphere physics.
@@ -99,8 +100,16 @@ namespace SphereSim{
 		/** \brief Worker used for simulation. */
 		SimulationWorker* simulationWorker;
 		
-		/** \brief Flag if the simulation is running. */
-		bool simulationRunning;
+		/** \brief Queue storing outstanding simulation work. */
+		WorkQueue* workQueue;
+		
+		/** \brief Mutex locking the queue status. */
+		QMutex* workQueueMutex;
+		
+		/**
+		 * \brief Stops the worker.
+		 */
+		void stopWorker();
 		
 	public:
 		SphereCalculator();
@@ -188,7 +197,7 @@ namespace SphereSim{
 		
 		/**
 		 * \brief Calculates the sphere movements for some steps.
-		 * \param steps Number of steps to calculate.
+		 * \param steps Number of steps to calculate (0 = unlimited).
 		 */
 		void doSomeSteps(quint32 steps);
 		
@@ -230,20 +239,28 @@ namespace SphereSim{
 		
 		/**
 		 * \brief Starts the simulation.
-		 * \param steps Number of steps to integrate (0 = unlimited).
 		 */
-		void startSimulation(quint32 steps);
+		void startSimulation();
 		
 		/**
 		 * \brief Stops the simulation.
 		 */
 		void stopSimulation();
 		
-		friend class SphereManager;
+		/**
+		 * \brief Returns the simulation status.
+		 * \return Shows if simulation is running or not.
+		 */
+		bool getIsSimulating();
+		
 		friend class SimulationWorker;
 		
 	signals:
+		/** \brief Stops the running simulation. */
 		void requestingSimulationStop();
+		
+		/** \brief Stops and deletes the worker. */
+		void requestingWorkerStop();
 		
 	};
 	

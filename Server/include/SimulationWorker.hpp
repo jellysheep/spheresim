@@ -16,26 +16,37 @@
 namespace SphereSim{
 	
 	class SphereCalculator;
+	class WorkQueue;
 	
 	/**
-	 * \brief Calculates sphere physics.
+	 * \brief Does calculation work.
 	 */
 	class SimulationWorker : public QObject{
 		Q_OBJECT
 		
 	private:
+		/** \brief Currently used SphereCalculator. */
 		SphereCalculator* sphCalc;
+		
+		/** \brief Flag if worker is running (true) or supposed to stop (false). */
 		bool running;
-		quint32 steps;
+		
+		/** \brief Queue storing the simulation work. */
+		WorkQueue* queue;
 		
 	public:
-		SimulationWorker(SphereCalculator* sphCalc, quint32 steps);
+		SimulationWorker(SphereCalculator* sphCalc, WorkQueue* queue);
+		~SimulationWorker();
 		
 	public slots:
+		/** \brief Starts to work. */
 		void work();
+		
+		/** \brief Stops and deletes the worker. */
 		void stop();
 		
 	signals:
+		/** \brief Shows that the worker stopped working. */
 		void finished();
 		
 	};

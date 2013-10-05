@@ -10,24 +10,35 @@
 
 #include <SimulationWorker.hpp>
 #include <SphereCalculator.hpp>
+#include <WorkQueue.hpp>
 #include <Console.hpp>
 
 #include <QDebug>
+#include <QCoreApplication>
 
 using namespace SphereSim;
 
-SimulationWorker::SimulationWorker(SphereCalculator* sphCalc_, quint32 steps_){
+SimulationWorker::SimulationWorker(SphereCalculator* sphCalc_, WorkQueue* queue_){
 	sphCalc = sphCalc_;
-	steps = steps_;
 	running = true;
+	queue = queue_;
+}
+
+SimulationWorker::~SimulationWorker(){
+	delete queue;
 }
 
 void SimulationWorker::work(){
-	quint32 counter = 0;
-	while(running && (steps == 0 || (counter++)<steps)){
-		sphCalc->integrateRungeKuttaStep();
+	WorkQueueItem workQueueItem;
+	while(running){
+		workQueueItem = queue->popItem();
+		if(workQueueItem.type == WorkQueueItemType::calculateStep){
+			sphCalc->integrateRungeKuttaStep();
+		}else if(workQueueItem.type == WorkQueueItemType::stop){
+			running = false;
+		}
+		QCoreApplication::processEvents();
 	}
-	sphCalc->simulationRunning = false;
 	emit finished();
 }
 

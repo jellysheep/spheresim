@@ -315,13 +315,18 @@ void ActionSender::setEarthGravity(Vector3 earthGravity){
 	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setEarthGravity, arr);
 }
 
-void ActionSender::startSimulation(quint32 steps){
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<steps;
-	sendAction(ActionGroups::calculation, CalculationActions::startSimulation, arr);
+void ActionSender::startSimulation(){
+	sendAction(ActionGroups::calculation, CalculationActions::startSimulation);
 }
 
 void ActionSender::stopSimulation(){
 	sendAction(ActionGroups::calculation, CalculationActions::stopSimulation);
+}
+
+bool ActionSender::getIsSimulating(){
+	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::getIsSimulating);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	bool simulationStatus;
+	retStream>>simulationStatus;
+	return simulationStatus;
 }

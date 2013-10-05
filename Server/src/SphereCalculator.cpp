@@ -10,6 +10,7 @@
 
 #include <SphereCalculator.hpp>
 #include <SimulationWorker.hpp>
+#include <WorkQueue.hpp>
 #include <Console.hpp>
 
 #include <QDebug>
@@ -31,13 +32,23 @@ SphereCalculator::SphereCalculator(){
 	setWallPoisson(0.5);
 	setEarthGravity(Vector3(0, -9.81, 0));
 	
-	simulationRunning = false;
-	simulationThread = NULL;
-	simulationWorker = NULL;
+	workQueueMutex = new QMutex();
+	workQueue = new WorkQueue(workQueueMutex);
+	simulationWorker = new SimulationWorker(this, workQueue);
+	simulationThread = new QThread();
+	simulationWorker->moveToThread(simulationThread);
+	QObject::connect(simulationThread, SIGNAL(started()), simulationWorker, SLOT(work()));
+	QObject::connect(simulationWorker, SIGNAL(finished()), simulationThread, SLOT(quit()));
+	QObject::connect(simulationWorker, SIGNAL(finished()), simulationWorker, SLOT(deleteLater()));
+	QObject::connect(simulationThread, SIGNAL(finished()), simulationThread, SLOT(deleteLater()));
+	QObject::connect(this, SIGNAL(requestingSimulationStop()), workQueue, SLOT(stopSimulation()));
+	QObject::connect(this, SIGNAL(requestingWorkerStop()), simulationWorker, SLOT(stop()));
+	QObject::connect(this, SIGNAL(requestingWorkerStop()), workQueue, SLOT(stop()));
+	simulationThread->start();
 }
 
 SphereCalculator::~SphereCalculator(){
-	stopSimulation();
+	stopWorker();
 }
 
 QVector<Sphere>& SphereCalculator::getSpheres(){
@@ -109,7 +120,7 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 }
 
 void SphereCalculator::doOneStep(){
-	startSimulation(1);
+	doSomeSteps(1);
 }
 
 void SphereCalculator::updateData(){
@@ -173,7 +184,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar st
 	
 	Scalar error_pos_ = (pos-pos_).norm();
 	Scalar error_speed_ = (speed-speed_).norm();
-	if(error_pos_>1.0e-05 || error_speed_>1.0e-05){
+	if(error_pos_>1.0e-06 || error_speed_>1.0e-06){
 		quint32 stepCount = 0;
 		stepCount += integrateRungeKuttaStep(sphereIndex, stepLength/2, timeDiff);
 		stepCount += integrateRungeKuttaStep(sphereIndex, stepLength/2, timeDiff+(stepLength/2));
@@ -258,7 +269,7 @@ quint32 SphereCalculator::popCalculationCounter(){
 }
 
 void SphereCalculator::doSomeSteps(quint32 steps){
-	startSimulation(steps);
+	workQueue->pushSimulationSteps(steps);
 }
 
 Scalar SphereCalculator::getTotalEnergy(){
@@ -318,23 +329,18 @@ void SphereCalculator::setEarthGravity(Vector3 earthGravity){
 	physicalConstants.earthGravity = earthGravity;
 }
 
-void SphereCalculator::startSimulation(quint32 steps){
-	if(simulationRunning == false){
-		simulationRunning = true;
-		simulationWorker = new SimulationWorker(this, steps);
-		simulationThread = new QThread();
-		simulationWorker->moveToThread(simulationThread);
-		QObject::connect(simulationThread, SIGNAL(started()), simulationWorker, SLOT(work()));
-		QObject::connect(simulationWorker, SIGNAL(finished()), simulationThread, SLOT(quit()));
-		QObject::connect(simulationWorker, SIGNAL(finished()), simulationWorker, SLOT(deleteLater()));
-		QObject::connect(simulationThread, SIGNAL(finished()), simulationThread, SLOT(deleteLater()));
-		QObject::connect(this, SIGNAL(requestingSimulationStop()), simulationWorker, SLOT(stop()));
-		simulationThread->start();
-	}
+void SphereCalculator::startSimulation(){
+	doSomeSteps(0);
 }
 
 void SphereCalculator::stopSimulation(){
-	if(simulationRunning){
-		emit requestingSimulationStop();
-	}
+	emit requestingSimulationStop();
+}
+
+void SphereCalculator::stopWorker(){
+	emit requestingWorkerStop();
+}
+
+bool SphereCalculator::getIsSimulating(){
+	return workQueue->getIsSimulating();
 }

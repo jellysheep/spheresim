@@ -220,11 +220,14 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 		sphCalc.doSomeSteps(steps);
 		break;
 	case CalculationActions::startSimulation:
-		stream>>steps;
-		sphCalc.startSimulation(steps);
+		sphCalc.startSimulation();
 		break;
 	case CalculationActions::stopSimulation:
 		sphCalc.stopSimulation();
+		break;
+	case CalculationActions::getIsSimulating:
+		retStream<<sphCalc.getIsSimulating();
+		sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);

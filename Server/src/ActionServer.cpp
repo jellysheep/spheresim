@@ -35,7 +35,7 @@ ActionServer::ActionServer(QStringList args, const char* addr, quint16 port)
 }
 
 void ActionServer::newConnection(){
-	qDebug()<<"ActionServer: got new connection";
+	qDebug()<<"\nActionServer: got new connection";
 	QTcpSocket* socket = server->nextPendingConnection();
 	new ActionReceiver(socket);
 }

@@ -242,7 +242,7 @@ namespace SphereSim{
 		
 		/**
 		 * \brief Requests the server to calculate some steps.
-		 * \param steps Number of steps to calculate.
+		 * \param steps Number of steps to calculate (0 = unlimited).
 		 */
 		void calculateSomeSteps(quint32 steps);
 		
@@ -284,14 +284,19 @@ namespace SphereSim{
 		
 		/**
 		 * \brief Requests the server to start the simulation.
-		 * \param steps Number of steps to integrate (0 = unlimited).
 		 */
-		void startSimulation(quint32 steps);
+		void startSimulation();
 		
 		/**
 		 * \brief Requests the server to stop the simulation.
 		 */
 		void stopSimulation();
+		
+		/**
+		 * \brief Requests the server to send the simulation status.
+		 * \return Shows if simulation is running or not.
+		 */
+		bool getIsSimulating();
 	
 	public slots:
 		void connected(){

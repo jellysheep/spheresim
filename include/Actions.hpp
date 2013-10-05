@@ -66,7 +66,8 @@ namespace SphereSim{
 			popCalculationCounter,
 			doSomeSteps,
 			startSimulation,
-			stopSimulation
+			stopSimulation,
+			getIsSimulating
 		};
 	}
 	

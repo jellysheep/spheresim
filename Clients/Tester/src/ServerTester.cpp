@@ -237,7 +237,7 @@ void ServerTester::runCalculationActionTests(){
 	sender->setWallPoisson(0.5);
 	sender->setEarthGravity(Vector3(0, -9.81, 0));
 	
-	runCalculationActionTests_internal_(IntegratorMethods::HeunEuler21);
+	//runCalculationActionTests_internal_(IntegratorMethods::HeunEuler21);
 	runCalculationActionTests_internal_(IntegratorMethods::BogackiShampine32);
 	runCalculationActionTests_internal_(IntegratorMethods::RungeKuttaFehlberg54);
 	runCalculationActionTests_internal_(IntegratorMethods::CashKarp54);
@@ -259,44 +259,26 @@ void ServerTester::runCalculationActionTests_internal(const char* integratorMeth
 	s.radius = 0.1;
 	sender->updateSphere(0, s);
 	
-	if(sender->getTimeStep()>0.01){
-		sender->setTimeStep(0.01);
-	}
-	sender->popCalculationCounter();
-	quint16 expectedTurningPoints = 10, turningPoints = 0;
-	quint16 stepsPerFall = 2;
-	quint32 steps = stepsPerFall*expectedTurningPoints;
-	quint32 stepsAtOnce = (quint32)ceil(17.0/stepsPerFall*0.01/sender->getTimeStep());
-	quint32 stepTime;
-	Scalar pos = s.pos(1), oldPos, beginEnergy, endEnergy;
+	Scalar timeStep = 1;
+	sender->setTimeStep(timeStep);
+	Scalar simulationTime = 50;
+	quint32 steps = (quint32)(simulationTime/timeStep);
+	Scalar beginEnergy, endEnergy;
 	beginEnergy = sender->getTotalEnergy();
-	Scalar gradient = 0, oldGradient;
-	for(quint32 i = 0; i<steps; i++){
-		if(i%2 == 0){
-			sender->calculateSomeSteps(stepsAtOnce);
-		}else{
-			sender->startSimulation(stepsAtOnce);
-		}
-		QTest::qSleep(1);
-		sender->getFullSphere(0, s);
-		oldPos = pos;
-		pos = s.pos(1);
-		oldGradient = gradient;
-		gradient = pos-oldPos;
-		if(gradient*oldGradient < 0 || oldGradient == 0){
-			// turning point detected
-			turningPoints++;
-		}
+	sender->calculateSomeSteps(steps);
+	while(sender->getIsSimulating()){
+		QTest::qWait(10);
 	}
 	endEnergy = sender->getTotalEnergy();
 	Scalar relError = 1.0-(beginEnergy/endEnergy);
 	Console::out<<"rel. error: "<<relError<<" \t";
-	Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/(steps*stepsAtOnce));
+	Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/steps);
 	quint32 realSteps = sender->popCalculationCounter();
-	Scalar integratorWorth = 5+log(steps*stepsAtOnce)-0.1*log(fabs(relError))-log(realSteps);
+	Console::out<<"real steps: "<<realSteps<<" \t";
+	Scalar integratorWorth = 10+log(steps)-0.1*log(fabs(relError))-log(realSteps);
 	Console::out<<"integrator worth: "<<integratorWorth<<" ("<<integratorMethod<<"). \t";
-	verify(turningPoints, GreaterOrEqual, expectedTurningPoints*0.8);
-	verify(turningPoints, SmallerOrEqual, expectedTurningPoints*1.2);
+	verify(fabs(relError), Smaller, 0.01);
+	verify(realSteps, Greater, 0);
 }
 
 void ServerTester::runFrameBufferTests(){
