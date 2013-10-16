@@ -167,8 +167,27 @@ void ActionSender::processReply()
 {
 	QByteArray data = QByteArray::fromBase64(replyData);
 	lastServerStatus = data[0];
-	lastServerReplyData = data.right(data.length()-1);
-	receivedServerReply = true;
+	data = data.right(data.length()-1);
+	
+	if(lastServerStatus == ServerStatusReplies::sendFrame)
+	{
+		qDebug()<<"ActionSender: received frame!";
+		QDataStream stream(&data, QIODevice::ReadOnly);
+		quint16 sphCount;
+		stream>>sphCount;
+		quint16 sphereIndex;
+		Sphere sphere;
+		while(!stream.atEnd())
+		{
+			stream>>sphereIndex;
+			readBasicSphereData(stream, sphere);
+		}
+	}
+	else
+	{
+		lastServerReplyData = data;
+		receivedServerReply = true;
+	}
 }
 
 void ActionSender::updateSphereCount(quint16 sphereCount)

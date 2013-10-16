@@ -66,7 +66,7 @@ void ServerTester::runTests(quint8 actionGroup, const char* groupName)
 	Console::out<<"ServerTester: ";
 	Console::bold<<"Testing "<<groupName<<". \n";
 	switch(actionGroup)
-{
+	{
 	case ActionGroups::basic:
 		runBasicActionTests();
 		break;

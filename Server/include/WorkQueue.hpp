@@ -14,6 +14,8 @@
 #include <QList>
 #include <QObject>
 
+class QElapsedTimer;
+
 namespace SphereSim
 {
 	
@@ -26,7 +28,8 @@ namespace SphereSim
 			addSphere,
 			removeSphere,
 			updateSphere,
-			stop
+			stop,
+			prepareFrameData
 		};
 	}
 	
@@ -37,6 +40,12 @@ namespace SphereSim
 		WorkQueueItemType::ItemType type;
 		/** \brief Any parameter for the work item. */
 		void* param;
+		
+		/** \brief Initialize WorkQueueItem. */
+		WorkQueueItem()
+		{
+			param = NULL;
+		}
 	};
 	
 	/** \brief Storage for work to be done by the worker. */
@@ -70,6 +79,9 @@ namespace SphereSim
 		
 		/** \brief Update the canWork flag. */
 		void updateStatus();
+		
+		/** \brief Animation timer. */
+		QElapsedTimer* animationTimer;
 		
 	public:
 		/** \brief Initialize member variables. */

@@ -96,6 +96,9 @@ namespace SphereSim
 	public slots:
 		/** \brief New data available: Read data from client. */
 		void readData();
+		
+		/** \brief Send frame to client. */
+		void sendFrame(QByteArray frameData);
 	};
 	
 }

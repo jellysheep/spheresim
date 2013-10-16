@@ -10,8 +10,10 @@
 #include <SimulationWorker.hpp>
 #include <WorkQueue.hpp>
 #include <Console.hpp>
+#include <SphereTransmit.hpp>
 
 #include <QDebug>
+#include <QDataStream>
 #include <QThread>
 #include <cmath>
 
@@ -182,6 +184,20 @@ void SphereCalculator::updateSphereWallE()
 {
 	physicalConstants.E_sphere_wall = 1/(((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere)
 		+((1-physicalConstants.poisson_wall*physicalConstants.poisson_wall)/physicalConstants.E_wall));
+}
+
+void SphereCalculator::prepareFrameData()
+{
+	QByteArray frameData;
+	QDataStream dataStream(&frameData, QIODevice::WriteOnly);
+	updateData();
+	dataStream<<sphCount;
+	for(quint16 i = 0; i<sphCount; i++)
+	{
+		dataStream<<i;
+		writeBasicSphereData(dataStream, sphArr[i]);
+	}
+	emit frameToSend(frameData);
 }
 
 quint16 SphereCalculator::addSphere()

@@ -9,6 +9,7 @@
 #include <WorkQueue.hpp>
 
 #include <QDebug>
+#include <QElapsedTimer>
 
 using namespace SphereSim;
 
@@ -20,6 +21,8 @@ WorkQueue::WorkQueue(QMutex* mutex_):items()
 	continuousSimulationRunning = false;
 	updateStatus();
 	isSimulating = false;
+	animationTimer = new QElapsedTimer();
+	animationTimer->start();
 }
 
 WorkQueue::~WorkQueue()
@@ -65,7 +68,7 @@ WorkQueueItem WorkQueue::popItem()
 			workCondition.wait(mutex);
 		}
 	mutex->unlock();
-	WorkQueueItem item;
+	WorkQueueItem item = WorkQueueItem();
 	if(items.count()>0)
 	{
 		item = items.takeFirst();
@@ -81,6 +84,15 @@ WorkQueueItem WorkQueue::popItem()
 		}else{
 			qDebug()<<"error!";
 			item.type = WorkQueueItemType::calculateStep;
+		}
+	}
+	if(item.type == WorkQueueItemType::calculateStep)
+	{
+		if(animationTimer->elapsed()>1000){
+			WorkQueueItem item2 = WorkQueueItem();
+			item2.type = WorkQueueItemType::prepareFrameData;
+			items.prepend(item2);
+			animationTimer->restart();
 		}
 	}
 	mutex->lock();

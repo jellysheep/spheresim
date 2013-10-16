@@ -23,6 +23,7 @@ ActionReceiver::ActionReceiver(QTcpSocket* sock):sphCalc()
 	socket = sock;
 	connect(socket, SIGNAL(disconnected()), SLOT(deleteLater()));
 	connect(socket, SIGNAL(readyRead()), SLOT(readData()));
+	connect(&sphCalc, SIGNAL(frameToSend(QByteArray)), SLOT(sendFrame(QByteArray)));
 }
 
 ActionReceiver::~ActionReceiver()
@@ -112,7 +113,7 @@ void ActionReceiver::processRequest()
 void ActionReceiver::handleAction(quint8 actionGroup, quint8 action, QByteArray data)
 {
 	switch(actionGroup)
-{
+	{
 	case ActionGroups::basic:
 		handleBasicAction(actionGroup, action, data);
 		break;
@@ -137,7 +138,7 @@ void ActionReceiver::handleAction(quint8 actionGroup, quint8 action, QByteArray 
 void ActionReceiver::handleBasicAction(quint8 actionGroup, quint8 action, QByteArray data)
 {
 	switch(action)
-{
+	{
 	case BasicActions::getServerVersion:
 		sendReply(ServerStatusReplies::acknowledge, "SphereSim Server v" VERSION_STR);
 		break;
@@ -169,7 +170,7 @@ void ActionReceiver::handleSpheresUpdatingAction(quint8 actionGroup, quint8 acti
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	switch(action)
-{
+	{
 	case SpheresUpdatingActions::addSphere:
 		sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc.addSphere()).toUtf8());
 		break;
@@ -211,7 +212,7 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 	quint8 integratorMethod;
 	quint32 steps;
 	switch(action)
-{
+	{
 	case CalculationActions::calculateStep:
 		sphCalc.calculateStep();
 		break;
@@ -265,7 +266,7 @@ void ActionReceiver::handleInformationAction(quint8 actionGroup, quint8 action, 
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	switch(action)
-{
+	{
 	case InformationActions::getTotalEnergy:
 		retStream<<sphCalc.getTotalEnergy();
 		sendReply(ServerStatusReplies::acknowledge, retData);
@@ -283,7 +284,7 @@ void ActionReceiver::handlePhysicalConstantsAction(quint8 actionGroup, quint8 ac
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	Scalar s, s2, s3;
 	switch(action)
-{
+	{
 	case PhysicalConstantsActions::updateSphereE:
 		stream>>s;
 		sphCalc.updateSphereE(s);
@@ -330,6 +331,16 @@ void ActionReceiver::sendReply(quint8 serverStatus, const QByteArray& arr)
 {
 	QByteArray data = arr;
 	data.prepend(serverStatus);
+	data = data.toBase64();
+	data.prepend(Connection::startByte);
+	data.append(Connection::endByte);
+	socket->write(data);
+}
+
+void ActionReceiver::sendFrame(QByteArray frameData)
+{
+	QByteArray data = frameData;
+	data.prepend(ServerStatusReplies::sendFrame);
 	data = data.toBase64();
 	data.prepend(Connection::startByte);
 	data.append(Connection::endByte);

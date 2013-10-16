@@ -40,6 +40,9 @@ void SimulationWorker::work()
 		}else if(workQueueItem.type == WorkQueueItemType::stop)
 		{
 			running = false;
+		}else if(workQueueItem.type == WorkQueueItemType::prepareFrameData)
+		{
+			sphCalc->prepareFrameData();
 		}
 		QCoreApplication::processEvents();
 	}

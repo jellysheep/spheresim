@@ -149,7 +149,7 @@ namespace SphereSim
 			/** \brief The action requested by the client is unknown to the server. */
 			unknownAction,
 			/** \brief The server is sending sphere data. */
-			sendSphere,
+			sendFrame,
 			/** \brief The server is terminating. */
 			terminating
 		};

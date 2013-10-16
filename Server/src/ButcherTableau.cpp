@@ -13,10 +13,12 @@
 
 using namespace SphereSim;
 
-ButcherTableau::ButcherTableau():ButcherTableau(0){
+ButcherTableau::ButcherTableau():ButcherTableau(0)
+{
 }
 
-ButcherTableau::ButcherTableau(quint8 _order):order(_order),a(),b(),b_(),c(){
+ButcherTableau::ButcherTableau(quint8 _order):order(_order),a(),b(),b_(),c()
+{
 }
 
 ButcherTableau::ButcherTableau(quint8 _order, const Scalar* _a, const Scalar* _b, const Scalar* _b_, const Scalar* _c):ButcherTableau(_order)

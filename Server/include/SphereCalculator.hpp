@@ -28,7 +28,7 @@ namespace SphereSim
 	
 	/** \brief Calculator of sphere movements.
 	 */
-	class SphereCalculator : QObject
+	class SphereCalculator : public QObject
 	{
 		Q_OBJECT
 		
@@ -107,6 +107,9 @@ namespace SphereSim
 		 * \param i Index of the sphere to remove.
 		 * \return Current sphere count. */
 		quint16 removeSphere(quint16 i);
+		
+		/** \brief Prepare sphere data for a frame. */
+		void prepareFrameData();
 		
 	public:
 		SphereCalculator();
@@ -210,6 +213,9 @@ namespace SphereSim
 		
 		/** \brief Stop and delete the worker. */
 		void requestingWorkerStop();
+		
+		/** \brief Send frame to client. */
+		void frameToSend(QByteArray frameData);
 		
 	};
 	
