@@ -1,12 +1,10 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #include <ActionSender.hpp>
 #include <ServerTester.hpp>
@@ -25,7 +23,7 @@
 
 #define runCalculationActionTests_internal_(integratorMethod){			\
 	startTest_(integratorMethod);										\
-		sender->setIntegratorMethod(integratorMethod);					\
+		sender->updateIntegratorMethod(integratorMethod);					\
 		verify(sender->getIntegratorMethod(), Equal, integratorMethod);	\
 		runCalculationActionTests_internal(TOSTR(integratorMethod));	\
 	endTest();															\
@@ -35,7 +33,8 @@ using namespace SphereSim;
 
 const int ServerTester::framebuffer = 255;
 
-ServerTester::ServerTester(QStringList args, QHostAddress addr, quint16 port){
+ServerTester::ServerTester(QStringList args, QHostAddress addr, quint16 port)
+{
 	qDebug()<<"ServerTester: constructor called";
 	sender = new ActionSender(args, addr, port);
 	testCounter = 0;
@@ -43,18 +42,14 @@ ServerTester::ServerTester(QStringList args, QHostAddress addr, quint16 port){
 	testSuccess = true;
 	testResult = 0;
 }
-ServerTester::ServerTester(QStringList args, QString addr, quint16 port)
-	:ServerTester(args,QHostAddress(addr),port){
-}
-ServerTester::ServerTester(QStringList args, const char* addr, quint16 port)
-	:ServerTester(args,QString(addr),port){
-}
 
-ServerTester::~ServerTester(){
+ServerTester::~ServerTester()
+{
 	delete sender;
 }
 
-void ServerTester::runTests(){
+void ServerTester::runTests()
+{
 	Console::out<<"\n";
 	runTests_(ActionGroups::basic);
 	runTests_(ActionGroups::spheresUpdating);
@@ -63,13 +58,15 @@ void ServerTester::runTests(){
 	qApp->exit(result());
 }
 
-void ServerTester::runTests(quint8 actionGroup, const char* groupName){
+void ServerTester::runTests(quint8 actionGroup, const char* groupName)
+{
 	testCounter = 0;
 	successCounter = 0;
 	
 	Console::out<<"ServerTester: ";
 	Console::bold<<"Testing "<<groupName<<". \n";
-	switch(actionGroup){
+	switch(actionGroup)
+{
 	case ActionGroups::basic:
 		runBasicActionTests();
 		break;
@@ -89,7 +86,8 @@ void ServerTester::runTests(quint8 actionGroup, const char* groupName){
 	}
 	
 	Console::out<<"ServerTester: ";
-	if(testCounter == successCounter){
+	if(testCounter == successCounter)
+	{
 		Console::greenBold<<"all "<<testCounter<<" tests passed.\n";
 	}else{
 		Console::redBold<<(testCounter-successCounter)<<" out of "<<testCounter<<" tests failed.\n";
@@ -97,33 +95,36 @@ void ServerTester::runTests(quint8 actionGroup, const char* groupName){
 	Console::out<<"\n";
 }
 
-void ServerTester::runBasicActionTests(){
+void ServerTester::runBasicActionTests()
+{
 	startTest_(Connection);
 		verify(sender->isConnected(), Equal, true);
 	endTest();
-	if(sender->isConnected()){
+	if(sender->isConnected())
+	{
 		Console::out<<"ServerTester: ";
 		Console::bold<<"SphereSim Tester v" VERSION_STR;
 		Console::out<<" (using floating type '"<<TOSTR(FLOATING_TYPE)<<"')\n";
 		Console::out<<"ServerTester: ";
-		Console::bold<<sender->getVersion();
-		Console::out<<" (using floating type '"<<sender->getFloatingType()<<"')\n";
+		Console::bold<<sender->getServerVersion();
+		Console::out<<" (using floating type '"<<sender->getServerFloatingType()<<"')\n";
 	}
-	startTest_(BasicActions::getVersion);
-		verify(sender->getVersion().length(), Greater, 0);
+	startTest_(BasicActions::getServerVersion);
+		verify(sender->getServerVersion().length(), Greater, 0);
 	startNewTest_(BasicActions::getTrueString);
 		verify(sender->getTrueString(), Equal, "true");
 	endTest();
 	
 }
 
-void ServerTester::runSpheresUpdatingActionTests(){
-	startTest_(SpheresUpdatingActions::getCount);
+void ServerTester::runSpheresUpdatingActionTests()
+{
+	startTest_(SpheresUpdatingActions::getSphereCount);
 		verify(sender->getSphereCount(), Equal, 0);
-	startNewTest_(SpheresUpdatingActions::addOne);
+	startNewTest_(SpheresUpdatingActions::addSphere);
 		verify(sender->addSphere(), Equal, 1);
 		verify(sender->addSphere(), Equal, 2);
-	startNewTest_(SpheresUpdatingActions::getCount);
+	startNewTest_(SpheresUpdatingActions::getSphereCount);
 		verify(sender->getSphereCount(), Equal, 2);
 	startNewTest_(SpheresUpdatingActions::removeLast);
 		verify(sender->removeLastSphere(), Equal, 1);
@@ -131,7 +132,7 @@ void ServerTester::runSpheresUpdatingActionTests(){
 		verify(sender->removeLastSphere(), Equal, 1);
 		verify(sender->removeLastSphere(), Equal, 0);
 		verify(sender->removeLastSphere(), Equal, 0);
-	startNewTest_(SpheresUpdatingActions::getCount);
+	startNewTest_(SpheresUpdatingActions::getSphereCount);
 		verify(sender->getSphereCount(), Equal, 0);
 	endTest();
 	
@@ -150,7 +151,7 @@ void ServerTester::runSpheresUpdatingActionTests(){
 	s.radius = 11.0;
 	startTest_(SpheresUpdatingActions::getOne);
 		Sphere sphere;
-		sender->getSphere(0, sphere);
+		sender->getBasicSphereData(0, sphere);
 		verify(sphere.pos(0), ApproxEqual, 0.0);
 		verify(sphere.pos(1), ApproxEqual, 0.0);
 		verify(sphere.pos(2), ApproxEqual, 0.0);
@@ -164,7 +165,7 @@ void ServerTester::runSpheresUpdatingActionTests(){
 		verify(sphere.radius, ApproxEqual, 0.0);
 	startNewTest_(SpheresUpdatingActions::getOne);
 		sphere = s;
-		sender->getSphere(0, sphere);
+		sender->getBasicSphereData(0, sphere);
 		verify(sphere.pos(0), ApproxEqual, 0.0);
 		verify(sphere.pos(1), ApproxEqual, 0.0);
 		verify(sphere.pos(2), ApproxEqual, 0.0);
@@ -178,7 +179,7 @@ void ServerTester::runSpheresUpdatingActionTests(){
 		verify(sphere.radius, ApproxEqual, 0.0);
 	startNewTest_(SpheresUpdatingActions::getOneFull);
 		sphere = Sphere();
-		sender->getFullSphere(0, sphere);
+		sender->getAllSphereData(0, sphere);
 		verify(sphere.pos(0), ApproxEqual, 0.0);
 		verify(sphere.pos(1), ApproxEqual, 0.0);
 		verify(sphere.pos(2), ApproxEqual, 0.0);
@@ -190,10 +191,10 @@ void ServerTester::runSpheresUpdatingActionTests(){
 		verify(sphere.acc(2), ApproxEqual, 0.0);
 		verify(sphere.mass, ApproxEqual, 0.0);
 		verify(sphere.radius, ApproxEqual, 0.0);
-	startNewTest_(SpheresUpdatingActions::updateOne);
+	startNewTest_(SpheresUpdatingActions::updateSphere);
 		sender->updateSphere(0, s);
 		sphere = Sphere();
-		sender->getSphere(0, sphere);
+		sender->getBasicSphereData(0, sphere);
 		verify(sphere.pos(0), ApproxEqual, 1.0);
 		verify(sphere.pos(1), ApproxEqual, 2.0);
 		verify(sphere.pos(2), ApproxEqual, 3.0);
@@ -207,7 +208,7 @@ void ServerTester::runSpheresUpdatingActionTests(){
 		verify(sphere.radius, ApproxEqual, 11);
 	startNewTest_(SpheresUpdatingActions::getOneFull);
 		sphere = Sphere();
-		sender->getFullSphere(0, sphere);
+		sender->getAllSphereData(0, sphere);
 		verify(sphere.pos(0), ApproxEqual, 1.0);
 		verify(sphere.pos(1), ApproxEqual, 2.0);
 		verify(sphere.pos(2), ApproxEqual, 3.0);
@@ -223,19 +224,20 @@ void ServerTester::runSpheresUpdatingActionTests(){
 	sender->removeLastSphere();
 }
 
-void ServerTester::runCalculationActionTests(){
+void ServerTester::runCalculationActionTests()
+{
 	Scalar timeStep = 0.01;
-	startTest_(CalculationActions::setTimeStep);
-		sender->setTimeStep(timeStep);
+	startTest_(CalculationActions::updateTimeStep);
+		sender->updateTimeStep(timeStep);
 		verify(timeStep, ApproxEqual, sender->getTimeStep());
 	endTest();
 	
 	sender->addSphere();
-	sender->setSphereE(5000);
-	sender->setSpherePoisson(0.5);
-	sender->setWallE(5000);
-	sender->setWallPoisson(0.5);
-	sender->setEarthGravity(Vector3(0, -9.81, 0));
+	sender->updateSphereE(5000);
+	sender->updateSpherePoissonRatio(0.5);
+	sender->updateWallE(5000);
+	sender->updateWallPoissonRatio(0.5);
+	sender->updateEarthGravity(Vector3(0, -9.81, 0));
 	
 	//runCalculationActionTests_internal_(IntegratorMethods::HeunEuler21);
 	runCalculationActionTests_internal_(IntegratorMethods::BogackiShampine32);
@@ -243,12 +245,13 @@ void ServerTester::runCalculationActionTests(){
 	runCalculationActionTests_internal_(IntegratorMethods::CashKarp54);
 	runCalculationActionTests_internal_(IntegratorMethods::DormandPrince54);
 	
-	sender->setIntegratorMethod(IntegratorMethods::CashKarp54);
+	sender->updateIntegratorMethod(IntegratorMethods::CashKarp54);
 	startTest_(CalculationActions::startSimulation);
 		sender->startSimulation();
 		QTest::qWait(10);
 		sender->stopSimulation();
-		while(sender->getIsSimulating()){
+		while(sender->getIsSimulating())
+		{
 			QTest::qWait(10);
 		}
 		quint32 steps = sender->popCalculationCounter();
@@ -257,7 +260,8 @@ void ServerTester::runCalculationActionTests(){
 	endTest();
 }
 
-void ServerTester::runCalculationActionTests_internal(const char* integratorMethod){
+void ServerTester::runCalculationActionTests_internal(const char* integratorMethod)
+{
 	Sphere s;
 	s.pos(0) = 0.11;
 	s.pos(1) = 0.11;
@@ -273,13 +277,14 @@ void ServerTester::runCalculationActionTests_internal(const char* integratorMeth
 	sender->updateSphere(0, s);
 	
 	Scalar timeStep = 1;
-	sender->setTimeStep(timeStep);
+	sender->updateTimeStep(timeStep);
 	Scalar simulationTime = 50;
 	quint32 steps = (quint32)(simulationTime/timeStep);
 	Scalar beginEnergy, endEnergy;
 	beginEnergy = sender->getTotalEnergy();
 	sender->calculateSomeSteps(steps);
-	while(sender->getIsSimulating()){
+	while(sender->getIsSimulating())
+	{
 		QTest::qWait(10);
 	}
 	endEnergy = sender->getTotalEnergy();
@@ -294,20 +299,25 @@ void ServerTester::runCalculationActionTests_internal(const char* integratorMeth
 	verify(realSteps, Greater, 0);
 }
 
-void ServerTester::runFrameBufferTests(){
+void ServerTester::runFrameBufferTests()
+{
 	quint16 bufferSize = 4;
 	quint16 elementsPerFrame = 4;
 	FrameBuffer<quint8> buffer(bufferSize, elementsPerFrame);
 	quint8 element;
 	startTest_(framebuffer);
-		for(quint8 i = 0; i<bufferSize+1; i++){
-			for(quint8 j = 0; j<elementsPerFrame; j++){
+		for(quint8 i = 0; i<bufferSize+1; i++)
+		{
+			for(quint8 j = 0; j<elementsPerFrame; j++)
+			{
 				buffer.pushElement((quint8)(j+i*elementsPerFrame));
 			}
 			buffer.pushFrame();
 		}
-		for(quint8 i = 0; i<bufferSize; i++){
-			for(quint8 j = 0; j<elementsPerFrame; j++){
+		for(quint8 i = 0; i<bufferSize; i++)
+		{
+			for(quint8 j = 0; j<elementsPerFrame; j++)
+			{
 				element = j+i*elementsPerFrame;
 				verify(buffer.popElement(), Equal, element);
 			}
@@ -316,15 +326,19 @@ void ServerTester::runFrameBufferTests(){
 	endTest();
 	startTest_(framebuffer);
 		elementsPerFrame = 5;
-		buffer.setElementsPerFrame(elementsPerFrame);
-		for(quint8 i = 0; i<bufferSize+1; i++){
-			for(quint8 j = 0; j<elementsPerFrame; j++){
+		buffer.updateElementsPerFrame(elementsPerFrame);
+		for(quint8 i = 0; i<bufferSize+1; i++)
+		{
+			for(quint8 j = 0; j<elementsPerFrame; j++)
+			{
 				buffer.pushElement((quint8)(j+i*elementsPerFrame));
 			}
 			buffer.pushFrame();
 		}
-		for(quint8 i = 0; i<bufferSize; i++){
-			for(quint8 j = 0; j<elementsPerFrame; j++){
+		for(quint8 i = 0; i<bufferSize; i++)
+		{
+			for(quint8 j = 0; j<elementsPerFrame; j++)
+			{
 				element = j+i*elementsPerFrame;
 				verify(buffer.popElement(), Equal, element);
 			}
@@ -333,23 +347,28 @@ void ServerTester::runFrameBufferTests(){
 	endTest();
 }
 
-void ServerTester::startTest(const char* actionName){
+void ServerTester::startTest(const char* actionName)
+{
 	testSuccess = true;
 	testActionName = actionName;
 	Console::out<<"ServerTester: ";
 	Console::bold<<"test "<<++testCounter<<": ";
 }
-void ServerTester::endTest(){
-	if(testSuccess){
+void ServerTester::endTest()
+{
+	if(testSuccess)
+	{
 		successCounter++;
 		Console::greenBold<<"test passed. \n";
 	}
 }
-void ServerTester::startNewTest(const char* actionName){
+void ServerTester::startNewTest(const char* actionName)
+{
 	endTest();
 	startTest(actionName);
 }
 
-quint16 ServerTester::result(){
+quint16 ServerTester::result()
+{
 	return testResult;
 }

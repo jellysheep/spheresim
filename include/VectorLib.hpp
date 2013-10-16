@@ -1,12 +1,10 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #ifndef _VECTORLIB_HPP_
 #define _VECTORLIB_HPP_
@@ -15,7 +13,8 @@
 
 #define overloadAssignOperator(op)				\
 	/*	e.g. v1 += v2					*/		\
-	inline LibVector& operator op(const LibVector& v){\
+	inline LibVector& operator op(const LibVector& v)\
+	{											\
 		asm("#begin");							\
 		if(dim>=1) x op v.x;					\
 		if(dim>=2) y op v.y;					\
@@ -24,7 +23,8 @@
 		asm("#end");							\
 		return *this;							\
 	}											\
-	inline LibVector& operator op(const T& t){	\
+	inline LibVector& operator op(const T& t)\
+	{									\
 	/*	e.g. v *= 3					*/	\
 		asm("#begin");					\
 		if(dim>=1) x op t;				\
@@ -35,10 +35,11 @@
 		return *this;					\
 	}
 #define overloadTemporaryOperator(op)		\
-	inline LibVector operator op(const LibVector& v) const{	\
+	inline LibVector operator op(const LibVector& v) const \
+	{										\
 	/*	e.g. v1 + v2					*/	\
 		asm("#begin");						\
-		LibVector v2(*this);					\
+		LibVector v2(*this);				\
 		if(dim>=1) v2.x op##= v.x;			\
 		if(dim>=2) v2.y op##= v.y;			\
 		if(dim>=3) v2.z op##= v.z;			\
@@ -46,10 +47,11 @@
 		asm("#end");						\
 		return v2;							\
 	}										\
-	inline LibVector operator op(const T& t) const{\
+	inline LibVector operator op(const T& t) const \
+	{									\
 	/*	e.g. v * 3					*/	\
 		asm("#begin");					\
-		LibVector v2(*this);				\
+		LibVector v2(*this);			\
 		if(dim>=1) v2.x op##= t;		\
 		if(dim>=2) v2.y op##= t;		\
 		if(dim>=3) v2.z op##= t;		\
@@ -58,10 +60,11 @@
 		return v2;						\
 	}
 #define declareTemporaryFriendOperator(op)				\
-	inline friend LibVector operator op(const T& t, const LibVector& v){	\
+	inline friend LibVector operator op(const T& t, const LibVector& v)	\
+	{													\
 	/*	e.g. 5 + v						*/				\
 		asm("#begin");									\
-		LibVector v2(v);									\
+		LibVector v2(v);								\
 		if(dim>=1) v2.x = t op v2.x;					\
 		if(dim>=2) v2.y = t op v2.y;					\
 		if(dim>=3) v2.z = t op v2.z;					\
@@ -71,11 +74,10 @@
 	}
 
 //floating type and dimension (1 to 4)
-/**
- * \brief Provides methods to calculate with vectors.
- */
+/** \brief Vector calculations. */
 template <typename T, quint8 dim>
-class LibVector{
+class LibVector
+{
 private:
 	LibVector(){}
 public:
@@ -85,21 +87,27 @@ public:
 	LibVector(const LibVector& v):x(v.x),y(v.y),z(v.z),w(v.w){}
 	~LibVector(){}
 	
-	inline T getX() const{
+	inline T getX() const
+	{
 		return x;
 	}
-	inline T getY() const{
+	inline T getY() const
+	{
 		return y;
 	}
-	inline T getZ() const{
+	inline T getZ() const
+	{
 		return z;
 	}
-	inline T getW() const{
+	inline T getW() const
+	{
 		return w;
 	}
 	
-	inline T operator()(quint8 index){
-		switch(index){
+	inline T operator()(quint8 index)
+	{
+		switch(index)
+		{
 		case 0:
 			return x;
 		case 1:
@@ -112,7 +120,8 @@ public:
 			return x;
 		}
 	}
-	inline T operator[](quint8 index){
+	inline T operator[](quint8 index)
+	{
 		return operator()(index);
 	}
 	
@@ -132,11 +141,13 @@ public:
 	declareTemporaryFriendOperator(*)
 	declareTemporaryFriendOperator(/)
 	
-	inline void print(const char* before){
+	inline void print(const char* before)
+	{
 		printf("%s: ", before);
 		print();
 	}
-	inline void print(){
+	inline void print()
+	{
 		printf("LibVector[ ");
 		if(dim>=1) printf("x=%+5f ", (float)x);
 		if(dim>=2) printf("y=%+5f ", (float)y);

@@ -1,17 +1,16 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #include <ServerTester.hpp>
 #include <Connection.hpp>
 
 #include <QCoreApplication>
+#include <QHostAddress>
 #include <QStringList>
 #include <QTimer>
 
@@ -23,10 +22,11 @@ using namespace SphereSim;
  * Starts QCoreApplication.
  */
 
-int main(int argc, char** argv){
+int main(int argc, char** argv)
+{
 	QCoreApplication app(argc, argv);
 	QStringList args = app.arguments();
-	ServerTester* svrTester = new ServerTester(args, Connection::defaultAddress, Connection::defaultPort);
+	ServerTester* svrTester = new ServerTester(args, QHostAddress(Connection::address), Connection::port);
 	QTimer::singleShot(0, svrTester, SLOT(runTests()));
 	return app.exec();
 }

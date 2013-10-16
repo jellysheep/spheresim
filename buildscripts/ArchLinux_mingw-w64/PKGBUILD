@@ -21,12 +21,14 @@ md5sums=('SKIP')
 
 _architectures="i686-w64-mingw32 x86_64-w64-mingw32"
 
-pkgver(){
+pkgver()
+{
 	cd $_gitname
 	cat VERSION
 }
 
-build() { 
+build()
+{
 	unset LDFLAGS
 	CORE_COUNT=$(nproc)
 
@@ -43,7 +45,8 @@ build() {
 	done
 }
 
-package() {
+package()
+{
 	for _arch in ${_architectures}; do
 		cd ${srcdir}/$_gitname/build-${_arch}
 		make DESTDIR=${pkgdir}/${_arch} install

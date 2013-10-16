@@ -1,15 +1,13 @@
-
-#ifndef _ACTIONSENDER_HPP_
-#define _ACTIONSENDER_HPP_
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
+
+#ifndef _ACTIONSENDER_HPP_
+#define _ACTIONSENDER_HPP_
 
 #include <Actions.hpp>
 #include <Sphere.hpp>
@@ -23,293 +21,209 @@
 class QTcpSocket;
 class QHostAddress;
 
-namespace SphereSim{
+namespace SphereSim
+{
 	
-	/**
-	 * \brief Starts client and builds up connection to server;
-	 * sends actions to server when requested.
-	 */
-	class ActionSender:QObject{
+	/** \brief Start client, build up server connection, send request to server. */
+	class ActionSender:QObject
+	{
 		Q_OBJECT
+		
 	private:
-		/** \brief Address of the current connection. */
+		/** \brief Server address. */
 		QHostAddress* addr;
 		
-		/** \brief Port of the current connection. */
+		/** \brief Server port. */
 		quint16 port;
 		
-		/** \brief Socket of the current connection. */
+		/** \brief Server connection socket. */
 		QTcpSocket* socket;
 		
-		/** \brief Stores if connected to server. */
+		/** \brief Flag for connection to server. */
 		bool connectedFlag;
 		
-		/** \brief Tells how often connection creating was tried. */
+		/** \brief Number of server connection tries. */
 		quint16 connectionTryCount;
 		
 		/** \brief Process of the automatically started server. */
-		QProcess process;
+		QProcess serverProcess;
 		
-		/** \brief Tells if a server was automatically started. */
+		/** \brief Flag for automatically started server. */
 		bool createdOwnServer;
 		
-		/** \brief Stores the spheres received from server. */
+		/** \brief Buffer for the spheres received from server. */
 		FrameBuffer<Sphere> frameBuffer;
 		
-		/** \brief Stores the last server status received from server. */
+		/** \brief Last received server status. */
 		quint8 lastServerStatus;
 		
-		/** \brief True if a server reply to a client request appeared. */
+		/** \brief Flag for server replies. */
 		bool receivedServerReply;
 		
-		/** \brief Data of the last server reply. */
+		/** \brief Last server reply data. */
 		QByteArray lastServerReplyData;
 		
-		/** \brief Partial data from a server reply. */
+		/** \brief Partial server reply data. */
 		QByteArray replyData;
 		
-		/** \brief Flag if currently data from a server reply is being collected;
-		 * if true, no new replies are accepted. */
+		/** \brief Flag for currently collecting server data.
+		 * If true, no new replies are accepted. */
 		bool collectingReplyData;
 		
-		/**
-		 * \brief Processes received reply data.
-		 * \param byteArray Data from network stream to process.
-		 */
+		/** \brief Process received reply data.
+		 * \param byteArray Received data to process. */
 		void processData(QByteArray byteArray);
 		
-		/** \brief Processes and answers received reply. */
+		/** \brief Process and answer to received reply. */
 		void processReply();
 		
-		/**
-		 * \brief Sends an action request and data to the server.
+		/** \brief Send an action request to the server.
 		 * \param actionGroup Group of the requested action.
-		 * \param action Requested action.
-		 * \param data Data that will be sent with the action request.
-		 */
-		void sendAction(quint8 actionGroup, quint8 action, QByteArray& data);
-		/**
-		 * \brief Sends an action request to the server.
-		 * \param actionGroup Group of the requested action.
-		 * \param action Requested action.
-		 */
+		 * \param action Requested action. */
 		void sendAction(quint8 actionGroup, quint8 action);
 		
-		/**
-		 * \brief Sends an action request and data to the server and returns server reply.
-		 * \param actionGroup Group of the requested action.
-		 * \param action Requested action.
-		 * \param data Data that will be sent with the action request.
+		/** \copydoc sendAction
+		 * \param data Data that will be sent with the action request. */
+		void sendAction(quint8 actionGroup, quint8 action, QByteArray& data);
+		
+		/** \brief Send an action request to the server and return server reply.
 		 * \return Reply data from the server.
-		 */
-		QByteArray sendReplyAction(quint8 actionGroup, quint8 action, QByteArray& data);
-		/**
-		 * \brief Sends an action request to the server and returns server reply.
 		 * \param actionGroup Group of the requested action.
-		 * \param action Requested action.
-		 * \return Reply data from the server.
-		 */
+		 * \param action Requested action. */
 		QByteArray sendReplyAction(quint8 actionGroup, quint8 action);
 		
-		/**
-		 * \brief Updates the number of spheres and resizes the frame buffer.
-		 * \param sphereCount Number of spheres.
-		 */
+		/** \copydoc sendReplyAction
+		 * \param data Data that will be sent with the action request. */
+		QByteArray sendReplyAction(quint8 actionGroup, quint8 action, QByteArray& data);
+		
+		/** \brief Update sphere number and resize frame buffer.
+		 * \param sphereCount Number of spheres. */
 		void updateSphereCount(quint16 sphereCount);
 		
 	public:
-		/**
-		 * \brief Starts a QTcpSocket with the specified address and port.
+		/** \brief Start an ActionSender with the specified address and port.
 		 * \param args The arguments that the program was invoked with.
 		 * \param addr The address that the socket will be connecting to.
-		 * \param port The port that the socket will be connecting to.
-		 */
+		 * \param port The port that the socket will be connecting to. */
 		ActionSender(QStringList args, QHostAddress addr, quint16 port);
-		/**
-		 * \brief Starts a QTcpSocket with the specified address and port.
-		 * \param args The arguments that the program was invoked with.
-		 * \param addr The address that the socket will be connecting to.
-		 * \param port The port that the socket will be connecting to.
-		 */
-		ActionSender(QStringList args, QString addr, quint16 port);
-		/**
-		 * \brief Starts a QTcpSocket with the specified address and port.
-		 * \param args The arguments that the program was invoked with.
-		 * \param addr The address that the socket will be connecting to.
-		 * \param port The port that the socket will be connecting to.
-		 */
-		ActionSender(QStringList args, const char* addr, quint16 port);
 		
 		~ActionSender();
 		
-		/**
-		 * \brief Asks server for the version number and returns it.
-		 * \return The version string reported by the server.
-		 */
-		QString getVersion();
-		
-		/**
-		 * \brief Asks server for a "true" string and returns it.
-		 * \return The "true" string sent by the server.
-		 */
-		QString getTrueString();
-		
-		/**
-		 * \brief Shows if socket is connected.
-		 * \return True if connected, false if not.
-		 */
+		/** \return Server connection flag.
+		 * \see connectedFlag */
 		bool isConnected();
 		
-		/**
-		 * \brief Requests the server to add one sphere.
-		 * \return Current sphere count reported by server.
-		 */
+		/** \copydoc BasicActions::getServerVersion
+		 * \return Version string reported by server. */
+		QString getServerVersion();
+		
+		/** \copydoc BasicActions::getTrueString
+		 * \return "True" string sent by server. */
+		QString getTrueString();
+		
+		/** \copydoc BasicActions::getServerFloatingType
+		 * \return The floating type string sent by the server. */
+		QString getServerFloatingType();
+		
+		/** \copydoc SpheresUpdatingActions::addSphere
+		 * \copydetails getSphereCount */
 		quint16 addSphere();
 		
-		/**
-		 * \brief Requests the server to remove the last sphere.
-		 * \return Current sphere count reported by server.
-		 */
+		/** \copydoc SpheresUpdatingActions::removeLastSphere
+		 * \copydetails getSphereCount */
 		quint16 removeLastSphere();
 		
-		/**
-		 * \brief Requests the server to send the current sphere count.
-		 * \return Current sphere count reported by server.
-		 */
-		quint16 getSphereCount();
-		
-		/**
-		 * \brief Requests the server to update one sphere.
-		 * \param i Index of the sphere to update.
-		 * \param s Sphere data to update.
-		 */
+		/** \copydoc SpheresUpdatingActions::updateSphere
+		 * \param i Sphere index.
+		 * \param s Sphere data. */
 		void updateSphere(quint16 i, Sphere s);
 		
-		/**
-		 * \brief Requests the server to send one sphere.
-		 * \param i Index of the sphere to send.
-		 * \param s Sphere data to update.
-		 */
-		void getSphere(quint16 i, Sphere& s);
+		/** \copydoc SpheresUpdatingActions::getSphereCount
+		 * \return Current sphere count reported by server. */
+		quint16 getSphereCount();
 		
-		/**
-		 * \brief Requests the server to send one full sphere.
-		 * \param i Index of the sphere to send.
-		 * \param s Sphere data to update.
-		 */
-		void getFullSphere(quint16 i, Sphere& s);
+		/** \copydoc SpheresUpdatingActions::getBasicSphereData
+		 * \copydetails updateSphere */
+		void getBasicSphereData(quint16 i, Sphere& s);
 		
-		/**
-		 * \brief Requests the server to calculate one step.
-		 */
+		/** \copydoc SpheresUpdatingActions::getAllSphereData
+		 * \copydetails updateSphere */
+		void getAllSphereData(quint16 i, Sphere& s);
+		
+		/** \copydoc CalculationActions::calculateStep */
 		void calculateStep();
 		
-		/**
-		 * \brief Requests the server to set the time step.
-		 * \param timeStep Requested time step in seconds.
-		 */
-		void setTimeStep(Scalar timeStep);
+		/** \copydoc CalculationActions::updateTimeStep
+		 * \param timeStep Time step in seconds. */
+		void updateTimeStep(Scalar timeStep);
 		
-		/**
-		 * \brief Requests the server to send the time step.
-		 * \return Sent time step in seconds.
-		 */
+		/** \copydoc CalculationActions::getTimeStep
+		 * \return Time step in seconds. */
 		Scalar getTimeStep();
 		
-		/**
-		 * \brief Requests the server to set the integrator method.
-		 * \param integratorMethod Requested integrator method.
-		 */
-		void setIntegratorMethod(quint8 integratorMethod);
+		/** \copydoc CalculationActions::updateIntegratorMethod
+		 * \param integratorMethod Integrator method. */
+		void updateIntegratorMethod(quint8 integratorMethod);
 		
-		/**
-		 * \brief Requests the server to send the integrator method.
-		 * \return Sent integrator method.
-		 */
+		/** \copydoc CalculationActions::getIntegratorMethod
+		 * \return Integrator method. */
 		quint8 getIntegratorMethod();
 		
-		/**
-		 * \brief Asks server for the floating type and returns it.
-		 * \return The floating type string sent by the server.
-		 */
-		QString getFloatingType();
-		
-		/**
-		 * \brief Requests the server to send the used calculation steps.
-		 * \return Sent used calculation steps.
-		 */
+		/** \copydoc CalculationActions::popCalculationCounter
+		 * \return Numer of force calculations per step. */
 		quint32 popCalculationCounter();
 		
-		/**
-		 * \brief Requests the server to send the number of calculated steps.
-		 * \return Sent number of calculated steps.
-		 */
-		quint32 popStepCounter();
-		
-		/**
-		 * \brief Requests the server to calculate some steps.
-		 * \param steps Number of steps to calculate (0 = unlimited).
-		 */
+		/** \copydoc CalculationActions::calculateSomeSteps
+		 * \param steps Number of steps to calculate (0 = unlimited). */
 		void calculateSomeSteps(quint32 steps);
 		
-		/**
-		 * \brief Requests the server to send the total energy.
-		 * \return Sent total energy.
-		 */
-		Scalar getTotalEnergy();
-		
-		/**
-		 * \brief Requests the server to set the sphere E modulus.
-		 * \param E_sphere Requested sphere E modulus.
-		 */
-		void setSphereE(Scalar E_sphere);
-		
-		/**
-		 * \brief Requests the server to set the sphere poisson number.
-		 * \param poisson_sphere Requested sphere poisson number.
-		 */
-		void setSpherePoisson(Scalar poisson_sphere);
-		
-		/**
-		 * \brief Requests the server to set the wall E modulus.
-		 * \param E_wall Requested wall E modulus.
-		 */
-		void setWallE(Scalar E_wall);
-		
-		/**
-		 * \brief Requests the server to set the wall poisson number.
-		 * \param poisson_wall Requested wall poisson number.
-		 */
-		void setWallPoisson(Scalar poisson_wall);
-		
-		/**
-		 * \brief Requests the server to set the earth gravity.
-		 * \param earthGravity Requested earth gravity.
-		 */
-		void setEarthGravity(Vector3 earthGravity);
-		
-		/**
-		 * \brief Requests the server to start the simulation.
-		 */
+		/** \copydoc CalculationActions::startSimulation */
 		void startSimulation();
 		
-		/**
-		 * \brief Requests the server to stop the simulation.
-		 */
+		/** \copydoc CalculationActions::stopSimulation */
 		void stopSimulation();
 		
-		/**
-		 * \brief Requests the server to send the simulation status.
-		 * \return Shows if simulation is running or not.
-		 */
+		/** \copydoc CalculationActions::getIsSimulating
+		 * \return Simulation run flag. */
 		bool getIsSimulating();
+		
+		/** \copydoc CalculationActions::popStepCounter
+		 * \return Number of simulatied time steps. */
+		quint32 popStepCounter();
+		
+		/** \copydoc CalculationActions::getTotalEnergy
+		 * \return Total energy (in joules). */
+		Scalar getTotalEnergy();
+		
+		/** \copydoc CalculationActions::updateSphereE
+		 * \param E_sphere Sphere E modulus. */
+		void updateSphereE(Scalar E_sphere);
+		
+		/** \copydoc CalculationActions::updateSpherePoissonRatio
+		 * \param poisson_sphere Sphere poisson number. */
+		void updateSpherePoissonRatio(Scalar poisson_sphere);
+		
+		/** \copydoc CalculationActions::updateWallE
+		 * \param E_wall Requested wall E modulus. */
+		void updateWallE(Scalar E_wall);
+		
+		/** \copydoc CalculationActions::updateWallPoissonRatio
+		 * \param poisson_wall Requested wall poisson number. */
+		void updateWallPoissonRatio(Scalar poisson_wall);
+		
+		/** \copydoc CalculationActions::updateEarthGravity
+		 * \param earthGravity Requested earth gravity. */
+		void updateEarthGravity(Vector3 earthGravity);
 	
 	public slots:
-		void connected(){
+		/** Set connectedFlag to true. 
+		 * \see connectedFlag */
+		void connected()
+		{
 			connectedFlag = true;
 		}
 		
-		/** \brief Reads data from server. */
+		/** \brief Read data from server. */
 		void readData();
 	};
 	

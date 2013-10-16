@@ -1,12 +1,10 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #ifndef _ACTIONRECEIVER_HPP_
 #define _ACTIONRECEIVER_HPP_
@@ -19,16 +17,16 @@
 class QTcpSocket;
 class QHostAddress;
 
-namespace SphereSim{
+namespace SphereSim
+{
 	
-	/**
-	 * \brief Takes client socket and replies to client requests.
-	 */
-	class ActionReceiver:public QObject{
+	/** \brief Receiver of client requests. */
+	class ActionReceiver:public QObject
+	{
 		Q_OBJECT
 		
 	private:
-		/** \brief Holds the socket of the connection. */
+		/** \brief Socket to client. */
 		QTcpSocket* socket;
 		
 		/** \brief Collected data from a client request. */
@@ -38,100 +36,65 @@ namespace SphereSim{
 		 * if true, no new requests are accepted. */
 		bool collectingRequestData;
 		
-		/**
-		 * \brief Processes received request data.
-		 * \param byteArray Data from network stream to process.
-		 */
+		/** \brief Process received request data.
+		 * \param byteArray Data from network stream to process. */
 		void processData(QByteArray byteArray);
 		
-		/** \brief Processes and answers received request. */
+		/** \brief Process and reply to received request. */
 		void processRequest();
 		
-		/**
-		 * \brief Handles any action request.
+		/** \brief Handle any action request and forward to specific handlers.
 		 * \param actionGroup Action group that will be handled.
 		 * \param action Action that will be handled.
-		 * \param data Data sent with the action request.
-		 */
+		 * \param data Data sent with the action request. */
 		void handleAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
-		/**
-		 * \brief Handles basic action requests.
-		 * \param actionGroup Action group that will be handled.
-		 * \param action Action that will be handled.
-		 * \param data Data sent with the action request.
-		 */
+		/** \brief Handle BasicActions requests. 
+		 * \copydetails handleAction */
 		void handleBasicAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
-		/**
-		 * \brief Handles requests that updates spheres.
-		 * \param actionGroup Action group that will be handled.
-		 * \param action Action that will be handled.
-		 * \param data Data sent with the action request.
-		 */
+		/** \brief Handle SpheresUpdatingActions requests. 
+		 * \copydetails handleAction */
 		void handleSpheresUpdatingAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
-		/**
-		 * \brief Handles requests that calculate spheres physics.
-		 * \param actionGroup Action group that will be handled.
-		 * \param action Action that will be handled.
-		 * \param data Data sent with the action request.
-		 */
+		/** \brief Handle CalculationActions requests. 
+		 * \copydetails handleAction */
 		void handleCalculationAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
-		/**
-		 * \brief Handles requests that inform about sphere properties.
-		 * \param actionGroup Action group that will be handled.
-		 * \param action Action that will be handled.
-		 * \param data Data sent with the action request.
-		 */
+		/** \brief Handle InformationActions requests. 
+		 * \copydetails handleAction */
 		void handleInformationAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
-		/**
-		 * \brief Handles requests that read or update physical constants.
-		 * \param actionGroup Action group that will be handled.
-		 * \param action Action that will be handled.
-		 * \param data Data sent with the action request.
-		 */
+		/** \brief Handle PhysicalConstantsActions requests. 
+		 * \copydetails handleAction */
 		void handlePhysicalConstantsAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
-		/**
-		 * \brief Handles all unknown action group requests.
-		 * \param actionGroup Action group that is unknown.
-		 * \param action Action that will be handled.
-		 * \param data Data sent with the action request.
-		 */
+		/** \brief Handle unknown action group requests. 
+		 * \copydetails handleAction */
 		void handleUnknownActionGroup(quint8 actionGroup, quint8 action, QByteArray data);
 		
-		/**
-		 * \brief Handles all unknown action requests.
-		 * \param actionGroup Action group that will be handled.
-		 * \param action Action that is unknown.
-		 * \param data Data sent with the action request.
-		 */
+		/** \brief Handle unknown action requests. 
+		 * \copydetails handleAction */
 		void handleUnknownAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
-		/**
-		 * \brief Sends encoded reply to client.
+		/** \brief Send encoded reply to client.
 		 * \param serverStatus Server status to be sent.
-		 * \param data Data which is sent as a reply to the client.
-		 */
+		 * \param data Reply data to be sent to client. */
 		void sendReply(quint8 serverStatus, const QByteArray& data);
 		
-		/** \brief Stores and calculates sphere data. */
+		/** \brief Storage and calculator of sphere data. */
 		SphereCalculator sphCalc;
 		
 	public:
-		/**
-		 * \brief Starts a new server that handles the request from the new client.
-		 * \param sock Socket of the connection to the client.
-		 */
+		/** \brief Start a new server handling requests from the client.
+		 * \param sock Socket of the connection to the client. */
 		ActionReceiver(QTcpSocket* sock);
 		
+		/** \brief Clean up member variables. */
 		~ActionReceiver();
 		
 	public slots:
-		/** \brief Reads data from client. */
+		/** \brief New data available: Read data from client. */
 		void readData();
 	};
 	

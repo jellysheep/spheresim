@@ -1,12 +1,10 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #ifndef _SERVERTESTER_HPP_
 #define _SERVERTESTER_HPP_
@@ -21,92 +19,75 @@
 class ActionSender;
 class QHostAddress;
 
-namespace SphereSim{
+namespace SphereSim
+{
 	
-	/**
-	 * \brief Sends actions to server and verifies server replies.
-	 */
-	class ServerTester : public QObject{
+	/** \brief Verifier of server actions. */
+	class ServerTester : public QObject
+	{
 		Q_OBJECT
 		
 	private:
-		/** \brief Holds the client object to communicate with server. */
+		/** \brief Client object to communicate with server. */
 		ActionSender* sender;
 		
-		/** \brief Tells how many tests have been done. */
+		/** \brief Number of already done tests. */
 		quint16 testCounter;
 		
-		/** \brief Tells how many of the tests have been successful. */
+		/** \brief Number of succeeded tests. */
 		quint16 successCounter;
 		
-		/** \brief Tells if the current test is successful. */
+		/** \brief Success flag of the current test. */
 		bool testSuccess;
 		
-		/** \brief Tells which action is currently tested. */
+		/** \brief Name of the currently tested action. */
 		QString testActionName;
 		
+		/** \brief Dummy variable to name the framebuffer test. */
 		static const int framebuffer;
 		
 		/** \brief Test result value (0 = all tests passed, 1 = at least one test failed). */
 		quint16 testResult;
 		
 	public:
-		/**
-		 * \brief Starts a ServerTester with the specified address and port.
+		/** \brief Start a ServerTester with the specified address and port.
 		 * \param args The arguments that the program was invoked with.
 		 * \param addr The address that the socket will be connecting to.
-		 * \param port The port that the socket will be connecting to.
-		 */
+		 * \param port The port that the socket will be connecting to. */
 		ServerTester(QStringList args, QHostAddress addr, quint16 port);
-		/**
-		 * \brief Starts a ServerTester with the specified address and port.
-		 * \param args The arguments that the program was invoked with.
-		 * \param addr The address that the socket will be connecting to.
-		 * \param port The port that the socket will be connecting to.
-		 */
-		ServerTester(QStringList args, QString addr, quint16 port);
-		/**
-		 * \brief Starts a ServerTester with the specified address and port.
-		 * \param args The arguments that the program was invoked with.
-		 * \param addr The address that the socket will be connecting to.
-		 * \param port The port that the socket will be connecting to.
-		 */
-		ServerTester(QStringList args, const char* addr, quint16 port);
 		
 		~ServerTester();
 		
-		/**
-		 * \brief Runs all tests of a specific action group on the server and verifies the replies.
+		/** \brief Run all tests of a specific action group on the server and verify the replies.
 		 * \param actionGroup Group of the actions that will be tested.
-		 * \param groupName Name of the specified action group. Used for console outputs.
-		 */
+		 * \param groupName Name of the specified action group. Used for console outputs. */
 		void runTests(quint8 actionGroup, const char* groupName);
 		
-		/** \brief Runs all tests of the basic actions. */
+		/** \brief Verification of all BasicActions. */
 		void runBasicActionTests();
 		
-		/** \brief Runs all tests of the sphere updating actions. */
+		/** \brief Verification of all SpheresUpdatingActions. */
 		void runSpheresUpdatingActionTests();
 		
-		/** \brief Runs all tests of the sphere calculating sphere movements. */
+		/** \brief Verification of all CalculationActions. */
 		void runCalculationActionTests();
 		
-		/**
-		 * \brief Simulates a bouncing sphere.
-		 * \param integratorMethod Name of the used integrator method.
-		 */
+		/** \brief Simulation of a bouncing sphere.
+		 * \param integratorMethod Name of the used integrator method. */
 		void runCalculationActionTests_internal(const char* integratorMethod);
 		
-		/** \brief Runs all frame buffer tests. */
+		/** \brief Verification of the FrameBuffer. */
 		void runFrameBufferTests();
 		
-		/** \brief Verifies a comparison and displays result on console. */
+		/** \brief Verification of a comparison and result printing on console. */
 		#define verify(t1,op,t2)							\
 			verify##op(t1,t2,__LINE__,TOSTR(t1),TOSTR(t2));
+		/** \brief Declaration of different verification methods. */
 		#define verifyFunc(name,op,invOp)					\
 		template<typename T1, typename T2>					\
 		void verify##name(T1 t1, T2 t2, quint16 line,		\
-				const char* nameT1, const char* nameT2){	\
+				const char* nameT1, const char* nameT2)		\
+		{													\
 			if(!testSuccess) return;						\
 			if(t1 op t2){									\
 			}else{											\
@@ -132,37 +113,30 @@ namespace SphereSim{
 		verifyFunc(GreaterOrEqual,>=,<);
 		verifyFunc(SmallerOrEqual,<=,>);
 		
+		/** \brief Declaration of an approximately-equal verification method. */
 		#define verifyApproxEqual(t1,t2,line,str1,str2)		\
 			verifySmallerOrEqual(fabs(t1-t2),				\
 			0.0001*(fabs(t1)+fabs(t2)),						\
 			line,"|" str1 " - " str2 "|",					\
 			"0.0001*(|" str1 "| + |" str2 "|)");
 		
-		/**
-		 * \brief Informs that a new test will be started.
-		 * \param actionName Name of the action that will be tested.
-		 */
+		/** \brief Introduction of a new test.
+		 * \param actionName Name of the action that will be tested. */
 		void startTest(const char* actionName);
 		
-		/** \brief Informs that a test is complete. */
+		/** \brief Completion of a test. */
 		void endTest();
 		
-		/**
-		 * \brief Informs that a test is complete and a new test will be started.
-		 * \param actionName Name of the action that will be tested.
-		 */
+		/** \brief Completion of a test and introduction of a new test.
+		 * \copydetails startTest */
 		void startNewTest(const char* actionName);
 		
-		/**
-		 * \brief Returns a test result value.
-		 * \return Test result value (0 = all tests passed, 1 = at least one test failed).
-		 */
+		/** \copydoc testResult
+		 * \return Test result value. */
 		quint16 result();
 		
 	public slots:
-		/**
-		 * \brief Runs all tests on the server and verifies the replies.
-		 */
+		/** \brief Verification of all actions. */
 		void runTests();
 		
 	};

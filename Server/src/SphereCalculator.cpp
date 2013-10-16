@@ -1,12 +1,10 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #include <SphereCalculator.hpp>
 #include <SimulationWorker.hpp>
@@ -19,19 +17,20 @@
 
 using namespace SphereSim;
 
-SphereCalculator::SphereCalculator(){
+SphereCalculator::SphereCalculator()
+{
 	qDebug()<<"SphereCalculator: constructor called";
 	updateData();
 	boxSize = Vector3(1,1,1);
 	timeStep = 0.002;
-	setIntegratorMethod(IntegratorMethods::RungeKuttaFehlberg54);
+	updateIntegratorMethod(IntegratorMethods::RungeKuttaFehlberg54);
 	calculationCounter = 0;
 	stepCounter = 0;
-	setSphereE(5000);
-	setSpherePoisson(0.5);
-	setWallE(5000);
-	setWallPoisson(0.5);
-	setEarthGravity(Vector3(0, -9.81, 0));
+	updateSphereE(5000);
+	updateSpherePoissonRatio(0.5);
+	updateWallE(5000);
+	updateWallPoissonRatio(0.5);
+	updateEarthGravity(Vector3(0, -9.81, 0));
 	
 	workQueueMutex = new QMutex();
 	workQueue = new WorkQueue(workQueueMutex);
@@ -48,69 +47,31 @@ SphereCalculator::SphereCalculator(){
 	simulationThread->start();
 }
 
-SphereCalculator::~SphereCalculator(){
+SphereCalculator::~SphereCalculator()
+{
 	stopWorker();
 }
 
-QVector<Sphere>& SphereCalculator::getSpheres(){
+QVector<Sphere>& SphereCalculator::getSpheres()
+{
 	return spheres;
 }
 
-quint16 SphereCalculator::addSphere(Sphere s){
-	spheres.append(s);
-	updateData();
-	return getCount();
-}
-quint16 SphereCalculator::addSphere(){
-	return addSphere(Sphere());
-}
-
-quint16 SphereCalculator::removeSphere(quint16 i){
-	if(getCount()>i){
-		spheres.remove(i);
-		updateData();
-	}
-	return getCount();
-}
-quint16 SphereCalculator::removeLastSphere(){
-	if(getCount()>0){
-		return removeSphere(getCount()-1);
-	}else{
-		return getCount();
-	}
-}
-
-quint16 SphereCalculator::getCount(){
-	return spheres.size();
-}
-
-quint16 SphereCalculator::updateSphere(quint16 i, Sphere s){
-	if(getCount()>i){
-		spheres[i] = s;
-		updateData();
-	}
-	return getCount();
-}
-
-Sphere SphereCalculator::getSphere(quint16 i){
-	if(getCount()>i){
-		return spheres[i];
-	}else{
-		return Sphere();
-	}
-}
-
-Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff){
+Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff)
+{
 	Scalar d, force;
 	Vector3 _force, acc;
 
 	_force = physicalConstants.earthGravity*sphere.mass;
-	for(quint8 dim = 0; dim<3; dim++){
-		if((d = (sphere.radius - sphere.pos(dim))) > 0){
+	for(quint8 dim = 0; dim<3; dim++)
+	{
+		if((d = (sphere.radius - sphere.pos(dim))) > 0)
+		{
 			force = 4.0f/3.0f*physicalConstants.E_sphere_wall*std::sqrt(sphere.radius*std::pow(d,3));
 			_force(dim) += force;
 		}
-		if((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0){
+		if((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0)
+		{
 			force = 4.0f/3.0f*physicalConstants.E_sphere_wall*std::sqrt(sphere.radius*std::pow(d,3));
 			_force(dim) -= force;
 		}
@@ -120,24 +81,14 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 	return acc;
 }
 
-void SphereCalculator::doOneStep(){
-	doSomeSteps(1);
-}
-
-void SphereCalculator::updateData(){
+void SphereCalculator::updateData()
+{
 	sphArr = spheres.data();
 	sphCount = spheres.size();
 }
 
-void SphereCalculator::setTimeStep(Scalar timeSt){
-	timeStep = timeSt;
-}
-
-Scalar SphereCalculator::getTimeStep(){
-	return timeStep;
-}
-
-void SphereCalculator::integrateRungeKuttaStep(){
+void SphereCalculator::integrateRungeKuttaStep()
+{
 	Sphere* s = &sphArr[0];
 	Sphere sphere, origSphere;
 	Vector3 acc, pos, speed, pos_, speed_, error_pos, error_speed;
@@ -145,13 +96,15 @@ void SphereCalculator::integrateRungeKuttaStep(){
 	const quint8 integratorOrder = butcherTableau.order;
 	Vector3 k_acc[integratorOrder];
 	Vector3 k_speed[integratorOrder];
-	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex){
+	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
+	{
 		integrateRungeKuttaStep(sphereIndex, timeStep, 0.0);
 	}
 	stepCounter++;
 }
 
-quint32 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff){
+quint32 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff)
+{
 	Sphere sphere = sphArr[sphereIndex];
 	Sphere origSphere = sphere;
 	const quint8 integratorOrder = butcherTableau.order;
@@ -160,15 +113,18 @@ quint32 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar st
 	
 	k_acc[0] = sphereAcceleration(sphereIndex, sphere, timeDiff);
 	k_speed[0] = sphere.speed;
-	for(quint8 n = 1; n<integratorOrder; n++){
+	for(quint8 n = 1; n<integratorOrder; n++)
+	{
 		sphere.pos = origSphere.pos;
-		for(quint8 j = 0; j<n; j++){
+		for(quint8 j = 0; j<n; j++)
+		{
 			sphere.pos += stepLength*butcherTableau.a[n][j]*k_speed[j];
 		}
 		k_acc[n] = sphereAcceleration(sphereIndex, sphere, timeDiff);
 		
 		k_speed[n] = origSphere.speed;
-		for(quint8 j = 0; j<n; j++){
+		for(quint8 j = 0; j<n; j++)
+		{
 			k_speed[n] += stepLength*butcherTableau.a[n][j]*k_acc[j];
 		}
 	}
@@ -177,7 +133,8 @@ quint32 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar st
 	Vector3 pos_ = pos;
 	Vector3 speed = origSphere.speed;
 	Vector3 speed_ = speed;
-	for(quint8 j = 0; j<integratorOrder; j++){
+	for(quint8 j = 0; j<integratorOrder; j++)
+	{
 		pos += stepLength*butcherTableau.b[j]*k_speed[j];
 		pos_ += stepLength*butcherTableau.b_[j]*k_speed[j];
 		speed += stepLength*butcherTableau.b[j]*k_acc[j];
@@ -186,7 +143,8 @@ quint32 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar st
 	
 	Scalar error_pos_ = (pos-pos_).norm();
 	Scalar error_speed_ = (speed-speed_).norm();
-	if(error_pos_>1.0e-06 || error_speed_>1.0e-06){
+	if(error_pos_>1.0e-06 || error_speed_>1.0e-06)
+	{
 		quint32 stepCount = 0;
 		stepCount += integrateRungeKuttaStep(sphereIndex, stepLength/2, timeDiff);
 		stepCount += integrateRungeKuttaStep(sphereIndex, stepLength/2, timeDiff+(stepLength/2));
@@ -199,17 +157,104 @@ quint32 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar st
 	}
 }
 
-void SphereCalculator::setIntegratorMethod(quint8 integrMethod){
+quint16 SphereCalculator::removeSphere(quint16 i)
+{
+	if(getSphereCount()>i)
+	{
+		spheres.remove(i);
+		updateData();
+	}
+	return getSphereCount();
+}
+
+void SphereCalculator::stopWorker()
+{
+	emit requestingWorkerStop();
+}
+
+void SphereCalculator::updateSphereSphereE()
+{
+	physicalConstants.E_sphere_sphere = 1/(((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere)
+		+((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere));
+}
+
+void SphereCalculator::updateSphereWallE()
+{
+	physicalConstants.E_sphere_wall = 1/(((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere)
+		+((1-physicalConstants.poisson_wall*physicalConstants.poisson_wall)/physicalConstants.E_wall));
+}
+
+quint16 SphereCalculator::addSphere()
+{
+	spheres.append(Sphere());
+	updateData();
+	return getSphereCount();
+}
+
+quint16 SphereCalculator::removeLastSphere()
+{
+	if(getSphereCount()>0)
+	{
+		return removeSphere(getSphereCount()-1);
+	}else{
+		return getSphereCount();
+	}
+}
+
+quint16 SphereCalculator::updateSphere(quint16 i, Sphere s)
+{
+	if(getSphereCount()>i)
+	{
+		spheres[i] = s;
+		updateData();
+	}
+	return getSphereCount();
+}
+
+quint16 SphereCalculator::getSphereCount()
+{
+	return spheres.size();
+}
+
+Sphere SphereCalculator::getAllSphereData(quint16 i)
+{
+	if(getSphereCount()>i)
+	{
+		return spheres[i];
+	}else{
+		return Sphere();
+	}
+}
+
+void SphereCalculator::calculateStep()
+{
+	calculateSomeSteps(1);
+}
+
+void SphereCalculator::updateTimeStep(Scalar timeSt)
+{
+	timeStep = timeSt;
+}
+
+Scalar SphereCalculator::getTimeStep()
+{
+	return timeStep;
+}
+
+void SphereCalculator::updateIntegratorMethod(quint8 integrMethod)
+{
 	integratorMethod = integrMethod;
 	
-	if(integrMethod == IntegratorMethods::HeunEuler21){
+	if(integrMethod == IntegratorMethods::HeunEuler21)
+	{
 		const Scalar a[4] = 	{0.0,	0.0,
 								1.0,	0.0};
 		const Scalar b[2] = 	{1/2.0,	1/2.0};
 		const Scalar b_[2] = 	{1.0,	0.0};
 		const Scalar c[2] = 	{0.0,	1.0};
 		butcherTableau = ButcherTableau(2, a, b, b_, c);
-	}else if(integrMethod == IntegratorMethods::BogackiShampine32){
+	}else if(integrMethod == IntegratorMethods::BogackiShampine32)
+	{
 		const Scalar a[16] = 	{0.0,	0.0,	0.0,	0.0,
 								1/2.0,	0.0,	0.0,	0.0,
 								0.0,	3/4.0,	0.0,	0.0,
@@ -218,7 +263,8 @@ void SphereCalculator::setIntegratorMethod(quint8 integrMethod){
 		const Scalar b_[4] = 	{7/24.0,	1/4.0,	1/3.0,	1/8.0};
 		const Scalar c[4] = 	{0.0,	1/2.0,	3/4.0,	1.0};
 		butcherTableau = ButcherTableau(4, a, b, b_, c);
-	}else if(integrMethod == IntegratorMethods::CashKarp54){
+	}else if(integrMethod == IntegratorMethods::CashKarp54)
+	{
 		const Scalar a[36] = 	{0.0,			0.0,		0.0,			0.0,			0.0,			0.0,
 								1/5.0,			0.0,		0.0,			0.0,			0.0,			0.0,
 								3/40.0,			9/40.0,		0.0,			0.0,			0.0,			0.0,
@@ -229,7 +275,8 @@ void SphereCalculator::setIntegratorMethod(quint8 integrMethod){
 		const Scalar b_[6] = 	{2825/27648.0,	0.0,		18575/48384.0,	13525/55296.0,	277/14336.0,	1/4.0};
 		const Scalar c[6] = 	{0.0,			1/5.0,		3/10.0,			3/5.0,			1.0,			7/8.0};
 		butcherTableau = ButcherTableau(6, a, b, b_, c);
-	}else if(integrMethod == IntegratorMethods::DormandPrince54){
+	}else if(integrMethod == IntegratorMethods::DormandPrince54)
+	{
 		const Scalar a[49] = 	{0.0,			0.0,			0.0,			0.0,		0.0,			0.0,		0.0,
 								1/5.0,			0.0,			0.0,			0.0,		0.0,			0.0,		0.0,
 								3/40.0,			9/40.0,			0.0,			0.0,		0.0,			0.0,		0.0,
@@ -256,12 +303,15 @@ void SphereCalculator::setIntegratorMethod(quint8 integrMethod){
 	}
 }
 
-quint8 SphereCalculator::getIntegratorMethod(){
+quint8 SphereCalculator::getIntegratorMethod()
+{
 	return integratorMethod;
 }
 
-quint32 SphereCalculator::popCalculationCounter(){
-	if(sphCount>0){
+quint32 SphereCalculator::popCalculationCounter()
+{
+	if(sphCount>0)
+	{
 		quint32 counter = calculationCounter/sphCount;
 		calculationCounter = 0;
 		return counter;
@@ -270,29 +320,51 @@ quint32 SphereCalculator::popCalculationCounter(){
 	}
 }
 
-quint32 SphereCalculator::popStepCounter(){
+void SphereCalculator::calculateSomeSteps(quint32 steps)
+{
+	workQueue->pushSimulationSteps(steps);
+}
+
+void SphereCalculator::startSimulation()
+{
+	calculateSomeSteps(0);
+}
+
+void SphereCalculator::stopSimulation()
+{
+	emit requestingSimulationStop();
+}
+
+bool SphereCalculator::getIsSimulating()
+{
+	return workQueue->getIsSimulating();
+}
+
+quint32 SphereCalculator::popStepCounter()
+{
 	quint32 counter = stepCounter;
 	stepCounter = 0;
 	return counter;
 }
 
-void SphereCalculator::doSomeSteps(quint32 steps){
-	workQueue->pushSimulationSteps(steps);
-}
-
-Scalar SphereCalculator::getTotalEnergy(){
+Scalar SphereCalculator::getTotalEnergy()
+{
 	Scalar totalEnergy = 0.0, sphereEnergy, d;
 	Sphere sphere;
-	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex){
+	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
+	{
 		sphere = sphArr[sphereIndex];
 		sphereEnergy = -sphere.mass*physicalConstants.earthGravity.dot(sphere.pos);
 		sphereEnergy += 0.5*sphere.mass*sphere.speed.squaredNorm();
 		
-		for(quint8 dim = 0; dim<3; dim++){
-			if((d = (sphere.radius - sphere.pos(dim))) > 0){
+		for(quint8 dim = 0; dim<3; dim++)
+		{
+			if((d = (sphere.radius - sphere.pos(dim))) > 0)
+			{
 				sphereEnergy += 8.0/15.0*physicalConstants.E_sphere_wall*sqrt(sphere.radius)*pow(d, 2.5);
 			}
-			if((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0){
+			if((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0)
+			{
 				sphereEnergy += 8.0/15.0*physicalConstants.E_sphere_wall*sqrt(sphere.radius)*pow(d, 2.5);
 			}
 		}
@@ -301,54 +373,33 @@ Scalar SphereCalculator::getTotalEnergy(){
 	return totalEnergy;
 }
 
-void SphereCalculator::updateSphereSphereE(){
-	physicalConstants.E_sphere_sphere = 1/(((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere)
-		+((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere));
-}
-
-void SphereCalculator::updateSphereWallE(){
-	physicalConstants.E_sphere_wall = 1/(((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere)
-		+((1-physicalConstants.poisson_wall*physicalConstants.poisson_wall)/physicalConstants.E_wall));
-}
-
-void SphereCalculator::setSphereE(Scalar E_sphere){
+void SphereCalculator::updateSphereE(Scalar E_sphere)
+{
 	physicalConstants.E_sphere = E_sphere;
 	updateSphereSphereE();
 	updateSphereWallE();
 }
 
-void SphereCalculator::setSpherePoisson(Scalar poisson_sphere){
+void SphereCalculator::updateSpherePoissonRatio(Scalar poisson_sphere)
+{
 	physicalConstants.poisson_sphere = poisson_sphere;
 	updateSphereSphereE();
 	updateSphereWallE();
 }
 
-void SphereCalculator::setWallE(Scalar E_wall){
+void SphereCalculator::updateWallE(Scalar E_wall)
+{
 	physicalConstants.E_wall = E_wall;
 	updateSphereWallE();
 }
 
-void SphereCalculator::setWallPoisson(Scalar poisson_wall){
+void SphereCalculator::updateWallPoissonRatio(Scalar poisson_wall)
+{
 	physicalConstants.poisson_wall = poisson_wall;
 	updateSphereWallE();
 }
 
-void SphereCalculator::setEarthGravity(Vector3 earthGravity){
+void SphereCalculator::updateEarthGravity(Vector3 earthGravity)
+{
 	physicalConstants.earthGravity = earthGravity;
-}
-
-void SphereCalculator::startSimulation(){
-	doSomeSteps(0);
-}
-
-void SphereCalculator::stopSimulation(){
-	emit requestingSimulationStop();
-}
-
-void SphereCalculator::stopWorker(){
-	emit requestingWorkerStop();
-}
-
-bool SphereCalculator::getIsSimulating(){
-	return workQueue->getIsSimulating();
 }

@@ -1,12 +1,10 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #include <GLWidget.hpp>
 #include <Console.hpp>
@@ -16,13 +14,21 @@
 
 using namespace SphereSim;
 
-GLWidget::GLWidget(QWidget* parent):QGLWidget(parent){
-	updateTimer = new QTimer(this);
-	connect(updateTimer, SIGNAL(timeout()), this, SLOT(updateGL()));
-	updateTimer->start(1000/60);
+GLWidget::GLWidget(QWidget* parent):QGLWidget(parent)
+{
+	animationTimer = new QTimer(this);
+	connect(animationTimer, SIGNAL(timeout()), this, SLOT(updateGL()));
+	animationTimer->start(1000/60);
 }
 
-void GLWidget::initializeGL(){
+GLWidget::~GLWidget()
+{
+	animationTimer->stop();
+	delete animationTimer;
+}
+
+void GLWidget::initializeGL()
+{
 	qglClearColor(QColor("lightgray"));
 	glEnable(GL_BLEND);
 	glEnable(GL_POINT_SMOOTH);
@@ -39,7 +45,8 @@ void GLWidget::initializeGL(){
 	glPointSize(1.5);
 }
 
-void GLWidget::resizeGL(int width, int height){
+void GLWidget::resizeGL(int width, int height)
+{
 	glViewport(0,0,width,height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -47,7 +54,8 @@ void GLWidget::resizeGL(int width, int height){
 	glMatrixMode(GL_MODELVIEW);
 }
 
-void GLWidget::paintGL(){
+void GLWidget::paintGL()
+{
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -58,7 +66,8 @@ void GLWidget::paintGL(){
 	paintBackground();
 }
 
-void GLWidget::paintBackground(){
+void GLWidget::paintBackground()
+{
 	glPushMatrix();
 	
 	glDisable(GL_LIGHTING);

@@ -1,12 +1,10 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #include <ActionSender.hpp>
 #include <ServerBenchmark.hpp>
@@ -18,28 +16,25 @@
 
 using namespace SphereSim;
 
-ServerBenchmark::ServerBenchmark(QStringList args, QHostAddress addr, quint16 port){
+ServerBenchmark::ServerBenchmark(QStringList args, QHostAddress addr, quint16 port)
+{
 	qDebug()<<"ServerBenchmark: constructor called";
 	sender = new ActionSender(args, addr, port);
 }
-ServerBenchmark::ServerBenchmark(QStringList args, QString addr, quint16 port)
-	:ServerBenchmark(args,QHostAddress(addr),port){
-}
-ServerBenchmark::ServerBenchmark(QStringList args, const char* addr, quint16 port)
-	:ServerBenchmark(args,QString(addr),port){
-}
 
-ServerBenchmark::~ServerBenchmark(){
+ServerBenchmark::~ServerBenchmark()
+{
 	delete sender;
 }
 
-void ServerBenchmark::runBenchmark(){
+void ServerBenchmark::runBenchmark()
+{
 	sender->addSphere();
-	sender->setSphereE(5000);
-	sender->setSpherePoisson(0.5);
-	sender->setWallE(5000);
-	sender->setWallPoisson(0.5);
-	sender->setEarthGravity(Vector3(0, -9.81, 0));
+	sender->updateSphereE(5000);
+	sender->updateSpherePoissonRatio(0.5);
+	sender->updateWallE(5000);
+	sender->updateWallPoissonRatio(0.5);
+	sender->updateEarthGravity(Vector3(0, -9.81, 0));
 	
 	Sphere s;
 	s.pos(0) = 0.11;
@@ -57,7 +52,7 @@ void ServerBenchmark::runBenchmark(){
 	
 	Scalar timeStep = 100;
 	Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
-	sender->setTimeStep(timeStep);
+	sender->updateTimeStep(timeStep);
 	Scalar beginEnergy, endEnergy;
 	beginEnergy = sender->getTotalEnergy();
 	
@@ -66,13 +61,15 @@ void ServerBenchmark::runBenchmark(){
 	sender->startSimulation();
 	timer.start();
 	quint16 numParts = 100;
-	for(quint16 i = 0; i<numParts; i++){
+	for(quint16 i = 0; i<numParts; i++)
+	{
 		QTest::qWait(10*1000/numParts);
 		stepCounter += sender->popStepCounter();
 		Console::out<<"\rServerBenchmark: progress: "<<(((i+1)*100)/numParts)<<" % ";
 	}
 	sender->stopSimulation();
-	while(sender->getIsSimulating()){
+	while(sender->getIsSimulating())
+	{
 		QTest::qWait(1);
 	}
 	quint64 elapsedTime = timer.elapsed();

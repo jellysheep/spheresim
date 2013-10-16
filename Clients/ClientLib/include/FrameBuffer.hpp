@@ -1,12 +1,10 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #ifndef _FRAMEBUFFER_HPP_
 #define _FRAMEBUFFER_HPP_
@@ -15,12 +13,13 @@
 
 #include <QtGlobal>
 
-namespace SphereSim{
-	/**
-	 * \brief A class that stores frames in a ring buffer.
+namespace SphereSim
+{
+	/** \brief Ring buffer to store frames.
 	 */
 	template <typename T>
-	class FrameBuffer{
+	class FrameBuffer
+	{
 	private:
 		/** \brief Array containing all frame elements. */
 		T *frames;
@@ -49,54 +48,40 @@ namespace SphereSim{
 		/** \brief Index of the currently written element. */
 		quint16 elementWriteIndex;
 		
-		/** \brief Defines if the buffer is full and the next pushed frame will be skipped. */
+		/** \brief Flag for buffer fullness. If true, next pushed frame will be skipped. */
 		bool skipNextFrame;
 		
-		/** \brief Prints out the whole buffer. */
+		/** \brief Print out the whole buffer. */
 		void print();
 		
 	public:
-		/**
-		 * \brief Initializes the frame buffer.
-		 * \param bufferSize Number of frames in the buffer.
-		 */
+		/** \brief Initialize frame buffer.
+		 * \param bufferSize Number of frames in the buffer. */
 		FrameBuffer(quint16 bufferSize);
 		
-		/**
-		 * \brief Initializes the frame buffer.
-		 * \param bufferSize Number of frames in the buffer.
-		 * \param elementsPerFrame Number of elements per frame.
-		 */
+		/** \copydoc FrameBuffer
+		 * \copydetails updateElementsPerFrame */
 		FrameBuffer(quint16 bufferSize, quint16 elementsPerFrame);
 		
+		/** \brief Clear up member variables. */
 		~FrameBuffer();
 		
-		/**
-		 * \brief Defines the number of elements per frame.
-		 * \param elementsPerFrame Number of elements per frame.
-		 */
-		void setElementsPerFrame(quint16 elementsPerFrame);
+		/** \brief Update the number of elements per frame.
+		 * \param elementsPerFrame Number of elements per frame. */
+		void updateElementsPerFrame(quint16 elementsPerFrame);
 		
-		/**
-		 * \brief Adds a new element to the current frame.
-		 * \param element Element to add.
-		 */
+		/** \brief Add a new element to the current frame.
+		 * \param element Element to add. */
 		void pushElement(T element);
 		
-		/**
-		 * \brief Adds the new filled frame to the buffer.
-		 */
+		/** \brief Add the currently filled frame to the buffer. */
 		void pushFrame();
 		
-		/**
-		 * \brief Gets a new element from the current frame.
-		 * \return Element from the frame.
-		 */
+		/** \brief Get next element from the current frame. 
+		 * \return Element from the current frame. */
 		T popElement();
 		
-		/**
-		 * \brief Removes the current frame from the buffer.
-		 */
+		/** \brief Remove the currently read frame from the buffer. */
 		void popFrame();
 	};
 }

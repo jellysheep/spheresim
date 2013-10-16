@@ -1,12 +1,10 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #include <ActionSender.hpp>
 #include <Connection.hpp>
@@ -21,7 +19,8 @@
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuffer(60){
+ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuffer(60)
+{
 	qDebug()<<"ActionSender: constructor called";
 	addr = new QHostAddress(a);
 	port = p;
@@ -33,42 +32,42 @@ ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuf
 	connect(socket, SIGNAL(connected()), SLOT(connected()));
 	connect(socket, SIGNAL(readyRead()), SLOT(readData()));
 	connectionTryCount = 0;
-	while(connectionTryCount<1000 && !connectedFlag){
+	while(connectionTryCount<1000 && !connectedFlag)
+	{
 		socket->connectToHost(*addr, port);
 		connectionTryCount++;
 		socket->waitForConnected(100);
-		if(!connectedFlag){
+		if(!connectedFlag)
+		{
 			qDebug()<<"ActionSender: retrying to connect to host.\n";
-			if(connectionTryCount<=1){
+			if(connectionTryCount<=1)
+			{
 				qDebug()<<"ActionSender: starting Server.\n";
-				process.start("SphereSim_Server");
+				serverProcess.start("SphereSim_Server");
 				createdOwnServer = true;
 			}
 		}
 	}
 }
-ActionSender::ActionSender(QStringList args, QString addr, quint16 port)
-	:ActionSender(args,QHostAddress(addr),port){
-}
-ActionSender::ActionSender(QStringList args, const char* addr, quint16 port)
-	:ActionSender(args,QString(addr),port){
-}
 
-ActionSender::~ActionSender(){
-	if(createdOwnServer){
+ActionSender::~ActionSender()
+{
+	if(createdOwnServer)
+	{
 		sendReplyAction(ActionGroups::basic, BasicActions::terminateServer);
-		process.waitForFinished(200);
+		serverProcess.waitForFinished(200);
 		qDebug()<<"ActionSender: killing Server.\n";
-		process.terminate();
-		process.waitForFinished(200);
-		process.kill();
+		serverProcess.terminate();
+		serverProcess.waitForFinished(200);
+		serverProcess.kill();
 	}
 	socket->close();
 	delete addr;
 	delete socket;
 }
 
-void ActionSender::sendAction(quint8 actionGroup, quint8 action, QByteArray& arr){
+void ActionSender::sendAction(quint8 actionGroup, quint8 action, QByteArray& arr)
+{
 	QByteArray data;
 	data.append(actionGroup);
 	data.append(action);
@@ -78,60 +77,73 @@ void ActionSender::sendAction(quint8 actionGroup, quint8 action, QByteArray& arr
 	data.append(Connection::endByte);
 	socket->write(data);
 }
-void ActionSender::sendAction(quint8 actionGroup, quint8 action){
+void ActionSender::sendAction(quint8 actionGroup, quint8 action)
+{
 	QByteArray arr;
 	sendAction(actionGroup, action, arr);
 }
 
-QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action, QByteArray& arr){
+QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action, QByteArray& arr)
+{
 	sendAction(actionGroup, action, arr);
-	while(!receivedServerReply){
+	while(!receivedServerReply)
+	{
 		QCoreApplication::processEvents();
 	}
 	receivedServerReply = false;
 	return lastServerReplyData;
 }
 
-QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action){
+QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action)
+{
 	QByteArray arr;
 	return sendReplyAction(actionGroup, action, arr);
 }
 
-void ActionSender::readData(){
+void ActionSender::readData()
+{
 	QByteArray arr = socket->readAll();
 	processData(arr);
 }
 
-void ActionSender::processData(QByteArray byteArray){
+void ActionSender::processData(QByteArray byteArray)
+{
 	qint16 endIndex, startIndex;
 	endIndex = byteArray.indexOf(Connection::endByte);
 	startIndex = byteArray.indexOf(Connection::startByte);
 	
-	if(endIndex<0){
-		if(startIndex<0){
+	if(endIndex<0)
+	{
+		if(startIndex<0)
+		{
 			///no endByte or startByte
-			if(collectingReplyData){
+			if(collectingReplyData)
+			{
 				replyData.append(byteArray);
 			}
 		}else{
 			///only startByte
-			if(!collectingReplyData){
+			if(!collectingReplyData)
+			{
 				//what if last reply did not end correctly? next reply would be skipped (waiting for endByte)...
 				collectingReplyData = true;
 				replyData = byteArray.right(byteArray.size()-startIndex-1);
 			}
 		}
 	}else{
-		if(startIndex<0){
+		if(startIndex<0)
+		{
 			///only endByte
-			if(collectingReplyData){
+			if(collectingReplyData)
+			{
 				replyData.append(byteArray.left(endIndex));
 				collectingReplyData = false;
 				processReply();
 			}
 		}else{
 			///startByte and endByte
-			if(startIndex<endIndex){
+			if(startIndex<endIndex)
+			{
 				///startByte before endByte
 				replyData = byteArray.mid(startIndex+1, endIndex-startIndex-1);
 				collectingReplyData = false;
@@ -139,7 +151,8 @@ void ActionSender::processData(QByteArray byteArray){
 				processData(byteArray.right(byteArray.size()-endIndex-1));
 			}else{
 				///endByte before startByte
-				if(collectingReplyData){
+				if(collectingReplyData)
+				{
 					replyData.append(byteArray.left(endIndex));
 					collectingReplyData = false;
 					processReply();
@@ -150,89 +163,104 @@ void ActionSender::processData(QByteArray byteArray){
 	}
 }
 
-void ActionSender::processReply(){
+void ActionSender::processReply()
+{
 	QByteArray data = QByteArray::fromBase64(replyData);
 	lastServerStatus = data[0];
 	lastServerReplyData = data.right(data.length()-1);
 	receivedServerReply = true;
 }
 
-void ActionSender::updateSphereCount(quint16 sphereCount){
-	frameBuffer.setElementsPerFrame(sphereCount);
+void ActionSender::updateSphereCount(quint16 sphereCount)
+{
+	frameBuffer.updateElementsPerFrame(sphereCount);
 }
 
-QString ActionSender::getVersion(){
-	return sendReplyAction(ActionGroups::basic, BasicActions::getVersion);
+QString ActionSender::getServerVersion()
+{
+	return sendReplyAction(ActionGroups::basic, BasicActions::getServerVersion);
 }
 
-QString ActionSender::getTrueString(){
+QString ActionSender::getTrueString()
+{
 	return sendReplyAction(ActionGroups::basic, BasicActions::getTrueString);
 }
 
-QString ActionSender::getFloatingType(){
-	return sendReplyAction(ActionGroups::basic, BasicActions::getFloatingType);
+QString ActionSender::getServerFloatingType()
+{
+	return sendReplyAction(ActionGroups::basic, BasicActions::getServerFloatingType);
 }
 
-bool ActionSender::isConnected(){
+bool ActionSender::isConnected()
+{
 	socket->waitForConnected(10);
 	return connectedFlag;
 }
 
-quint16 ActionSender::addSphere(){
-	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::addOne)).toUInt();
+quint16 ActionSender::addSphere()
+{
+	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::addSphere)).toUInt();
 	updateSphereCount(sphereCount);
 	return sphereCount;
 }
 
-quint16 ActionSender::removeLastSphere(){
-	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::removeLast)).toUInt();
+quint16 ActionSender::removeLastSphere()
+{
+	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::removeLastSphere)).toUInt();
 	updateSphereCount(sphereCount);
 	return sphereCount;
 }
 
-quint16 ActionSender::getSphereCount(){
-	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getCount)).toUInt();
+quint16 ActionSender::getSphereCount()
+{
+	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getSphereCount)).toUInt();
 	updateSphereCount(sphereCount);
 	return sphereCount;
 }
 
-void ActionSender::updateSphere(quint16 i, Sphere s){
+void ActionSender::updateSphere(quint16 i, Sphere s)
+{
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<i;
-	writeFullSphere(stream, s);
-	sendAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::updateOne, arr);
+	writeAllSphereData(stream, s);
+	sendAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::updateSphere, arr);
 }
 
-void ActionSender::getSphere(quint16 i, Sphere& s){
+void ActionSender::getBasicSphereData(quint16 i, Sphere& s)
+{
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<i;
-	QByteArray retArr = sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getOne, arr);
+	QByteArray retArr = sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getBasicSphereData, arr);
 	QDataStream retStream(&retArr, QIODevice::ReadOnly);
-	readSphere(retStream, s);
+	readBasicSphereData(retStream, s);
 }
-void ActionSender::getFullSphere(quint16 i, Sphere& s){
+void ActionSender::getAllSphereData(quint16 i, Sphere& s)
+{
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<i;
-	QByteArray retArr = sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getOneFull, arr);
+	QByteArray retArr = sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getAllSphereData, arr);
 	QDataStream retStream(&retArr, QIODevice::ReadOnly);
-	readFullSphere(retStream, s);
+	readAllSphereData(retStream, s);
 }
 
-void ActionSender::calculateStep(){
-	sendAction(ActionGroups::calculation, CalculationActions::doOneStep);
+void ActionSender::calculateStep()
+{
+	sendAction(ActionGroups::calculation, CalculationActions::calculateStep);
 }
 
-void ActionSender::setTimeStep(Scalar timeStep){
+void ActionSender::updateTimeStep(Scalar timeStep)
+{
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<timeStep;
-	sendAction(ActionGroups::calculation, CalculationActions::setTimeStep, arr);
+	sendAction(ActionGroups::calculation, CalculationActions::updateTimeStep, arr);
 }
 
-Scalar ActionSender::getTimeStep(){
+Scalar ActionSender::getTimeStep()
+{
 	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::getTimeStep);
 	QDataStream retStream(&retArr, QIODevice::ReadOnly);
 	Scalar timeStep;
@@ -240,14 +268,16 @@ Scalar ActionSender::getTimeStep(){
 	return timeStep;
 }
 
-void ActionSender::setIntegratorMethod(quint8 integratorMethod){
+void ActionSender::updateIntegratorMethod(quint8 integratorMethod)
+{
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<integratorMethod;
-	sendAction(ActionGroups::calculation, CalculationActions::setIntegratorMethod, arr);
+	sendAction(ActionGroups::calculation, CalculationActions::updateIntegratorMethod, arr);
 }
 
-quint8 ActionSender::getIntegratorMethod(){
+quint8 ActionSender::getIntegratorMethod()
+{
 	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::getIntegratorMethod);
 	QDataStream retStream(&retArr, QIODevice::ReadOnly);
 	quint8 integratorMethod;
@@ -255,7 +285,8 @@ quint8 ActionSender::getIntegratorMethod(){
 	return integratorMethod;
 }
 
-quint32 ActionSender::popCalculationCounter(){
+quint32 ActionSender::popCalculationCounter()
+{
 	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::popCalculationCounter);
 	QDataStream retStream(&retArr, QIODevice::ReadOnly);
 	quint32 calculationCounter;
@@ -263,7 +294,8 @@ quint32 ActionSender::popCalculationCounter(){
 	return calculationCounter;
 }
 
-quint32 ActionSender::popStepCounter(){
+quint32 ActionSender::popStepCounter()
+{
 	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::popStepCounter);
 	QDataStream retStream(&retArr, QIODevice::ReadOnly);
 	quint32 stepCounter;
@@ -271,14 +303,16 @@ quint32 ActionSender::popStepCounter(){
 	return stepCounter;
 }
 
-void ActionSender::calculateSomeSteps(quint32 steps){
+void ActionSender::calculateSomeSteps(quint32 steps)
+{
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<steps;
-	sendAction(ActionGroups::calculation, CalculationActions::doSomeSteps, arr);
+	sendAction(ActionGroups::calculation, CalculationActions::calculateSomeSteps, arr);
 }
 
-Scalar ActionSender::getTotalEnergy(){
+Scalar ActionSender::getTotalEnergy()
+{
 	QByteArray retArr = sendReplyAction(ActionGroups::information, InformationActions::getTotalEnergy);
 	QDataStream retStream(&retArr, QIODevice::ReadOnly);
 	Scalar totalEnergy;
@@ -286,52 +320,60 @@ Scalar ActionSender::getTotalEnergy(){
 	return totalEnergy;
 }
 
-void ActionSender::setSphereE(Scalar E_sphere){
+void ActionSender::updateSphereE(Scalar E_sphere)
+{
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<E_sphere;
-	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setSphereE, arr);
+	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::updateSphereE, arr);
 }
 
-void ActionSender::setSpherePoisson(Scalar poisson_sphere){
+void ActionSender::updateSpherePoissonRatio(Scalar poisson_sphere)
+{
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<poisson_sphere;
-	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setSpherePoisson, arr);
+	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::updateSpherePoissonRatio, arr);
 }
 
-void ActionSender::setWallE(Scalar E_wall){
+void ActionSender::updateWallE(Scalar E_wall)
+{
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<E_wall;
-	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setWallE, arr);
+	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::updateWallE, arr);
 }
 
-void ActionSender::setWallPoisson(Scalar poisson_wall){
+void ActionSender::updateWallPoissonRatio(Scalar poisson_wall)
+{
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<poisson_wall;
-	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setWallPoisson, arr);
+	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::updateWallPoissonRatio, arr);
 }
 
-void ActionSender::setEarthGravity(Vector3 earthGravity){
+void ActionSender::updateEarthGravity(Vector3 earthGravity)
+{
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<earthGravity(0);
 	stream<<earthGravity(1);
 	stream<<earthGravity(2);
-	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::setEarthGravity, arr);
+	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::updateEarthGravity, arr);
 }
 
-void ActionSender::startSimulation(){
+void ActionSender::startSimulation()
+{
 	sendAction(ActionGroups::calculation, CalculationActions::startSimulation);
 }
 
-void ActionSender::stopSimulation(){
+void ActionSender::stopSimulation()
+{
 	sendAction(ActionGroups::calculation, CalculationActions::stopSimulation);
 }
 
-bool ActionSender::getIsSimulating(){
+bool ActionSender::getIsSimulating()
+{
 	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::getIsSimulating);
 	QDataStream retStream(&retArr, QIODevice::ReadOnly);
 	bool simulationStatus;

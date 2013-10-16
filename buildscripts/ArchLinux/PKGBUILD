@@ -19,12 +19,14 @@ source=("${_gitname}::git://git.code.sf.net/p/spheresim/code")
 
 md5sums=('SKIP')
 
-pkgver(){
+pkgver()
+{
 	cd $_gitname
 	cat VERSION
 }
 
-build(){
+build()
+{
 	cd $_gitname
 	mkdir build || true
 	cd build
@@ -33,7 +35,8 @@ build(){
 	make -j${CORE_COUNT}
 }
 
-package(){
+package()
+{
 	cd $_gitname/build
 	make DESTDIR="$pkgdir" install
 	mkdir -p $pkgdir/usr/share/licenses/$_gitname/

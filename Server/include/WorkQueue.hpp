@@ -1,12 +1,10 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #ifndef _WORKQUEUE_HPP_
 #define _WORKQUEUE_HPP_
@@ -16,12 +14,13 @@
 #include <QList>
 #include <QObject>
 
-namespace SphereSim{
+namespace SphereSim
+{
 	
-	/**
-	 * \brief Types of work to be done by the worker.
-	 */
-	namespace WorkQueueItemType{
+	/** \brief Type of work to be done by the worker. */
+	namespace WorkQueueItemType
+	{
+		/** \copydoc WorkQueueItemType */
 		enum ItemType{
 			calculateStep,
 			addSphere,
@@ -31,29 +30,27 @@ namespace SphereSim{
 		};
 	}
 	
-	/**
-	 * \brief Info about a work to be done by the worker.
-	 */
+	/** \brief Info about a work to be done by the worker. */
 	class WorkQueueItem{
 	public:
+		/** \copydoc WorkQueueItemType */
 		WorkQueueItemType::ItemType type;
+		/** \brief Any parameter for the work item. */
 		void* param;
 	};
 	
-	/**
-	 * \brief Stores work to be done by the worker.
-	 */
+	/** \brief Storage for work to be done by the worker. */
 	class WorkQueue : public QObject{
 		Q_OBJECT
 		
 	private:
-		/** \brief Stores the items of the queue. */
+		/** \brief Items of the queue. */
 		QList<WorkQueueItem> items;
 		
 		/** \brief Mutex used to lock the work status. */
 		QMutex* mutex;
 		
-		/** \brief Flag showing if the work queue is empty. */
+		/** \brief Flag for work queue emptyness. */
 		bool queueEmpty;
 		
 		/** \brief Flag showing if there is work to do. */
@@ -68,33 +65,36 @@ namespace SphereSim{
 		/** \brief Flag showing if a continuous simulation is running. */
 		bool continuousSimulationRunning;
 		
-		/** \brief Flag showing if the worker still has to simulate. */
+		/** \brief Flag showing if the worker is simulating. */
 		bool isSimulating;
 		
-		/** \brief Updates the canWork flag. */
+		/** \brief Update the canWork flag. */
 		void updateStatus();
 		
 	public:
+		/** \brief Initialize member variables. */
 		WorkQueue(QMutex* mutex);
+		
+		/** \brief Clean up member variables. */
 		~WorkQueue();
 		
-		/** \brief Adds a new item to the end of the work queue. */
+		/** \brief Add a new item to the end of the work queue. */
 		void pushItem(WorkQueueItem item);
 		
-		/** \brief Increases the number of steps to simulate (0 = start continuous simulation). */
+		/** \brief Increase the number of steps to simulate (0 = start continuous simulation). */
 		void pushSimulationSteps(quint32 steps);
 		
 		/** \brief Return the next work to do and remove it from the queue. */
 		WorkQueueItem popItem();
 		
-		/** \brief Shows if the worker still has to simulate. */
+		/** \copydoc isSimulating */
 		bool getIsSimulating();
 		
 	public slots:
-		/** \brief Stops a running simulation. */
+		/** \brief Stop a running simulation. */
 		void stopSimulation();
 		
-		/** \brief Stops the worker. */
+		/** \brief Stop the worker. */
 		void stop();
 		
 	};

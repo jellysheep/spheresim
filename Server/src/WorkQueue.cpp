@@ -1,12 +1,10 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #include <WorkQueue.hpp>
 
@@ -14,7 +12,8 @@
 
 using namespace SphereSim;
 
-WorkQueue::WorkQueue(QMutex* mutex_):items(){
+WorkQueue::WorkQueue(QMutex* mutex_):items()
+{
 	mutex = mutex_;
 	queueEmpty = true;
 	simulationSteps = 0;
@@ -23,11 +22,13 @@ WorkQueue::WorkQueue(QMutex* mutex_):items(){
 	isSimulating = false;
 }
 
-WorkQueue::~WorkQueue(){
+WorkQueue::~WorkQueue()
+{
 	delete mutex;
 }
 
-void WorkQueue::pushItem(WorkQueueItem item){
+void WorkQueue::pushItem(WorkQueueItem item)
+{
 	mutex->lock();
 		items.append(item);
 		queueEmpty = false;
@@ -36,9 +37,11 @@ void WorkQueue::pushItem(WorkQueueItem item){
 	mutex->unlock();
 }
 
-void WorkQueue::pushSimulationSteps(quint32 steps){
+void WorkQueue::pushSimulationSteps(quint32 steps)
+{
 	mutex->lock();
-		if(steps == 0){
+		if(steps == 0)
+		{
 			simulationSteps = 0;
 			continuousSimulationRunning = true;
 		}else{
@@ -50,24 +53,30 @@ void WorkQueue::pushSimulationSteps(quint32 steps){
 	mutex->unlock();
 }
 
-WorkQueueItem WorkQueue::popItem(){
+WorkQueueItem WorkQueue::popItem()
+{
 	mutex->lock();
-		if(!((simulationSteps>0) || continuousSimulationRunning)){
+		if(!((simulationSteps>0) || continuousSimulationRunning))
+		{
 			isSimulating = false;
 		}
-		if(!canWork){
+		if(!canWork)
+		{
 			workCondition.wait(mutex);
 		}
 	mutex->unlock();
 	WorkQueueItem item;
-	if(items.count()>0){
+	if(items.count()>0)
+	{
 		item = items.takeFirst();
 	}else{
 		item = WorkQueueItem();
-		if(simulationSteps>0){
+		if(simulationSteps>0)
+		{
 			simulationSteps--;
 			item.type = WorkQueueItemType::calculateStep;
-		}else if(continuousSimulationRunning){
+		}else if(continuousSimulationRunning)
+		{
 			item.type = WorkQueueItemType::calculateStep;
 		}else{
 			qDebug()<<"error!";
@@ -75,7 +84,8 @@ WorkQueueItem WorkQueue::popItem(){
 		}
 	}
 	mutex->lock();
-		if(items.count()<=0){
+		if(items.count()<=0)
+		{
 			queueEmpty = true;
 			updateStatus();
 		}
@@ -83,11 +93,13 @@ WorkQueueItem WorkQueue::popItem(){
 	return item;
 }
 
-void WorkQueue::updateStatus(){
+void WorkQueue::updateStatus()
+{
 	canWork = (!queueEmpty) || (simulationSteps>0) || continuousSimulationRunning;
 }
 
-void WorkQueue::stopSimulation(){
+void WorkQueue::stopSimulation()
+{
 	mutex->lock();
 		continuousSimulationRunning = false;
 		simulationSteps = 0;
@@ -95,12 +107,14 @@ void WorkQueue::stopSimulation(){
 	mutex->unlock();
 }
 
-void WorkQueue::stop(){
+void WorkQueue::stop()
+{
 	WorkQueueItem item;
 	item.type = WorkQueueItemType::stop;
 	pushItem(item);
 }
 
-bool WorkQueue::getIsSimulating(){
+bool WorkQueue::getIsSimulating()
+{
 	return isSimulating;
 }

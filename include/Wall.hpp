@@ -1,12 +1,10 @@
-/**
- * \file
- * \author Max Mertens <mail@sheepstyle.comeze.com>
+/** \file
+ * \author Max Mertens <max.mail@dameweb.de>
  * \section LICENSE
  * Copyright (c) 2013, Max Mertens.
  * All rights reserved.
  * This file is licensed under the "BSD 3-Clause License".
- * Full license text is under the file "LICENSE" provided with this code.
- */
+ * Full license text is under the file "LICENSE" provided with this code. */
 
 #ifndef _WALL_HPP_
 #define _WALL_HPP_
@@ -15,44 +13,58 @@
 
 class QDataStream;
 
-namespace SphereSim{
-	/**
-	 * \brief Holds physical data of a 2D wall.
-	 */
-	class Wall2D{
+namespace SphereSim
+{
+	/** \brief Physical data of a 2D wall. */
+	class Wall2D
+	{
 	public:
-		/** \brief Stores the position of the wall. */
+		/** \brief Position of the wall. */
 		Vector2 pos;
-		/** \brief Stores the wall vector. */
+		/** \brief Wall vector. */
 		Vector2 vec;
 		
-		Wall2D(Vector2 x, Vector2 v){
+		/** \brief Initialize Wall2D.
+		 * \param x Wall position.
+		 * \param v Wall vector. */
+		Wall2D(Vector2 x, Vector2 v)
+		{
 			pos = x;
 			vec = v;
 		}
-		Wall2D():Wall2D(Vector2(0,0),Vector2(0,0)){
+		
+		/** \copybrief Wall2D */
+		Wall2D():Wall2D(Vector2(0,0),Vector2(0,0))
+		{
 		}
 		
 	};
 	
-	/**
-	 * \brief Holds physical data of a 3D wall.
-	 */
-	class Wall3D{
+	/** \brief Physical data of a 3D wall. */
+	class Wall3D
+	{
 	public:
-		/** \brief Stores the position of the wall. */
+		/** \brief Position of the wall. */
 		Vector3 pos;
-		/** \brief Stores the first wall vector. */
+		/** \brief First wall vector. */
 		Vector3 vec1;
-		/** \brief Stores the second wall vector. */
+		/** \brief Second wall vector. */
 		Vector3 vec2;
 		
-		Wall3D(Vector3 x, Vector3 v1, Vector3 v2){
+		/** \brief Initialize Wall3D.
+		 * \param x Wall position.
+		 * \param v1 Wall vector 1.
+		 * \param v2 Wall vector 2. */
+		Wall3D(Vector3 x, Vector3 v1, Vector3 v2)
+		{
 			pos = x;
 			vec1 = v1;
 			vec2 = v2;
 		}
-		Wall3D():Wall3D(Vector3(0,0,0),Vector3(0,0,0),Vector3(0,0,0)){
+		
+		/** \copybrief Wall3D */
+		Wall3D():Wall3D(Vector3(0,0,0),Vector3(0,0,0),Vector3(0,0,0))
+		{
 		}
 		
 	};
