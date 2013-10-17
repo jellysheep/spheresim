@@ -17,6 +17,7 @@
 #include <QObject>
 #include <QAbstractSocket>
 #include <QProcess>
+#include <QElapsedTimer>
 
 class QTcpSocket;
 class QHostAddress;
@@ -99,6 +100,15 @@ namespace SphereSim
 		/** \brief Update sphere number and resize frame buffer.
 		 * \param sphereCount Number of spheres. */
 		void updateSphereCount(quint16 sphereCount);
+		
+		/** \brief Timer used to measure framerates. */
+		QElapsedTimer framerateTimer;
+		
+		/** \brief Number of received frames since last counter reset. */
+		quint32 frameCounter;
+		
+		/** \brief Measured rate of received frames per second. */
+		Scalar receivedFramesPerSecond;
 		
 	public:
 		/** \brief Start an ActionSender with the specified address and port.
@@ -225,6 +235,22 @@ namespace SphereSim
 		
 		/** \brief Read data from server. */
 		void readData();
+		
+		/** \brief Executed when some measured event (e.g. received frame) happened.
+		 * \see newFrameReceived */
+		void framerateEvent();
+		
+		/** \brief Information about updated frame rates.
+		 * \see framerateUpdate */
+		void framerateInfo();
+		
+	signals:
+		/** \brief New frame received from server. */
+		void newFrameReceived();
+		
+		/** \brief Executed when framerates have been updated.
+		 * \see framerateEvent */
+		void framerateUpdate();
 	};
 	
 }

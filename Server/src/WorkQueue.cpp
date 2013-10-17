@@ -28,6 +28,7 @@ WorkQueue::WorkQueue(QMutex* mutex_):items()
 WorkQueue::~WorkQueue()
 {
 	delete mutex;
+	delete animationTimer;
 }
 
 void WorkQueue::pushItem(WorkQueueItem item)
@@ -88,7 +89,7 @@ WorkQueueItem WorkQueue::popItem()
 	}
 	if(item.type == WorkQueueItemType::calculateStep)
 	{
-		if(animationTimer->elapsed()>1000){
+		if(animationTimer->elapsed()>(1000/60)){
 			WorkQueueItem item2 = WorkQueueItem();
 			item2.type = WorkQueueItemType::prepareFrameData;
 			items.prepend(item2);

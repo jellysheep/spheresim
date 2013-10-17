@@ -19,7 +19,7 @@
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuffer(60)
+ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuffer(60),framerateTimer()
 {
 	qDebug()<<"ActionSender: constructor called";
 	addr = new QHostAddress(a);
@@ -31,6 +31,11 @@ ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuf
 	socket = new QTcpSocket();
 	connect(socket, SIGNAL(connected()), SLOT(connected()));
 	connect(socket, SIGNAL(readyRead()), SLOT(readData()));
+	frameCounter = 0;
+	receivedFramesPerSecond = 0;
+	framerateTimer.start();
+	connect(this, SIGNAL(newFrameReceived()), SLOT(framerateEvent()));
+	connect(this, SIGNAL(framerateUpdate()), SLOT(framerateInfo()));
 	connectionTryCount = 0;
 	while(connectionTryCount<1000 && !connectedFlag)
 	{
@@ -171,17 +176,21 @@ void ActionSender::processReply()
 	
 	if(lastServerStatus == ServerStatusReplies::sendFrame)
 	{
-		qDebug()<<"ActionSender: received frame!";
 		QDataStream stream(&data, QIODevice::ReadOnly);
 		quint16 sphCount;
 		stream>>sphCount;
+		frameBuffer.updateElementsPerFrame(sphCount);
 		quint16 sphereIndex;
 		Sphere sphere;
 		while(!stream.atEnd())
 		{
 			stream>>sphereIndex;
 			readBasicSphereData(stream, sphere);
+			frameBuffer.pushElement(sphere);
 		}
+		frameBuffer.pushFrame();
+		frameCounter++;
+		emit newFrameReceived();
 	}
 	else
 	{
@@ -398,4 +407,23 @@ bool ActionSender::getIsSimulating()
 	bool simulationStatus;
 	retStream>>simulationStatus;
 	return simulationStatus;
+}
+
+void ActionSender::framerateEvent()
+{
+	if(framerateTimer.elapsed()>1000)
+	{
+		if(frameCounter > 0)
+		{
+			receivedFramesPerSecond = frameCounter*1000.0/framerateTimer.elapsed();
+			frameCounter = 0;
+			emit framerateUpdate();
+		}
+		framerateTimer.restart();
+	}
+}
+
+void ActionSender::framerateInfo()
+{
+	qDebug()<<"ActionSender:"<<receivedFramesPerSecond<<"fps";
 }

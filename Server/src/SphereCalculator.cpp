@@ -190,7 +190,7 @@ void SphereCalculator::prepareFrameData()
 {
 	QByteArray frameData;
 	QDataStream dataStream(&frameData, QIODevice::WriteOnly);
-	updateData();
+	//updateData();
 	dataStream<<sphCount;
 	for(quint16 i = 0; i<sphCount; i++)
 	{

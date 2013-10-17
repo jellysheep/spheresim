@@ -6,6 +6,8 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
+#define QT_NO_OPENGL_ES_2
+
 #include <GLWidget.hpp>
 #include <Console.hpp>
 

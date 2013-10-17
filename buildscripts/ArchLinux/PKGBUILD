@@ -15,7 +15,7 @@ options=()
 conflicts=('spheresim')
 provides=('spheresim')
 
-source=("${_gitname}::git://git.code.sf.net/p/spheresim/code")
+source=("${_gitname}::git+https://jellysheep@bitbucket.org/jellysheep/spheresim.git")
 
 md5sums=('SKIP')
 
