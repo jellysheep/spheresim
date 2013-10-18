@@ -23,6 +23,7 @@ using namespace SphereSim;
 SphereCalculator::SphereCalculator()
 {
 	qDebug()<<"SphereCalculator: constructor called";
+	qDebug()<<"SphereCalculator: number of OpenMP threads:"<<omp_get_num_threads();
 	updateData();
 	boxSize = Vector3(1,1,1);
 	timeStep = 0.002;

@@ -11,7 +11,7 @@ error() {
 
 if [ "$0" != "./scripts/coverity_build.sh" ]; then
 	if [ "$0" != "scripts/coverity_build.sh" ]; then
-			error "Run this script from project root directory using command './scripts/coverity_build.sh'"
+		error "Run this script from project root directory using command './scripts/coverity_build.sh'"
 		exit
 	fi
 fi
