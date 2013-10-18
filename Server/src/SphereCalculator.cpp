@@ -16,6 +16,7 @@
 #include <QDataStream>
 #include <QThread>
 #include <cmath>
+#include <omp.h>
 
 using namespace SphereSim;
 
@@ -98,6 +99,7 @@ void SphereCalculator::integrateRungeKuttaStep()
 	const quint8 integratorOrder = butcherTableau.order;
 	Vector3 k_acc[integratorOrder];
 	Vector3 k_speed[integratorOrder];
+	#pragma omp parallel for
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
 		integrateRungeKuttaStep(sphereIndex, timeStep, 0.0);

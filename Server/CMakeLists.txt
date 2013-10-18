@@ -7,6 +7,8 @@ set (PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(USE_DOUBLE 1)
 add_definitions("-DUSE_DOUBLE=${USE_DOUBLE}")
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+
 include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
 
@@ -30,7 +32,7 @@ set(HEADERS ${HEADERS}
 )
 
 add_executable(SphereSim_Server ${SOURCES} ${HEADERS})
-target_link_libraries(SphereSim_Server)
+target_link_libraries(SphereSim_Server gomp)
 qt5_use_modules(SphereSim_Server Core Network)
 
 install(TARGETS SphereSim_Server

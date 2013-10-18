@@ -29,13 +29,14 @@ ServerBenchmark::~ServerBenchmark()
 
 void ServerBenchmark::runBenchmark()
 {
-	sender->addSphere();
 	sender->updateSphereE(5000);
 	sender->updateSpherePoissonRatio(0.5);
 	sender->updateWallE(5000);
 	sender->updateWallPoissonRatio(0.5);
 	sender->updateEarthGravity(Vector3(0, -9.81, 0));
 	
+	sender->addSphere();
+	sender->addSphere();
 	Sphere s;
 	s.pos(0) = 0.11;
 	s.pos(1) = 0.11;
@@ -49,6 +50,7 @@ void ServerBenchmark::runBenchmark()
 	s.mass = 1.0;
 	s.radius = 0.1;
 	sender->updateSphere(0, s);
+	sender->updateSphere(1, s);
 	
 	Scalar timeStep = 100;
 	Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
