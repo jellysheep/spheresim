@@ -10,18 +10,23 @@
 #define _GLWIDGET_HPP_
 
 #include <QGLWidget>
+#include <QGLFunctions>
+#include <QMatrix4x4>
+#include <QGLShaderProgram>
 
 class QTimer;
 
 namespace SphereSim
 {
 	/** \brief Custom OpenGL widget of the main window. */
-	class GLWidget : public QGLWidget
+	class GLWidget : public QGLWidget, protected QGLFunctions
 	{
 		Q_OBJECT
 	private:
 		/** \brief Initialize the OpenGL scene. */
 		void initializeGL();
+		
+		void initShaders();
 		
 		/** \brief Resize the OpenGL widget. */
 		void resizeGL(int width, int height);
@@ -32,8 +37,14 @@ namespace SphereSim
 		/** \brief Paint the background. */
 		void paintBackground();
 		
-		/** \brief Timer controlling the animation. */
-		QTimer* animationTimer;
+		QGLShaderProgram program;
+		GLuint posAttr;
+		GLuint colAttr;
+		GLuint matrixUniform;
+		quint32 frames;
+		QMatrix4x4 perspectiveMatrix;
+		
+		void shaderLoadError();
 		
 	public:
 		/** \brief Initialize member variables. */

@@ -26,7 +26,7 @@ namespace SphereSim
 {
 	
 	/** \brief Start client, build up server connection, send request to server. */
-	class ActionSender:QObject
+	class ActionSender : public QObject
 	{
 		Q_OBJECT
 		
@@ -187,12 +187,6 @@ namespace SphereSim
 		 * \param steps Number of steps to calculate (0 = unlimited). */
 		void calculateSomeSteps(quint32 steps);
 		
-		/** \copydoc CalculationActions::startSimulation */
-		void startSimulation();
-		
-		/** \copydoc CalculationActions::stopSimulation */
-		void stopSimulation();
-		
 		/** \copydoc CalculationActions::getIsSimulating
 		 * \return Simulation run flag. */
 		bool getIsSimulating();
@@ -243,6 +237,12 @@ namespace SphereSim
 		/** \brief Information about updated frame rates.
 		 * \see framerateUpdate */
 		void framerateInfo();
+		
+		/** \copydoc CalculationActions::startSimulation */
+		void startSimulation();
+		
+		/** \copydoc CalculationActions::stopSimulation */
+		void stopSimulation();
 		
 	signals:
 		/** \brief New frame received from server. */

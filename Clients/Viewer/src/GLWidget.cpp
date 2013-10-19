@@ -6,87 +6,106 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
-#define QT_NO_OPENGL_ES_2
-
 #include <GLWidget.hpp>
-#include <Console.hpp>
 
-#include <QTimer>
-#include <GL/glu.h>
+#include <QDebug>
+#include <QtOpenGL>
+#include <QtGui>
 
 using namespace SphereSim;
 
-GLWidget::GLWidget(QWidget* parent):QGLWidget(parent)
+GLWidget::GLWidget(QWidget* parent):QGLWidget(parent), program(this)
 {
-	animationTimer = new QTimer(this);
-	connect(animationTimer, SIGNAL(timeout()), this, SLOT(updateGL()));
-	animationTimer->start(1000/60);
+	frames = 0;
 }
 
 GLWidget::~GLWidget()
 {
-	animationTimer->stop();
-	delete animationTimer;
+	program.release();
 }
 
 void GLWidget::initializeGL()
 {
-	qglClearColor(QColor("lightgray"));
-	glEnable(GL_BLEND);
-	glEnable(GL_POINT_SMOOTH);
-	glEnable(GL_LINE_SMOOTH);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(1,1,1,1);
+	initializeGLFunctions();
+	qglClearColor(Qt::black);
 	
-	glClearDepth(1.f);
-
-	glShadeModel(GL_SMOOTH);
-
-	glLoadIdentity();
+	if (!program.addShaderFromSourceFile(QGLShader::Vertex, ":/VertexShader.glsl"))
+		shaderLoadError();
+	if (!program.addShaderFromSourceFile(QGLShader::Fragment, ":/FragmentShader.glsl"))
+		shaderLoadError();
+	if (!program.link())
+		shaderLoadError();
+	if (!program.bind())
+		shaderLoadError();
 	
-	glPointSize(1.5);
+	posAttr = program.attributeLocation("posAttr");
+	colAttr = program.attributeLocation("colAttr");
+	matrixUniform = program.uniformLocation("matrix");
+}
+
+void GLWidget::initShaders()
+{
+}
+
+void GLWidget::shaderLoadError()
+{
+	qDebug()<<"GLWidget: error loading shaders!";
 }
 
 void GLWidget::resizeGL(int width, int height)
 {
-	glViewport(0,0,width,height);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(50.f, 1.f*width/height, 0.01f, 5000.f);
-	glMatrixMode(GL_MODELVIEW);
+	const qreal retinaScale = devicePixelRatio();
+	glViewport(0, 0, width * retinaScale, height * retinaScale);
+
+	qreal aspect = qreal(width) / qreal(height ? height : 1);
+
+	const qreal zNear = 0.1, zFar = 100.0, fov = 60.0;
+
+	perspectiveMatrix.setToIdentity();
+	perspectiveMatrix.perspective(fov, aspect, zNear, zFar);
 }
 
 void GLWidget::paintGL()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	program.bind();
+
+	QMatrix4x4 matrix = perspectiveMatrix;
+	matrix.translate(0, 0, -3);
+	matrix.rotate(100.0f * frames / 60, 0, 1, 0);
+
+	program.setUniformValue(matrixUniform, matrix);
+
+	GLfloat vertices[] = {
+		0.0f, 0.707f,
+		-0.5f, -0.5f,
+		0.5f, -0.5f
+	};
+
+	GLfloat colors[] = {
+		1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 1.0f
+	};
+
+	glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, 0, vertices);
+	glVertexAttribPointer(colAttr, 3, GL_FLOAT, GL_FALSE, 0, colors);
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(0);
+
+	program.release();
 	
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	
-	paintBackground();
+	frames++;
 }
 
 void GLWidget::paintBackground()
 {
-	glPushMatrix();
-	
-	glDisable(GL_LIGHTING);
-	glDisable(GL_DEPTH_TEST);
-	glBegin(GL_QUADS);
-	float f = -1, col, x=5, y=0.47;
-	col = 0.99;
-	glColor3f(col,col,col);
-	glVertex3f(-x, y, f);
-	glVertex3f( x, y, f);
-	col = 0.7;
-	glColor3f(col,col,col);
-	glVertex3f( x,-y, f);
-	glVertex3f(-x,-y, f);
-	glEnd();
-	glEnable(GL_LIGHTING);
-	glEnable(GL_DEPTH_TEST);
-	
-	glPopMatrix();
+	// TODO
 }

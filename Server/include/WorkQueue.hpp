@@ -44,6 +44,7 @@ namespace SphereSim
 		/** \brief Initialize WorkQueueItem. */
 		WorkQueueItem()
 		{
+			type = WorkQueueItemType::calculateStep;
 			param = NULL;
 		}
 	};

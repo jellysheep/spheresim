@@ -8,7 +8,7 @@
 
 #include <ActionSender.hpp>
 #include <Connection.hpp>
-#include <ui_MainWindow.h>
+#include <MainWindow.hpp>
 
 #include <QApplication>
 #include <QHostAddress>
@@ -28,16 +28,10 @@ int main(int argc, char** argv)
 	app.setStyle("fusion");
 	QStringList args = app.arguments();
 	
-	QMainWindow qMainWindow;
-	Ui::MainWindow mainWindow;
-	mainWindow.setupUi(&qMainWindow);
-	qMainWindow.show();
-	
 	ActionSender actSend(args, QHostAddress(Connection::address), Connection::port);
-	QString version = actSend.getServerVersion();
-	qDebug()<<version;
-	QString trueStr = actSend.getTrueString();
-	qDebug()<<trueStr;
+	
+	MainWindow mainWindow(&actSend);
+	mainWindow.show();
 	
 	return app.exec();
 }
