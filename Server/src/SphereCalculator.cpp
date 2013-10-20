@@ -66,17 +66,17 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 	Scalar d, force;
 	Vector3 _force, acc;
 
-	_force = physicalConstants.earthGravity*sphere.mass;
+	_force = simulatedSystem.earthGravity*sphere.mass;
 	for(quint8 dim = 0; dim<3; dim++)
 	{
 		if((d = (sphere.radius - sphere.pos(dim))) > 0)
 		{
-			force = 4.0f/3.0f*physicalConstants.E_sphere_wall*std::sqrt(sphere.radius*std::pow(d,3));
+			force = 4.0f/3.0f*simulatedSystem.E_sphere_wall*std::sqrt(sphere.radius*std::pow(d,3));
 			_force(dim) += force;
 		}
 		if((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0)
 		{
-			force = 4.0f/3.0f*physicalConstants.E_sphere_wall*std::sqrt(sphere.radius*std::pow(d,3));
+			force = 4.0f/3.0f*simulatedSystem.E_sphere_wall*std::sqrt(sphere.radius*std::pow(d,3));
 			_force(dim) -= force;
 		}
 	}
@@ -179,14 +179,14 @@ void SphereCalculator::stopWorker()
 
 void SphereCalculator::updateSphereSphereE()
 {
-	physicalConstants.E_sphere_sphere = 1/(((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere)
-		+((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere));
+	simulatedSystem.E_sphere_sphere = 1/(((1-simulatedSystem.poisson_sphere*simulatedSystem.poisson_sphere)/simulatedSystem.E_sphere)
+		+((1-simulatedSystem.poisson_sphere*simulatedSystem.poisson_sphere)/simulatedSystem.E_sphere));
 }
 
 void SphereCalculator::updateSphereWallE()
 {
-	physicalConstants.E_sphere_wall = 1/(((1-physicalConstants.poisson_sphere*physicalConstants.poisson_sphere)/physicalConstants.E_sphere)
-		+((1-physicalConstants.poisson_wall*physicalConstants.poisson_wall)/physicalConstants.E_wall));
+	simulatedSystem.E_sphere_wall = 1/(((1-simulatedSystem.poisson_sphere*simulatedSystem.poisson_sphere)/simulatedSystem.E_sphere)
+		+((1-simulatedSystem.poisson_wall*simulatedSystem.poisson_wall)/simulatedSystem.E_wall));
 }
 
 void SphereCalculator::prepareFrameData()
@@ -381,18 +381,18 @@ Scalar SphereCalculator::getTotalEnergy()
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
 		sphere = sphArr[sphereIndex];
-		sphereEnergy = -sphere.mass*physicalConstants.earthGravity.dot(sphere.pos);
+		sphereEnergy = -sphere.mass*simulatedSystem.earthGravity.dot(sphere.pos);
 		sphereEnergy += 0.5*sphere.mass*sphere.speed.squaredNorm();
 		
 		for(quint8 dim = 0; dim<3; dim++)
 		{
 			if((d = (sphere.radius - sphere.pos(dim))) > 0)
 			{
-				sphereEnergy += 8.0/15.0*physicalConstants.E_sphere_wall*sqrt(sphere.radius)*pow(d, 2.5);
+				sphereEnergy += 8.0/15.0*simulatedSystem.E_sphere_wall*sqrt(sphere.radius)*pow(d, 2.5);
 			}
 			if((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0)
 			{
-				sphereEnergy += 8.0/15.0*physicalConstants.E_sphere_wall*sqrt(sphere.radius)*pow(d, 2.5);
+				sphereEnergy += 8.0/15.0*simulatedSystem.E_sphere_wall*sqrt(sphere.radius)*pow(d, 2.5);
 			}
 		}
 		totalEnergy += sphereEnergy;
@@ -402,31 +402,31 @@ Scalar SphereCalculator::getTotalEnergy()
 
 void SphereCalculator::updateSphereE(Scalar E_sphere)
 {
-	physicalConstants.E_sphere = E_sphere;
+	simulatedSystem.E_sphere = E_sphere;
 	updateSphereSphereE();
 	updateSphereWallE();
 }
 
 void SphereCalculator::updateSpherePoissonRatio(Scalar poisson_sphere)
 {
-	physicalConstants.poisson_sphere = poisson_sphere;
+	simulatedSystem.poisson_sphere = poisson_sphere;
 	updateSphereSphereE();
 	updateSphereWallE();
 }
 
 void SphereCalculator::updateWallE(Scalar E_wall)
 {
-	physicalConstants.E_wall = E_wall;
+	simulatedSystem.E_wall = E_wall;
 	updateSphereWallE();
 }
 
 void SphereCalculator::updateWallPoissonRatio(Scalar poisson_wall)
 {
-	physicalConstants.poisson_wall = poisson_wall;
+	simulatedSystem.poisson_wall = poisson_wall;
 	updateSphereWallE();
 }
 
 void SphereCalculator::updateEarthGravity(Vector3 earthGravity)
 {
-	physicalConstants.earthGravity = earthGravity;
+	simulatedSystem.earthGravity = earthGravity;
 }

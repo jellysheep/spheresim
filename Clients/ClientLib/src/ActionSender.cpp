@@ -359,7 +359,7 @@ void ActionSender::updateSphereE(Scalar E_sphere)
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<E_sphere;
-	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::updateSphereE, arr);
+	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateSphereE, arr);
 }
 
 void ActionSender::updateSpherePoissonRatio(Scalar poisson_sphere)
@@ -367,7 +367,7 @@ void ActionSender::updateSpherePoissonRatio(Scalar poisson_sphere)
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<poisson_sphere;
-	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::updateSpherePoissonRatio, arr);
+	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateSpherePoissonRatio, arr);
 }
 
 void ActionSender::updateWallE(Scalar E_wall)
@@ -375,7 +375,7 @@ void ActionSender::updateWallE(Scalar E_wall)
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<E_wall;
-	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::updateWallE, arr);
+	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateWallE, arr);
 }
 
 void ActionSender::updateWallPoissonRatio(Scalar poisson_wall)
@@ -383,7 +383,7 @@ void ActionSender::updateWallPoissonRatio(Scalar poisson_wall)
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<poisson_wall;
-	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::updateWallPoissonRatio, arr);
+	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateWallPoissonRatio, arr);
 }
 
 void ActionSender::updateEarthGravity(Vector3 earthGravity)
@@ -393,7 +393,7 @@ void ActionSender::updateEarthGravity(Vector3 earthGravity)
 	stream<<earthGravity(0);
 	stream<<earthGravity(1);
 	stream<<earthGravity(2);
-	sendAction(ActionGroups::physicalConstants, PhysicalConstantsActions::updateEarthGravity, arr);
+	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateEarthGravity, arr);
 }
 
 void ActionSender::startSimulation()

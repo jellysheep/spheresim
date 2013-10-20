@@ -65,9 +65,9 @@ namespace SphereSim
 		 * \copydetails handleAction */
 		void handleInformationAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
-		/** \brief Handle PhysicalConstantsActions requests. 
+		/** \brief Handle SimulatedSystemActions requests. 
 		 * \copydetails handleAction */
-		void handlePhysicalConstantsAction(quint8 actionGroup, quint8 action, QByteArray data);
+		void handleSimulatedSystemAction(quint8 actionGroup, quint8 action, QByteArray data);
 		
 		/** \brief Handle unknown action group requests. 
 		 * \copydetails handleAction */

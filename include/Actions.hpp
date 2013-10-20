@@ -31,9 +31,9 @@ namespace SphereSim
 			/** \copydoc InformationActions
 			 * \see InformationActions */
 			information,
-			/** \copydoc PhysicalConstantsActions
-			 * \see PhysicalConstantsActions */
-			physicalConstants
+			/** \copydoc SimulatedSystemActions
+			 * \see SimulatedSystemActions */
+			simulatedSystem
 		};
 	}
 	
@@ -117,10 +117,10 @@ namespace SphereSim
 		};
 	}
 	
-	/** \brief Update or get physical constants. */
-	namespace PhysicalConstantsActions
+	/** \brief Update or get physical constants, wall properties and other parameters of the simulated system. */
+	namespace SimulatedSystemActions
 	{
-		/** \see PhysicalConstantsActions */
+		/** \see SimulatedSystemActions */
 		enum Action
 		{
 			/** \brief Update the elastic modulus of the sphere material used for sphere-sphere or sphere-wall collisions. */

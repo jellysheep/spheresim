@@ -26,7 +26,7 @@ set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/ActionReceiver.hpp
 	${PROJECT_INCLUDE_DIR}/SphereCalculator.hpp
 	${PROJECT_INCLUDE_DIR}/ButcherTableau.hpp
-	${PROJECT_INCLUDE_DIR}/PhysicalConstants.hpp
+	${PROJECT_INCLUDE_DIR}/SimulatedSystem.hpp
 	${PROJECT_INCLUDE_DIR}/SimulationWorker.hpp
 	${PROJECT_INCLUDE_DIR}/WorkQueue.hpp
 )

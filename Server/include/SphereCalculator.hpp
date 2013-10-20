@@ -12,7 +12,7 @@
 #include <Sphere.hpp>
 #include <Integrators.hpp>
 #include <ButcherTableau.hpp>
-#include <PhysicalConstants.hpp>
+#include <SimulatedSystem.hpp>
 
 #include <QVector>
 #include <QMutex>
@@ -80,7 +80,7 @@ namespace SphereSim
 		quint32 stepCounter;
 		
 		/** \brief Storage for physical constants. */
-		PhysicalConstants physicalConstants;
+		SimulatedSystem simulatedSystem;
 		
 		/** \brief Update the E modulus (E*) used for sphere-sphere collisions. */
 		void updateSphereSphereE();
@@ -185,23 +185,23 @@ namespace SphereSim
 		 * \return Requested total energy. */
 		Scalar getTotalEnergy();
 		
-		/** \copydoc PhysicalConstantsActions::updateSphereE
+		/** \copydoc SimulatedSystemActions::updateSphereE
 		 * \param E_sphere Requested sphere E modulus. */
 		void updateSphereE(Scalar E_sphere);
 		
-		/** \copydoc PhysicalConstantsActions::updateSpherePoissonRatio
+		/** \copydoc SimulatedSystemActions::updateSpherePoissonRatio
 		 * \param poisson_sphere Requested sphere poisson number. */
 		void updateSpherePoissonRatio(Scalar poisson_sphere);
 		
-		/** \copydoc PhysicalConstantsActions::updateWallE
+		/** \copydoc SimulatedSystemActions::updateWallE
 		 * \param E_wall Requested wall E modulus. */
 		void updateWallE(Scalar E_wall);
 		
-		/** \copydoc PhysicalConstantsActions::updateWallPoissonRatio
+		/** \copydoc SimulatedSystemActions::updateWallPoissonRatio
 		 * \param poisson_wall Requested wall poisson number. */
 		void updateWallPoissonRatio(Scalar poisson_wall);
 		
-		/** \copydoc PhysicalConstantsActions::updateEarthGravity
+		/** \copydoc SimulatedSystemActions::updateEarthGravity
 		 * \param earthGravity Requested earth gravity. */
 		void updateEarthGravity(Vector3 earthGravity);
 		

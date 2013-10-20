@@ -129,7 +129,7 @@ void GLWidget::paintGL()
 		
 		QMatrix4x4 sphereMatrix;
 		sphereMatrix.translate(s.pos(0), s.pos(1), s.pos(2));
-		sphereMatrix.scale(s.radius, s.radius, s.radius);
+		sphereMatrix.scale(s.radius);
 		program.setUniformValue(sphereMatrixUniform, sphereMatrix);
 		
 		glDrawArrays(GL_TRIANGLE_FAN, 0, circleEdges+2);

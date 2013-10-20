@@ -126,8 +126,8 @@ void ActionReceiver::handleAction(quint8 actionGroup, quint8 action, QByteArray 
 	case ActionGroups::information:
 		handleInformationAction(actionGroup, action, data);
 		break;
-	case ActionGroups::physicalConstants:
-		handlePhysicalConstantsAction(actionGroup, action, data);
+	case ActionGroups::simulatedSystem:
+		handleSimulatedSystemAction(actionGroup, action, data);
 		break;
 	default:
 		handleUnknownActionGroup(actionGroup, action, data);
@@ -277,7 +277,7 @@ void ActionReceiver::handleInformationAction(quint8 actionGroup, quint8 action, 
 	}
 }
 
-void ActionReceiver::handlePhysicalConstantsAction(quint8 actionGroup, quint8 action, QByteArray data)
+void ActionReceiver::handleSimulatedSystemAction(quint8 actionGroup, quint8 action, QByteArray data)
 {
 	QDataStream stream(&data, QIODevice::ReadOnly);
 	QByteArray retData;
@@ -285,23 +285,23 @@ void ActionReceiver::handlePhysicalConstantsAction(quint8 actionGroup, quint8 ac
 	Scalar s, s2, s3;
 	switch(action)
 	{
-	case PhysicalConstantsActions::updateSphereE:
+	case SimulatedSystemActions::updateSphereE:
 		stream>>s;
 		sphCalc.updateSphereE(s);
 		break;
-	case PhysicalConstantsActions::updateSpherePoissonRatio:
+	case SimulatedSystemActions::updateSpherePoissonRatio:
 		stream>>s;
 		sphCalc.updateSpherePoissonRatio(s);
 		break;
-	case PhysicalConstantsActions::updateWallE:
+	case SimulatedSystemActions::updateWallE:
 		stream>>s;
 		sphCalc.updateWallE(s);
 		break;
-	case PhysicalConstantsActions::updateWallPoissonRatio:
+	case SimulatedSystemActions::updateWallPoissonRatio:
 		stream>>s;
 		sphCalc.updateWallPoissonRatio(s);
 		break;
-	case PhysicalConstantsActions::updateEarthGravity:
+	case SimulatedSystemActions::updateEarthGravity:
 		stream>>s;
 		stream>>s2;
 		stream>>s3;
