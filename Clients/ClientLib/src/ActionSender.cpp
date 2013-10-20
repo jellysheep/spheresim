@@ -19,7 +19,7 @@
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuffer(60),framerateTimer()
+ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuffer(10),framerateTimer()
 {
 	qDebug()<<"ActionSender: constructor called";
 	addr = new QHostAddress(a);

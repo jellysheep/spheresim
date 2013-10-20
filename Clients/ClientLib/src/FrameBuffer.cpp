@@ -18,33 +18,26 @@ FrameBuffer<T>::FrameBuffer(quint16 bufferSize_)
 	bufferSize = bufferSize_;
 	elementsPerFrame = 0;
 	frames = NULL;
+	currentReadFrame = NULL;
+	currentWriteFrame = NULL;
 	readIndex = 0;
 	writeIndex = 0;
 	elementReadIndex = 0;
 	elementWriteIndex = 0;
-	currentReadFrame = NULL;
-	currentWriteFrame = NULL;
 	skipNextFrame = false;
 	actionSender = NULL;
 	updatePercentageLevel();
+	lastFrameBufferAction = pop;
 }
 
 template <typename T>
-FrameBuffer<T>::FrameBuffer(quint16 bufferSize_, quint16 elementsPerFrame_)
+FrameBuffer<T>::FrameBuffer(quint16 bufferSize_, quint16 elementsPerFrame_):FrameBuffer(bufferSize_)
 {
-	bufferSize = bufferSize_;
 	elementsPerFrame = elementsPerFrame_;
 	quint32 totalElements = bufferSize*elementsPerFrame;
 	frames = new T[totalElements];
-	readIndex = 0;
-	writeIndex = 0;
-	elementReadIndex = 0;
-	elementWriteIndex = 0;
 	currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
 	currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
-	skipNextFrame = false;
-	actionSender = NULL;
-	updatePercentageLevel();
 }
 
 template <typename T>
@@ -96,11 +89,13 @@ void FrameBuffer<T>::pushFrame()
 	skipNextFrame = false;
 	if(readIndex == ((writeIndex+1)%bufferSize))
 	{
+		qDebug()<<"FrameBuffer: buffer full!";
 		skipNextFrame = true;
 	}else{
 		writeIndex = (writeIndex+1)%bufferSize;
 		currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
-		updatePercentageLevel();
+		updatePercentageLevel(lastFrameBufferAction == push);
+		lastFrameBufferAction = push;
 	}
 }
 
@@ -118,11 +113,14 @@ T FrameBuffer<T>::popElement()
 template <typename T>
 void FrameBuffer<T>::popFrame()
 {
-	if(readIndex != writeIndex)
+	if(writeIndex != ((readIndex+1)%bufferSize) && writeIndex != readIndex)
 	{
 		readIndex = (readIndex+1)%bufferSize;
 		currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
-		updatePercentageLevel();
+		updatePercentageLevel(lastFrameBufferAction == pop);
+		lastFrameBufferAction = pop;
+	}else{
+		qDebug()<<"FrameBuffer: buffer empty!";
 	}
 	elementReadIndex = 0;
 }
@@ -140,7 +138,16 @@ bool FrameBuffer<T>::hasElements()
 }
 
 template <typename T>
-void FrameBuffer<T>::updatePercentageLevel()
+quint16 FrameBuffer<T>::getFrameCount()
+{
+	int frameCount = writeIndex-readIndex;
+	if(frameCount<0)
+		frameCount += bufferSize;
+	return (quint16) frameCount;
+}
+
+template <typename T>
+void FrameBuffer<T>::updatePercentageLevel(bool greaterThanHysteresis)
 {
 	if(actionSender == NULL)
 		return;
@@ -151,12 +158,10 @@ void FrameBuffer<T>::updatePercentageLevel()
 	}
 	else
 	{
-		int frames = writeIndex-readIndex;
-		if(frames<0)
-			frames += bufferSize;
-		percentageLevel = (quint8)(frames*100/bufferSize);
+		percentageLevel = (quint8)(getFrameCount()*100/bufferSize);
 	}
-	//actionSender->frameBufferPercentageLevelUpdate(percentageLevel);
+	if(greaterThanHysteresis)
+		emit actionSender->greatFrameBufferPercentageLevelUpdate(percentageLevel);
 	emit actionSender->frameBufferPercentageLevelUpdate(percentageLevel);
 }
 

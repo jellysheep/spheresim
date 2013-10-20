@@ -254,6 +254,8 @@ namespace SphereSim
 		void framerateUpdate();
 		
 		void frameBufferPercentageLevelUpdate(int percentageLevel);
+		
+		void greatFrameBufferPercentageLevelUpdate(int percentageLevel);
 	};
 	
 }

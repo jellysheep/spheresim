@@ -55,11 +55,13 @@ namespace SphereSim
 		/** \brief Print out the whole buffer. */
 		void print();
 		
-		void updatePercentageLevel();
+		void updatePercentageLevel(bool greaterThanHysteresis = true);
 		
 		quint8 percentageLevel;
 		
 		ActionSender* actionSender;
+		
+		enum FrameBufferAction { push, pop } lastFrameBufferAction;
 		
 	public:
 		/** \brief Initialize frame buffer.
@@ -95,6 +97,8 @@ namespace SphereSim
 		bool hasElements();
 		
 		void setActionSender(ActionSender* actionSender);
+		
+		quint16 getFrameCount();
 	};
 }
 

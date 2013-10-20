@@ -11,6 +11,8 @@
 #include <QDebug>
 #include <QtOpenGL>
 #include <QtGui>
+#include <QTimer>
+#include <QElapsedTimer>
 
 using namespace SphereSim;
 
@@ -18,6 +20,15 @@ GLWidget::GLWidget(QWidget* parent):QGLWidget(parent), program(this)
 {
 	frames = 0;
 	frameBuffer = NULL;
+	sleepTime = 20;
+	animating = false;
+	frameBufferPercentageLevelSum = 0;
+	frameBufferPercentageLevelCounter = 0;
+	animationTimer = new QTimer();
+	connect(animationTimer, SIGNAL(timeout()), SLOT(timerUpdate()));
+	animationTimer->setTimerType(Qt::PreciseTimer);
+	animationTimer->setSingleShot(true);
+	controlTimer = new QElapsedTimer();
 }
 
 void GLWidget::setFrameBuffer(FrameBuffer<Sphere>* fb)
@@ -28,6 +39,8 @@ void GLWidget::setFrameBuffer(FrameBuffer<Sphere>* fb)
 GLWidget::~GLWidget()
 {
 	program.release();
+	delete animationTimer;
+	delete controlTimer;
 }
 
 void GLWidget::initializeGL()
@@ -126,4 +139,45 @@ void GLWidget::paintGL()
 void GLWidget::paintBackground()
 {
 	// TODO
+}
+
+void GLWidget::timerUpdate()
+{
+	if(animating)
+		animationTimer->start(sleepTime);
+	updateGL();
+}
+
+void GLWidget::updateTimerFrequency(int frameBufferPercentageLevel)
+{
+	frameBufferPercentageLevelSum += frameBufferPercentageLevel;
+	frameBufferPercentageLevelCounter++;
+	if(controlTimer->elapsed()>500)
+	{
+		controlTimer->restart();
+		float frameBufferPercentageLevelAverage = frameBufferPercentageLevelSum*1.f/frameBufferPercentageLevelCounter;
+		float factor = (frameBufferPercentageLevelAverage-50)/50.f;
+		factor = pow(2*factor, 3);
+		float amplitude = 4;
+		float fps = 60+(factor*amplitude);
+		sleepTime = (int)round(1000.f/fps);
+		qDebug()<<"GLWidget: level:"<<frameBufferPercentageLevelAverage<<"\tfps:"<<fps<<"\tms:"<<sleepTime;
+		frameBufferPercentageLevelSum = 0;
+		frameBufferPercentageLevelCounter = 0;
+	}
+}
+
+void GLWidget::startAnimation()
+{
+	if(!animating)
+	{
+		animating = true;
+		animationTimer->start(sleepTime);
+		controlTimer->start();
+	}
+}
+
+void GLWidget::stopAnimation()
+{
+	animating = false;
 }

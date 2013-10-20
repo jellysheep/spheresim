@@ -90,10 +90,10 @@ WorkQueueItem WorkQueue::popItem()
 	if(item.type == WorkQueueItemType::calculateStep)
 	{
 		if(animationTimer->elapsed()>(1000/60)){
+			animationTimer->restart();
 			WorkQueueItem item2 = WorkQueueItem();
 			item2.type = WorkQueueItemType::prepareFrameData;
 			items.prepend(item2);
-			animationTimer->restart();
 		}
 	}
 	mutex->lock();

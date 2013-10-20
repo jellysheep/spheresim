@@ -17,6 +17,7 @@
 #include <QGLShaderProgram>
 
 class QTimer;
+class QElapsedTimer;
 
 namespace SphereSim
 {
@@ -42,13 +43,30 @@ namespace SphereSim
 		FrameBuffer<Sphere>* frameBuffer;
 		
 		QGLShaderProgram program;
+		
 		GLuint posAttr;
+		
 		GLuint colAttr;
+		
 		GLuint matrixUniform;
+		
 		quint32 frames;
+		
 		QMatrix4x4 perspectiveMatrix;
 		
 		void shaderLoadError();
+		
+		QTimer* animationTimer;
+		
+		QElapsedTimer* controlTimer;
+		
+		int sleepTime;
+		
+		int frameBufferPercentageLevelSum;
+		
+		int frameBufferPercentageLevelCounter;
+		
+		bool animating;
 		
 	public:
 		/** \brief Initialize member variables. */
@@ -59,6 +77,14 @@ namespace SphereSim
 		
 		void setFrameBuffer(FrameBuffer<Sphere>* frameBuffer);
 		
+	public slots:
+		void timerUpdate();
+		
+		void updateTimerFrequency(int frameBufferPercentageLevel);
+		
+		void startAnimation();
+		
+		void stopAnimation();
 	};
 }
 
