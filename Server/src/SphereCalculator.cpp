@@ -207,6 +207,7 @@ quint16 SphereCalculator::addSphere()
 {
 	spheres.append(Sphere());
 	updateData();
+	workQueue->sendFrameData();
 	return getSphereCount();
 }
 
@@ -226,6 +227,7 @@ quint16 SphereCalculator::updateSphere(quint16 i, Sphere s)
 	{
 		spheres[i] = s;
 		updateData();
+		workQueue->sendFrameData();
 	}
 	return getSphereCount();
 }

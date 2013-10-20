@@ -48,9 +48,9 @@ namespace SphereSim
 		
 		GLuint colAttr;
 		
-		GLuint matrixUniform;
+		GLuint worldMatrixUniform;
 		
-		quint32 frames;
+		GLuint sphereMatrixUniform;
 		
 		QMatrix4x4 perspectiveMatrix;
 		
@@ -67,6 +67,12 @@ namespace SphereSim
 		int frameBufferPercentageLevelCounter;
 		
 		bool animating;
+		
+		const quint16 circleEdges;
+		
+		float* circleVertices;
+		
+		float* circleColors;
 		
 	public:
 		/** \brief Initialize member variables. */

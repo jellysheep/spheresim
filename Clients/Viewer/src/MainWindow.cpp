@@ -38,7 +38,11 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	s.mass = 1;
 	actionSender->addSphere();
 	actionSender->updateSphere(0, s);
-	actionSender->updateTimeStep(0.00001);
+	actionSender->addSphere();
+	s.pos(1) = 0.2;
+	s.pos(0) = 0.1;
+	actionSender->updateSphere(1, s);
+	actionSender->updateTimeStep(0.00003);
 	actionSender->updateEarthGravity(Vector3(0, -9.81, 0));
 }
 

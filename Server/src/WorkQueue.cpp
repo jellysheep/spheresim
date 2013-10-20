@@ -131,3 +131,10 @@ bool WorkQueue::getIsSimulating()
 {
 	return isSimulating;
 }
+
+void WorkQueue::sendFrameData()
+{
+	WorkQueueItem item;
+	item.type = WorkQueueItemType::prepareFrameData;
+	pushItem(item);
+}

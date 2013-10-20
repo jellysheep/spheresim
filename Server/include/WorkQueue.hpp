@@ -103,6 +103,8 @@ namespace SphereSim
 		/** \copydoc isSimulating */
 		bool getIsSimulating();
 		
+		void sendFrameData();
+		
 	public slots:
 		/** \brief Stop a running simulation. */
 		void stopSimulation();
