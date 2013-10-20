@@ -17,6 +17,12 @@ using namespace SphereSim;
 GLWidget::GLWidget(QWidget* parent):QGLWidget(parent), program(this)
 {
 	frames = 0;
+	frameBuffer = NULL;
+}
+
+void GLWidget::setFrameBuffer(FrameBuffer<Sphere>* fb)
+{
+	frameBuffer = fb;
 }
 
 GLWidget::~GLWidget()
@@ -67,38 +73,51 @@ void GLWidget::resizeGL(int width, int height)
 
 void GLWidget::paintGL()
 {
+	if(frameBuffer == NULL)
+		return;
+	
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	program.bind();
 
 	QMatrix4x4 matrix = perspectiveMatrix;
 	matrix.translate(0, 0, -3);
-	matrix.rotate(100.0f * frames / 60, 0, 1, 0);
+	//matrix.rotate(100.0f * frames / 60, 0, 1, 0);
 
 	program.setUniformValue(matrixUniform, matrix);
+	
+	Sphere s;
+	
+	while(frameBuffer->hasElements())
+	{
+		s = frameBuffer->popElement();
+		float x = s.pos(0);
+		float y = s.pos(1);
+		
+		GLfloat vertices[] = {
+			x+0.0f,	y+0.866f-0.5f,
+			x-0.5f, y-0.5f,
+			x+0.5f, y-0.5f
+		};
 
-	GLfloat vertices[] = {
-		0.0f, 0.707f,
-		-0.5f, -0.5f,
-		0.5f, -0.5f
-	};
+		GLfloat colors[] = {
+			1.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 1.0f
+		};
 
-	GLfloat colors[] = {
-		1.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 1.0f
-	};
+		glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, 0, vertices);
+		glVertexAttribPointer(colAttr, 3, GL_FLOAT, GL_FALSE, 0, colors);
 
-	glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, 0, vertices);
-	glVertexAttribPointer(colAttr, 3, GL_FLOAT, GL_FALSE, 0, colors);
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
 
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(0);
+	}
+	frameBuffer->popFrame();
 
 	program.release();
 	

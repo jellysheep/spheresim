@@ -123,6 +123,8 @@ namespace SphereSim
 		 * \see connectedFlag */
 		bool isConnected();
 		
+		FrameBuffer<Sphere>* getFrameBuffer();
+		
 		/** \copydoc BasicActions::getServerVersion
 		 * \return Version string reported by server. */
 		QString getServerVersion();

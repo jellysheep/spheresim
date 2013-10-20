@@ -204,6 +204,17 @@ void ActionSender::updateSphereCount(quint16 sphereCount)
 	frameBuffer.updateElementsPerFrame(sphereCount);
 }
 
+bool ActionSender::isConnected()
+{
+	socket->waitForConnected(10);
+	return connectedFlag;
+}
+
+FrameBuffer<Sphere>* ActionSender::getFrameBuffer()
+{
+	return &frameBuffer;
+}
+
 QString ActionSender::getServerVersion()
 {
 	return sendReplyAction(ActionGroups::basic, BasicActions::getServerVersion);
@@ -217,12 +228,6 @@ QString ActionSender::getTrueString()
 QString ActionSender::getServerFloatingType()
 {
 	return sendReplyAction(ActionGroups::basic, BasicActions::getServerFloatingType);
-}
-
-bool ActionSender::isConnected()
-{
-	socket->waitForConnected(10);
-	return connectedFlag;
 }
 
 quint16 ActionSender::addSphere()

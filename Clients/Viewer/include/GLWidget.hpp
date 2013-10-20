@@ -9,6 +9,8 @@
 #ifndef _GLWIDGET_HPP_
 #define _GLWIDGET_HPP_
 
+#include <FrameBuffer.hpp>
+
 #include <QGLWidget>
 #include <QGLFunctions>
 #include <QMatrix4x4>
@@ -37,6 +39,8 @@ namespace SphereSim
 		/** \brief Paint the background. */
 		void paintBackground();
 		
+		FrameBuffer<Sphere>* frameBuffer;
+		
 		QGLShaderProgram program;
 		GLuint posAttr;
 		GLuint colAttr;
@@ -52,6 +56,8 @@ namespace SphereSim
 		
 		/** \brief Clean up member variables. */
 		~GLWidget();
+		
+		void setFrameBuffer(FrameBuffer<Sphere>* frameBuffer);
 		
 	};
 }

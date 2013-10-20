@@ -24,6 +24,7 @@ FrameBuffer<T>::FrameBuffer(quint16 bufferSize_)
 	currentReadFrame = NULL;
 	currentWriteFrame = NULL;
 	skipNextFrame = false;
+	updatePercentageLevel();
 }
 
 template <typename T>
@@ -40,6 +41,7 @@ FrameBuffer<T>::FrameBuffer(quint16 bufferSize_, quint16 elementsPerFrame_)
 	currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
 	currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
 	skipNextFrame = false;
+	updatePercentageLevel();
 }
 
 template <typename T>
@@ -95,6 +97,7 @@ void FrameBuffer<T>::pushFrame()
 	}else{
 		writeIndex = (writeIndex+1)%bufferSize;
 		currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
+		updatePercentageLevel();
 	}
 }
 
@@ -116,6 +119,7 @@ void FrameBuffer<T>::popFrame()
 	{
 		readIndex = (readIndex+1)%bufferSize;
 		currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
+		updatePercentageLevel();
 	}
 	elementReadIndex = 0;
 }
@@ -124,6 +128,21 @@ template <typename T>
 void FrameBuffer<T>::print()
 {
 	Console::out<<"[Framebuffer ("<<bufferSize<<" frames x "<<elementsPerFrame<<" elements)]";
+}
+
+template <typename T>
+bool FrameBuffer<T>::hasElements()
+{
+	return (elementReadIndex<elementsPerFrame);
+}
+
+template <typename T>
+void FrameBuffer<T>::updatePercentageLevel()
+{
+	int frames = writeIndex-readIndex;
+	if(frames<0)
+		frames += bufferSize;
+	percentageLevel = frames*100/bufferSize;
 }
 
 namespace SphereSim{

@@ -15,8 +15,7 @@
 
 namespace SphereSim
 {
-	/** \brief Ring buffer to store frames.
-	 */
+	/** \brief Ring buffer to store frames. */
 	template <typename T>
 	class FrameBuffer
 	{
@@ -54,6 +53,10 @@ namespace SphereSim
 		/** \brief Print out the whole buffer. */
 		void print();
 		
+		void updatePercentageLevel();
+		
+		quint8 percentageLevel;
+		
 	public:
 		/** \brief Initialize frame buffer.
 		 * \param bufferSize Number of frames in the buffer. */
@@ -83,6 +86,9 @@ namespace SphereSim
 		
 		/** \brief Remove the currently read frame from the buffer. */
 		void popFrame();
+		
+		/** \brief Flag for emptyness of current frame elements. */
+		bool hasElements();
 	};
 }
 

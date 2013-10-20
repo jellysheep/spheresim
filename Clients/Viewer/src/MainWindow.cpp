@@ -19,9 +19,24 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	qDebug()<<"MainWindow: constructor called";
 	ui = new Ui::MainWindow();
 	ui->setupUi(this);
+	ui->glWidget->setFrameBuffer(actSend->getFrameBuffer());
 	connect(ui->startButton, SIGNAL(clicked()), actionSender, SLOT(startSimulation()));
 	connect(ui->stopButton, SIGNAL(clicked()), actionSender, SLOT(stopSimulation()));
 	connect(actionSender, SIGNAL(newFrameReceived()), ui->glWidget, SLOT(updateGL()));
+	
+	Sphere s;
+	s.radius = 0.1;
+	s.pos(0) = 0.5;
+	s.pos(1) = 0.5;
+	s.pos(2) = 0.5;
+	s.speed.setZero();
+	s.speed(0) = 1;
+	s.acc.setZero();
+	s.mass = 1;
+	actionSender->addSphere();
+	actionSender->updateSphere(0, s);
+	actionSender->updateTimeStep(0.00001);
+	actionSender->updateEarthGravity(Vector3(0, -9.81, 0));
 }
 
 MainWindow::~MainWindow()
