@@ -55,13 +55,19 @@ namespace SphereSim
 		/** \brief Print out the whole buffer. */
 		void print();
 		
-		void updatePercentageLevel(bool greaterThanHysteresis = true);
-		
+		/** \brief Percentage level of the buffer. */
 		quint8 percentageLevel;
 		
-		ActionSender* actionSender;
+		/** \brief Update percentage level of the buffer.
+		 * \param greaterThanHysteresis More than one frame was added or removed.
+		 * \see percentageLevel */
+		void updatePercentageLevel(bool greaterThanHysteresis = true);
 		
+		/** \brief Storage of the last push or pop action. */
 		enum FrameBufferAction { push, pop } lastFrameBufferAction;
+		
+		/** \brief Current ActionSender, used to send signals. */
+		ActionSender* actionSender;
 		
 	public:
 		/** \brief Initialize frame buffer.
@@ -96,8 +102,11 @@ namespace SphereSim
 		/** \brief Flag for emptyness of current frame elements. */
 		bool hasElements();
 		
+		/** \brief Set current ActionSender.
+		 * \see actionSender */
 		void setActionSender(ActionSender* actionSender);
 		
+		/** \brief Get number of frames in the buffer. */
 		quint16 getFrameCount();
 	};
 }

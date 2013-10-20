@@ -28,6 +28,7 @@ namespace SphereSim
 		/** \brief Qt UI object containing all widgets. */
 		Ui::MainWindow* ui;
 		
+		/** \brief ActionSender used to send signals. */
 		ActionSender* actionSender;
 		
 	public:

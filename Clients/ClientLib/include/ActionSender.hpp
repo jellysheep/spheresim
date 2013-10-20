@@ -253,8 +253,12 @@ namespace SphereSim
 		 * \see framerateEvent */
 		void framerateUpdate();
 		
+		/** \brief Percentage level of FrameBuffer was updated.
+		 * \param percentageLevel Updated percentage level. */
 		void frameBufferPercentageLevelUpdate(int percentageLevel);
 		
+		/** \brief Percentage level of FrameBuffer changed greatly.
+		 * \copydetails frameBufferPercentageLevelUpdate */
 		void greatFrameBufferPercentageLevelUpdate(int percentageLevel);
 	};
 	

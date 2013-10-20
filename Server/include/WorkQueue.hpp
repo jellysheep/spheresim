@@ -103,6 +103,7 @@ namespace SphereSim
 		/** \copydoc isSimulating */
 		bool getIsSimulating();
 		
+		/** \brief Send updated frame data to client. */
 		void sendFrameData();
 		
 	public slots:

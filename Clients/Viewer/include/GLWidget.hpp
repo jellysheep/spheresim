@@ -40,38 +40,55 @@ namespace SphereSim
 		/** \brief Paint the background. */
 		void paintBackground();
 		
+		/** \brief FrameBuffer for smooth animation. */
 		FrameBuffer<Sphere>* frameBuffer;
 		
+		/** \brief GLSL program used to render the spheres. */
 		QGLShaderProgram program;
 		
-		GLuint posAttr;
+		/** \brief Vertex attribute for circle vertices. */
+		GLuint verticesAttr;
 		
-		GLuint colAttr;
+		/** \brief Vertex attribute for circle colors. */
+		GLuint colorsAttr;
 		
+		/** \brief Matrix uniform for world transformations. */
 		GLuint worldMatrixUniform;
 		
+		/** \brief Matrix uniform for sphere transformations. */
 		GLuint sphereMatrixUniform;
 		
+		/** \brief Matrix to set the scene perspective. */
 		QMatrix4x4 perspectiveMatrix;
 		
+		/** \brief Error handler for shader loading. */
 		void shaderLoadError();
 		
+		/** \brief Timer used to animate the scene. */
 		QTimer* animationTimer;
 		
+		/** \brief Timer used to periodically update framerate. */
 		QElapsedTimer* controlTimer;
 		
-		int sleepTime;
+		/** \brief Delay (in milliseconds) used for the animation timer. */
+		quint16 sleepTime;
 		
+		/** \brief Sum of last FrameBuffer percentage levels. */
 		int frameBufferPercentageLevelSum;
 		
+		/** \brief Number of last FrameBuffer percentage levels. */
 		int frameBufferPercentageLevelCounter;
 		
+		/** \brief Flag for running animation. */
 		bool animating;
 		
+		/** \brief Number of edges used to render a circle. */
 		const quint16 circleEdges;
 		
+		/** \brief Vertices used to render a circle. */
 		float* circleVertices;
 		
+		/** \brief Colors used to render a circle. */
 		float* circleColors;
 		
 	public:
@@ -84,12 +101,16 @@ namespace SphereSim
 		void setFrameBuffer(FrameBuffer<Sphere>* frameBuffer);
 		
 	public slots:
+		/** \brief Animation timer update. */
 		void timerUpdate();
 		
+		/** \brief Update the animation framerate. */
 		void updateTimerFrequency(int frameBufferPercentageLevel);
 		
+		/** \brief Start the animation. */
 		void startAnimation();
 		
+		/** \brief Stop the animation. */
 		void stopAnimation();
 	};
 }

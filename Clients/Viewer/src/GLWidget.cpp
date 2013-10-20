@@ -61,8 +61,8 @@ void GLWidget::initializeGL()
 	
 	program.bind();
 	
-	posAttr = program.attributeLocation("posAttr");
-	colAttr = program.attributeLocation("colAttr");
+	verticesAttr = program.attributeLocation("verticesAttr");
+	colorsAttr = program.attributeLocation("colorsAttr");
 	worldMatrixUniform = program.uniformLocation("worldMatrix");
 	sphereMatrixUniform = program.uniformLocation("sphereMatrix");
 	
@@ -84,8 +84,8 @@ void GLWidget::initializeGL()
 		circleColors[3*i+2] = 0.2;
 	}
 
-	glVertexAttribPointer(posAttr, 2, GL_FLOAT, GL_FALSE, 0, circleVertices);
-	glVertexAttribPointer(colAttr, 3, GL_FLOAT, GL_FALSE, 0, circleColors);
+	glVertexAttribPointer(verticesAttr, 2, GL_FLOAT, GL_FALSE, 0, circleVertices);
+	glVertexAttribPointer(colorsAttr, 3, GL_FLOAT, GL_FALSE, 0, circleColors);
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
@@ -162,7 +162,7 @@ void GLWidget::updateTimerFrequency(int frameBufferPercentageLevel)
 		factor = pow(2*factor, 3);
 		float amplitude = 4;
 		float fps = 60+(factor*amplitude);
-		sleepTime = (int)round(1000.f/fps);
+		sleepTime = (quint16)std::max(0, (int)round(1000.f/fps));
 		qDebug()<<"GLWidget: level:"<<frameBufferPercentageLevelAverage<<"\tfps:"<<fps<<"\tms:"<<sleepTime;
 		frameBufferPercentageLevelSum = 0;
 		frameBufferPercentageLevelCounter = 0;
