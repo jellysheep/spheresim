@@ -24,7 +24,6 @@ class QHostAddress;
 
 namespace SphereSim
 {
-	
 	/** \brief Start client, build up server connection, send request to server. */
 	class ActionSender : public QObject
 	{
@@ -253,6 +252,8 @@ namespace SphereSim
 		/** \brief Executed when framerates have been updated.
 		 * \see framerateEvent */
 		void framerateUpdate();
+		
+		void frameBufferPercentageLevelUpdate(int percentageLevel);
 	};
 	
 }

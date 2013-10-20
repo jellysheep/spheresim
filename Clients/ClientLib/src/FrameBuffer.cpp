@@ -8,6 +8,7 @@
 
 #include <FrameBuffer.hpp>
 #include <Console.hpp>
+#include <ActionSender.hpp>
 
 using namespace SphereSim;
 
@@ -24,6 +25,7 @@ FrameBuffer<T>::FrameBuffer(quint16 bufferSize_)
 	currentReadFrame = NULL;
 	currentWriteFrame = NULL;
 	skipNextFrame = false;
+	actionSender = NULL;
 	updatePercentageLevel();
 }
 
@@ -41,6 +43,7 @@ FrameBuffer<T>::FrameBuffer(quint16 bufferSize_, quint16 elementsPerFrame_)
 	currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
 	currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
 	skipNextFrame = false;
+	actionSender = NULL;
 	updatePercentageLevel();
 }
 
@@ -139,10 +142,28 @@ bool FrameBuffer<T>::hasElements()
 template <typename T>
 void FrameBuffer<T>::updatePercentageLevel()
 {
-	int frames = writeIndex-readIndex;
-	if(frames<0)
-		frames += bufferSize;
-	percentageLevel = frames*100/bufferSize;
+	if(actionSender == NULL)
+		return;
+	
+	if(bufferSize == 0)
+	{
+		percentageLevel = 0;
+	}
+	else
+	{
+		int frames = writeIndex-readIndex;
+		if(frames<0)
+			frames += bufferSize;
+		percentageLevel = (quint8)(frames*100/bufferSize);
+	}
+	//actionSender->frameBufferPercentageLevelUpdate(percentageLevel);
+	emit actionSender->frameBufferPercentageLevelUpdate(percentageLevel);
+}
+
+template <typename T>
+void FrameBuffer<T>::setActionSender(ActionSender* actSend)
+{
+	actionSender = actSend;
 }
 
 namespace SphereSim{

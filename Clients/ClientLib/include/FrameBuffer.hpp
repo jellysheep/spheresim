@@ -15,6 +15,8 @@
 
 namespace SphereSim
 {
+	class ActionSender;
+	
 	/** \brief Ring buffer to store frames. */
 	template <typename T>
 	class FrameBuffer
@@ -57,6 +59,8 @@ namespace SphereSim
 		
 		quint8 percentageLevel;
 		
+		ActionSender* actionSender;
+		
 	public:
 		/** \brief Initialize frame buffer.
 		 * \param bufferSize Number of frames in the buffer. */
@@ -89,6 +93,8 @@ namespace SphereSim
 		
 		/** \brief Flag for emptyness of current frame elements. */
 		bool hasElements();
+		
+		void setActionSender(ActionSender* actionSender);
 	};
 }
 

@@ -34,6 +34,7 @@ ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuf
 	frameCounter = 0;
 	receivedFramesPerSecond = 0;
 	framerateTimer.start();
+	frameBuffer.setActionSender(this);
 	connect(this, SIGNAL(newFrameReceived()), SLOT(framerateEvent()));
 	connect(this, SIGNAL(framerateUpdate()), SLOT(framerateInfo()));
 	connectionTryCount = 0;

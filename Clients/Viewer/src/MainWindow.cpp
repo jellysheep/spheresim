@@ -23,6 +23,7 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	connect(ui->startButton, SIGNAL(clicked()), actionSender, SLOT(startSimulation()));
 	connect(ui->stopButton, SIGNAL(clicked()), actionSender, SLOT(stopSimulation()));
 	connect(actionSender, SIGNAL(newFrameReceived()), ui->glWidget, SLOT(updateGL()));
+	connect(actionSender, SIGNAL(frameBufferPercentageLevelUpdate(int)), ui->frameBuffer, SLOT(setValue(int)));
 	
 	Sphere s;
 	s.radius = 0.1;

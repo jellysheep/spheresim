@@ -82,7 +82,6 @@ void GLWidget::paintGL()
 
 	QMatrix4x4 matrix = perspectiveMatrix;
 	matrix.translate(0, 0, -3);
-	//matrix.rotate(100.0f * frames / 60, 0, 1, 0);
 
 	program.setUniformValue(matrixUniform, matrix);
 	
