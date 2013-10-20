@@ -205,7 +205,13 @@ void SphereCalculator::prepareFrameData()
 
 quint16 SphereCalculator::addSphere()
 {
-	spheres.append(Sphere());
+	Sphere s = Sphere();
+	s.radius = 0.1;
+	s.mass = 1;
+	s.pos(0) = boxSize(0)/2;
+	s.pos(1) = boxSize(1)/2;
+	s.pos(2) = boxSize(2)/2;
+	spheres.append(s);
 	updateData();
 	workQueue->sendFrameData();
 	return getSphereCount();

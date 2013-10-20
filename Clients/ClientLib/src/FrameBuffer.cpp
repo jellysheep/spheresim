@@ -66,6 +66,7 @@ void FrameBuffer<T>::updateElementsPerFrame(quint16 elementsPerFrame_)
 		currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
 		currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
 		skipNextFrame = false;
+		qDebug()<<"updateElementsPerFrame"<<elementsPerFrame;
 	}
 }
 

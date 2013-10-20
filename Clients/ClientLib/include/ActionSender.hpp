@@ -136,14 +136,6 @@ namespace SphereSim
 		 * \return The floating type string sent by the server. */
 		QString getServerFloatingType();
 		
-		/** \copydoc SpheresUpdatingActions::addSphere
-		 * \copydetails getSphereCount */
-		quint16 addSphere();
-		
-		/** \copydoc SpheresUpdatingActions::removeLastSphere
-		 * \copydetails getSphereCount */
-		quint16 removeLastSphere();
-		
 		/** \copydoc SpheresUpdatingActions::updateSphere
 		 * \param i Sphere index.
 		 * \param s Sphere data. */
@@ -238,6 +230,14 @@ namespace SphereSim
 		/** \brief Information about updated frame rates.
 		 * \see framerateUpdate */
 		void framerateInfo();
+		
+		/** \copydoc SpheresUpdatingActions::addSphere
+		 * \copydetails getSphereCount */
+		quint16 addSphere();
+		
+		/** \copydoc SpheresUpdatingActions::removeLastSphere
+		 * \copydetails getSphereCount */
+		quint16 removeLastSphere();
 		
 		/** \copydoc CalculationActions::startSimulation */
 		void startSimulation();
