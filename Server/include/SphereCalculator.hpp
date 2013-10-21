@@ -111,6 +111,20 @@ namespace SphereSim
 		/** \brief Prepare sphere data for a frame. */
 		void prepareFrameData();
 		
+		Vector3 sphereBoxSize;
+		
+		Vector3 sphereBoxPosition;
+		
+		void updateSphereBox();
+		
+		const quint16 cellCount;
+		
+		const quint32 cellCount3;
+		
+		QVector<quint16>* sphereCellLists;
+		
+		void updateSphereCellLists();
+		
 	public:
 		SphereCalculator();
 		~SphereCalculator();

@@ -1,0 +1,4 @@
+SphereSim 2.2.2:
+* Added changelog.
+* Made FrameBuffer increase read index when full.
+* Added methods to let Server sort spheres in cells.

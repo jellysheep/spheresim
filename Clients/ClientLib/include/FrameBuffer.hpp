@@ -49,9 +49,6 @@ namespace SphereSim
 		/** \brief Index of the currently written element. */
 		quint16 elementWriteIndex;
 		
-		/** \brief Flag for buffer fullness. If true, next pushed frame will be skipped. */
-		bool skipNextFrame;
-		
 		/** \brief Print out the whole buffer. */
 		void print();
 		

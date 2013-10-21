@@ -24,7 +24,6 @@ FrameBuffer<T>::FrameBuffer(quint16 bufferSize_)
 	writeIndex = 0;
 	elementReadIndex = 0;
 	elementWriteIndex = 0;
-	skipNextFrame = false;
 	actionSender = NULL;
 	updatePercentageLevel();
 	lastFrameBufferAction = pop;
@@ -65,7 +64,6 @@ void FrameBuffer<T>::updateElementsPerFrame(quint16 elementsPerFrame_)
 		writeIndex = 0;
 		currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
 		currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
-		skipNextFrame = false;
 		qDebug()<<"updateElementsPerFrame"<<elementsPerFrame;
 	}
 }
@@ -73,10 +71,6 @@ void FrameBuffer<T>::updateElementsPerFrame(quint16 elementsPerFrame_)
 template <typename T>
 void FrameBuffer<T>::pushElement(T element)
 {
-	if(skipNextFrame)
-	{
-		return;
-	}
 	if(elementWriteIndex<elementsPerFrame)
 	{
 		currentWriteFrame[elementWriteIndex++] = element;
@@ -87,17 +81,16 @@ template <typename T>
 void FrameBuffer<T>::pushFrame()
 {
 	elementWriteIndex = 0;
-	skipNextFrame = false;
 	if(readIndex == ((writeIndex+1)%bufferSize))
 	{
 		qDebug()<<"FrameBuffer: buffer full!";
-		skipNextFrame = true;
-	}else{
-		writeIndex = (writeIndex+1)%bufferSize;
-		currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
-		updatePercentageLevel(lastFrameBufferAction == push);
-		lastFrameBufferAction = push;
+		readIndex = (readIndex+1)%bufferSize;
+		currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
 	}
+	writeIndex = (writeIndex+1)%bufferSize;
+	currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
+	updatePercentageLevel(lastFrameBufferAction == push);
+	lastFrameBufferAction = push;
 }
 
 template <typename T>

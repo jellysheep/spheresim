@@ -20,7 +20,7 @@
 
 using namespace SphereSim;
 
-SphereCalculator::SphereCalculator()
+SphereCalculator::SphereCalculator():cellCount(100), cellCount3((quint32)cellCount*cellCount*cellCount)
 {
 	qDebug()<<"SphereCalculator: constructor called";
 	qDebug()<<"SphereCalculator: number of OpenMP threads:"<<omp_get_num_threads();
@@ -35,6 +35,9 @@ SphereCalculator::SphereCalculator()
 	updateWallE(5000);
 	updateWallPoissonRatio(0.5);
 	updateEarthGravity(Vector3(0, -9.81, 0));
+	
+	sphereCellLists = new QVector<quint16>[cellCount3];
+	updateSphereBox();
 	
 	workQueueMutex = new QMutex();
 	workQueue = new WorkQueue(workQueueMutex);
@@ -93,6 +96,8 @@ void SphereCalculator::updateData()
 
 void SphereCalculator::integrateRungeKuttaStep()
 {
+	updateSphereBox();
+	updateSphereCellLists();
 	//#pragma omp parallel for
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
@@ -194,6 +199,56 @@ void SphereCalculator::prepareFrameData()
 		writeBasicSphereData(dataStream, sphArr[i]);
 	}
 	emit frameToSend(frameData);
+}
+
+void SphereCalculator::updateSphereBox()
+{
+	if(spheres.count()>0)
+	{
+		Vector3 pos = spheres[0].pos;
+		Vector3 max = pos, min = pos;
+		for(quint16 i = 1; i<spheres.count(); i++)
+		{
+			pos = spheres[i].pos;
+			if(pos(0)>max(0))
+				max(0) = pos(0);
+			if(pos(1)>max(1))
+				max(1) = pos(1);
+			if(pos(2)>max(2))
+				max(2) = pos(2);
+			if(pos(0)<min(0))
+				min(0) = pos(0);
+			if(pos(1)<min(1))
+				min(1) = pos(1);
+			if(pos(2)<min(2))
+				min(2) = pos(2);
+		}
+		sphereBoxSize = max-min;
+		sphereBoxPosition = min;
+	}else{
+		sphereBoxSize = Vector3(0, 0, 0);
+		sphereBoxPosition = Vector3(0, 0, 0);
+	}
+}
+
+void SphereCalculator::updateSphereCellLists()
+{
+	for(quint32 i = 0; i<cellCount3; i++)
+	{
+		sphereCellLists[i].clear();
+	}
+	quint16 indexX, indexY, indexZ;
+	quint32 indexAll;
+	Vector3 pos;
+	for(quint16 i = 0; i<sphCount; i++)
+	{
+		pos = sphArr[i].pos;
+		indexX = (quint16)((pos(0)-sphereBoxPosition(0))/sphereBoxSize(0)*cellCount);
+		indexY = (quint16)((pos(1)-sphereBoxPosition(1))/sphereBoxSize(1)*cellCount);
+		indexZ = (quint16)((pos(2)-sphereBoxPosition(2))/sphereBoxSize(2)*cellCount);
+		indexAll = indexZ*cellCount*cellCount + indexY*cellCount + indexX;
+		sphereCellLists[indexAll].append(i);
+	}
 }
 
 quint16 SphereCalculator::addSphere()

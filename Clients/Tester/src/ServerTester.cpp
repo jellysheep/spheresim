@@ -318,7 +318,7 @@ void ServerTester::runFrameBufferTests()
 		{
 			for(quint8 j = 0; j<elementsPerFrame; j++)
 			{
-				element = j+i*elementsPerFrame;
+				element = j+(i+1)*elementsPerFrame;
 				verify(buffer.popElement(), Equal, element);
 			}
 			buffer.popFrame();
@@ -339,7 +339,7 @@ void ServerTester::runFrameBufferTests()
 		{
 			for(quint8 j = 0; j<elementsPerFrame; j++)
 			{
-				element = j+i*elementsPerFrame;
+				element = j+(i+1)*elementsPerFrame;
 				verify(buffer.popElement(), Equal, element);
 			}
 			buffer.popFrame();
