@@ -21,6 +21,7 @@ WorkQueue::WorkQueue(QMutex* mutex_):items()
 	continuousSimulationRunning = false;
 	updateStatus();
 	isSimulating = false;
+	sendFramesRegularly = false;
 	animationTimer = new QElapsedTimer();
 	animationTimer->start();
 }
@@ -89,7 +90,7 @@ WorkQueueItem WorkQueue::popItem()
 	}
 	if(item.type == WorkQueueItemType::calculateStep)
 	{
-		if(animationTimer->elapsed()>(1000/60)){
+		if(sendFramesRegularly && animationTimer->elapsed()>(1000/60)){
 			animationTimer->restart();
 			WorkQueueItem item2 = WorkQueueItem();
 			item2.type = WorkQueueItemType::prepareFrameData;
@@ -137,4 +138,9 @@ void WorkQueue::sendFrameData()
 	WorkQueueItem item;
 	item.type = WorkQueueItemType::prepareFrameData;
 	pushItem(item);
+}
+
+void WorkQueue::updateFrameSending(bool sendFrames)
+{
+	sendFramesRegularly = sendFrames;
 }

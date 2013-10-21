@@ -28,6 +28,12 @@ GLWidget::GLWidget(QWidget* parent):QGLWidget(parent), program(this), circleEdge
 	animationTimer->setTimerType(Qt::PreciseTimer);
 	animationTimer->setSingleShot(true);
 	controlTimer = new QElapsedTimer();
+	verticesAttr = 0;
+	colorsAttr = 0;
+	worldMatrixUniform = 0;
+	sphereMatrixUniform = 0;
+	circleVertices = NULL;
+	circleColors = NULL;
 }
 
 void GLWidget::setFrameBuffer(FrameBuffer<Sphere>* fb)

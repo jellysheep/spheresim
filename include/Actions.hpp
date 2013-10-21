@@ -102,7 +102,9 @@ namespace SphereSim
 			/** \brief Get if a simulation is currently running. */
 			getIsSimulating,
 			/** \brief Get and reset the number of simulated time steps. */
-			popStepCounter
+			popStepCounter,
+			/** \brief Update if Server sends frames regularly. */
+			updateFrameSending
 		};
 	}
 	

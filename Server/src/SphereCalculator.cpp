@@ -93,14 +93,7 @@ void SphereCalculator::updateData()
 
 void SphereCalculator::integrateRungeKuttaStep()
 {
-	Sphere* s = &sphArr[0];
-	Sphere sphere, origSphere;
-	Vector3 acc, pos, speed, pos_, speed_, error_pos, error_speed;
-	Scalar error_pos_, error_speed_;
-	const quint8 integratorOrder = butcherTableau.order;
-	Vector3 k_acc[integratorOrder];
-	Vector3 k_speed[integratorOrder];
-	#pragma omp parallel for
+	//#pragma omp parallel for
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
 		integrateRungeKuttaStep(sphereIndex, timeStep, 0.0);
@@ -205,13 +198,7 @@ void SphereCalculator::prepareFrameData()
 
 quint16 SphereCalculator::addSphere()
 {
-	Sphere s = Sphere();
-	s.radius = 0.1;
-	s.mass = 1;
-	s.pos(0) = boxSize(0)/2;
-	s.pos(1) = boxSize(1)/2;
-	s.pos(2) = boxSize(2)/2;
-	spheres.append(s);
+	spheres.append(Sphere());
 	updateData();
 	workQueue->sendFrameData();
 	return getSphereCount();
@@ -372,6 +359,11 @@ quint32 SphereCalculator::popStepCounter()
 	quint32 counter = stepCounter;
 	stepCounter = 0;
 	return counter;
+}
+
+void SphereCalculator::updateFrameSending(bool sendFramesRegularly)
+{
+	workQueue->updateFrameSending(sendFramesRegularly);
 }
 
 Scalar SphereCalculator::getTotalEnergy()

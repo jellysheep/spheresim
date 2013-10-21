@@ -188,6 +188,9 @@ namespace SphereSim
 		 * \return Number of simulatied time steps. */
 		quint32 popStepCounter();
 		
+		/** \copydoc CalculationActions::updateFrameSending */
+		void updateFrameSending(bool sendFramesRegularly);
+		
 		/** \copydoc CalculationActions::getTotalEnergy
 		 * \return Total energy (in joules). */
 		Scalar getTotalEnergy();

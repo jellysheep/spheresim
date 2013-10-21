@@ -211,6 +211,7 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 	Scalar s;
 	quint8 integratorMethod;
 	quint32 steps;
+	bool b;
 	switch(action)
 	{
 	case CalculationActions::calculateStep:
@@ -253,6 +254,10 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 	case CalculationActions::getIsSimulating:
 		retStream<<sphCalc.getIsSimulating();
 		sendReply(ServerStatusReplies::acknowledge, retData);
+		break;
+	case CalculationActions::updateFrameSending:
+		stream>>b;
+		sphCalc.updateFrameSending(b);
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);

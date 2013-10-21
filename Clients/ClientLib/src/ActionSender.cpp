@@ -415,6 +415,14 @@ bool ActionSender::getIsSimulating()
 	return simulationStatus;
 }
 
+void ActionSender::updateFrameSending(bool sendFramesRegularly)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<sendFramesRegularly;
+	sendAction(ActionGroups::calculation, CalculationActions::updateFrameSending, arr);
+}
+
 void ActionSender::framerateEvent()
 {
 	if(framerateTimer.elapsed()>1000)

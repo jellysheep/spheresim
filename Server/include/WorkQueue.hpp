@@ -84,6 +84,9 @@ namespace SphereSim
 		/** \brief Animation timer. */
 		QElapsedTimer* animationTimer;
 		
+		/** \brief Animation timer. */
+		bool sendFramesRegularly;
+		
 	public:
 		/** \brief Initialize member variables. */
 		WorkQueue(QMutex* mutex);
@@ -105,6 +108,9 @@ namespace SphereSim
 		
 		/** \brief Send updated frame data to client. */
 		void sendFrameData();
+		
+		/** \copydoc CalculationActions::updateFrameSending */
+		void updateFrameSending(bool sendFramesRegularly);
 		
 	public slots:
 		/** \brief Stop a running simulation. */

@@ -306,7 +306,7 @@ void ServerTester::runFrameBufferTests()
 	FrameBuffer<quint8> buffer(bufferSize, elementsPerFrame);
 	quint8 element;
 	startTest_(framebuffer);
-		for(quint8 i = 0; i<bufferSize+1; i++)
+		for(quint8 i = 0; i<bufferSize; i++)
 		{
 			for(quint8 j = 0; j<elementsPerFrame; j++)
 			{
@@ -314,7 +314,7 @@ void ServerTester::runFrameBufferTests()
 			}
 			buffer.pushFrame();
 		}
-		for(quint8 i = 0; i<bufferSize; i++)
+		for(quint8 i = 0; i<bufferSize-1; i++)
 		{
 			for(quint8 j = 0; j<elementsPerFrame; j++)
 			{
@@ -327,7 +327,7 @@ void ServerTester::runFrameBufferTests()
 	startTest_(framebuffer);
 		elementsPerFrame = 5;
 		buffer.updateElementsPerFrame(elementsPerFrame);
-		for(quint8 i = 0; i<bufferSize+1; i++)
+		for(quint8 i = 0; i<bufferSize; i++)
 		{
 			for(quint8 j = 0; j<elementsPerFrame; j++)
 			{
@@ -335,7 +335,7 @@ void ServerTester::runFrameBufferTests()
 			}
 			buffer.pushFrame();
 		}
-		for(quint8 i = 0; i<bufferSize; i++)
+		for(quint8 i = 0; i<bufferSize-1; i++)
 		{
 			for(quint8 j = 0; j<elementsPerFrame; j++)
 			{
