@@ -1,3 +1,5 @@
+* Added a TwoDimArray class to greatly improve collision detection speed.
+
 SphereSim 2.2.3:
 * Improved Calculator performance.
 * Added basic sphere collision detection, very slow.

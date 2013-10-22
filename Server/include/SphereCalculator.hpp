@@ -13,6 +13,7 @@
 #include <Integrators.hpp>
 #include <ButcherTableau.hpp>
 #include <SimulatedSystem.hpp>
+#include <TwoDimArray.hpp>
 
 #include <QVector>
 #include <QMutex>
@@ -121,9 +122,13 @@ namespace SphereSim
 		
 		const quint32 cellCount3;
 		
-		QList<quint16>* sphereIndicesInCells;
+		const quint16 maxSpheresPerCell;
 		
-		QList< QList<quint32> > cellIndicesOfSpheres;
+		const quint16 maxCellsPerSphere;
+		
+		TwoDimArray<quint16, true> sphereIndicesInCells;
+		
+		TwoDimArray<quint32, true> cellIndicesOfSpheres;
 		
 		void updateSphereCellLists();
 		
