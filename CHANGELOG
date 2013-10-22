@@ -1,3 +1,7 @@
+SphereSim 2.2.3:
+* Improved Calculator performance.
+* Added basic sphere collision detection, very slow.
+
 SphereSim 2.2.2:
 * Added changelog.
 * Made FrameBuffer increase read index when full.

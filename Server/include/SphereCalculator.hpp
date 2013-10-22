@@ -121,7 +121,9 @@ namespace SphereSim
 		
 		const quint32 cellCount3;
 		
-		QVector<quint16>* sphereCellLists;
+		QList<quint16>* sphereIndicesInCells;
+		
+		QList< QList<quint32> > cellIndicesOfSpheres;
 		
 		void updateSphereCellLists();
 		

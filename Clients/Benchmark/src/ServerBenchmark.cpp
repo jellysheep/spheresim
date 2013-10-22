@@ -41,8 +41,8 @@ void ServerBenchmark::runBenchmark()
 	s.pos(0) = 0.11;
 	s.pos(1) = 0.11;
 	s.pos(2) = 0.11;
-	s.speed(0) = 0.0;
-	s.speed(1) = 0.0;
+	s.speed(0) = 0.2;
+	s.speed(1) = 0.6;
 	s.speed(2) = 0.0;
 	s.acc(0) = 0.0;
 	s.acc(1) = 0.0;
@@ -50,6 +50,9 @@ void ServerBenchmark::runBenchmark()
 	s.mass = 1.0;
 	s.radius = 0.1;
 	sender->updateSphere(0, s);
+	s.pos(0) = 0.2;
+	s.pos(1) = 0.4;
+	s.speed(0) = -0.5;
 	sender->updateSphere(1, s);
 	
 	Scalar timeStep = 100;

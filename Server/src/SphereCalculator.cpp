@@ -20,7 +20,7 @@
 
 using namespace SphereSim;
 
-SphereCalculator::SphereCalculator():cellCount(100), cellCount3((quint32)cellCount*cellCount*cellCount)
+SphereCalculator::SphereCalculator():cellCount(10), cellCount3((quint32)cellCount*cellCount*cellCount), cellIndicesOfSpheres()
 {
 	qDebug()<<"SphereCalculator: constructor called";
 	qDebug()<<"SphereCalculator: number of OpenMP threads:"<<omp_get_num_threads();
@@ -36,7 +36,7 @@ SphereCalculator::SphereCalculator():cellCount(100), cellCount3((quint32)cellCou
 	updateWallPoissonRatio(0.5);
 	updateEarthGravity(Vector3(0, -9.81, 0));
 	
-	sphereCellLists = new QVector<quint16>[cellCount3];
+	sphereIndicesInCells = new QList<quint16>[cellCount3];
 	updateSphereBox();
 	
 	workQueueMutex = new QMutex();
@@ -57,6 +57,8 @@ SphereCalculator::SphereCalculator():cellCount(100), cellCount3((quint32)cellCou
 SphereCalculator::~SphereCalculator()
 {
 	stopWorker();
+	delete[] sphereIndicesInCells;
+	while(!simulationWorker->getHasFinished());
 }
 
 QVector<Sphere>& SphereCalculator::getSpheres()
@@ -74,13 +76,40 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 	{
 		if((d = (sphere.radius - sphere.pos(dim))) > 0)
 		{
-			force = 4.0f/3.0f*simulatedSystem.E_sphere_wall*std::sqrt(sphere.radius*std::pow(d,3));
+			force = 4.0f/3.0f*simulatedSystem.E_sphere_wall*std::sqrt(sphere.radius*d*d*d);
 			_force(dim) += force;
 		}
 		if((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0)
 		{
-			force = 4.0f/3.0f*simulatedSystem.E_sphere_wall*std::sqrt(sphere.radius*std::pow(d,3));
+			force = 4.0f/3.0f*simulatedSystem.E_sphere_wall*std::sqrt(sphere.radius*d*d*d);
 			_force(dim) -= force;
+		}
+	}
+	quint32 cellIndex;
+	QList<quint16>::const_iterator sphereIterator;
+	quint16 sphereIndex2;
+	Sphere sphere2;
+	bool collided = false;
+	for(int i = cellIndicesOfSpheres[sphereIndex].count()-1; i>=0; i--)
+	{
+		cellIndex = cellIndicesOfSpheres[sphereIndex][i];
+		for(int j = sphereIndicesInCells[cellIndex].count()-1; j>=0; j--)
+		{
+			sphereIndex2 = sphereIndicesInCells[cellIndex][j];
+			if(sphereIndex2 != sphereIndex)
+			{
+				sphere2 = sphArr[sphereIndex2];
+				Vector3 dVec = sphere2.pos - sphere.pos;
+				Scalar d = dVec.norm();
+				if(d < (sphere2.radius + sphere.radius))
+				{
+					if(!collided)
+					{
+						collided = true;
+						//qDebug()<<"collision!";
+					}
+				}
+			}
 		}
 	}
 	acc = _force/sphere.mass;
@@ -165,6 +194,7 @@ quint16 SphereCalculator::removeSphere(quint16 i)
 	if(getSphereCount()>i)
 	{
 		spheres.remove(i);
+		cellIndicesOfSpheres.removeAt(i);
 		updateData();
 	}
 	return getSphereCount();
@@ -206,22 +236,24 @@ void SphereCalculator::updateSphereBox()
 	if(spheres.count()>0)
 	{
 		Vector3 pos = spheres[0].pos;
+		Scalar radius;
 		Vector3 max = pos, min = pos;
 		for(quint16 i = 1; i<spheres.count(); i++)
 		{
 			pos = spheres[i].pos;
-			if(pos(0)>max(0))
-				max(0) = pos(0);
-			if(pos(1)>max(1))
-				max(1) = pos(1);
-			if(pos(2)>max(2))
-				max(2) = pos(2);
-			if(pos(0)<min(0))
-				min(0) = pos(0);
-			if(pos(1)<min(1))
-				min(1) = pos(1);
-			if(pos(2)<min(2))
-				min(2) = pos(2);
+			radius = spheres[i].radius;
+			if(pos(0)+radius>max(0))
+				max(0) = pos(0)+radius;
+			if(pos(1)+radius>max(1))
+				max(1) = pos(1)+radius;
+			if(pos(2)+radius>max(2))
+				max(2) = pos(2)+radius;
+			if(pos(0)-radius<min(0))
+				min(0) = pos(0)-radius;
+			if(pos(1)-radius<min(1))
+				min(1) = pos(1)-radius;
+			if(pos(2)-radius<min(2))
+				min(2) = pos(2)-radius;
 		}
 		sphereBoxSize = max-min;
 		sphereBoxPosition = min;
@@ -235,25 +267,59 @@ void SphereCalculator::updateSphereCellLists()
 {
 	for(quint32 i = 0; i<cellCount3; i++)
 	{
-		sphereCellLists[i].clear();
+		sphereIndicesInCells[i].clear();
 	}
-	quint16 indexX, indexY, indexZ;
+	quint16 indexMinX, indexMinY, indexMinZ;
+	quint16 indexMaxX, indexMaxY, indexMaxZ;
 	quint32 indexAll;
 	Vector3 pos;
+	Scalar radius, value;
 	for(quint16 i = 0; i<sphCount; i++)
 	{
+		cellIndicesOfSpheres[i].clear();
 		pos = sphArr[i].pos;
-		indexX = (quint16)((pos(0)-sphereBoxPosition(0))/sphereBoxSize(0)*cellCount);
-		indexY = (quint16)((pos(1)-sphereBoxPosition(1))/sphereBoxSize(1)*cellCount);
-		indexZ = (quint16)((pos(2)-sphereBoxPosition(2))/sphereBoxSize(2)*cellCount);
-		indexAll = indexZ*cellCount*cellCount + indexY*cellCount + indexX;
-		sphereCellLists[indexAll].append(i);
+		radius = sphArr[i].radius;
+		value = (pos(0)-sphereBoxPosition(0)-radius)/sphereBoxSize(0);
+		indexMinX = (quint16)(value*cellCount);
+		indexMinX = (indexMinX<cellCount?indexMinX:cellCount-1);
+		value = (pos(1)-sphereBoxPosition(1)-radius)/sphereBoxSize(1);
+		indexMinY = (quint16)(value*cellCount);
+		indexMinY = (indexMinY<cellCount?indexMinY:cellCount-1);
+		value = (pos(2)-sphereBoxPosition(2)-radius)/sphereBoxSize(2);
+		indexMinZ = (quint16)(value*cellCount);
+		indexMinZ = (indexMinZ<cellCount?indexMinZ:cellCount-1);
+		value = (pos(0)-sphereBoxPosition(0)+radius)/sphereBoxSize(0);
+		indexMaxX = (quint16)(value*cellCount);
+		indexMaxX = (indexMaxX<cellCount?indexMaxX:cellCount-1);
+		indexMaxX = (indexMaxX<indexMinX?indexMinX:indexMaxX);
+		value = (pos(1)-sphereBoxPosition(1)+radius)/sphereBoxSize(1);
+		indexMaxY = (quint16)(value*cellCount);
+		indexMaxY = (indexMaxY<cellCount?indexMaxY:cellCount-1);
+		indexMaxY = (indexMaxY<indexMinY?indexMinY:indexMaxY);
+		value = (pos(2)-sphereBoxPosition(2)+radius)/sphereBoxSize(2);
+		indexMaxZ = (quint16)(value*cellCount);
+		indexMaxZ = (indexMaxZ<cellCount?indexMaxZ:cellCount-1);
+		indexMaxZ = (indexMaxZ<indexMinZ?indexMinZ:indexMaxZ);
+		
+		for(quint16 z = indexMinZ; z<=indexMaxZ; z++)
+		{
+			for(quint16 y = indexMinY; y<=indexMaxY; y++)
+			{
+				for(quint16 x = indexMinX; x<=indexMaxX; x++)
+				{
+					indexAll = z*cellCount*cellCount + y*cellCount + x;
+					sphereIndicesInCells[indexAll].append(i);
+					cellIndicesOfSpheres[i].append(indexAll);
+				}
+			}
+		}
 	}
 }
 
 quint16 SphereCalculator::addSphere()
 {
 	spheres.append(Sphere());
+	cellIndicesOfSpheres.append(QList<quint32>());
 	updateData();
 	workQueue->sendFrameData();
 	return getSphereCount();

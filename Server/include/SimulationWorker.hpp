@@ -32,12 +32,16 @@ namespace SphereSim
 		/** \brief Queue storing the simulation work. */
 		WorkQueue* queue;
 		
+		bool hasFinished;
+		
 	public:
 		/** \brief Initialize member variables. */
 		SimulationWorker(SphereCalculator* sphCalc, WorkQueue* queue);
 		
 		/** \brief Clean up member variables. */
 		~SimulationWorker();
+		
+		bool getHasFinished();
 		
 	public slots:
 		/** \brief Start working. */

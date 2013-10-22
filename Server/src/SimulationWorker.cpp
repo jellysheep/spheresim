@@ -21,6 +21,7 @@ SimulationWorker::SimulationWorker(SphereCalculator* sphCalc_, WorkQueue* queue_
 	sphCalc = sphCalc_;
 	running = true;
 	queue = queue_;
+	hasFinished = false;
 }
 
 SimulationWorker::~SimulationWorker()
@@ -46,10 +47,16 @@ void SimulationWorker::work()
 		}
 		QCoreApplication::processEvents();
 	}
+	hasFinished = true;
 	emit finished();
 }
 
 void SimulationWorker::stop()
 {
 	running = false;
+}
+
+bool SimulationWorker::getHasFinished()
+{
+	return hasFinished;
 }
