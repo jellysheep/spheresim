@@ -1,3 +1,5 @@
+* Improved Viewer sphere system.
+
 SphereSim 2.3.0:
 * Added forces to collision detection.
 * Added duplicate collision detection avoidance by counting colliding spheres per sphere.

@@ -11,6 +11,8 @@
 #include <ui_MainWindow.h>
 
 #include <QDebug>
+#include <random>
+#include <chrono>
 
 using namespace SphereSim;
 
@@ -29,23 +31,33 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	connect(ui->addSphere, SIGNAL(clicked()), actionSender, SLOT(addSphere()));
 	connect(ui->removeSphere, SIGNAL(clicked()), actionSender, SLOT(removeLastSphere()));
 	
+	float radius = 0.07;
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
+	std::default_random_engine generator(timepoint.count());
+	std::uniform_real_distribution<float> distribution(0.0f, radius/4);
+	
 	Sphere s;
-	s.radius = 0.1;
-	s.pos(0) = 0.5;
-	s.pos(1) = 0.5;
-	s.pos(2) = 0.5;
+	s.radius = 1.5*radius;
+	s.pos(0) = 1.5*radius;
+	s.pos(1) = 1.5*radius;
+	s.pos(2) = 1.5*radius;
 	s.speed.setZero();
-	s.speed(0) = 1;
 	s.acc.setZero();
 	s.mass = 1;
 	actionSender->addSphere();
 	actionSender->updateSphere(0, s);
-	actionSender->addSphere();
-	s.pos(1) = 0.2;
-	s.pos(0) = 0.1;
-	actionSender->updateSphere(1, s);
-	actionSender->updateTimeStep(0.00001);
-	actionSender->updateEarthGravity(Vector3(0, -9.81, 0));
+	for(unsigned int i = 1; i<16; i++)
+	{
+		actionSender->addSphere();
+		s.pos(1) = 2*radius + 3.5f*radius*(i/4) + distribution(generator);
+		s.pos(0) = 2*radius + 3.5f*radius*(i%4) + distribution(generator);
+		actionSender->updateSphere(i, s);
+	}
+	actionSender->updateTimeStep(0.0003);
+	actionSender->updateEarthGravity(Vector3(0, -0.81, 0));
+	actionSender->updateSphereE(20000);
+	actionSender->updateWallE(20000);
 	actionSender->updateFrameSending(true);
 }
 
