@@ -37,6 +37,17 @@ void ServerBenchmark::runBenchmark()
 	
 	sender->addSphere();
 	sender->addSphere();
+	
+	runBenchmark_internal(false);
+	runBenchmark_internal(true);
+	
+	qApp->exit(0);
+}
+
+void ServerBenchmark::runBenchmark_internal(bool detectCollisions)
+{
+	Console::out<<"\nServerBenchmark: simulating with collision detection "<<(detectCollisions?"on":"off")<<".\n";
+	
 	Sphere s;
 	s.pos(0) = 0.11;
 	s.pos(1) = 0.11;
@@ -50,12 +61,11 @@ void ServerBenchmark::runBenchmark()
 	s.mass = 1.0;
 	s.radius = 0.1;
 	sender->updateSphere(0, s);
-	s.pos(0) = 0.2;
 	s.pos(1) = 0.4;
-	s.speed(0) = -0.5;
 	sender->updateSphere(1, s);
+	sender->updateCollisionDetection(detectCollisions);
 	
-	Scalar timeStep = 100;
+	Scalar timeStep = 0.001;
 	Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
 	sender->updateTimeStep(timeStep);
 	Scalar beginEnergy, endEnergy;
@@ -88,6 +98,4 @@ void ServerBenchmark::runBenchmark()
 	endEnergy = sender->getTotalEnergy();
 	Scalar relError = 1.0-(beginEnergy/endEnergy);
 	Console::out<<"ServerBenchmark: rel. error: "<<relError<<"\n";
-	
-	qApp->exit(0);
 }

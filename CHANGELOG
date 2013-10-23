@@ -1,3 +1,8 @@
+SphereSim 2.3.0:
+* Added forces to collision detection.
+* Added duplicate collision detection avoidance by counting colliding spheres per sphere.
+* Added collisions to potential energy summation.
+
 SphereSim 2.2.4:
 * Added a TwoDimArray class to greatly improve collision detection speed.
 * Added a flag and methods to disable collision detection.

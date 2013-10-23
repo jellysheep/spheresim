@@ -140,6 +140,13 @@ namespace SphereSim
 		
 		bool collisionDetectionFlag;
 		
+		const quint16 maxCollidingSpheresPerSphere;
+		
+		TwoDimArray<quint16, true> collidingSpheresPerSphere;
+		
+		template <bool detectCollisions>
+		Scalar getTotalEnergy_internal();
+		
 	public:
 		SphereCalculator();
 		~SphereCalculator();

@@ -128,6 +128,31 @@ namespace SphereSim
 				data[index][counter[index]++] = element;
 		}
 		
+		inline bool addElementIfNotContained(const unsigned int index, T& element)
+		{
+			if(!extremeSpeed)
+			{
+				if(counter == NULL || data == NULL || index >= outerSize || data[index] == NULL)
+				{
+					qDebug()<<"TwoDimArray::addElement error.";
+					return false;
+				}
+			}
+			if(counter[index] < constInnerSize)
+			{
+				for(unsigned int i = 0; i<counter[index]; ++i)
+				{
+					if(data[index][i] == element)
+					{
+						return false;
+					}
+				}
+				data[index][counter[index]++] = element;
+				return true;
+			}
+			return false;
+		}
+		
 		inline unsigned int getCount(const unsigned int index)
 		{
 			

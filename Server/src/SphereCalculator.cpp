@@ -22,7 +22,8 @@ using namespace SphereSim;
 
 SphereCalculator::SphereCalculator():cellCount(3), cellCount3((quint32)cellCount*cellCount*cellCount),
 	maxSpheresPerCell(10), maxCellsPerSphere(300),
-	sphereIndicesInCells(maxSpheresPerCell, cellCount3), cellIndicesOfSpheres(maxCellsPerSphere)
+	sphereIndicesInCells(maxSpheresPerCell, cellCount3), cellIndicesOfSpheres(maxCellsPerSphere),
+	maxCollidingSpheresPerSphere(10), collidingSpheresPerSphere(maxCollidingSpheresPerSphere)
 {
 	qDebug()<<"SphereCalculator: constructor called";
 	qDebug()<<"SphereCalculator: number of OpenMP threads:"<<omp_get_num_threads();
@@ -70,30 +71,31 @@ QVector<Sphere>& SphereCalculator::getSpheres()
 template <bool detectCollisions>
 Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff)
 {
-	Scalar d, force;
-	Vector3 _force, acc;
+	Scalar d, forceNormalized;
+	Vector3 force, acc;
 
-	_force = simulatedSystem.earthGravity*sphere.mass;
+	force = simulatedSystem.earthGravity*sphere.mass;
 	for(quint8 dim = 0; dim<3; dim++)
 	{
 		if((d = (sphere.radius - sphere.pos(dim))) > 0)
 		{
-			force = 4.0f/3.0f*simulatedSystem.E_sphere_wall*std::sqrt(sphere.radius*d*d*d);
-			_force(dim) += force;
+			forceNormalized = 4.0/3.0*simulatedSystem.E_sphere_wall*sqrt(sphere.radius*d*d*d);
+			force(dim) += forceNormalized;
 		}
 		if((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0)
 		{
-			force = 4.0f/3.0f*simulatedSystem.E_sphere_wall*std::sqrt(sphere.radius*d*d*d);
-			_force(dim) -= force;
+			forceNormalized = 4.0/3.0*simulatedSystem.E_sphere_wall*sqrt(sphere.radius*d*d*d);
+			force(dim) -= forceNormalized;
 		}
 	}
 	if(detectCollisions)
 	{
 		quint32 cellIndex;
-		QList<quint16>::const_iterator sphereIterator;
 		quint16 sphereIndex2;
 		Sphere sphere2;
-		bool collided = false;
+		Vector3 dVec, dNormalized;
+		Scalar d, bothRadii, dOverlapping, R;
+		collidingSpheresPerSphere.resetCounter(sphereIndex);
 		for(int i = cellIndicesOfSpheres.getCount(sphereIndex)-1; i>=0; i--)
 		{
 			cellIndex = cellIndicesOfSpheres[sphereIndex][i];
@@ -102,23 +104,96 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 				sphereIndex2 = sphereIndicesInCells[cellIndex][j];
 				if(sphereIndex2 != sphereIndex)
 				{
-					sphere2 = sphArr[sphereIndex2];
-					Vector3 dVec = sphere2.pos - sphere.pos;
-					Scalar d = dVec.norm();
-					if(d < (sphere2.radius + sphere.radius))
+					if(collidingSpheresPerSphere.addElementIfNotContained(sphereIndex, sphereIndex2))
 					{
-						if(!collided)
+						sphere2 = sphArr[sphereIndex2];
+						dVec = sphere2.pos - sphere.pos;
+						d = dVec.norm();
+						bothRadii = sphere2.radius + sphere.radius;
+						if(d < bothRadii)
 						{
-							collided = true;
+							dNormalized = dVec/d;
+							dOverlapping = bothRadii - d;
+							R = 1/((1/sphere.radius)+(1/sphere2.radius));
+							forceNormalized = 4.0f/3.0f*simulatedSystem.E_sphere_sphere*sqrt(R*dOverlapping*dOverlapping*dOverlapping);
+							force -= forceNormalized*dNormalized;
 						}
 					}
 				}
 			}
 		}
 	}
-	acc = _force/sphere.mass;
+	acc = force/sphere.mass;
 	calculationCounter++;
 	return acc;
+}
+
+template <bool detectCollisions>
+Scalar SphereCalculator::getTotalEnergy_internal()
+{
+	if(detectCollisions)
+	{
+		updateSphereBox();
+		updateSphereCellLists();
+	}
+	Scalar totalEnergy = 0.0, sphereEnergy, d;
+	Sphere sphere;
+	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
+	{
+		sphere = sphArr[sphereIndex];
+		sphereEnergy = -sphere.mass*simulatedSystem.earthGravity.dot(sphere.pos);
+		sphereEnergy += 0.5*sphere.mass*sphere.speed.squaredNorm();
+		
+		for(quint8 dim = 0; dim<3; dim++)
+		{
+			if((d = (sphere.radius - sphere.pos(dim))) > 0)
+			{
+				sphereEnergy += 8.0/15.0*simulatedSystem.E_sphere_wall*sqrt(sphere.radius)*pow(d, 2.5);
+			}
+			if((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0)
+			{
+				sphereEnergy += 8.0/15.0*simulatedSystem.E_sphere_wall*sqrt(sphere.radius)*pow(d, 2.5);
+			}
+		}
+		
+		if(detectCollisions)
+		{
+			quint32 cellIndex;
+			quint16 sphereIndex2;
+			Sphere sphere2;
+			Vector3 dVec;
+			Scalar d, bothRadii, dOverlapping, R, energy;
+			collidingSpheresPerSphere.resetCounter(sphereIndex);
+			for(int i = cellIndicesOfSpheres.getCount(sphereIndex)-1; i>=0; i--)
+			{
+				cellIndex = cellIndicesOfSpheres[sphereIndex][i];
+				for(int j = sphereIndicesInCells.getCount(cellIndex)-1; j>=0; j--)
+				{
+					sphereIndex2 = sphereIndicesInCells[cellIndex][j];
+					if(sphereIndex2 != sphereIndex)
+					{
+						if(collidingSpheresPerSphere.addElementIfNotContained(sphereIndex, sphereIndex2))
+						{
+							sphere2 = sphArr[sphereIndex2];
+							dVec = sphere2.pos - sphere.pos;
+							d = dVec.norm();
+							bothRadii = sphere2.radius + sphere.radius;
+							if(d < bothRadii)
+							{
+								dOverlapping = bothRadii - d;
+								R = 1/((1/sphere.radius)+(1/sphere2.radius));
+								energy = 8.0/15.0*simulatedSystem.E_sphere_sphere*sqrt(R)*pow(dOverlapping, 2.5);
+								sphereEnergy += energy;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		totalEnergy += sphereEnergy;
+	}
+	return totalEnergy;
 }
 
 void SphereCalculator::updateData()
@@ -212,6 +287,7 @@ quint16 SphereCalculator::removeSphere(quint16 i)
 	{
 		spheres.remove(i);
 		cellIndicesOfSpheres.changeSize(spheres.count());
+		collidingSpheresPerSphere.changeSize(spheres.count());
 		updateData();
 	}
 	return getSphereCount();
@@ -337,6 +413,7 @@ quint16 SphereCalculator::addSphere()
 {
 	spheres.append(Sphere());
 	cellIndicesOfSpheres.changeSize(spheres.count());
+	collidingSpheresPerSphere.changeSize(spheres.count());
 	updateData();
 	workQueue->sendFrameData();
 	return getSphereCount();
@@ -511,28 +588,10 @@ void SphereCalculator::updateCollisionDetection(bool detectCollisions)
 
 Scalar SphereCalculator::getTotalEnergy()
 {
-	Scalar totalEnergy = 0.0, sphereEnergy, d;
-	Sphere sphere;
-	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
-	{
-		sphere = sphArr[sphereIndex];
-		sphereEnergy = -sphere.mass*simulatedSystem.earthGravity.dot(sphere.pos);
-		sphereEnergy += 0.5*sphere.mass*sphere.speed.squaredNorm();
-		
-		for(quint8 dim = 0; dim<3; dim++)
-		{
-			if((d = (sphere.radius - sphere.pos(dim))) > 0)
-			{
-				sphereEnergy += 8.0/15.0*simulatedSystem.E_sphere_wall*sqrt(sphere.radius)*pow(d, 2.5);
-			}
-			if((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0)
-			{
-				sphereEnergy += 8.0/15.0*simulatedSystem.E_sphere_wall*sqrt(sphere.radius)*pow(d, 2.5);
-			}
-		}
-		totalEnergy += sphereEnergy;
-	}
-	return totalEnergy;
+	if(collisionDetectionFlag)
+		return getTotalEnergy_internal<true>();
+	else
+		return getTotalEnergy_internal<false>();
 }
 
 void SphereCalculator::updateSphereE(Scalar E_sphere)

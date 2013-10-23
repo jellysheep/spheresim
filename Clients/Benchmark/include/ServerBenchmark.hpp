@@ -31,6 +31,10 @@ namespace SphereSim
 		/** \brief Client object to communicate with server. */
 		ActionSender* sender;
 		
+		/** \copydoc runBenchmark
+		 * \param detectCollisions Flag for collision detection. */
+		void runBenchmark_internal(bool detectCollisions);
+		
 	public:
 		/** \brief Start a ServerBenchmark with the specified address and port.
 		 * \param args The arguments that the program was invoked with.
