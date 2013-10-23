@@ -191,6 +191,9 @@ namespace SphereSim
 		/** \copydoc CalculationActions::updateFrameSending */
 		void updateFrameSending(bool sendFramesRegularly);
 		
+		/** \copydoc CalculationActions::updateCollisionDetection */
+		void updateCollisionDetection(bool detectCollisions);
+		
 		/** \copydoc CalculationActions::getTotalEnergy
 		 * \return Total energy (in joules). */
 		Scalar getTotalEnergy();

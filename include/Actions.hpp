@@ -104,7 +104,9 @@ namespace SphereSim
 			/** \brief Get and reset the number of simulated time steps. */
 			popStepCounter,
 			/** \brief Update if Server sends frames regularly. */
-			updateFrameSending
+			updateFrameSending,
+			/** \brief Update if sphere collisions get detected. */
+			updateCollisionDetection
 		};
 	}
 	

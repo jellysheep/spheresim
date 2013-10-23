@@ -259,6 +259,10 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 		stream>>b;
 		sphCalc.updateFrameSending(b);
 		break;
+	case CalculationActions::updateCollisionDetection:
+		stream>>b;
+		sphCalc.updateCollisionDetection(b);
+		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
 		break;

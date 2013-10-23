@@ -53,6 +53,7 @@ namespace SphereSim
 		 * \param sphere Sphere to be calculated.
 		 * \param timeDiff Time difference (in s) used for the movements of other spheres.
 		 * \return Calculated current acceleration of the sphere. */
+		template <bool detectCollisions>
 		Vector3 sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff);
 		
 		/** \brief Update local data about spheres. */
@@ -64,12 +65,17 @@ namespace SphereSim
 		/** \brief Integrate one step using the Runge Kutta method defined by the Butcher tableau. */
 		void integrateRungeKuttaStep();
 		
+		/** \copydoc integrateRungeKuttaStep */
+		template <bool detectCollisions>
+		void integrateRungeKuttaStep_internal();
+		
 		/** \brief Integrates one step of one sphere.
 		 * \param sphereIndex Index of the sphere to be integrated.
 		 * \param stepLength Current step length (time in s).
 		 * \param timeDiff Time difference (in s) used for the movements of other spheres.
 		 * \return Number of steps used to integrate. */
-		quint32 integrateRungeKuttaStep(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff);
+		template <bool detectCollisions>
+		quint32 integrateRungeKuttaStep_internal(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff);
 		
 		/** \brief Butcher tableau used in the integrator. */
 		ButcherTableau butcherTableau;
@@ -131,6 +137,8 @@ namespace SphereSim
 		TwoDimArray<quint32, true> cellIndicesOfSpheres;
 		
 		void updateSphereCellLists();
+		
+		bool collisionDetectionFlag;
 		
 	public:
 		SphereCalculator();
@@ -204,6 +212,9 @@ namespace SphereSim
 		
 		/** \copydoc CalculationActions::updateFrameSending */
 		void updateFrameSending(bool sendFramesRegularly);
+		
+		/** \copydoc CalculationActions::updateCollisionDetection */
+		void updateCollisionDetection(bool detectCollisions);
 		
 		/** \copydoc InformationActions::getTotalEnergy
 		 * \return Requested total energy. */

@@ -1,4 +1,6 @@
+SphereSim 2.2.4:
 * Added a TwoDimArray class to greatly improve collision detection speed.
+* Added a flag and methods to disable collision detection.
 
 SphereSim 2.2.3:
 * Improved Calculator performance.

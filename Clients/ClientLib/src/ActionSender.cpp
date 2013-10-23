@@ -423,6 +423,14 @@ void ActionSender::updateFrameSending(bool sendFramesRegularly)
 	sendAction(ActionGroups::calculation, CalculationActions::updateFrameSending, arr);
 }
 
+void ActionSender::updateCollisionDetection(bool detectCollisions)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<detectCollisions;
+	sendAction(ActionGroups::calculation, CalculationActions::updateCollisionDetection, arr);
+}
+
 void ActionSender::framerateEvent()
 {
 	if(framerateTimer.elapsed()>1000)

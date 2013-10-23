@@ -37,6 +37,7 @@ SphereCalculator::SphereCalculator():cellCount(3), cellCount3((quint32)cellCount
 	updateWallE(5000);
 	updateWallPoissonRatio(0.5);
 	updateEarthGravity(Vector3(0, -9.81, 0));
+	collisionDetectionFlag = true;
 	
 	updateSphereBox();
 	
@@ -66,6 +67,7 @@ QVector<Sphere>& SphereCalculator::getSpheres()
 	return spheres;
 }
 
+template <bool detectCollisions>
 Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff)
 {
 	Scalar d, force;
@@ -85,27 +87,30 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 			_force(dim) -= force;
 		}
 	}
-	quint32 cellIndex;
-	QList<quint16>::const_iterator sphereIterator;
-	quint16 sphereIndex2;
-	Sphere sphere2;
-	bool collided = false;
-	for(int i = cellIndicesOfSpheres.getCount(sphereIndex)-1; i>=0; i--)
+	if(detectCollisions)
 	{
-		cellIndex = cellIndicesOfSpheres[sphereIndex][i];
-		for(int j = sphereIndicesInCells.getCount(cellIndex)-1; j>=0; j--)
+		quint32 cellIndex;
+		QList<quint16>::const_iterator sphereIterator;
+		quint16 sphereIndex2;
+		Sphere sphere2;
+		bool collided = false;
+		for(int i = cellIndicesOfSpheres.getCount(sphereIndex)-1; i>=0; i--)
 		{
-			sphereIndex2 = sphereIndicesInCells[cellIndex][j];
-			if(sphereIndex2 != sphereIndex)
+			cellIndex = cellIndicesOfSpheres[sphereIndex][i];
+			for(int j = sphereIndicesInCells.getCount(cellIndex)-1; j>=0; j--)
 			{
-				sphere2 = sphArr[sphereIndex2];
-				Vector3 dVec = sphere2.pos - sphere.pos;
-				Scalar d = dVec.norm();
-				if(d < (sphere2.radius + sphere.radius))
+				sphereIndex2 = sphereIndicesInCells[cellIndex][j];
+				if(sphereIndex2 != sphereIndex)
 				{
-					if(!collided)
+					sphere2 = sphArr[sphereIndex2];
+					Vector3 dVec = sphere2.pos - sphere.pos;
+					Scalar d = dVec.norm();
+					if(d < (sphere2.radius + sphere.radius))
 					{
-						collided = true;
+						if(!collided)
+						{
+							collided = true;
+						}
 					}
 				}
 			}
@@ -124,17 +129,30 @@ void SphereCalculator::updateData()
 
 void SphereCalculator::integrateRungeKuttaStep()
 {
-	updateSphereBox();
-	updateSphereCellLists();
+	if(collisionDetectionFlag)
+		integrateRungeKuttaStep_internal<true>();
+	else
+		integrateRungeKuttaStep_internal<false>();
+}
+
+template <bool detectCollisions>
+void SphereCalculator::integrateRungeKuttaStep_internal()
+{
+	if(detectCollisions)
+	{
+		updateSphereBox();
+		updateSphereCellLists();
+	}
 	//#pragma omp parallel for
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
-		integrateRungeKuttaStep(sphereIndex, timeStep, 0.0);
+		integrateRungeKuttaStep_internal<detectCollisions>(sphereIndex, timeStep, 0.0);
 	}
 	stepCounter++;
 }
 
-quint32 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff)
+template <bool detectCollisions>
+quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff)
 {
 	Sphere sphere = sphArr[sphereIndex];
 	Sphere origSphere = sphere;
@@ -142,7 +160,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar st
 	Vector3 k_acc[integratorOrder];
 	Vector3 k_speed[integratorOrder];
 	
-	k_acc[0] = sphereAcceleration(sphereIndex, sphere, timeDiff);
+	k_acc[0] = sphereAcceleration<detectCollisions>(sphereIndex, sphere, timeDiff);
 	k_speed[0] = sphere.speed;
 	for(quint8 n = 1; n<integratorOrder; n++)
 	{
@@ -151,7 +169,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar st
 		{
 			sphere.pos += stepLength*butcherTableau.a[n][j]*k_speed[j];
 		}
-		k_acc[n] = sphereAcceleration(sphereIndex, sphere, timeDiff);
+		k_acc[n] = sphereAcceleration<detectCollisions>(sphereIndex, sphere, timeDiff);
 		
 		k_speed[n] = origSphere.speed;
 		for(quint8 j = 0; j<n; j++)
@@ -177,8 +195,8 @@ quint32 SphereCalculator::integrateRungeKuttaStep(quint16 sphereIndex, Scalar st
 	if(error_pos_>1.0e-06 || error_speed_>1.0e-06)
 	{
 		quint32 stepCount = 0;
-		stepCount += integrateRungeKuttaStep(sphereIndex, stepLength/2, timeDiff);
-		stepCount += integrateRungeKuttaStep(sphereIndex, stepLength/2, timeDiff+(stepLength/2));
+		stepCount += integrateRungeKuttaStep_internal<detectCollisions>(sphereIndex, stepLength/2, timeDiff);
+		stepCount += integrateRungeKuttaStep_internal<detectCollisions>(sphereIndex, stepLength/2, timeDiff+(stepLength/2));
 		return stepCount;
 	}else{
 		sphArr[sphereIndex].pos = pos;
@@ -484,6 +502,11 @@ quint32 SphereCalculator::popStepCounter()
 void SphereCalculator::updateFrameSending(bool sendFramesRegularly)
 {
 	workQueue->updateFrameSending(sendFramesRegularly);
+}
+
+void SphereCalculator::updateCollisionDetection(bool detectCollisions)
+{
+	collisionDetectionFlag = detectCollisions;
 }
 
 Scalar SphereCalculator::getTotalEnergy()
