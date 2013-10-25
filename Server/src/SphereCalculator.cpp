@@ -23,7 +23,12 @@ using namespace SphereSim;
 SphereCalculator::SphereCalculator():cellCount(3), cellCount3((quint32)cellCount*cellCount*cellCount),
 	maxSpheresPerCell(10), maxCellsPerSphere(300),
 	sphereIndicesInCells(maxSpheresPerCell, cellCount3), cellIndicesOfSpheres(maxCellsPerSphere),
-	maxCollidingSpheresPerSphere(10), collidingSpheresPerSphere(maxCollidingSpheresPerSphere)
+	maxCollidingSpheresPerSphere(10), collidingSpheresPerSphere(maxCollidingSpheresPerSphere),
+	gravityCellCount(4), gravityCellCount3(gravityCellCount*gravityCellCount*gravityCellCount),
+	gravityAllCellCount(2*gravityCellCount3), maxSpheresPerGravityCell(100),
+	sphereIndicesInGravityCells(maxSpheresPerGravityCell), maxApproximatingCellsPerGravityCell(100),
+	approximatingCellsPerGravityCell(maxApproximatingCellsPerGravityCell, gravityAllCellCount),
+	maxPairwiseCellsPerGravityCell(100), pairwiseCellsPerGravityCell(maxPairwiseCellsPerGravityCell, gravityAllCellCount)
 {
 	qDebug()<<"SphereCalculator: constructor called";
 	qDebug()<<"SphereCalculator: number of OpenMP threads:"<<omp_get_num_threads();
@@ -39,8 +44,14 @@ SphereCalculator::SphereCalculator():cellCount(3), cellCount3((quint32)cellCount
 	updateWallPoissonRatio(0.5);
 	updateEarthGravity(Vector3(0, -9.81, 0));
 	collisionDetectionFlag = true;
+	simulatedSystem.maximumTheta = 1.5;
 	
 	updateSphereBox();
+	massVectorSumPerCell = new Vector3[gravityAllCellCount];
+	gravityCellSizes = new Vector3[gravityAllCellCount];
+	gravityCellHalfDiagonalLength = new Scalar[gravityAllCellCount];
+	gravityCellPositions = new Vector3[gravityAllCellCount];
+	buildGravityCells();
 	
 	workQueueMutex = new QMutex();
 	workQueue = new WorkQueue(workQueueMutex);
@@ -60,6 +71,10 @@ SphereCalculator::SphereCalculator():cellCount(3), cellCount3((quint32)cellCount
 SphereCalculator::~SphereCalculator()
 {
 	stopWorker();
+	delete[] massVectorSumPerCell;
+	delete[] gravityCellSizes;
+	delete[] gravityCellHalfDiagonalLength;
+	delete[] gravityCellPositions;
 	while(!simulationWorker->getHasFinished());
 }
 
@@ -405,6 +420,72 @@ void SphereCalculator::updateSphereCellLists()
 					cellIndicesOfSpheres.addElement(i, indexAll);
 				}
 			}
+		}
+	}
+}
+
+void SphereCalculator::buildGravityCells()
+{
+	quint32 cellIndex;
+	Scalar cellLength = 1.0/gravityCellCount;
+	for(unsigned int x = 0; x < gravityCellCount; x++)
+	{
+		for(unsigned int y = 0; y < gravityCellCount; y++)
+		{
+			for(unsigned int z = 0; z < gravityCellCount; z++)
+			{
+				cellIndex = gravityCellCount3 + z*gravityCellCount*gravityCellCount + y*gravityCellCount + x;
+				gravityCellSizes[cellIndex] = Vector3(cellLength, cellLength, cellLength);
+				gravityCellPositions[cellIndex] = Vector3(x*cellLength, y*cellLength, z*cellLength);
+			}
+		}
+	}
+	quint8 divisionDimension;
+	for(cellIndex = gravityAllCellCount-1; cellIndex >= 1; cellIndex--)
+	{
+		if(cellIndex < gravityCellCount3)
+		{
+			divisionDimension = 0;
+			for(quint32 j = cellIndex; j>1; j/=2)
+			{
+				divisionDimension++;
+			}
+			divisionDimension %= 3;
+			gravityCellSizes[cellIndex] = gravityCellSizes[2*cellIndex];
+			gravityCellSizes[cellIndex](divisionDimension) *= 2;
+			gravityCellPositions[cellIndex] = gravityCellPositions[2*cellIndex];
+		}
+		gravityCellHalfDiagonalLength[cellIndex] = gravityCellSizes[cellIndex].norm()/2;
+		if(cellIndex >= gravityCellCount3)
+		{
+			buildGravityCellPairs(cellIndex, 1);
+		}
+	}
+}
+
+void SphereCalculator::buildGravityCellPairs(quint32 currentCellIndex, quint32 testCellIndex)
+{
+	if(currentCellIndex == testCellIndex)
+		return;
+	
+	Scalar maxCellLength = 2*fmax(gravityCellHalfDiagonalLength[currentCellIndex], gravityCellHalfDiagonalLength[testCellIndex]);
+	Scalar minimalDistance = fmax((gravityCellPositions[currentCellIndex]-gravityCellPositions[testCellIndex]).norm()
+		-gravityCellHalfDiagonalLength[currentCellIndex]-gravityCellHalfDiagonalLength[testCellIndex], 0.0000001);
+	Scalar theta = maxCellLength / minimalDistance;
+	if(theta<simulatedSystem.maximumTheta)
+	{
+		approximatingCellsPerGravityCell.addElement(currentCellIndex, testCellIndex);
+	}
+	else
+	{
+		if(testCellIndex >= gravityCellCount3)
+		{
+			pairwiseCellsPerGravityCell.addElement(currentCellIndex, testCellIndex);
+		}
+		else
+		{
+			buildGravityCellPairs(currentCellIndex, testCellIndex*2);
+			buildGravityCellPairs(currentCellIndex, (testCellIndex*2)+1);
 		}
 	}
 }

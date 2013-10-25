@@ -48,6 +48,8 @@ namespace SphereSim
 		
 		/** \brief 3D walls placed in the system. */
 		QList<Wall3D> walls3D;
+		
+		Scalar maximumTheta;
 	};
 }
 

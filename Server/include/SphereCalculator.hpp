@@ -147,6 +147,36 @@ namespace SphereSim
 		template <bool detectCollisions>
 		Scalar getTotalEnergy_internal();
 		
+		const quint16 gravityCellCount;
+		
+		const quint32 gravityCellCount3;
+		
+		const quint32 gravityAllCellCount;
+		
+		const quint16 maxSpheresPerGravityCell;
+		
+		TwoDimArray<quint16, true> sphereIndicesInGravityCells;
+		
+		Vector3 *massVectorSumPerCell;
+		
+		Vector3 *gravityCellSizes;
+		
+		Scalar *gravityCellHalfDiagonalLength;
+		
+		Vector3 *gravityCellPositions;
+		
+		const quint16 maxApproximatingCellsPerGravityCell;
+		
+		TwoDimArray<quint32, false> approximatingCellsPerGravityCell;
+		
+		const quint16 maxPairwiseCellsPerGravityCell;
+		
+		TwoDimArray<quint32, false> pairwiseCellsPerGravityCell;
+		
+		void buildGravityCells();
+		
+		void buildGravityCellPairs(quint32 currentCellIndex, quint32 testCellIndex);
+		
 	public:
 		SphereCalculator();
 		~SphereCalculator();
