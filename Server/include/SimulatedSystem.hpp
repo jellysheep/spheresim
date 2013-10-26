@@ -50,6 +50,8 @@ namespace SphereSim
 		QList<Wall3D> walls3D;
 		
 		Scalar maximumTheta;
+		
+		Scalar gravitationalConstant;
 	};
 }
 

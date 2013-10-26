@@ -45,9 +45,7 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	s.speed.setZero();
 	s.acc.setZero();
 	s.mass = 1;
-	actionSender->addSphere();
-	actionSender->updateSphere(0, s);
-	for(unsigned int i = 1; i<16; i++)
+	for(unsigned int i = 0; i<16; i++)
 	{
 		actionSender->addSphere();
 		s.pos(1) = 2*radius + 3.5f*radius*(i/4) + distribution(generator);

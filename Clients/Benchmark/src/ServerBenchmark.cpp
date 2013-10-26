@@ -38,8 +38,8 @@ void ServerBenchmark::runBenchmark()
 	sender->addSphere();
 	sender->addSphere();
 	
-	runBenchmark_internal(false);
 	runBenchmark_internal(true);
+	runBenchmark_internal(false);
 	
 	qApp->exit(0);
 }
