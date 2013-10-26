@@ -31,6 +31,10 @@ namespace SphereSim
 		/** \brief ActionSender used to send signals. */
 		ActionSender* actionSender;
 		
+		void prepareSystem1();
+		
+		void prepareSystem2();
+		
 	public:
 		/** \brief Initialize member variables. */
 		MainWindow(ActionSender* actionSender, QWidget* parent = NULL);

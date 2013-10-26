@@ -147,7 +147,7 @@ namespace SphereSim
 		template <bool detectCollisions, bool gravity>
 		Scalar getTotalEnergy_internal();
 		
-		bool gravityFlag;
+		bool gravityCalculationFlag;
 		
 		const quint16 gravityCellCount;
 		
@@ -267,6 +267,9 @@ namespace SphereSim
 		/** \copydoc CalculationActions::updateCollisionDetection */
 		void updateCollisionDetection(bool detectCollisions);
 		
+		/** \copydoc CalculationActions::updateGravityCalculation */
+		void updateGravityCalculation(bool calculateGravity);
+		
 		/** \copydoc InformationActions::getTotalEnergy
 		 * \return Requested total energy. */
 		Scalar getTotalEnergy();
@@ -290,6 +293,10 @@ namespace SphereSim
 		/** \copydoc SimulatedSystemActions::updateEarthGravity
 		 * \param earthGravity Requested earth gravity. */
 		void updateEarthGravity(Vector3 earthGravity);
+		
+		/** \copydoc SimulatedSystemActions::updateGravitationalConstant
+		 * \param G Gravitational constant G. */
+		void updateGravitationalConstant(Scalar G);
 		
 		friend class SimulationWorker;
 		

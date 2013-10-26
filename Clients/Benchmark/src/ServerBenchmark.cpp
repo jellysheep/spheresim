@@ -38,15 +38,17 @@ void ServerBenchmark::runBenchmark()
 	sender->addSphere();
 	sender->addSphere();
 	
-	runBenchmark_internal(true);
-	runBenchmark_internal(false);
+	runBenchmark_internal(false, true);
+	runBenchmark_internal(true, false);
+	runBenchmark_internal(false, false);
 	
 	qApp->exit(0);
 }
 
-void ServerBenchmark::runBenchmark_internal(bool detectCollisions)
+void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculateGravity)
 {
 	Console::out<<"\nServerBenchmark: simulating with collision detection "<<(detectCollisions?"on":"off")<<".\n";
+	Console::out<<"ServerBenchmark: simulating with gravity calculation "<<(calculateGravity?"on":"off")<<".\n";
 	
 	Sphere s;
 	s.pos(0) = 0.11;
@@ -64,8 +66,14 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions)
 	s.pos(1) = 0.4;
 	sender->updateSphere(1, s);
 	sender->updateCollisionDetection(detectCollisions);
+	sender->updateGravityCalculation(calculateGravity);
+	sender->updateGravitationalConstant(1.3e-2);
+	if(calculateGravity)
+		sender->updateWallE(0);
+	else
+		sender->updateWallE(5000);
 	
-	Scalar timeStep = 0.001;
+	Scalar timeStep = 0.0001;
 	Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
 	sender->updateTimeStep(timeStep);
 	Scalar beginEnergy, endEnergy;

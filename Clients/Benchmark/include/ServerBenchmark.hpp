@@ -32,8 +32,9 @@ namespace SphereSim
 		ActionSender* sender;
 		
 		/** \copydoc runBenchmark
-		 * \param detectCollisions Flag for collision detection. */
-		void runBenchmark_internal(bool detectCollisions);
+		 * \param detectCollisions Flag for collision detection.
+		 * \param calculateGravity Flag for gravity calculation. */
+		void runBenchmark_internal(bool detectCollisions, bool calculateGravity);
 		
 	public:
 		/** \brief Start a ServerBenchmark with the specified address and port.

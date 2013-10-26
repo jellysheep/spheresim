@@ -1,4 +1,5 @@
 * Improved Viewer sphere system.
+* Added gravity calculation to simulation and to potential energy summation.
 
 SphereSim 2.3.0:
 * Added forces to collision detection.

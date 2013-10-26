@@ -431,6 +431,22 @@ void ActionSender::updateCollisionDetection(bool detectCollisions)
 	sendAction(ActionGroups::calculation, CalculationActions::updateCollisionDetection, arr);
 }
 
+void ActionSender::updateGravityCalculation(bool calculateGravity)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<calculateGravity;
+	sendAction(ActionGroups::calculation, CalculationActions::updateGravityCalculation, arr);
+}
+
+void ActionSender::updateGravitationalConstant(Scalar G)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<G;
+	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateGravitationalConstant, arr);
+}
+
 void ActionSender::framerateEvent()
 {
 	if(framerateTimer.elapsed()>1000)

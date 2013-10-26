@@ -263,6 +263,10 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 		stream>>b;
 		sphCalc.updateCollisionDetection(b);
 		break;
+	case CalculationActions::updateGravityCalculation:
+		stream>>b;
+		sphCalc.updateGravityCalculation(b);
+		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
 		break;
@@ -315,6 +319,10 @@ void ActionReceiver::handleSimulatedSystemAction(quint8 actionGroup, quint8 acti
 		stream>>s2;
 		stream>>s3;
 		sphCalc.updateEarthGravity(Vector3(s, s2, s3));
+		break;
+	case SimulatedSystemActions::updateGravitationalConstant:
+		stream>>s;
+		sphCalc.updateGravitationalConstant(s);
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);

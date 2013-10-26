@@ -31,6 +31,23 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	connect(ui->addSphere, SIGNAL(clicked()), actionSender, SLOT(addSphere()));
 	connect(ui->removeSphere, SIGNAL(clicked()), actionSender, SLOT(removeLastSphere()));
 	
+	actionSender->updateTimeStep(0.0003);
+	actionSender->updateEarthGravity(Vector3(0, -0.81, 0));
+	actionSender->updateSphereE(20000);
+	actionSender->updateWallE(20000);
+	actionSender->updateFrameSending(true);
+	
+	prepareSystem1();
+	//prepareSystem2();
+}
+
+MainWindow::~MainWindow()
+{
+	delete ui;
+}
+
+void MainWindow::prepareSystem1()
+{
 	float radius = 0.07;
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
@@ -52,14 +69,25 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 		s.pos(0) = 2*radius + 3.5f*radius*(i%4) + distribution(generator);
 		actionSender->updateSphere(i, s);
 	}
-	actionSender->updateTimeStep(0.0003);
-	actionSender->updateEarthGravity(Vector3(0, -0.81, 0));
-	actionSender->updateSphereE(20000);
-	actionSender->updateWallE(20000);
-	actionSender->updateFrameSending(true);
 }
 
-MainWindow::~MainWindow()
+void MainWindow::prepareSystem2()
 {
-	delete ui;
+	Vector3 boxSize(1,1,1);
+	Sphere s;
+	s.radius = 0.03;
+	s.pos = boxSize/2 + Vector3(0,0.2,0);
+	s.speed = Vector3(+0.02,0,0);
+	s.acc.setZero();
+	s.mass = 1;
+	actionSender->addSphere();
+	actionSender->updateSphere(0, s);
+	s.pos = boxSize/2 - Vector3(0,0.2,0);
+	s.speed *= -1;
+	actionSender->addSphere();
+	actionSender->updateSphere(1, s);
+	
+	actionSender->updateGravityCalculation(true);
+	actionSender->updateGravitationalConstant(3.0e-4);
+	actionSender->updateEarthGravity(Vector3(0,0,0));
 }

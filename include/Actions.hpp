@@ -106,7 +106,9 @@ namespace SphereSim
 			/** \brief Update if Server sends frames regularly. */
 			updateFrameSending,
 			/** \brief Update if sphere collisions get detected. */
-			updateCollisionDetection
+			updateCollisionDetection,
+			/** \brief Update if sphere-sphere gravitational forces get calculated. */
+			updateGravityCalculation
 		};
 	}
 	
@@ -136,7 +138,9 @@ namespace SphereSim
 			/** \brief Update the Poisson ratio of the wall material used for sphere-wall collisions. */
 			updateWallPoissonRatio,
 			/** \brief Update the 3D vector of the earth gravity used for the simulation. */
-			updateEarthGravity
+			updateEarthGravity,
+			/** \brief Update the gravitational constant G. */
+			updateGravitationalConstant
 		};
 	}
 	

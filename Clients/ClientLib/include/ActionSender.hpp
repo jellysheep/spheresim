@@ -194,29 +194,36 @@ namespace SphereSim
 		/** \copydoc CalculationActions::updateCollisionDetection */
 		void updateCollisionDetection(bool detectCollisions);
 		
-		/** \copydoc CalculationActions::getTotalEnergy
+		/** \copydoc CalculationActions::updateGravityCalculation */
+		void updateGravityCalculation(bool calculateGravity);
+		
+		/** \copydoc InformationActions::getTotalEnergy
 		 * \return Total energy (in joules). */
 		Scalar getTotalEnergy();
 		
-		/** \copydoc CalculationActions::updateSphereE
+		/** \copydoc SimulatedSystemActions::updateSphereE
 		 * \param E_sphere Sphere E modulus. */
 		void updateSphereE(Scalar E_sphere);
 		
-		/** \copydoc CalculationActions::updateSpherePoissonRatio
+		/** \copydoc SimulatedSystemActions::updateSpherePoissonRatio
 		 * \param poisson_sphere Sphere poisson number. */
 		void updateSpherePoissonRatio(Scalar poisson_sphere);
 		
-		/** \copydoc CalculationActions::updateWallE
+		/** \copydoc SimulatedSystemActions::updateWallE
 		 * \param E_wall Requested wall E modulus. */
 		void updateWallE(Scalar E_wall);
 		
-		/** \copydoc CalculationActions::updateWallPoissonRatio
+		/** \copydoc SimulatedSystemActions::updateWallPoissonRatio
 		 * \param poisson_wall Requested wall poisson number. */
 		void updateWallPoissonRatio(Scalar poisson_wall);
 		
-		/** \copydoc CalculationActions::updateEarthGravity
+		/** \copydoc SimulatedSystemActions::updateEarthGravity
 		 * \param earthGravity Requested earth gravity. */
 		void updateEarthGravity(Vector3 earthGravity);
+		
+		/** \copydoc SimulatedSystemActions::updateGravitationalConstant
+		 * \param G Gravitational constant G. */
+		void updateGravitationalConstant(Scalar G);
 	
 	public slots:
 		/** Set connectedFlag to true. 
