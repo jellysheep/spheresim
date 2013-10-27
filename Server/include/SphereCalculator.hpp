@@ -157,7 +157,7 @@ namespace SphereSim
 		
 		const quint16 maxSpheresPerGravityCell;
 		
-		TwoDimArray<quint16, false> sphereIndicesInGravityCells;
+		TwoDimArray<quint16, true> sphereIndicesInGravityCells;
 		
 		Vector3 *massVectorSumPerCell;
 		
@@ -173,11 +173,11 @@ namespace SphereSim
 		
 		const quint16 maxApproximatingCellsPerGravityCell;
 		
-		TwoDimArray<quint32, false> approximatingCellsPerGravityCell;
+		TwoDimArray<quint32, true> approximatingCellsPerGravityCell;
 		
 		const quint16 maxPairwiseCellsPerGravityCell;
 		
-		TwoDimArray<quint32, false> pairwiseCellsPerGravityCell;
+		TwoDimArray<quint32, true> pairwiseCellsPerGravityCell;
 		
 		void buildGravityCells();
 		

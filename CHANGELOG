@@ -1,5 +1,8 @@
 * Improved Viewer sphere system.
 * Added gravity calculation to simulation and to potential energy summation.
+* Improved collision detection.
+* Added fullness checks and exceptions to TwoDimArray class.
+* Added sphere system to Viewer.
 
 SphereSim 2.3.0:
 * Added forces to collision detection.

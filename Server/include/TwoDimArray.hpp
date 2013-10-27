@@ -9,9 +9,19 @@
 #ifndef _TWODIMARRAY_HPP_
 #define _TWODIMARRAY_HPP_
 
+#include <exception>
+
 namespace SphereSim
 {
-	template <typename T, bool extremeSpeed=false>
+	class TwoDimArrayException : public std::exception
+	{
+		const char* what() const noexcept
+		{
+			return "TwoDimArray exception.";
+		}
+	};
+	
+	template <typename T, bool extremeSpeed=false, bool throwExceptions=true>
 	class TwoDimArray
 	{
 	private:
@@ -95,6 +105,8 @@ namespace SphereSim
 				if(data == NULL)
 				{
 					qDebug()<<"TwoDimArray::operator[] error.";
+					if(throwExceptions)
+						throw TwoDimArrayException();
 					return NULL;
 				}
 			}
@@ -108,6 +120,8 @@ namespace SphereSim
 				if(data == NULL)
 				{
 					qDebug()<<"TwoDimArray::operator[] const error.";
+					if(throwExceptions)
+						throw TwoDimArrayException();
 					return NULL;
 				}
 			}
@@ -118,23 +132,33 @@ namespace SphereSim
 		{
 			if(!extremeSpeed)
 			{
-				if(counter == NULL || data == NULL || index >= outerSize || data[index] == NULL)
+				if(counter == NULL || data == NULL || index >= outerSize || data[index] == NULL || counter[index] >= constInnerSize)
 				{
 					qDebug()<<"TwoDimArray::addElement error.";
+					if(throwExceptions)
+						throw TwoDimArrayException();
 					return;
 				}
 			}
 			if(counter[index] < constInnerSize)
 				data[index][counter[index]++] = element;
+			else
+			{
+				qDebug()<<"TwoDimArray::addElement error: full."<<counter[index]<<constInnerSize;
+				if(throwExceptions)
+					throw TwoDimArrayException();
+			}
 		}
 		
 		inline bool addElementIfNotContained(const unsigned int index, T& element)
 		{
 			if(!extremeSpeed)
 			{
-				if(counter == NULL || data == NULL || index >= outerSize || data[index] == NULL)
+				if(counter == NULL || data == NULL || index >= outerSize || data[index] == NULL || counter[index] >= constInnerSize)
 				{
-					qDebug()<<"TwoDimArray::addElement error.";
+					qDebug()<<"TwoDimArray::addElementIfNotContained error.";
+					if(throwExceptions)
+						throw TwoDimArrayException();
 					return false;
 				}
 			}
@@ -150,6 +174,9 @@ namespace SphereSim
 				data[index][counter[index]++] = element;
 				return true;
 			}
+			qDebug()<<"TwoDimArray::addElementIfNotContained error: full.";
+			if(throwExceptions)
+				throw TwoDimArrayException();
 			return false;
 		}
 		
@@ -161,6 +188,8 @@ namespace SphereSim
 				if(counter == NULL || index >= outerSize)
 				{
 					qDebug()<<"TwoDimArray::getCount error.";
+					if(throwExceptions)
+						throw TwoDimArrayException();
 					return 0;
 				}
 			}
@@ -174,6 +203,8 @@ namespace SphereSim
 				if(counter == NULL || index >= outerSize)
 				{
 					qDebug()<<"TwoDimArray::resetCounter error.";
+					if(throwExceptions)
+						throw TwoDimArrayException();
 					return;
 				}
 			}

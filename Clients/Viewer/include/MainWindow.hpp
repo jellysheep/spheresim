@@ -35,6 +35,8 @@ namespace SphereSim
 		
 		void prepareSystem2();
 		
+		void prepareSystem3();
+		
 	public:
 		/** \brief Initialize member variables. */
 		MainWindow(ActionSender* actionSender, QWidget* parent = NULL);

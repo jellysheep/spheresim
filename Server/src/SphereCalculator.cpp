@@ -20,15 +20,15 @@
 
 using namespace SphereSim;
 
-SphereCalculator::SphereCalculator():cellCount(3), cellCount3((quint32)cellCount*cellCount*cellCount),
-	maxSpheresPerCell(10), maxCellsPerSphere(300),
+SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount*cellCount*cellCount),
+	maxSpheresPerCell(100), maxCellsPerSphere(300),
 	sphereIndicesInCells(maxSpheresPerCell, cellCount3), cellIndicesOfSpheres(maxCellsPerSphere),
-	maxCollidingSpheresPerSphere(10), collidingSpheresPerSphere(maxCollidingSpheresPerSphere),
-	gravityCellCount(4), gravityCellCount3(gravityCellCount*gravityCellCount*gravityCellCount),
+	maxCollidingSpheresPerSphere(100), collidingSpheresPerSphere(maxCollidingSpheresPerSphere),
+	gravityCellCount(8), gravityCellCount3(gravityCellCount*gravityCellCount*gravityCellCount),
 	gravityAllCellCount(2*gravityCellCount3), maxSpheresPerGravityCell(100),
-	sphereIndicesInGravityCells(maxSpheresPerGravityCell, gravityCellCount3), maxApproximatingCellsPerGravityCell(100),
+	sphereIndicesInGravityCells(maxSpheresPerGravityCell, gravityCellCount3), maxApproximatingCellsPerGravityCell(cellCount3/2),
 	approximatingCellsPerGravityCell(maxApproximatingCellsPerGravityCell, gravityAllCellCount),
-	maxPairwiseCellsPerGravityCell(100), pairwiseCellsPerGravityCell(maxPairwiseCellsPerGravityCell, gravityAllCellCount)
+	maxPairwiseCellsPerGravityCell(cellCount3/2), pairwiseCellsPerGravityCell(maxPairwiseCellsPerGravityCell, gravityAllCellCount)
 {
 	qDebug()<<"SphereCalculator: constructor called";
 	qDebug()<<"SphereCalculator: number of OpenMP threads:"<<omp_get_num_threads();
@@ -372,7 +372,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, 
 	
 	Scalar error_pos_ = (pos-pos_).norm();
 	Scalar error_speed_ = (speed-speed_).norm();
-	if(error_pos_>1.0e-06 || error_speed_>1.0e-06)
+	if(error_pos_>1.0e-05 || error_speed_>1.0e-05)
 	{
 		quint32 stepCount = 0;
 		stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity>(sphereIndex, stepLength/2, timeDiff);
@@ -471,31 +471,54 @@ void SphereCalculator::updateSphereCellLists()
 	quint16 indexMinX, indexMinY, indexMinZ;
 	quint16 indexMaxX, indexMaxY, indexMaxZ;
 	quint32 indexAll;
-	Vector3 pos;
-	Scalar radius, value;
+	Scalar value, pos;
+	Sphere s;
 	for(quint16 i = 0; i<sphCount; i++)
 	{
+		s = sphArr[i];
 		cellIndicesOfSpheres.resetCounter(i);
-		pos = sphArr[i].pos;
-		radius = sphArr[i].radius;
-		value = (pos(0)-sphereBoxPosition(0)-radius)/sphereBoxSize(0);
+		
+		pos = s.pos(0);
+		pos = fmin(pos, pos + timeStep*s.speed(0));
+		pos = fmin(pos, pos + 0.5*s.acc(0)*timeStep*timeStep);
+		value = (pos-sphereBoxPosition(0)-s.radius)/sphereBoxSize(0);
 		indexMinX = (quint16)(value*cellCount);
 		indexMinX = (indexMinX<cellCount?indexMinX:cellCount-1);
-		value = (pos(1)-sphereBoxPosition(1)-radius)/sphereBoxSize(1);
+		
+		pos = s.pos(1);
+		pos = fmin(pos, pos + timeStep*s.speed(1));
+		pos = fmin(pos, pos + 0.5*s.acc(1)*timeStep*timeStep);
+		value = (pos-sphereBoxPosition(1)-s.radius)/sphereBoxSize(1);
 		indexMinY = (quint16)(value*cellCount);
 		indexMinY = (indexMinY<cellCount?indexMinY:cellCount-1);
-		value = (pos(2)-sphereBoxPosition(2)-radius)/sphereBoxSize(2);
+		
+		pos = s.pos(2);
+		pos = fmin(pos, pos + timeStep*s.speed(2));
+		pos = fmin(pos, pos + 0.5*s.acc(2)*timeStep*timeStep);
+		value = (pos-sphereBoxPosition(2)-s.radius)/sphereBoxSize(2);
 		indexMinZ = (quint16)(value*cellCount);
 		indexMinZ = (indexMinZ<cellCount?indexMinZ:cellCount-1);
-		value = (pos(0)-sphereBoxPosition(0)+radius)/sphereBoxSize(0);
+		
+		pos = s.pos(0);
+		pos = fmax(pos, pos + timeStep*s.speed(0));
+		pos = fmax(pos, pos + 0.5*s.acc(0)*timeStep*timeStep);
+		value = (pos-sphereBoxPosition(0)+s.radius)/sphereBoxSize(0);
 		indexMaxX = (quint16)(value*cellCount);
 		indexMaxX = (indexMaxX<cellCount?indexMaxX:cellCount-1);
 		indexMaxX = (indexMaxX<indexMinX?indexMinX:indexMaxX);
-		value = (pos(1)-sphereBoxPosition(1)+radius)/sphereBoxSize(1);
+		
+		pos = s.pos(1);
+		pos = fmax(pos, pos + timeStep*s.speed(1));
+		pos = fmax(pos, pos + 0.5*s.acc(1)*timeStep*timeStep);
+		value = (pos-sphereBoxPosition(1)+s.radius)/sphereBoxSize(1);
 		indexMaxY = (quint16)(value*cellCount);
 		indexMaxY = (indexMaxY<cellCount?indexMaxY:cellCount-1);
 		indexMaxY = (indexMaxY<indexMinY?indexMinY:indexMaxY);
-		value = (pos(2)-sphereBoxPosition(2)+radius)/sphereBoxSize(2);
+		
+		pos = s.pos(2);
+		pos = fmax(pos, pos + timeStep*s.speed(2));
+		pos = fmax(pos, pos + 0.5*s.acc(2)*timeStep*timeStep);
+		value = (pos-sphereBoxPosition(2)+s.radius)/sphereBoxSize(2);
 		indexMaxZ = (quint16)(value*cellCount);
 		indexMaxZ = (indexMaxZ<cellCount?indexMaxZ:cellCount-1);
 		indexMaxZ = (indexMaxZ<indexMinZ?indexMinZ:indexMaxZ);

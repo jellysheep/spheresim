@@ -31,14 +31,15 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	connect(ui->addSphere, SIGNAL(clicked()), actionSender, SLOT(addSphere()));
 	connect(ui->removeSphere, SIGNAL(clicked()), actionSender, SLOT(removeLastSphere()));
 	
-	actionSender->updateTimeStep(0.0003);
+	actionSender->updateTimeStep(0.001);
 	actionSender->updateEarthGravity(Vector3(0, -0.81, 0));
 	actionSender->updateSphereE(20000);
 	actionSender->updateWallE(20000);
 	actionSender->updateFrameSending(true);
 	
-	prepareSystem1();
+	//prepareSystem1();
 	//prepareSystem2();
+	prepareSystem3();
 }
 
 MainWindow::~MainWindow()
@@ -48,7 +49,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::prepareSystem1()
 {
-	float radius = 0.07;
+	float radius = 0.03;
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
 	std::default_random_engine generator(timepoint.count());
@@ -62,11 +63,11 @@ void MainWindow::prepareSystem1()
 	s.speed.setZero();
 	s.acc.setZero();
 	s.mass = 1;
-	for(unsigned int i = 0; i<16; i++)
+	for(unsigned int i = 0; i<64; i++)
 	{
 		actionSender->addSphere();
-		s.pos(1) = 2*radius + 3.5f*radius*(i/4) + distribution(generator);
-		s.pos(0) = 2*radius + 3.5f*radius*(i%4) + distribution(generator);
+		s.pos(1) = 2*radius + 3.5f*radius*(i/8) + distribution(generator);
+		s.pos(0) = 2*radius + 3.5f*radius*(i%8) + distribution(generator);
 		actionSender->updateSphere(i, s);
 	}
 }
@@ -90,4 +91,35 @@ void MainWindow::prepareSystem2()
 	actionSender->updateGravityCalculation(true);
 	actionSender->updateGravitationalConstant(3.0e-4);
 	actionSender->updateEarthGravity(Vector3(0,0,0));
+}
+
+void MainWindow::prepareSystem3()
+{
+	float radius = 0.02;
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
+	std::default_random_engine generator(timepoint.count());
+	std::uniform_real_distribution<float> distribution(0.0f, radius/4);
+	
+	Sphere s;
+	s.radius = 1.5*radius;
+	s.pos(0) = 1.5*radius;
+	s.pos(1) = 1.5*radius;
+	s.pos(2) = 1.5*radius;
+	s.speed.setZero();
+	s.acc.setZero();
+	s.mass = 1;
+	for(unsigned int i = 0; i<64; i++)
+	{
+		actionSender->addSphere();
+		s.pos(1) = 4*radius + 3.5f*radius*(i/8);// + distribution(generator);
+		s.pos(0) = 4*radius + 3.5f*radius*(i%8);// + distribution(generator);
+		actionSender->updateSphere(i, s);
+	}
+	
+	actionSender->updateGravityCalculation(true);
+	actionSender->updateGravitationalConstant(1.0e-5);
+	actionSender->updateEarthGravity(Vector3(0,0,0));
+	actionSender->updateTimeStep(0.02);
+	actionSender->updateWallE(0);
 }
