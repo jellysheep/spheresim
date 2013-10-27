@@ -899,6 +899,19 @@ Scalar SphereCalculator::getTotalEnergy()
 	}
 }
 
+Scalar SphereCalculator::getKineticEnergy()
+{
+	Scalar totalEnergy = 0.0, sphereEnergy;
+	Sphere sphere;
+	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
+	{
+		sphere = sphArr[sphereIndex];
+		sphereEnergy = 0.5*sphere.mass*sphere.speed.squaredNorm();
+		totalEnergy += sphereEnergy;
+	}
+	return totalEnergy;
+}
+
 void SphereCalculator::updateSphereE(Scalar E_sphere)
 {
 	simulatedSystem.E_sphere = E_sphere;

@@ -274,6 +274,10 @@ namespace SphereSim
 		 * \return Requested total energy. */
 		Scalar getTotalEnergy();
 		
+		/** \copydoc InformationActions::getKineticEnergy
+		 * \return Requested kinetic energy. */
+		Scalar getKineticEnergy();
+		
 		/** \copydoc SimulatedSystemActions::updateSphereE
 		 * \param E_sphere Requested sphere E modulus. */
 		void updateSphereE(Scalar E_sphere);

@@ -354,6 +354,15 @@ Scalar ActionSender::getTotalEnergy()
 	return totalEnergy;
 }
 
+Scalar ActionSender::getKineticEnergy()
+{
+	QByteArray retArr = sendReplyAction(ActionGroups::information, InformationActions::getKineticEnergy);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	Scalar kineticEnergy;
+	retStream>>kineticEnergy;
+	return kineticEnergy;
+}
+
 void ActionSender::updateSphereE(Scalar E_sphere)
 {
 	QByteArray arr;

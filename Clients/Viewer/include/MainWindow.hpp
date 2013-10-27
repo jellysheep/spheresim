@@ -10,6 +10,7 @@
 #define _MAINWINDOW_HPP_
 
 #include <QMainWindow>
+#include <QElapsedTimer>
 
 namespace Ui
 {
@@ -37,12 +38,17 @@ namespace SphereSim
 		
 		void prepareSystem3();
 		
+		QElapsedTimer timer;
+		
 	public:
 		/** \brief Initialize member variables. */
 		MainWindow(ActionSender* actionSender, QWidget* parent = NULL);
 		
 		/** \brief Clean up member variables. */
 		~MainWindow();
+		
+	public slots:
+		void showKineticEnergy();
 		
 	};
 }

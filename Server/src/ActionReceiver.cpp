@@ -284,6 +284,10 @@ void ActionReceiver::handleInformationAction(quint8 actionGroup, quint8 action, 
 		retStream<<sphCalc.getTotalEnergy();
 		sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
+	case InformationActions::getKineticEnergy:
+		retStream<<sphCalc.getKineticEnergy();
+		sendReply(ServerStatusReplies::acknowledge, retData);
+		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
 		break;

@@ -30,6 +30,8 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	connect(actionSender, SIGNAL(frameBufferPercentageLevelUpdate(int)), ui->glWidget, SLOT(updateTimerFrequency(int)));
 	connect(ui->addSphere, SIGNAL(clicked()), actionSender, SLOT(addSphere()));
 	connect(ui->removeSphere, SIGNAL(clicked()), actionSender, SLOT(removeLastSphere()));
+	connect(actionSender, SIGNAL(newFrameReceived()), SLOT(showKineticEnergy()), Qt::QueuedConnection);
+	timer.start();
 	
 	actionSender->updateTimeStep(0.001);
 	actionSender->updateEarthGravity(Vector3(0, -0.81, 0));
@@ -121,5 +123,13 @@ void MainWindow::prepareSystem3()
 	actionSender->updateGravitationalConstant(1.0e-5);
 	actionSender->updateEarthGravity(Vector3(0,0,0));
 	actionSender->updateTimeStep(0.02);
-	actionSender->updateWallE(0);
+}
+
+void MainWindow::showKineticEnergy()
+{
+	if(timer.elapsed()>2000)
+	{
+		timer.restart();
+		qDebug()<<"                                                                           "<<actionSender->getKineticEnergy();
+	}
 }

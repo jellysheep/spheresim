@@ -119,7 +119,9 @@ namespace SphereSim
 		enum Action
 		{
 			/** \brief Calculate and get the total energy of the simulated system. */
-			getTotalEnergy = 1
+			getTotalEnergy = 1,
+			/** \brief Calculate and get the kinetic energy of the simulated system. */
+			getKineticEnergy
 		};
 	}
 	
