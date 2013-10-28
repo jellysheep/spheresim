@@ -13,7 +13,6 @@
 
 #include <QTcpSocket>
 #include <QHostAddress>
-#include <QProcess>
 #include <QDataStream>
 #include <QCoreApplication>
 
@@ -21,7 +20,6 @@ using namespace SphereSim;
 
 ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuffer(10),framerateTimer()
 {
-	qDebug()<<"ActionSender: constructor called";
 	addr = new QHostAddress(a);
 	port = p;
 	connectedFlag = false;
@@ -36,7 +34,6 @@ ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuf
 	framerateTimer.start();
 	frameBuffer.setActionSender(this);
 	connect(this, SIGNAL(newFrameReceived()), SLOT(framerateEvent()));
-	connect(this, SIGNAL(framerateUpdate()), SLOT(framerateInfo()));
 	connectionTryCount = 0;
 	while(connectionTryCount<1000 && !connectedFlag)
 	{
@@ -45,10 +42,10 @@ ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuf
 		socket->waitForConnected(100);
 		if(!connectedFlag)
 		{
-			qDebug()<<"ActionSender: retrying to connect to host.\n";
+			qDebug()<<"ActionSender: retrying to connect to host.";
 			if(connectionTryCount<=1)
 			{
-				qDebug()<<"ActionSender: starting Server.\n";
+				qDebug()<<"ActionSender: starting Server.";
 				serverProcess.start("SphereSim_Server");
 				createdOwnServer = true;
 			}
@@ -62,7 +59,7 @@ ActionSender::~ActionSender()
 	{
 		sendReplyAction(ActionGroups::basic, BasicActions::terminateServer);
 		serverProcess.waitForFinished(200);
-		qDebug()<<"ActionSender: killing Server.\n";
+		qDebug()<<"ActionSender: killing Server.";
 		serverProcess.terminate();
 		serverProcess.waitForFinished(200);
 		serverProcess.kill();
@@ -468,9 +465,4 @@ void ActionSender::framerateEvent()
 		}
 		framerateTimer.restart();
 	}
-}
-
-void ActionSender::framerateInfo()
-{
-	qDebug()<<"ActionSender:"<<receivedFramesPerSecond<<"fps";
 }

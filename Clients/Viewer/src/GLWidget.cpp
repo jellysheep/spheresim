@@ -7,6 +7,7 @@
  * Full license text is under the file "LICENSE" provided with this code. */
 
 #include <GLWidget.hpp>
+#include <Console.hpp>
 
 #include <QDebug>
 #include <QtOpenGL>
@@ -99,7 +100,7 @@ void GLWidget::initializeGL()
 
 void GLWidget::shaderLoadError()
 {
-	qDebug()<<"GLWidget: error loading shaders!";
+	Console::redBold<<"GLWidget: error loading shaders!";
 }
 
 void GLWidget::resizeGL(int width, int height)

@@ -10,7 +10,6 @@
 #include <ActionSender.hpp>
 #include <ui_MainWindow.h>
 
-#include <QDebug>
 #include <random>
 #include <chrono>
 
@@ -18,7 +17,6 @@ using namespace SphereSim;
 
 MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(parent), actionSender(actSend)
 {
-	qDebug()<<"MainWindow: constructor called";
 	ui = new Ui::MainWindow();
 	ui->setupUi(this);
 	ui->glWidget->setFrameBuffer(actSend->getFrameBuffer());
@@ -30,7 +28,6 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	connect(actionSender, SIGNAL(frameBufferPercentageLevelUpdate(int)), ui->glWidget, SLOT(updateTimerFrequency(int)));
 	connect(ui->addSphere, SIGNAL(clicked()), actionSender, SLOT(addSphere()));
 	connect(ui->removeSphere, SIGNAL(clicked()), actionSender, SLOT(removeLastSphere()));
-	connect(actionSender, SIGNAL(newFrameReceived()), SLOT(showKineticEnergy()), Qt::QueuedConnection);
 	timer.start();
 	
 	actionSender->updateTimeStep(0.001);
@@ -114,8 +111,8 @@ void MainWindow::prepareSystem3()
 	for(unsigned int i = 0; i<64; i++)
 	{
 		actionSender->addSphere();
-		s.pos(1) = 4*radius + 3.5f*radius*(i/8);// + distribution(generator);
-		s.pos(0) = 4*radius + 3.5f*radius*(i%8);// + distribution(generator);
+		s.pos(1) = 4*radius + 3.5f*radius*(i/8) + distribution(generator);
+		s.pos(0) = 4*radius + 3.5f*radius*(i%8) + distribution(generator);
 		actionSender->updateSphere(i, s);
 	}
 	
@@ -123,13 +120,4 @@ void MainWindow::prepareSystem3()
 	actionSender->updateGravitationalConstant(1.0e-5);
 	actionSender->updateEarthGravity(Vector3(0,0,0));
 	actionSender->updateTimeStep(0.02);
-}
-
-void MainWindow::showKineticEnergy()
-{
-	if(timer.elapsed()>2000)
-	{
-		timer.restart();
-		qDebug()<<"                                                                           "<<actionSender->getKineticEnergy();
-	}
 }

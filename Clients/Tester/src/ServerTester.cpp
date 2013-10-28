@@ -10,9 +10,8 @@
 #include <ServerTester.hpp>
 #include <Integrators.hpp>
 
-#include <QTcpServer>
-#include <QProcess>
 #include <QtTest/QTest>
+#include <QHostAddress>
 
 #define runTests_(x) \
 	runTests(x, TOSTR(x));
@@ -35,7 +34,6 @@ const int ServerTester::framebuffer = 255;
 
 ServerTester::ServerTester(QStringList args, QHostAddress addr, quint16 port)
 {
-	qDebug()<<"ServerTester: constructor called";
 	sender = new ActionSender(args, addr, port);
 	testCounter = 0;
 	successCounter = 0;

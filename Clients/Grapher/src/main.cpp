@@ -6,31 +6,27 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
-#include <ActionSender.hpp>
+#include <SimulationGrapher.hpp>
 #include <Connection.hpp>
-#include <MainWindow.hpp>
 
-#include <QApplication>
+#include <QCoreApplication>
 #include <QHostAddress>
-#include <QString>
+#include <QStringList>
+#include <QTimer>
 
 using namespace SphereSim;
 
 /**
  * method main:
- * Builds up a connection to server and opens main window.
+ * Creates instance of SimulationGrapher to benchmark server simulations.
+ * Starts QCoreApplication.
  */
 
 int main(int argc, char** argv)
 {
-	QApplication app(argc, argv);
-	app.setStyle("fusion");
+	QCoreApplication app(argc, argv);
 	QStringList args = app.arguments();
-	
-	ActionSender actSend(args, QHostAddress(Connection::address), Connection::port);
-	
-	MainWindow mainWindow(&actSend);
-	mainWindow.show();
-	
+	SimulationGrapher* simGrapher = new SimulationGrapher(args, QHostAddress(Connection::address), Connection::port);
+	QTimer::singleShot(0, simGrapher, SLOT(runSimulation()));
 	return app.exec();
 }

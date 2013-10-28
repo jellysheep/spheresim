@@ -21,9 +21,9 @@
 using namespace SphereSim;
 
 SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount*cellCount*cellCount),
-	maxSpheresPerCell(100), maxCellsPerSphere(300),
+	maxSpheresPerCell(500), maxCellsPerSphere(1000),
 	sphereIndicesInCells(maxSpheresPerCell, cellCount3), cellIndicesOfSpheres(maxCellsPerSphere),
-	maxCollidingSpheresPerSphere(100), collidingSpheresPerSphere(maxCollidingSpheresPerSphere),
+	maxCollidingSpheresPerSphere(300), collidingSpheresPerSphere(maxCollidingSpheresPerSphere),
 	gravityCellCount(8), gravityCellCount3(gravityCellCount*gravityCellCount*gravityCellCount),
 	gravityAllCellCount(2*gravityCellCount3), maxSpheresPerGravityCell(100),
 	sphereIndicesInGravityCells(maxSpheresPerGravityCell, gravityCellCount3), maxApproximatingCellsPerGravityCell(cellCount3/2),
@@ -35,7 +35,7 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	updateData();
 	boxSize = Vector3(1,1,1);
 	timeStep = 0.002;
-	updateIntegratorMethod(IntegratorMethods::RungeKuttaFehlberg54);
+	updateIntegratorMethod(IntegratorMethods::CashKarp54);
 	calculationCounter = 0;
 	stepCounter = 0;
 	updateSphereE(5000);
@@ -319,7 +319,7 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 		updateSphereGravityCellLists();
 		updateGravityCellData();
 	}
-	//#pragma omp parallel for
+	#pragma omp parallel for
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
 		Scalar pos = sphArr[sphereIndex].pos(2);

@@ -11,7 +11,6 @@
 
 #include <Actions.hpp>
 #include <Console.hpp>
-#include <Version.hpp>
 
 #include <QtGlobal>
 #include <QObject>

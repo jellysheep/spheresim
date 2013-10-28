@@ -14,9 +14,6 @@
 
 #include <QtGlobal>
 
-class QTcpServer;
-class QHostAddress;
-
 namespace SphereSim
 {
 	

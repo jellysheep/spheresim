@@ -10,15 +10,13 @@
 #include <ServerBenchmark.hpp>
 #include <Integrators.hpp>
 
-#include <QTcpServer>
-#include <QProcess>
 #include <QtTest/QTest>
+#include <QHostAddress>
 
 using namespace SphereSim;
 
 ServerBenchmark::ServerBenchmark(QStringList args, QHostAddress addr, quint16 port)
 {
-	qDebug()<<"ServerBenchmark: constructor called";
 	sender = new ActionSender(args, addr, port);
 }
 

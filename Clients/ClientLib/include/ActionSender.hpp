@@ -244,10 +244,6 @@ namespace SphereSim
 		 * \see newFrameReceived */
 		void framerateEvent();
 		
-		/** \brief Information about updated frame rates.
-		 * \see framerateUpdate */
-		void framerateInfo();
-		
 		/** \copydoc SpheresUpdatingActions::addSphere
 		 * \copydetails getSphereCount */
 		quint16 addSphere();

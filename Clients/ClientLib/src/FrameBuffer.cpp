@@ -64,7 +64,6 @@ void FrameBuffer<T>::updateElementsPerFrame(quint16 elementsPerFrame_)
 		writeIndex = 0;
 		currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
 		currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
-		qDebug()<<"updateElementsPerFrame"<<elementsPerFrame;
 	}
 }
 
@@ -83,7 +82,6 @@ void FrameBuffer<T>::pushFrame()
 	elementWriteIndex = 0;
 	if(readIndex == ((writeIndex+1)%bufferSize))
 	{
-		qDebug()<<"FrameBuffer: buffer full!";
 		readIndex = (readIndex+1)%bufferSize;
 		currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
 	}
@@ -113,8 +111,6 @@ void FrameBuffer<T>::popFrame()
 		currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
 		updatePercentageLevel(lastFrameBufferAction == pop);
 		lastFrameBufferAction = pop;
-	}else{
-		qDebug()<<"FrameBuffer: buffer empty!";
 	}
 	elementReadIndex = 0;
 }

@@ -1,3 +1,7 @@
+SphereSim 2.3.2:
+* Added Grapher client to make statistical plots about sphere speeds.
+* Reduced included header files and removed debug outputs.
+
 SphereSim 2.3.1:
 * Improved Viewer sphere system.
 * Added gravity calculation to simulation and to potential energy summation.

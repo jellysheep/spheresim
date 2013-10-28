@@ -47,9 +47,6 @@ namespace SphereSim
 		/** \brief Clean up member variables. */
 		~MainWindow();
 		
-	public slots:
-		void showKineticEnergy();
-		
 	};
 }
 
