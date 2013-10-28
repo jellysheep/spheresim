@@ -197,6 +197,9 @@ namespace SphereSim
 		/** \copydoc CalculationActions::updateGravityCalculation */
 		void updateGravityCalculation(bool calculateGravity);
 		
+		/** \copydoc CalculationActions::updateLennardJonesPotentialCalculation */
+		void updateLennardJonesPotentialCalculation(bool calculateLennardJonesPotential);
+		
 		/** \copydoc InformationActions::getTotalEnergy
 		 * \return Total energy (in joules). */
 		Scalar getTotalEnergy();

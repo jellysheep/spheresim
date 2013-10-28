@@ -36,17 +36,19 @@ void ServerBenchmark::runBenchmark()
 	sender->addSphere();
 	sender->addSphere();
 	
-	runBenchmark_internal(false, true);
-	runBenchmark_internal(true, false);
-	runBenchmark_internal(false, false);
+	runBenchmark_internal(false, false, true);
+	runBenchmark_internal(false, true, false);
+	runBenchmark_internal(true, false, false);
+	runBenchmark_internal(false, false, false);
 	
 	qApp->exit(0);
 }
 
-void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculateGravity)
+void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculateGravity, bool calculateLennardJonesPotential)
 {
 	Console::out<<"\nServerBenchmark: simulating with collision detection "<<(detectCollisions?"on":"off")<<".\n";
 	Console::out<<"ServerBenchmark: simulating with gravity calculation "<<(calculateGravity?"on":"off")<<".\n";
+	Console::out<<"ServerBenchmark: simulating with Lennard-Jones potential calculation "<<(calculateLennardJonesPotential?"on":"off")<<".\n";
 	
 	Sphere s;
 	s.pos(0) = 0.11;
@@ -65,7 +67,8 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculat
 	sender->updateSphere(1, s);
 	sender->updateCollisionDetection(detectCollisions);
 	sender->updateGravityCalculation(calculateGravity);
-	sender->updateGravitationalConstant(1.3e-2);
+	sender->updateGravitationalConstant(1.3e-3);
+	sender->updateLennardJonesPotentialCalculation(calculateLennardJonesPotential);
 	if(calculateGravity)
 		sender->updateWallE(0);
 	else

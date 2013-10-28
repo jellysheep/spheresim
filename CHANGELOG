@@ -1,3 +1,5 @@
+* Added methods to control and calculate Lennard-Jones potentials and forces.
+
 SphereSim 2.3.2:
 * Added Grapher client to make statistical plots about sphere speeds.
 * Reduced included header files and removed debug outputs.

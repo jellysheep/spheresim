@@ -32,8 +32,9 @@ namespace SphereSim
 		
 		/** \copydoc runBenchmark
 		 * \param detectCollisions Flag for collision detection.
-		 * \param calculateGravity Flag for gravity calculation. */
-		void runBenchmark_internal(bool detectCollisions, bool calculateGravity);
+		 * \param calculateGravity Flag for gravity calculation.
+		 * \param calculateLennardJonesPotential Flag for gravity calculation. */
+		void runBenchmark_internal(bool detectCollisions, bool calculateGravity, bool calculateLennardJonesPotential);
 		
 	public:
 		/** \brief Start a ServerBenchmark with the specified address and port.

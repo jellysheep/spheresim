@@ -267,6 +267,10 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 		stream>>b;
 		sphCalc.updateGravityCalculation(b);
 		break;
+	case CalculationActions::updateLennardJonesPotentialCalculation:
+		stream>>b;
+		sphCalc.updateLennardJonesPotentialCalculation(b);
+		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
 		break;

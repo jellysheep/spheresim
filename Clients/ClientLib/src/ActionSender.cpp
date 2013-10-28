@@ -453,6 +453,14 @@ void ActionSender::updateGravitationalConstant(Scalar G)
 	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateGravitationalConstant, arr);
 }
 
+void ActionSender::updateLennardJonesPotentialCalculation(bool calculateLennardJonesPotential)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<calculateLennardJonesPotential;
+	sendAction(ActionGroups::calculation, CalculationActions::updateLennardJonesPotentialCalculation, arr);
+}
+
 void ActionSender::framerateEvent()
 {
 	if(framerateTimer.elapsed()>1000)

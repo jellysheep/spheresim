@@ -52,6 +52,10 @@ namespace SphereSim
 		Scalar maximumTheta;
 		
 		Scalar gravitationalConstant;
+		
+		Scalar lenJonPotEpsilon;
+		
+		Scalar lenJonPotSigma;
 	};
 }
 

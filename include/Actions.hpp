@@ -108,7 +108,9 @@ namespace SphereSim
 			/** \brief Update if sphere collisions get detected. */
 			updateCollisionDetection,
 			/** \brief Update if sphere-sphere gravitational forces get calculated. */
-			updateGravityCalculation
+			updateGravityCalculation,
+			/** \brief Update if Lennard-Jones potential and forces get calculated. */
+			updateLennardJonesPotentialCalculation
 		};
 	}
 	

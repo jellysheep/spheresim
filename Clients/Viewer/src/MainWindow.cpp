@@ -116,8 +116,9 @@ void MainWindow::prepareSystem3()
 		actionSender->updateSphere(i, s);
 	}
 	
-	actionSender->updateGravityCalculation(true);
+	actionSender->updateGravityCalculation(false);
 	actionSender->updateGravitationalConstant(1.0e-5);
+	actionSender->updateLennardJonesPotentialCalculation(true);
 	actionSender->updateEarthGravity(Vector3(0,0,0));
 	actionSender->updateTimeStep(0.02);
 }

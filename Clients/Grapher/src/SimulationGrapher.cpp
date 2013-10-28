@@ -56,24 +56,24 @@ void SimulationGrapher::runSimulation()
 	s.pos(2) = 1.5*radius;
 	s.speed.setZero();
 	s.acc.setZero();
-	s.mass = 0.1;
+	s.mass = 1;
 	for(unsigned int i = 0; i<sphereCount; i++)
 	{
 		actionSender->addSphere();
 		s.pos(1) = 4*radius + 3.5f*radius*(i/sphereCountSqrt);// + distribution(generator);
 		s.pos(0) = 4*radius + 3.5f*radius*(i%sphereCountSqrt);// + distribution(generator);
-		s.speed(0) = distribution(generator);
-		s.speed(1) = distribution(generator);
+		s.speed(0) = distribution(generator)*100;
+		s.speed(1) = distribution(generator)*100;
 		actionSender->updateSphere(i, s);
 	}
 	
-	actionSender->updateGravityCalculation(false);
+	actionSender->updateGravityCalculation(true);
 	actionSender->updateGravitationalConstant(1.0e-5);
-	actionSender->updateEarthGravity(Vector3(0,0,0));
 	actionSender->updateTimeStep(timeStep);
 	actionSender->updateEarthGravity(Vector3(0, -9.81, 0));
 	actionSender->updateSphereE(20000);
 	actionSender->updateWallE(20000);
+	actionSender->updateCollisionDetection(true);
 	actionSender->updateFrameSending(false);
 	
 	dataUpdateTimer->start();
@@ -84,7 +84,7 @@ void SimulationGrapher::timerUpdate()
 	if(!actionSender->getIsSimulating())
 	{
 		qDebug()<<counter++;
-		if(counter > 2)
+		if(counter > 4)
 		{
 			Sphere s;
 			Scalar speed;
@@ -95,7 +95,7 @@ void SimulationGrapher::timerUpdate()
 				data.append(speed);
 			}
 		}
-		if(counter > 1 + dataPoints/sphereCount)
+		if(counter > 3 + dataPoints/sphereCount)
 		{
 			dataUpdateTimer->stop();
 			qSort(data);

@@ -53,7 +53,7 @@ namespace SphereSim
 		 * \param sphere Sphere to be calculated.
 		 * \param timeDiff Time difference (in s) used for the movements of other spheres.
 		 * \return Calculated current acceleration of the sphere. */
-		template <bool detectCollisions, bool gravity>
+		template <bool detectCollisions, bool gravity, bool lennardJonesPotential>
 		Vector3 sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff);
 		
 		/** \brief Update local data about spheres. */
@@ -66,7 +66,7 @@ namespace SphereSim
 		void integrateRungeKuttaStep();
 		
 		/** \copydoc integrateRungeKuttaStep */
-		template <bool detectCollisions, bool gravity>
+		template <bool detectCollisions, bool gravity, bool lennardJonesPotential>
 		void integrateRungeKuttaStep_internal();
 		
 		/** \brief Integrates one step of one sphere.
@@ -74,7 +74,7 @@ namespace SphereSim
 		 * \param stepLength Current step length (time in s).
 		 * \param timeDiff Time difference (in s) used for the movements of other spheres.
 		 * \return Number of steps used to integrate. */
-		template <bool detectCollisions, bool gravity>
+		template <bool detectCollisions, bool gravity, bool lennardJonesPotential>
 		quint32 integrateRungeKuttaStep_internal(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff);
 		
 		/** \brief Butcher tableau used in the integrator. */
@@ -144,7 +144,7 @@ namespace SphereSim
 		
 		TwoDimArray<quint16, true> collidingSpheresPerSphere;
 		
-		template <bool detectCollisions, bool gravity>
+		template <bool detectCollisions, bool gravity, bool lennardJonesPotential>
 		Scalar getTotalEnergy_internal();
 		
 		bool gravityCalculationFlag;
@@ -190,6 +190,10 @@ namespace SphereSim
 		void updateSphereGravityCellLists();
 		
 		void updateGravityCellData();
+		
+		bool lennardJonesPotentialFlag;
+		
+		quint16 *sphereCountPerGravityCell;
 		
 	public:
 		SphereCalculator();
@@ -269,6 +273,9 @@ namespace SphereSim
 		
 		/** \copydoc CalculationActions::updateGravityCalculation */
 		void updateGravityCalculation(bool calculateGravity);
+		
+		/** \copydoc CalculationActions::updateLennardJonesPotentialCalculation */
+		void updateLennardJonesPotentialCalculation(bool calculateLennardJonesPotential);
 		
 		/** \copydoc InformationActions::getTotalEnergy
 		 * \return Requested total energy. */
