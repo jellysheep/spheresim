@@ -40,6 +40,12 @@ namespace SphereSim
 		/** \brief Spheres array. */
 		Sphere* sphArr;
 		
+		/** \brief New calculated positions of the spheres. */
+		QVector<Vector3> newSpherePos;
+		
+		/** \brief New sphere position array. */
+		Vector3* newSpherePosArr;
+		
 		/** \brief Spheres count. */
 		quint16 sphCount;
 		

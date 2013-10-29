@@ -148,7 +148,7 @@ void FrameBuffer<T>::updatePercentageLevel(bool greaterThanHysteresis)
 	}
 	else
 	{
-		percentageLevel = (quint8)(getFrameCount()*100/bufferSize);
+		percentageLevel = (quint8)((getFrameCount()-1)*100/(bufferSize-2));
 	}
 	if(greaterThanHysteresis)
 		emit actionSender->greatFrameBufferPercentageLevelUpdate(percentageLevel);

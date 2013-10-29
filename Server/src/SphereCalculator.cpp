@@ -24,7 +24,7 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	maxSpheresPerCell(1024), maxCellsPerSphere(1024),
 	sphereIndicesInCells(maxSpheresPerCell, cellCount3), cellIndicesOfSpheres(maxCellsPerSphere),
 	maxCollidingSpheresPerSphere(300), collidingSpheresPerSphere(maxCollidingSpheresPerSphere),
-	gravityCellCount(1), gravityCellCount3(gravityCellCount*gravityCellCount*gravityCellCount),
+	gravityCellCount(4), gravityCellCount3(gravityCellCount*gravityCellCount*gravityCellCount),
 	gravityAllCellCount(2*gravityCellCount3), maxSpheresPerGravityCell(1024),
 	sphereIndicesInGravityCells(maxSpheresPerGravityCell, gravityCellCount3), maxApproximatingCellsPerGravityCell(gravityCellCount3),
 	approximatingCellsPerGravityCell(maxApproximatingCellsPerGravityCell, gravityAllCellCount),
@@ -317,6 +317,7 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 void SphereCalculator::updateData()
 {
 	sphArr = spheres.data();
+	newSpherePosArr = newSpherePos.data();
 	sphCount = spheres.size();
 }
 
@@ -373,8 +374,13 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 	#pragma omp parallel for
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
-		Scalar pos = sphArr[sphereIndex].pos(2);
 		integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential>(sphereIndex, timeStep, 0.0);
+	}
+	#pragma omp parallel for
+	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
+	{
+		Scalar pos = sphArr[sphereIndex].pos(2);
+		sphArr[sphereIndex].pos = newSpherePosArr[sphereIndex];
 		sphArr[sphereIndex].pos(2) = pos;
 		sphArr[sphereIndex].speed(2) = 0;
 		sphArr[sphereIndex].acc(2) = 0;
@@ -430,7 +436,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, 
 		stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential>(sphereIndex, stepLength/2, timeDiff+(stepLength/2));
 		return stepCount;
 	}else{
-		sphArr[sphereIndex].pos = pos;
+		newSpherePosArr[sphereIndex] = pos;
 		sphArr[sphereIndex].speed = speed;
 		sphArr[sphereIndex].acc = (speed-origSphere.speed)/stepLength;
 		return 1;
@@ -442,6 +448,7 @@ quint16 SphereCalculator::removeSphere(quint16 i)
 	if(getSphereCount()>i)
 	{
 		spheres.remove(i);
+		newSpherePos.remove(i);
 		cellIndicesOfSpheres.changeSize(spheres.count());
 		collidingSpheresPerSphere.changeSize(spheres.count());
 		updateGravityCellIndexOfSpheresArray();
@@ -485,13 +492,13 @@ void SphereCalculator::updateSphereBox()
 {
 	if(spheres.count()>0)
 	{
-		Vector3 pos = spheres[0].pos;
+		Vector3 pos = sphArr[0].pos;
 		Scalar radius;
 		Vector3 max = pos, min = pos;
 		for(quint16 i = 1; i<spheres.count(); i++)
 		{
-			pos = spheres[i].pos;
-			radius = spheres[i].radius;
+			pos = sphArr[i].pos;
+			radius = sphArr[i].radius;
 			if(pos(0)+radius>max(0))
 				max(0) = pos(0)+radius;
 			if(pos(1)+radius>max(1))
@@ -755,6 +762,7 @@ void SphereCalculator::updateGravityCellData()
 quint16 SphereCalculator::addSphere()
 {
 	spheres.append(Sphere());
+	newSpherePos.append(Vector3());
 	cellIndicesOfSpheres.changeSize(spheres.count());
 	collidingSpheresPerSphere.changeSize(spheres.count());
 	updateGravityCellIndexOfSpheresArray();
