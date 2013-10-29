@@ -231,6 +231,10 @@ namespace SphereSim
 		/** \copydoc SimulatedSystemActions::updateGravitationalConstant
 		 * \param G Gravitational constant G. */
 		void updateGravitationalConstant(Scalar G);
+		
+		/** \copydoc SimulatedSystemActions::updateBoxSize
+		 * \param boxSize Requested box size. */
+		void updateBoxSize(Vector3 boxSize);
 	
 	public slots:
 		/** Set connectedFlag to true. 

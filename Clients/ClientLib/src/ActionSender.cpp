@@ -461,6 +461,16 @@ void ActionSender::updateLennardJonesPotentialCalculation(bool calculateLennardJ
 	sendAction(ActionGroups::calculation, CalculationActions::updateLennardJonesPotentialCalculation, arr);
 }
 
+void ActionSender::updateBoxSize(Vector3 boxSize)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<boxSize(0);
+	stream<<boxSize(1);
+	stream<<boxSize(2);
+	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateBoxSize, arr);
+}
+
 void ActionSender::framerateEvent()
 {
 	if(framerateTimer.elapsed()>1000)

@@ -332,6 +332,12 @@ void ActionReceiver::handleSimulatedSystemAction(quint8 actionGroup, quint8 acti
 		stream>>s;
 		sphCalc.updateGravitationalConstant(s);
 		break;
+	case SimulatedSystemActions::updateBoxSize:
+		stream>>s;
+		stream>>s2;
+		stream>>s3;
+		sphCalc.updateBoxSize(Vector3(s, s2, s3));
+		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
 		break;

@@ -35,11 +35,17 @@ GLWidget::GLWidget(QWidget* parent):QGLWidget(parent), program(this), circleEdge
 	sphereMatrixUniform = 0;
 	circleVertices = NULL;
 	circleColors = NULL;
+	boxLength = 1;
 }
 
 void GLWidget::setFrameBuffer(FrameBuffer<Sphere>* fb)
 {
 	frameBuffer = fb;
+}
+
+void GLWidget::setBoxLength(Scalar length)
+{
+	boxLength = length;
 }
 
 GLWidget::~GLWidget()
@@ -124,9 +130,53 @@ void GLWidget::paintGL()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	QMatrix4x4 worldMatrix = perspectiveMatrix;
-	worldMatrix.translate(0, 0, -5);
+	worldMatrix.translate(0, 0, -2);
+	worldMatrix.translate(-0.5, -0.5, -0.5);
+	worldMatrix.scale(1/boxLength);
 
 	program.setUniformValue(worldMatrixUniform, worldMatrix);
+	
+	QMatrix4x4 boxMatrix;
+	boxMatrix.scale(boxLength);
+	program.setUniformValue(sphereMatrixUniform, boxMatrix);
+	
+	float boxVertices[] =
+	{
+		0, 0, 0, 0, 0, 1,
+		0, 0, 1, 0, 1, 1,
+		0, 1, 1, 0, 1, 0,
+		0, 1, 0, 0, 0, 0,
+		
+		1, 0, 0, 1, 0, 1,
+		1, 0, 1, 1, 1, 1,
+		1, 1, 1, 1, 1, 0,
+		1, 1, 0, 1, 0, 0,
+		
+		0, 0, 0, 1, 0, 0,
+		0, 0, 1, 1, 0, 1,
+		0, 1, 1, 1, 1, 1,
+		0, 1, 0, 1, 1, 0
+	};
+	
+	float col = 0.5;
+	float colR = col, colG = col, colB = col;
+	float boxColors[] =
+	{
+		colR, colG, colB, colR, colG, colB, colR, colG, colB, colR, colG, colB,
+		colR, colG, colB, colR, colG, colB, colR, colG, colB, colR, colG, colB,
+		colR, colG, colB, colR, colG, colB, colR, colG, colB, colR, colG, colB,
+		colR, colG, colB, colR, colG, colB, colR, colG, colB, colR, colG, colB,
+		colR, colG, colB, colR, colG, colB, colR, colG, colB, colR, colG, colB,
+		colR, colG, colB, colR, colG, colB, colR, colG, colB, colR, colG, colB
+	};
+
+	glVertexAttribPointer(verticesAttr, 3, GL_FLOAT, GL_FALSE, 0, boxVertices);
+	glVertexAttribPointer(colorsAttr, 3, GL_FLOAT, GL_FALSE, 0, boxColors);
+	
+	glDrawArrays(GL_LINES, 0, 24);
+
+	glVertexAttribPointer(verticesAttr, 2, GL_FLOAT, GL_FALSE, 0, circleVertices);
+	glVertexAttribPointer(colorsAttr, 3, GL_FLOAT, GL_FALSE, 0, circleColors);
 	
 	Sphere s;
 	
@@ -166,8 +216,8 @@ void GLWidget::updateTimerFrequency(int frameBufferPercentageLevel)
 		controlTimer->restart();
 		float frameBufferPercentageLevelAverage = frameBufferPercentageLevelSum*1.f/frameBufferPercentageLevelCounter;
 		float factor = (frameBufferPercentageLevelAverage-50)/50.f;
-		factor = pow(2*factor, 3);
-		float amplitude = 4;
+		factor = pow(factor, 5);
+		float amplitude = 59;
 		float fps = 60+(factor*amplitude);
 		sleepTime = (quint16)std::max(0, (int)round(1000.f/fps));
 		qDebug()<<"GLWidget: level:"<<frameBufferPercentageLevelAverage<<"\tfps:"<<fps<<"\tms:"<<sleepTime;

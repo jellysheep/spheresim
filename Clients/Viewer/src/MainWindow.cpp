@@ -30,6 +30,7 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	connect(ui->removeSphere, SIGNAL(clicked()), actionSender, SLOT(removeLastSphere()));
 	timer.start();
 	
+	updateBoxLength(1);
 	actionSender->updateTimeStep(0.001);
 	actionSender->updateEarthGravity(Vector3(0, -0.81, 0));
 	actionSender->updateSphereE(20000);
@@ -48,7 +49,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::prepareSystem1()
 {
-	float radius = 0.03;
+	float radius = 0.03*boxLength;
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
 	std::default_random_engine generator(timepoint.count());
@@ -73,7 +74,8 @@ void MainWindow::prepareSystem1()
 
 void MainWindow::prepareSystem2()
 {
-	Vector3 boxSize(1,1,1);
+	updateBoxLength(1);
+	Vector3 boxSize(boxLength,boxLength,boxLength);
 	Sphere s;
 	s.radius = 0.03;
 	s.pos = boxSize/2 + Vector3(0,0.2,0);
@@ -94,7 +96,8 @@ void MainWindow::prepareSystem2()
 
 void MainWindow::prepareSystem3()
 {
-	float radius = 0.02;
+	updateBoxLength(5.0e-9);
+	float radius = 0.02*boxLength;
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
 	std::default_random_engine generator(timepoint.count());
@@ -107,18 +110,31 @@ void MainWindow::prepareSystem3()
 	s.pos(2) = 1.5*radius;
 	s.speed.setZero();
 	s.acc.setZero();
-	s.mass = 1;
+	s.mass = 6.6335e-26;
+	Vector3 boxSize(boxLength,boxLength,boxLength);
+	boxSize /= 2;
 	for(unsigned int i = 0; i<64; i++)
 	{
 		actionSender->addSphere();
-		s.pos(1) = 4*radius + 3.5f*radius*(i/8) + distribution(generator);
-		s.pos(0) = 4*radius + 3.5f*radius*(i%8) + distribution(generator);
+		s.pos = boxSize;
+		s.pos(0) += 3.5f*radius*(3.5-(i%8)) + distribution(generator);
+		s.pos(1) += 3.5f*radius*(3.5-(i/8)) + distribution(generator);
 		actionSender->updateSphere(i, s);
 	}
 	
+	actionSender->updateCollisionDetection(false);
 	actionSender->updateGravityCalculation(false);
-	actionSender->updateGravitationalConstant(1.0e-5);
+	actionSender->updateGravitationalConstant(1.0e-4);
 	actionSender->updateLennardJonesPotentialCalculation(true);
 	actionSender->updateEarthGravity(Vector3(0,0,0));
-	actionSender->updateTimeStep(0.02);
+	//actionSender->updateEarthGravity(Vector3(0,-9.81,0));
+	actionSender->updateWallE(0);
+	actionSender->updateTimeStep(1.0e-13);
+}
+
+void MainWindow::updateBoxLength(Scalar length)
+{
+	boxLength = length;
+	ui->glWidget->setBoxLength(boxLength);
+	actionSender->updateBoxSize(Vector3(boxLength,boxLength,boxLength));
 }

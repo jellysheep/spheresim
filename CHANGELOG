@@ -1,4 +1,9 @@
 * Added methods to control and calculate Lennard-Jones potentials and forces.
+* Added methods to control the simulated box size.
+* Added rendering of a cuboid to Viewer to show the box size.
+* Added a simulated system to Grapher using Lennard-Jones potential.
+* Improved mingw-w64 cross-compilation compatibility.
+* Improved simulated system in Viewer.
 
 SphereSim 2.3.2:
 * Added Grapher client to make statistical plots about sphere speeds.

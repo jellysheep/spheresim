@@ -91,6 +91,8 @@ namespace SphereSim
 		/** \brief Colors used to render a circle. */
 		float* circleColors;
 		
+		Scalar boxLength;
+		
 	public:
 		/** \brief Initialize member variables. */
 		GLWidget(QWidget* parent);
@@ -99,6 +101,8 @@ namespace SphereSim
 		~GLWidget();
 		
 		void setFrameBuffer(FrameBuffer<Sphere>* frameBuffer);
+		
+		void setBoxLength(Scalar boxLength);
 		
 	public slots:
 		/** \brief Animation timer update. */

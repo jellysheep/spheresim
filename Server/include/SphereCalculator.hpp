@@ -36,12 +36,13 @@ namespace SphereSim
 	private:
 		/** \brief Spheres managed by the server. */
 		QVector<Sphere> spheres;
+		
 		/** \brief Spheres array. */
 		Sphere* sphArr;
+		
 		/** \brief Spheres count. */
 		quint16 sphCount;
-		/** \brief Box size (each direction in metres). */
-		Vector3 boxSize;
+		
 		/** \brief Step length (time in s). */
 		Scalar timeStep;
 		
@@ -308,6 +309,10 @@ namespace SphereSim
 		/** \copydoc SimulatedSystemActions::updateGravitationalConstant
 		 * \param G Gravitational constant G. */
 		void updateGravitationalConstant(Scalar G);
+		
+		/** \copydoc SimulatedSystemActions::updateBoxSize
+		 * \param boxSize Requested box size. */
+		void updateBoxSize(Vector3 boxSize);
 		
 		friend class SimulationWorker;
 		

@@ -9,6 +9,8 @@
 #ifndef _MAINWINDOW_HPP_
 #define _MAINWINDOW_HPP_
 
+#include <Sphere.hpp>
+
 #include <QMainWindow>
 #include <QElapsedTimer>
 
@@ -39,6 +41,10 @@ namespace SphereSim
 		void prepareSystem3();
 		
 		QElapsedTimer timer;
+		
+		Scalar boxLength;
+		
+		void updateBoxLength(Scalar length);
 		
 	public:
 		/** \brief Initialize member variables. */

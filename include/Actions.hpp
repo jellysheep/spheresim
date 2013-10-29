@@ -144,7 +144,9 @@ namespace SphereSim
 			/** \brief Update the 3D vector of the earth gravity used for the simulation. */
 			updateEarthGravity,
 			/** \brief Update the gravitational constant G. */
-			updateGravitationalConstant
+			updateGravitationalConstant,
+			/** \brief Update the size of the simulated system box. */
+			updateBoxSize
 		};
 	}
 	

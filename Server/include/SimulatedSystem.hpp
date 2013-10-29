@@ -56,6 +56,9 @@ namespace SphereSim
 		Scalar lenJonPotEpsilon;
 		
 		Scalar lenJonPotSigma;
+		
+		/** \brief Box size (each direction in metres). */
+		Vector3 boxSize;
 	};
 }
 
