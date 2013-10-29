@@ -97,17 +97,15 @@ void MainWindow::prepareSystem2()
 void MainWindow::prepareSystem3()
 {
 	updateBoxLength(5.0e-9);
-	float radius = 0.02*boxLength;
+	float radius = 0.017*boxLength;
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
 	std::default_random_engine generator(timepoint.count());
-	std::uniform_real_distribution<float> distribution(0.0f, radius/4);
+	std::uniform_real_distribution<float> distribution(-radius/4, radius/4);
+	std::uniform_real_distribution<float> distribution2(-1, 1);
 	
 	Sphere s;
 	s.radius = 1.5*radius;
-	s.pos(0) = 1.5*radius;
-	s.pos(1) = 1.5*radius;
-	s.pos(2) = 1.5*radius;
 	s.speed.setZero();
 	s.acc.setZero();
 	s.mass = 6.6335e-26;
@@ -117,8 +115,10 @@ void MainWindow::prepareSystem3()
 	{
 		actionSender->addSphere();
 		s.pos = boxSize;
-		s.pos(0) += 3.5f*radius*(3.5-(i%8)) + distribution(generator);
-		s.pos(1) += 3.5f*radius*(3.5-(i/8)) + distribution(generator);
+		s.pos(0) += 5.f*radius*(3.5-(i%8)) + distribution(generator);
+		s.pos(1) += 5.f*radius*(3.5-(i/8)) + distribution(generator);
+		s.speed(0) = 200*distribution2(generator);
+		s.speed(1) = 200*distribution2(generator);
 		actionSender->updateSphere(i, s);
 	}
 	

@@ -20,17 +20,17 @@
 using namespace SphereSim;
 
 SimulationGrapher::SimulationGrapher(QStringList args, QHostAddress addr, quint16 port)
-	:filename("./graphdata.txt"), file(filename), stream(&file), dataPoints(625)
+	:filename("./graphdata.txt"), file(filename), stream(&file), dataPoints(256)
 {
 	actionSender = new ActionSender(args, addr, port);
 	dataUpdateTimer = new QTimer(this);
 	dataUpdateTimer->setInterval(100);
 	connect(dataUpdateTimer, SIGNAL(timeout()), this, SLOT(timerUpdate()));
 	counter = 0;
-	sphereCountSqrt = 25;
+	sphereCountSqrt = 16;
 	sphereCount = sphereCountSqrt*sphereCountSqrt;
-	timeStep = 0.2;
-	time = 5;
+	timeStep = 1.0e-13;
+	time = 1.0e-12;
 	file.open(QIODevice::WriteOnly);
 	data.reserve(dataPoints);
 }
@@ -76,27 +76,30 @@ void SimulationGrapher::runSimulation()
 	actionSender->updateCollisionDetection(true);
 	actionSender->updateFrameSending(false);*/
 	
-	Scalar boxLength = sphereCountSqrt/8.0*2.0e-8;
+	Scalar boxLength = sphereCountSqrt/8.0*5.0e-9;
 	actionSender->updateBoxSize(Vector3(boxLength, boxLength, boxLength));
-	float radius = 0.01*boxLength/sphereCountSqrt*8.0;
+	float radius = 0.017*boxLength;
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
 	std::default_random_engine generator(timepoint.count());
-	std::uniform_real_distribution<float> distribution(0.0f, radius/4);
+	std::uniform_real_distribution<float> distribution(-radius/4, radius/4);
+	std::uniform_real_distribution<float> distribution2(-1, 1);
 	
 	Sphere s;
 	s.radius = 1.5*radius;
-	s.pos(0) = 1.5*radius;
-	s.pos(1) = 1.5*radius;
-	s.pos(2) = 1.5*radius;
 	s.speed.setZero();
 	s.acc.setZero();
-	s.mass = 0.01;
+	s.mass = 6.6335e-26;
+	Vector3 boxSize(boxLength,boxLength,boxLength);
+	boxSize /= 2;
 	for(unsigned int i = 0; i<sphereCount; i++)
 	{
 		actionSender->addSphere();
-		s.pos(1) = 4*radius + 3.5f*radius*(i/sphereCountSqrt) + distribution(generator);
-		s.pos(0) = 4*radius + 3.5f*radius*(i%sphereCountSqrt) + distribution(generator);
+		s.pos = boxSize;
+		s.pos(0) += 5.f*radius*((sphereCountSqrt-1)/2.0-(i%sphereCountSqrt)) + distribution(generator);
+		s.pos(1) += 5.f*radius*((sphereCountSqrt-1)/2.0-(i/sphereCountSqrt)) + distribution(generator);
+		s.speed(0) = 100*distribution2(generator);
+		s.speed(1) = 100*distribution2(generator);
 		actionSender->updateSphere(i, s);
 	}
 	
@@ -106,7 +109,7 @@ void SimulationGrapher::runSimulation()
 	actionSender->updateLennardJonesPotentialCalculation(true);
 	actionSender->updateEarthGravity(Vector3(0,0,0));
 	//actionSender->updateEarthGravity(Vector3(0,-9.81,0));
-	//actionSender->updateWallE(0);
+	actionSender->updateWallE(0);
 	actionSender->updateTimeStep(timeStep);
 	actionSender->updateFrameSending(false);
 	
@@ -137,7 +140,7 @@ void SimulationGrapher::timerUpdate()
 			Scalar factor = 1.0/dataPoints;
 			for(quint16 i = 0; i<dataPoints+1; i++)
 			{
-				stream<<(data[i]*1.0e10)<<"\t"<<(i*factor)<<"\n";
+				stream<<data[i]<<"\t"<<(i*factor)<<"\n";
 			}
 			stream.flush();
 			file.close();

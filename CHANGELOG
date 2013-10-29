@@ -1,3 +1,5 @@
+* Improved simulated systems in Viewer and Grapher.
+
 SphereSim 2.4.0:
 * Added methods to control and calculate Lennard-Jones potentials and forces.
 * Added methods to control the simulated box size.
