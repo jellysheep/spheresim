@@ -28,6 +28,8 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	connect(actionSender, SIGNAL(frameBufferPercentageLevelUpdate(int)), ui->glWidget, SLOT(updateTimerFrequency(int)));
 	connect(ui->addSphere, SIGNAL(clicked()), actionSender, SLOT(addSphere()));
 	connect(ui->removeSphere, SIGNAL(clicked()), actionSender, SLOT(removeLastSphere()));
+	connect(ui->increaseEnergy, SIGNAL(clicked()), SLOT(increaseEnergy()));
+	connect(ui->decreaseEnergy, SIGNAL(clicked()), SLOT(decreaseEnergy()));
 	timer.start();
 	
 	updateBoxLength(1);
@@ -137,4 +139,14 @@ void MainWindow::updateBoxLength(Scalar length)
 	boxLength = length;
 	ui->glWidget->setBoxLength(boxLength);
 	actionSender->updateBoxSize(Vector3(boxLength,boxLength,boxLength));
+}
+
+void MainWindow::increaseEnergy()
+{
+	actionSender->updateKineticEnergy(2);
+}
+
+void MainWindow::decreaseEnergy()
+{
+	actionSender->updateKineticEnergy(0.5);
 }

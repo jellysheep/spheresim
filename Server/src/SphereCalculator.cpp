@@ -1221,3 +1221,12 @@ void SphereCalculator::updateBoxSize(Vector3 boxSize)
 {
 	simulatedSystem.boxSize = boxSize;
 }
+
+void SphereCalculator::updateKineticEnergy(Scalar factor)
+{
+	factor = sqrt(factor);
+	for(quint16 sphereIndex = 0; sphereIndex<sphCount; sphereIndex++)
+	{
+		sphArr[sphereIndex].speed *= factor;
+	}
+}

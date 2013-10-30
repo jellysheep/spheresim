@@ -2,7 +2,8 @@ set term png truecolor enhanced size 800,600
 set out "graphs.png"
 
 f1(x) = erf(x/(sqrt(2)*a1))-sqrt(2/pi)*(x*exp(-x**2/(2*a1**2)))/a1
-g1(x) = sqrt(2/pi)*((x**2)*exp(-x**2/(2*a1**2)))/(a1**3)
+g1(x) = 100*sqrt(2/pi)*((x**2)*exp(-x**2/(2*a1**2)))/(a1**3)
+a1 = 40
 fit f1(x) "graphdata.txt" via a1
 plot "graphdata.txt", \
 	f1(x), \

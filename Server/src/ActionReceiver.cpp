@@ -338,6 +338,10 @@ void ActionReceiver::handleSimulatedSystemAction(quint8 actionGroup, quint8 acti
 		stream>>s3;
 		sphCalc.updateBoxSize(Vector3(s, s2, s3));
 		break;
+	case SimulatedSystemActions::updateKineticEnergy:
+		stream>>s;
+		sphCalc.updateKineticEnergy(s);
+		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
 		break;

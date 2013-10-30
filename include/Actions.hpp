@@ -146,7 +146,9 @@ namespace SphereSim
 			/** \brief Update the gravitational constant G. */
 			updateGravitationalConstant,
 			/** \brief Update the size of the simulated system box. */
-			updateBoxSize
+			updateBoxSize,
+			/** \brief Update the kinetic energy of each sphere by a scale factor. */
+			updateKineticEnergy
 		};
 	}
 	

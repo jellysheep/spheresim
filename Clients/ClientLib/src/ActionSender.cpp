@@ -471,6 +471,14 @@ void ActionSender::updateBoxSize(Vector3 boxSize)
 	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateBoxSize, arr);
 }
 
+void ActionSender::updateKineticEnergy(Scalar factor)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<factor;
+	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateKineticEnergy, arr);
+}
+
 void ActionSender::framerateEvent()
 {
 	if(framerateTimer.elapsed()>1000)

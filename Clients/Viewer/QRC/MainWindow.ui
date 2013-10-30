@@ -24,7 +24,7 @@
      <x>0</x>
      <y>0</y>
      <width>468</width>
-     <height>20</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuProgram">
@@ -233,6 +233,20 @@
        </property>
        <property name="maximum">
         <double>1000000.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="increaseEnergy">
+       <property name="text">
+        <string>increase energy</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QPushButton" name="decreaseEnergy">
+       <property name="text">
+        <string>decrease energy</string>
        </property>
       </widget>
      </item>

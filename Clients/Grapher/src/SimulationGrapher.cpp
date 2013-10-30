@@ -96,10 +96,11 @@ void SimulationGrapher::runSimulation()
 	{
 		actionSender->addSphere();
 		s.pos = boxSize;
-		s.pos(0) += 5.f*radius*((sphereCountSqrt-1)/2.0-(i%sphereCountSqrt)) + distribution(generator);
-		s.pos(1) += 5.f*radius*((sphereCountSqrt-1)/2.0-(i/sphereCountSqrt)) + distribution(generator);
-		s.speed(0) = 100*distribution2(generator);
-		s.speed(1) = 100*distribution2(generator);
+		s.pos(0) += 7.5f*8/sphereCountSqrt*radius*((sphereCountSqrt-1)/2.0-(i%sphereCountSqrt)) + distribution(generator);
+		s.pos(1) += 7.5f*8/sphereCountSqrt*radius*((sphereCountSqrt-1)/2.0-(i/sphereCountSqrt)) + distribution(generator);
+		s.pos(2) = 0;
+		s.speed(0) = 10*distribution2(generator);
+		s.speed(1) = 10*distribution2(generator);
 		actionSender->updateSphere(i, s);
 	}
 	
@@ -108,7 +109,6 @@ void SimulationGrapher::runSimulation()
 	actionSender->updateGravitationalConstant(1.0e-4);
 	actionSender->updateLennardJonesPotentialCalculation(true);
 	actionSender->updateEarthGravity(Vector3(0,0,0));
-	//actionSender->updateEarthGravity(Vector3(0,-9.81,0));
 	actionSender->updateWallE(0);
 	actionSender->updateTimeStep(timeStep);
 	actionSender->updateFrameSending(false);
@@ -121,7 +121,11 @@ void SimulationGrapher::timerUpdate()
 	if(!actionSender->getIsSimulating())
 	{
 		qDebug()<<counter++;
-		if(counter > 10)
+		qDebug()<<"kin. energy 1:"<<actionSender->getKineticEnergy();
+		if(counter >= 2 && counter <= 5)
+			actionSender->updateKineticEnergy(3.0);
+		qDebug()<<"kin. energy 2:"<<actionSender->getKineticEnergy();
+		if(counter > 11)
 		{
 			Sphere s;
 			Scalar speed;
@@ -132,7 +136,7 @@ void SimulationGrapher::timerUpdate()
 				data.append(speed);
 			}
 		}
-		if(counter > 11 + dataPoints/sphereCount)
+		if(counter > 12 + dataPoints/sphereCount)
 		{
 			dataUpdateTimer->stop();
 			qSort(data);

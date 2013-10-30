@@ -324,6 +324,10 @@ namespace SphereSim
 		 * \param boxSize Requested box size. */
 		void updateBoxSize(Vector3 boxSize);
 		
+		/** \copydoc SimulatedSystemActions::updateKineticEnergy
+		 * \param factor Kinetic energy scale factor. */
+		void updateKineticEnergy(Scalar factor);
+		
 		friend class SimulationWorker;
 		
 	signals:
