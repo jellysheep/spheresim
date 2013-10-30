@@ -115,10 +115,11 @@ void MainWindow::prepareSystem3()
 	{
 		actionSender->addSphere();
 		s.pos = boxSize;
-		s.pos(0) += 5.f*radius*(3.5-(i%8)) + distribution(generator);
-		s.pos(1) += 5.f*radius*(3.5-(i/8)) + distribution(generator);
-		s.speed(0) = 200*distribution2(generator);
-		s.speed(1) = 200*distribution2(generator);
+		s.pos(0) += 7.5f*radius*(3.5-(i%8)) + distribution(generator);
+		s.pos(1) += 7.5f*radius*(3.5-(i/8)) + distribution(generator);
+		s.pos(2) = 0;
+		s.speed(0) = 50*distribution2(generator);
+		s.speed(1) = 50*distribution2(generator);
 		actionSender->updateSphere(i, s);
 	}
 	
@@ -127,7 +128,6 @@ void MainWindow::prepareSystem3()
 	actionSender->updateGravitationalConstant(1.0e-4);
 	actionSender->updateLennardJonesPotentialCalculation(true);
 	actionSender->updateEarthGravity(Vector3(0,0,0));
-	//actionSender->updateEarthGravity(Vector3(0,-9.81,0));
 	actionSender->updateWallE(0);
 	actionSender->updateTimeStep(1.0e-13);
 }

@@ -1,4 +1,5 @@
 * Improved simulated systems in Viewer and Grapher.
+* Added periodic boundary conditions; currently works with pairwise forces only.
 
 SphereSim 2.4.0:
 * Added methods to control and calculate Lennard-Jones potentials and forces.

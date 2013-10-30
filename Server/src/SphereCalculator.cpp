@@ -28,6 +28,7 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	gravityAllCellCount(2*gravityCellCount3), maxSpheresPerGravityCell(1024),
 	sphereIndicesInGravityCells(maxSpheresPerGravityCell, gravityCellCount3), maxApproximatingCellsPerGravityCell(gravityCellCount3),
 	approximatingCellsPerGravityCell(maxApproximatingCellsPerGravityCell, gravityAllCellCount),
+	approximatingCellsOffsetPerGravityCell(maxApproximatingCellsPerGravityCell, gravityAllCellCount),
 	maxPairwiseCellsPerGravityCell(gravityCellCount3), pairwiseCellsPerGravityCell(maxPairwiseCellsPerGravityCell, gravityAllCellCount)
 {
 	qDebug()<<"SphereCalculator: constructor called";
@@ -50,6 +51,7 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	lennardJonesPotentialFlag = false;
 	simulatedSystem.lenJonPotEpsilon = 1.6540e-21;
 	simulatedSystem.lenJonPotSigma = 0.3405e-9;
+	simulatedSystem.periodicBoundaryConditions = true;
 	
 	updateSphereBox();
 	massVectorSumPerCell = new Vector3[gravityAllCellCount];
@@ -62,6 +64,7 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	sphereCountPerGravityCell = new quint16[gravityAllCellCount];
 	updateGravityCellIndexOfSpheresArray();
 	buildGravityCells();
+	rebuildGravityCellPairs();
 	
 	workQueueMutex = new QMutex();
 	workQueue = new WorkQueue(workQueueMutex);
@@ -98,7 +101,7 @@ QVector<Sphere>& SphereCalculator::getSpheres()
 	return spheres;
 }
 
-template <bool detectCollisions, bool gravity, bool lennardJonesPotential>
+template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff)
 {
 	Scalar d, forceNormalized;
@@ -157,6 +160,13 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 	{
 		quint32 gravityCellIndex = gravityCellCount3 + gravityCellIndexOfSpheres[sphereIndex];
 		quint32 gravityCellIndex2;
+		
+		Vector3 sphereOffset;
+		Vector3 sphereTestPos;
+		Vector3 sphereTestPos2;
+		Vector3 boxSize = simulatedSystem.boxSize;
+		Vector3 dVecNew;
+		Scalar dNew;
 		for(int i = pairwiseCellsPerGravityCell.getCount(gravityCellIndex)-1; i>=0; i--)
 		{
 			gravityCellIndex2 = pairwiseCellsPerGravityCell[gravityCellIndex][i] - gravityCellCount3;
@@ -166,8 +176,44 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 				if(sphereIndex == sphereIndex2)
 					continue;
 				sphere2 = sphArr[sphereIndex2];
-				dVec = sphere2.pos-sphere.pos;
-				d = dVec.norm();
+				if(periodicBoundaries)
+				{
+					sphereOffset.setZero();
+					dVec = sphere2.pos-sphere.pos;
+					d = dVec.norm();
+					sphereTestPos = sphere2.pos;
+					for(quint8 dim = 0; dim<3; dim++)
+					{
+						sphereTestPos2 = sphereTestPos;
+						sphereTestPos2(dim) += boxSize(dim);
+						dVecNew = sphereTestPos2-sphere.pos;
+						dNew = dVecNew.norm();
+						if(dNew < d)
+						{
+							dVec = dVecNew;
+							d = dNew;
+							sphereTestPos = sphereTestPos2;
+						}
+						else
+						{
+							sphereTestPos2 = sphereTestPos;
+							sphereTestPos2(dim) -= boxSize(dim);
+							dVecNew = sphereTestPos2-sphere.pos;
+							dNew = dVecNew.norm();
+							if(dNew < d)
+							{
+								dVec = dVecNew;
+								d = dNew;
+								sphereTestPos = sphereTestPos2;
+							}
+						}
+					}
+				}
+				else
+				{
+					dVec = sphere2.pos-sphere.pos;
+					d = dVec.norm();
+				}
 				if(gravity)
 					force += simulatedSystem.gravitationalConstant * sphere.mass * sphere2.mass * dVec / d / d / d;
 				if(lennardJonesPotential)
@@ -180,7 +226,10 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 		for(int i = approximatingCellsPerGravityCell.getCount(gravityCellIndex)-1; i>=0; i--)
 		{
 			gravityCellIndex2 = approximatingCellsPerGravityCell[gravityCellIndex][i];
-			dVec = massCenterPerCell[gravityCellIndex2]-sphere.pos;
+			if(periodicBoundaries)
+				dVec = (massCenterPerCell[gravityCellIndex2]+approximatingCellsOffsetPerGravityCell[gravityCellIndex][i])-sphere.pos;
+			else
+				dVec = massCenterPerCell[gravityCellIndex2]-sphere.pos;
 			d = dVec.norm();
 			if(gravity)
 				force += simulatedSystem.gravitationalConstant * sphere.mass * massSumPerCell[gravityCellIndex2] * dVec / d / d / d;
@@ -198,7 +247,7 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 	return acc;
 }
 
-template <bool detectCollisions, bool gravity, bool lennardJonesPotential>
+template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 Scalar SphereCalculator::getTotalEnergy_internal()
 {
 	if(detectCollisions || gravity || lennardJonesPotential)
@@ -296,7 +345,10 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 			for(int i = approximatingCellsPerGravityCell.getCount(gravityCellIndex)-1; i>=0; i--)
 			{
 				gravityCellIndex2 = approximatingCellsPerGravityCell[gravityCellIndex][i];
-				dVec = massCenterPerCell[gravityCellIndex2]-sphere.pos;
+				if(periodicBoundaries)
+					dVec = (massCenterPerCell[gravityCellIndex2]+approximatingCellsOffsetPerGravityCell[gravityCellIndex][i])-sphere.pos;
+				else
+					dVec = massCenterPerCell[gravityCellIndex2]-sphere.pos;
 				d = dVec.norm();
 				if(gravity)
 					sphereEnergy -= simulatedSystem.gravitationalConstant * sphere.mass * massSumPerCell[gravityCellIndex2] / d;
@@ -328,16 +380,36 @@ void SphereCalculator::integrateRungeKuttaStep()
 		if(gravityCalculationFlag)
 		{
 			if(lennardJonesPotentialFlag)
-				integrateRungeKuttaStep_internal<true, true, true>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					integrateRungeKuttaStep_internal<true, true, true, true>();
+				else
+					integrateRungeKuttaStep_internal<true, true, true, false>();
+			}
 			else
-				integrateRungeKuttaStep_internal<true, true, false>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					integrateRungeKuttaStep_internal<true, true, false, true>();
+				else
+					integrateRungeKuttaStep_internal<true, true, false, false>();
+			}
 		}
 		else
 		{
 			if(lennardJonesPotentialFlag)
-				integrateRungeKuttaStep_internal<true, false, true>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					integrateRungeKuttaStep_internal<true, false, true, true>();
+				else
+					integrateRungeKuttaStep_internal<true, false, true, false>();
+			}
 			else
-				integrateRungeKuttaStep_internal<true, false, false>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					integrateRungeKuttaStep_internal<true, false, false, true>();
+				else
+					integrateRungeKuttaStep_internal<true, false, false, false>();
+			}
 		}
 	}
 	else
@@ -345,21 +417,41 @@ void SphereCalculator::integrateRungeKuttaStep()
 		if(gravityCalculationFlag)
 		{
 			if(lennardJonesPotentialFlag)
-				integrateRungeKuttaStep_internal<false, true, true>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					integrateRungeKuttaStep_internal<false, true, true, true>();
+				else
+					integrateRungeKuttaStep_internal<false, true, true, false>();
+			}
 			else
-				integrateRungeKuttaStep_internal<false, true, false>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					integrateRungeKuttaStep_internal<false, true, false, true>();
+				else
+					integrateRungeKuttaStep_internal<false, true, false, false>();
+			}
 		}
 		else
 		{
 			if(lennardJonesPotentialFlag)
-				integrateRungeKuttaStep_internal<false, false, true>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					integrateRungeKuttaStep_internal<false, false, true, true>();
+				else
+					integrateRungeKuttaStep_internal<false, false, true, false>();
+			}
 			else
-				integrateRungeKuttaStep_internal<false, false, false>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					integrateRungeKuttaStep_internal<false, false, false, true>();
+				else
+					integrateRungeKuttaStep_internal<false, false, false, false>();
+			}
 		}
 	}
 }
 
-template <bool detectCollisions, bool gravity, bool lennardJonesPotential>
+template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 void SphereCalculator::integrateRungeKuttaStep_internal()
 {
 	if(detectCollisions || gravity || lennardJonesPotential)
@@ -374,21 +466,32 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 	#pragma omp parallel for
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
-		integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential>(sphereIndex, timeStep, 0.0);
+		integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, timeStep, 0.0);
 	}
 	#pragma omp parallel for
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
-		Scalar pos = sphArr[sphereIndex].pos(2);
-		sphArr[sphereIndex].pos = newSpherePosArr[sphereIndex];
-		sphArr[sphereIndex].pos(2) = pos;
+		Scalar pos2 = sphArr[sphereIndex].pos(2);
+		Vector3 pos = newSpherePosArr[sphereIndex];
+		if(periodicBoundaries)
+		{
+			for(quint8 dim = 0; dim<3; dim++)
+			{
+				if(pos(dim) > simulatedSystem.boxSize(dim))
+					pos(dim) -= simulatedSystem.boxSize(dim);
+				else if(pos(dim) < 0)
+					pos(dim) += simulatedSystem.boxSize(dim);
+			}
+		}
+		sphArr[sphereIndex].pos = pos;
+		sphArr[sphereIndex].pos(2) = pos2;
 		sphArr[sphereIndex].speed(2) = 0;
 		sphArr[sphereIndex].acc(2) = 0;
 	}
 	stepCounter++;
 }
 
-template <bool detectCollisions, bool gravity, bool lennardJonesPotential>
+template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff)
 {
 	Sphere sphere = sphArr[sphereIndex];
@@ -397,7 +500,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, 
 	Vector3 k_acc[integratorOrder];
 	Vector3 k_speed[integratorOrder];
 	
-	k_acc[0] = sphereAcceleration<detectCollisions, gravity, lennardJonesPotential>(sphereIndex, sphere, timeDiff);
+	k_acc[0] = sphereAcceleration<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, sphere, timeDiff);
 	k_speed[0] = sphere.speed;
 	for(quint8 n = 1; n<integratorOrder; n++)
 	{
@@ -406,7 +509,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, 
 		{
 			sphere.pos += stepLength*butcherTableau.a[n][j]*k_speed[j];
 		}
-		k_acc[n] = sphereAcceleration<detectCollisions, gravity, lennardJonesPotential>(sphereIndex, sphere, timeDiff);
+		k_acc[n] = sphereAcceleration<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, sphere, timeDiff);
 		
 		k_speed[n] = origSphere.speed;
 		for(quint8 j = 0; j<n; j++)
@@ -432,8 +535,8 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, 
 	if(error_pos_>1.0e-04 || error_speed_>1.0e-04)
 	{
 		quint32 stepCount = 0;
-		stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential>(sphereIndex, stepLength/2, timeDiff);
-		stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential>(sphereIndex, stepLength/2, timeDiff+(stepLength/2));
+		stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, stepLength/2, timeDiff);
+		stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, stepLength/2, timeDiff+(stepLength/2));
 		return stepCount;
 	}else{
 		newSpherePosArr[sphereIndex] = pos;
@@ -661,19 +764,37 @@ void SphereCalculator::buildGravityCells()
 	{
 		gravityCellPositions[cellIndex] += gravityCellSizes[cellIndex]/2;
 	}
-	for(cellIndex = gravityAllCellCount-1; cellIndex >= 1; cellIndex--)
+}
+
+void SphereCalculator::rebuildGravityCellPairs()
+{
+	for(quint32 cellIndex = gravityAllCellCount-1; cellIndex >= 1; cellIndex--)
 	{
 		if(cellIndex >= gravityCellCount3)
 		{
-			buildGravityCellPairs(cellIndex, 1);
+			pairwiseCellsPerGravityCell.resetCounter(cellIndex);
+			approximatingCellsPerGravityCell.resetCounter(cellIndex);
+			approximatingCellsOffsetPerGravityCell.resetCounter(cellIndex);
+			rebuildGravityCellPairs(cellIndex, 1);
 		}
 	}
 }
 
-void SphereCalculator::buildGravityCellPairs(quint32 currentCellIndex, quint32 testCellIndex)
+void SphereCalculator::rebuildGravityCellPairs(quint32 currentCellIndex, quint32 testCellIndex)
 {
-	Vector3 pos = gravityCellPositions[currentCellIndex];
-	pos = gravityCellPositions[testCellIndex];
+	if(simulatedSystem.periodicBoundaryConditions)
+	{
+		if(testCellIndex >= gravityCellCount3)
+		{
+			pairwiseCellsPerGravityCell.addElement(currentCellIndex, testCellIndex);
+		}
+		else
+		{
+			rebuildGravityCellPairs(currentCellIndex, testCellIndex*2);
+			rebuildGravityCellPairs(currentCellIndex, (testCellIndex*2)+1);
+		}
+		return;
+	}
 	if(currentCellIndex == testCellIndex)
 	{
 		//test cell is same
@@ -688,18 +809,39 @@ void SphereCalculator::buildGravityCellPairs(quint32 currentCellIndex, quint32 t
 		if(index == testCellIndex)
 		{
 			//test cell is parent
-			buildGravityCellPairs(currentCellIndex, testCellIndex*2);
-			buildGravityCellPairs(currentCellIndex, (testCellIndex*2)+1);
+			rebuildGravityCellPairs(currentCellIndex, testCellIndex*2);
+			rebuildGravityCellPairs(currentCellIndex, (testCellIndex*2)+1);
 			return;
 		}
 	}
+	Vector3 currentCellPos = gravityCellPositions[currentCellIndex];
+	Vector3 testCellPos = gravityCellPositions[testCellIndex];
+	Vector3 testCellOffset = Vector3();
+	/*if(simulatedSystem.periodicBoundaryConditions)
+	{
+		Scalar cellDistance = (testCellPos-currentCellPos).norm(), newCellDistance;
+		Vector3 modifiedTestCellPos;
+		for(quint8 i = 0; i<6; i++)
+		{
+			quint8 dim = i/2;
+			modifiedTestCellPos = testCellPos + testCellOffset;
+			modifiedTestCellPos(dim) += (dim%2==0?1:-1)*simulatedSystem.boxSize(dim);
+			newCellDistance = (modifiedTestCellPos-currentCellPos).norm();
+			if(newCellDistance < cellDistance)
+			{
+				testCellOffset(dim) += (dim%2==0?1:-1)*simulatedSystem.boxSize(dim);
+				cellDistance = newCellDistance;
+			}
+		}
+	}*/
 	Scalar maxCellLength = 2*fmax(gravityCellHalfDiagonalLength[currentCellIndex], gravityCellHalfDiagonalLength[testCellIndex]);
-	Scalar minimalDistance = fmax((gravityCellPositions[currentCellIndex]-gravityCellPositions[testCellIndex]).norm()
+	Scalar minimalDistance = fmax((currentCellPos-(testCellPos+testCellOffset)).norm()
 		-gravityCellHalfDiagonalLength[currentCellIndex]-gravityCellHalfDiagonalLength[testCellIndex], 0.0000001);
 	Scalar theta = maxCellLength / minimalDistance;
 	if(theta<simulatedSystem.maximumTheta)
 	{
 		approximatingCellsPerGravityCell.addElement(currentCellIndex, testCellIndex);
+		approximatingCellsOffsetPerGravityCell.addElement(currentCellIndex, testCellOffset);
 	}
 	else
 	{
@@ -709,8 +851,8 @@ void SphereCalculator::buildGravityCellPairs(quint32 currentCellIndex, quint32 t
 		}
 		else
 		{
-			buildGravityCellPairs(currentCellIndex, testCellIndex*2);
-			buildGravityCellPairs(currentCellIndex, (testCellIndex*2)+1);
+			rebuildGravityCellPairs(currentCellIndex, testCellIndex*2);
+			rebuildGravityCellPairs(currentCellIndex, (testCellIndex*2)+1);
 		}
 	}
 }
@@ -955,16 +1097,36 @@ Scalar SphereCalculator::getTotalEnergy()
 		if(gravityCalculationFlag)
 		{
 			if(lennardJonesPotentialFlag)
-				return getTotalEnergy_internal<true, true, true>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					return getTotalEnergy_internal<true, true, true, true>();
+				else
+					return getTotalEnergy_internal<true, true, true, false>();
+			}
 			else
-				return getTotalEnergy_internal<true, true, false>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					return getTotalEnergy_internal<true, true, false, true>();
+				else
+					return getTotalEnergy_internal<true, true, false, false>();
+			}
 		}
 		else
 		{
 			if(lennardJonesPotentialFlag)
-				return getTotalEnergy_internal<true, false, true>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					return getTotalEnergy_internal<true, false, true, true>();
+				else
+					return getTotalEnergy_internal<true, false, true, false>();
+			}
 			else
-				return getTotalEnergy_internal<true, false, false>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					return getTotalEnergy_internal<true, false, false, true>();
+				else
+					return getTotalEnergy_internal<true, false, false, false>();
+			}
 		}
 	}
 	else
@@ -972,16 +1134,36 @@ Scalar SphereCalculator::getTotalEnergy()
 		if(gravityCalculationFlag)
 		{
 			if(lennardJonesPotentialFlag)
-				return getTotalEnergy_internal<false, true, true>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					return getTotalEnergy_internal<false, true, true, true>();
+				else
+					return getTotalEnergy_internal<false, true, true, false>();
+			}
 			else
-				return getTotalEnergy_internal<false, true, false>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					return getTotalEnergy_internal<false, true, false, true>();
+				else
+					return getTotalEnergy_internal<false, true, false, false>();
+			}
 		}
 		else
 		{
 			if(lennardJonesPotentialFlag)
-				return getTotalEnergy_internal<false, false, true>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					return getTotalEnergy_internal<false, false, true, true>();
+				else
+					return getTotalEnergy_internal<false, false, true, false>();
+			}
 			else
-				return getTotalEnergy_internal<false, false, false>();
+			{
+				if(simulatedSystem.periodicBoundaryConditions)
+					return getTotalEnergy_internal<false, false, false, true>();
+				else
+					return getTotalEnergy_internal<false, false, false, false>();
+			}
 		}
 	}
 }

@@ -60,7 +60,7 @@ namespace SphereSim
 		 * \param sphere Sphere to be calculated.
 		 * \param timeDiff Time difference (in s) used for the movements of other spheres.
 		 * \return Calculated current acceleration of the sphere. */
-		template <bool detectCollisions, bool gravity, bool lennardJonesPotential>
+		template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 		Vector3 sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff);
 		
 		/** \brief Update local data about spheres. */
@@ -73,7 +73,7 @@ namespace SphereSim
 		void integrateRungeKuttaStep();
 		
 		/** \copydoc integrateRungeKuttaStep */
-		template <bool detectCollisions, bool gravity, bool lennardJonesPotential>
+		template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 		void integrateRungeKuttaStep_internal();
 		
 		/** \brief Integrates one step of one sphere.
@@ -81,7 +81,7 @@ namespace SphereSim
 		 * \param stepLength Current step length (time in s).
 		 * \param timeDiff Time difference (in s) used for the movements of other spheres.
 		 * \return Number of steps used to integrate. */
-		template <bool detectCollisions, bool gravity, bool lennardJonesPotential>
+		template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 		quint32 integrateRungeKuttaStep_internal(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff);
 		
 		/** \brief Butcher tableau used in the integrator. */
@@ -151,7 +151,7 @@ namespace SphereSim
 		
 		TwoDimArray<quint16, true> collidingSpheresPerSphere;
 		
-		template <bool detectCollisions, bool gravity, bool lennardJonesPotential>
+		template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 		Scalar getTotalEnergy_internal();
 		
 		bool gravityCalculationFlag;
@@ -182,13 +182,17 @@ namespace SphereSim
 		
 		TwoDimArray<quint32, true> approximatingCellsPerGravityCell;
 		
+		TwoDimArray<Vector3, true> approximatingCellsOffsetPerGravityCell;
+		
 		const quint16 maxPairwiseCellsPerGravityCell;
 		
 		TwoDimArray<quint32, true> pairwiseCellsPerGravityCell;
 		
 		void buildGravityCells();
 		
-		void buildGravityCellPairs(quint32 currentCellIndex, quint32 testCellIndex);
+		void rebuildGravityCellPairs();
+		
+		void rebuildGravityCellPairs(quint32 currentCellIndex, quint32 testCellIndex);
 		
 		quint32 *gravityCellIndexOfSpheres;
 		
