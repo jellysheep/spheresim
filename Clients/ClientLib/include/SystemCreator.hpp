@@ -25,7 +25,7 @@ namespace SphereSim
 	public:
 		SystemCreator(ActionSender* actionSender);
 		
-		Scalar createArgonGasSystem(quint16 sphereCount);
+		Scalar createArgonGasSystem(quint16 sphereCount, Scalar targetTemperature=273.15);
 	};
 	
 }

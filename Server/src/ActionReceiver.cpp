@@ -304,6 +304,7 @@ void ActionReceiver::handleSimulatedSystemAction(quint8 actionGroup, quint8 acti
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	Scalar s, s2, s3;
+	bool b;
 	switch(action)
 	{
 	case SimulatedSystemActions::updateSphereE:
@@ -345,6 +346,10 @@ void ActionReceiver::handleSimulatedSystemAction(quint8 actionGroup, quint8 acti
 	case SimulatedSystemActions::updateTargetTemperature:
 		stream>>s;
 		sphCalc.updateTargetTemperature(s);
+		break;
+	case SimulatedSystemActions::updatePeriodicBoundaryConditions:
+		stream>>b;
+		sphCalc.updatePeriodicBoundaryConditions(b);
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);

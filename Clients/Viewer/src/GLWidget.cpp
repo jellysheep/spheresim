@@ -130,7 +130,7 @@ void GLWidget::paintGL()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	QMatrix4x4 worldMatrix = perspectiveMatrix;
-	worldMatrix.translate(0, 0, -2);
+	worldMatrix.translate(0, 0, -1);
 	worldMatrix.translate(-0.5, -0.5, -0.5);
 	worldMatrix.scale(1/boxLength);
 

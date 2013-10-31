@@ -331,6 +331,9 @@ namespace SphereSim
 		/** \copydoc SimulatedSystemActions::updateTargetTemperature */
 		void updateTargetTemperature(Scalar targetTemperature);
 		
+		/** \copydoc SimulatedSystemActions::updatePeriodicBoundaryConditions */
+		void updatePeriodicBoundaryConditions(bool periodicBoundaryConditions);
+		
 		friend class SimulationWorker;
 		
 	signals:

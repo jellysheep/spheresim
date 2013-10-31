@@ -46,7 +46,7 @@ SimulationGrapher::~SimulationGrapher()
 void SimulationGrapher::runSimulation()
 {
 	SystemCreator systemCreator(actionSender);
-	Scalar length = systemCreator.createArgonGasSystem(sphereCount);
+	Scalar length = systemCreator.createArgonGasSystem(sphereCount, 473.15);
 	actionSender->updateTimeStep(timeStep);
 	actionSender->updateFrameSending(false);
 	
@@ -65,7 +65,7 @@ void SimulationGrapher::timerUpdate()
 		temperatures.append(temperature);
 		if(counter>2 && counter%10 == 0)
 		{
-			actionSender->updateTargetTemperature(273.15);
+			actionSender->updateTargetTemperature(473.15);
 			qDebug()<<"updated kin. energy:"<<actionSender->getKineticEnergy();
 		}
 		

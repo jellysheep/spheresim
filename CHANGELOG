@@ -4,6 +4,8 @@
 * Added SystemCreator class to provide common systems for all clients.
 * Improved SystemCreator and SimulationGrapher to produce good speed distributions.
 * Added methods to target a specific system temperature.
+* Improved simulated system: atom speeds are Maxwell-Boltzmann distributed.
+* Added methods to control periodic boundary conditions.
 
 SphereSim 2.4.0:
 * Added methods to control and calculate Lennard-Jones potentials and forces.

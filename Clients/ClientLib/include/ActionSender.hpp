@@ -242,6 +242,9 @@ namespace SphereSim
 		
 		/** \copydoc SimulatedSystemActions::updateKineticEnergy */
 		void updateTargetTemperature(Scalar targetTemperature);
+		
+		/** \copydoc SimulatedSystemActions::updatePeriodicBoundaryConditions */
+		void updatePeriodicBoundaryConditions(bool periodicBoundaryConditions);
 	
 	public slots:
 		/** Set connectedFlag to true. 

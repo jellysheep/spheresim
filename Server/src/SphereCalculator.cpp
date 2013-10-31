@@ -51,7 +51,7 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	lennardJonesPotentialFlag = false;
 	simulatedSystem.lenJonPotEpsilon = 1.6540e-21;
 	simulatedSystem.lenJonPotSigma = 0.3405e-9;
-	simulatedSystem.periodicBoundaryConditions = true;
+	simulatedSystem.periodicBoundaryConditions = false;
 	simulatedSystem.kBoltzmann = 1.3806504e-23;
 	
 	updateSphereBox();
@@ -533,7 +533,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, 
 	
 	Scalar error_pos_ = (pos-pos_).norm();
 	Scalar error_speed_ = (speed-speed_).norm();
-	if(error_pos_>1.0e-04 || error_speed_>1.0e-04)
+	if(error_pos_>1.0e-05 || error_speed_>1.0e-05)
 	{
 		quint32 stepCount = 0;
 		stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, stepLength/2, timeDiff);
@@ -971,6 +971,7 @@ void SphereCalculator::updateIntegratorMethod(quint8 integrMethod)
 	
 	if(integrMethod == IntegratorMethods::HeunEuler21)
 	{
+		qDebug()<<"SphereCalculator: activated HeunEuler21 integrator.";
 		const Scalar a[4] = 	{0.0,	0.0,
 								1.0,	0.0};
 		const Scalar b[2] = 	{1/2.0,	1/2.0};
@@ -979,6 +980,7 @@ void SphereCalculator::updateIntegratorMethod(quint8 integrMethod)
 		butcherTableau = ButcherTableau(2, a, b, b_, c);
 	}else if(integrMethod == IntegratorMethods::BogackiShampine32)
 	{
+		qDebug()<<"SphereCalculator: activated BogackiShampine32 integrator.";
 		const Scalar a[16] = 	{0.0,	0.0,	0.0,	0.0,
 								1/2.0,	0.0,	0.0,	0.0,
 								0.0,	3/4.0,	0.0,	0.0,
@@ -989,6 +991,7 @@ void SphereCalculator::updateIntegratorMethod(quint8 integrMethod)
 		butcherTableau = ButcherTableau(4, a, b, b_, c);
 	}else if(integrMethod == IntegratorMethods::CashKarp54)
 	{
+		qDebug()<<"SphereCalculator: activated CashKarp54 integrator.";
 		const Scalar a[36] = 	{0.0,			0.0,		0.0,			0.0,			0.0,			0.0,
 								1/5.0,			0.0,		0.0,			0.0,			0.0,			0.0,
 								3/40.0,			9/40.0,		0.0,			0.0,			0.0,			0.0,
@@ -1001,6 +1004,7 @@ void SphereCalculator::updateIntegratorMethod(quint8 integrMethod)
 		butcherTableau = ButcherTableau(6, a, b, b_, c);
 	}else if(integrMethod == IntegratorMethods::DormandPrince54)
 	{
+		qDebug()<<"SphereCalculator: activated DormandPrince54 integrator.";
 		const Scalar a[49] = 	{0.0,			0.0,			0.0,			0.0,		0.0,			0.0,		0.0,
 								1/5.0,			0.0,			0.0,			0.0,		0.0,			0.0,		0.0,
 								3/40.0,			9/40.0,			0.0,			0.0,		0.0,			0.0,		0.0,
@@ -1013,6 +1017,7 @@ void SphereCalculator::updateIntegratorMethod(quint8 integrMethod)
 		const Scalar c[7] = 	{0.0,			1/5.0,			3/10.0,			4/5.0,		8/9.0,			1.0,		1.0};
 		butcherTableau = ButcherTableau(7, a, b, b_, c);
 	}else{
+		qDebug()<<"SphereCalculator: activated RungeKuttaFehlberg54 integrator.";
 		integratorMethod = IntegratorMethods::RungeKuttaFehlberg54;
 		const Scalar a[36] = 	{0.0,			0.0,			0.0,			0.0,			0.0,		0.0,
 								1/4.0,			0.0,			0.0,			0.0,			0.0,		0.0,
@@ -1236,4 +1241,10 @@ void SphereCalculator::updateTargetTemperature(Scalar targetTemperature)
 {
 	Scalar factor = sphCount*simulatedSystem.kBoltzmann*targetTemperature/getKineticEnergy();
 	updateKineticEnergy(factor);
+}
+
+void SphereCalculator::updatePeriodicBoundaryConditions(bool periodicBoundaryConditions)
+{
+	simulatedSystem.periodicBoundaryConditions = periodicBoundaryConditions;
+	rebuildGravityCellPairs();
 }

@@ -150,7 +150,9 @@ namespace SphereSim
 			/** \brief Update the kinetic energy of each sphere by a scale factor. */
 			updateKineticEnergy,
 			/** \brief Update the kinetic energy of each sphere to reach a target temperature. */
-			updateTargetTemperature
+			updateTargetTemperature,
+			/** \brief Update if periodic boundary conditions are enabled. */
+			updatePeriodicBoundaryConditions
 		};
 	}
 	

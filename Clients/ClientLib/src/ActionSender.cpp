@@ -487,6 +487,14 @@ void ActionSender::updateTargetTemperature(Scalar targetTemperature)
 	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateTargetTemperature, arr);
 }
 
+void ActionSender::updatePeriodicBoundaryConditions(bool periodicBoundaryConditions)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<periodicBoundaryConditions;
+	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updatePeriodicBoundaryConditions, arr);
+}
+
 void ActionSender::framerateEvent()
 {
 	if(framerateTimer.elapsed()>1000)

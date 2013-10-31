@@ -31,7 +31,7 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	connect(ui->removeSphere, SIGNAL(clicked()), actionSender, SLOT(removeLastSphere()));
 	connect(ui->increaseEnergy, SIGNAL(clicked()), SLOT(increaseEnergy()));
 	connect(ui->decreaseEnergy, SIGNAL(clicked()), SLOT(decreaseEnergy()));
-	connect(actionSender, SIGNAL(greatFrameBufferPercentageLevelUpdate(int)), SLOT(updateTargetTemperature()));
+	connect(actionSender, SIGNAL(greatFrameBufferPercentageLevelUpdate(int)), SLOT(updateTargetTemperature()), Qt::QueuedConnection);
 	timer.start();
 	
 	updateBoxLength(1);
@@ -101,7 +101,7 @@ void MainWindow::prepareSystem2()
 void MainWindow::prepareSystem3()
 {
 	SystemCreator systemCreator(actionSender);
-	Scalar length = systemCreator.createArgonGasSystem(100);
+	Scalar length = systemCreator.createArgonGasSystem(100, 473.15);
 	qDebug()<<"system box length:"<<length;
 	updateBoxLength(length);
 	actionSender->updateTimeStep(1.0e-13);
@@ -126,5 +126,7 @@ void MainWindow::decreaseEnergy()
 
 void MainWindow::updateTargetTemperature()
 {
-	actionSender->updateTargetTemperature(900);
+	if(timer.elapsed()<200)
+		return;
+	actionSender->updateTargetTemperature(473.15);
 }
