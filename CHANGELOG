@@ -1,3 +1,5 @@
+* Improved simulated system.
+
 SphereSim 2.4.1:
 * Improved simulated systems in Viewer and Grapher.
 * Added periodic boundary conditions; currently works with pairwise forces only.

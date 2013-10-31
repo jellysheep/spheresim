@@ -1,4 +1,4 @@
-set term png truecolor enhanced size 800,600
+set term png truecolor enhanced size 1024,768
 
 k = 1.38e-23
 NA= 6.022e23
@@ -13,15 +13,8 @@ g1(x) = 100*sqrt(2/pi)*((x**2)*exp(-x**2/(2*a1**2)))/(a1**3)
 a1 = a(40,T0)
 fit f1(x) "graphdata.txt" via a1
 
-f2(x) = erf(x/(sqrt(2)*a2))-sqrt(2/pi)*(x*exp(-x**2/(2*a2**2)))/a2
-g2(x) = 100*sqrt(2/pi)*((x**2)*exp(-x**2/(2*a2**2)))/(a2**3)
-a2 = a(40,T0)
-fit f2(x) "graphdata2.txt" via a2
-
 set out "graphs.png"
-plot "graphdata2.txt", \
-	f2(x), \
-	"graphdata.txt", \
+plot "graphdata.txt", \
 	f1(x), \
 	q(x,40,T0)
 
@@ -34,5 +27,4 @@ plot "temperatures.txt" with linespoints
 set out "graphs2.png"
 set xrange [1:700]
 plot g1(x), \
-	g2(x), \
 	100*p(x,40,T0)

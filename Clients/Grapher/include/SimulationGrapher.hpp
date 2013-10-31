@@ -49,8 +49,6 @@ namespace SphereSim
 		
 		QList<Scalar> data;
 		
-		QList<Scalar> data2;
-		
 		QList<Scalar> temperatures;
 		
 		quint16 stepsToEquilibrium;

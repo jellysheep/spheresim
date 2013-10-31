@@ -101,10 +101,10 @@ void MainWindow::prepareSystem2()
 void MainWindow::prepareSystem3()
 {
 	SystemCreator systemCreator(actionSender);
-	Scalar length = systemCreator.createArgonGasSystem(100, 473.15);
+	Scalar length = systemCreator.createArgonGasSystem(64, 473.15);
 	qDebug()<<"system box length:"<<length;
 	updateBoxLength(length);
-	actionSender->updateTimeStep(1.0e-13);
+	actionSender->updateTimeStep(2.0e-14);
 }
 
 void MainWindow::updateBoxLength(Scalar length)

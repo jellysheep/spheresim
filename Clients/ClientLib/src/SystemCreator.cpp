@@ -54,7 +54,7 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 	quint16 sphereCountSqrt = (quint16)sqrt(sphereCount);
 	sphereCount = sphereCountSqrt*sphereCountSqrt;
 	
-	Scalar boxLength = sphereCountSqrt/8.0*20.0e-9;
+	Scalar boxLength = sphereCountSqrt/8.0*2.5e-9;
 	actionSender->updateBoxSize(Vector3(boxLength, boxLength, boxLength));
 	float radius = 0.017*boxLength;
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
