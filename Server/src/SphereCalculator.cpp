@@ -52,6 +52,7 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	simulatedSystem.lenJonPotEpsilon = 1.6540e-21;
 	simulatedSystem.lenJonPotSigma = 0.3405e-9;
 	simulatedSystem.periodicBoundaryConditions = true;
+	simulatedSystem.kBoltzmann = 1.3806504e-23;
 	
 	updateSphereBox();
 	massVectorSumPerCell = new Vector3[gravityAllCellCount];
@@ -1229,4 +1230,10 @@ void SphereCalculator::updateKineticEnergy(Scalar factor)
 	{
 		sphArr[sphereIndex].speed *= factor;
 	}
+}
+
+void SphereCalculator::updateTargetTemperature(Scalar targetTemperature)
+{
+	Scalar factor = sphCount*simulatedSystem.kBoltzmann*targetTemperature/getKineticEnergy();
+	updateKineticEnergy(factor);
 }

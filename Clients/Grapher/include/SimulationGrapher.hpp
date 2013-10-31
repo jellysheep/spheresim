@@ -41,10 +41,6 @@ namespace SphereSim
 		
 		Scalar time;
 		
-		QString filename;
-		
-		QString filename2;
-		
 		quint16 sphereCountSqrt;
 		
 		quint16 sphereCount;
@@ -55,7 +51,11 @@ namespace SphereSim
 		
 		QList<Scalar> data2;
 		
+		QList<Scalar> temperatures;
+		
 		quint16 stepsToEquilibrium;
+		
+		quint16 stepsBeforeMeasuring;
 		
 	public:
 		/** \brief Start a SimulationGrapher with the specified address and port.

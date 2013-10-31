@@ -58,6 +58,8 @@ namespace SphereSim
 		
 		void decreaseEnergy();
 		
+		void updateTargetTemperature();
+		
 	};
 }
 

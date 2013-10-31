@@ -148,7 +148,9 @@ namespace SphereSim
 			/** \brief Update the size of the simulated system box. */
 			updateBoxSize,
 			/** \brief Update the kinetic energy of each sphere by a scale factor. */
-			updateKineticEnergy
+			updateKineticEnergy,
+			/** \brief Update the kinetic energy of each sphere to reach a target temperature. */
+			updateTargetTemperature
 		};
 	}
 	

@@ -21,19 +21,20 @@
 using namespace SphereSim;
 
 SimulationGrapher::SimulationGrapher(QStringList args, QHostAddress addr, quint16 port)
-	:filename("./graphdata.txt"), filename2("./graphdata2.txt"), dataPoints(256), stepsToEquilibrium(20)
+	:dataPoints(256), stepsToEquilibrium(200), stepsBeforeMeasuring(30)
 {
 	actionSender = new ActionSender(args, addr, port);
 	dataUpdateTimer = new QTimer(this);
-	dataUpdateTimer->setInterval(100);
+	dataUpdateTimer->setInterval(20);
 	connect(dataUpdateTimer, SIGNAL(timeout()), this, SLOT(timerUpdate()));
 	counter = 0;
 	sphereCountSqrt = 16;
 	sphereCount = sphereCountSqrt*sphereCountSqrt;
-	timeStep = 1.0e-13;
-	time = 50.0e-13;
+	timeStep = 2.0e-14;
+	time = 5.0e-14;
 	data.reserve(dataPoints);
-	data2.reserve(dataPoints*(stepsToEquilibrium+1));
+	data2.reserve(dataPoints*(stepsToEquilibrium-stepsBeforeMeasuring+1));
+	temperatures.reserve(stepsToEquilibrium + dataPoints/sphereCount);
 }
 
 SimulationGrapher::~SimulationGrapher()
@@ -57,12 +58,16 @@ void SimulationGrapher::timerUpdate()
 	if(!actionSender->getIsSimulating())
 	{
 		qDebug()<<++counter;
-		qDebug()<<"kin. energy:"<<actionSender->getKineticEnergy();
-		/*if(counter >= 2 && counter <= 5)
+		Scalar kineticEnergy = actionSender->getKineticEnergy();
+		qDebug()<<"kin. energy:"<<kineticEnergy;
+		Scalar temperature = kineticEnergy/(sphereCount*1.3806504e-23);
+		qDebug()<<"temperature:"<<temperature;
+		temperatures.append(temperature);
+		if(counter>2 && counter%10 == 0)
 		{
-			actionSender->updateKineticEnergy(3.0);
+			actionSender->updateTargetTemperature(273.15);
 			qDebug()<<"updated kin. energy:"<<actionSender->getKineticEnergy();
-		}*/
+		}
 		
 		Sphere s;
 		Scalar speed;
@@ -70,7 +75,8 @@ void SimulationGrapher::timerUpdate()
 		{
 			actionSender->getAllSphereData(i, s);
 			speed = s.speed.norm();
-			data2.append(speed);
+			if(counter > stepsBeforeMeasuring)
+				data2.append(speed);
 			if(counter > stepsToEquilibrium)
 				data.append(speed);
 		}
@@ -81,7 +87,7 @@ void SimulationGrapher::timerUpdate()
 			qSort(data);
 			data.prepend(0);
 			Scalar factor = 1.0/dataPoints;
-			QFile file(filename);
+			QFile file("./graphdata.txt");
 			QTextStream stream(&file);
 			file.open(QIODevice::WriteOnly);
 			for(quint16 i = 0; i<data.count(); i++)
@@ -93,8 +99,8 @@ void SimulationGrapher::timerUpdate()
 			
 			qSort(data2);
 			data2.prepend(0);
-			factor = 1.0/(sphereCount*(stepsToEquilibrium + dataPoints/sphereCount));
-			QFile file2(filename2);
+			factor = 1.0/(sphereCount*(stepsToEquilibrium - stepsBeforeMeasuring + dataPoints/sphereCount));
+			QFile file2("./graphdata2.txt");
 			QTextStream stream2(&file2);
 			file2.open(QIODevice::WriteOnly);
 			for(quint16 i = 0; i<data2.count(); i++)
@@ -103,6 +109,16 @@ void SimulationGrapher::timerUpdate()
 			}
 			stream2.flush();
 			file2.close();
+			
+			QFile file3("./temperatures.txt");
+			QTextStream stream3(&file3);
+			file3.open(QIODevice::WriteOnly);
+			for(quint16 i = 0; i<temperatures.count(); i++)
+			{
+				stream3<<(i*time/timeStep)<<"\t"<<temperatures[i]<<"\n";
+			}
+			stream3.flush();
+			file3.close();
 			
 			qApp->exit(0);
 		}

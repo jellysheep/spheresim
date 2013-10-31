@@ -342,6 +342,10 @@ void ActionReceiver::handleSimulatedSystemAction(quint8 actionGroup, quint8 acti
 		stream>>s;
 		sphCalc.updateKineticEnergy(s);
 		break;
+	case SimulatedSystemActions::updateTargetTemperature:
+		stream>>s;
+		sphCalc.updateTargetTemperature(s);
+		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
 		break;

@@ -239,6 +239,9 @@ namespace SphereSim
 		/** \copydoc SimulatedSystemActions::updateKineticEnergy
 		 * \param factor Kinetic energy scale factor. */
 		void updateKineticEnergy(Scalar factor);
+		
+		/** \copydoc SimulatedSystemActions::updateKineticEnergy */
+		void updateTargetTemperature(Scalar targetTemperature);
 	
 	public slots:
 		/** Set connectedFlag to true. 

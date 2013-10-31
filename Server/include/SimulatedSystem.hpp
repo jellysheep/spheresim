@@ -61,6 +61,8 @@ namespace SphereSim
 		Vector3 boxSize;
 		
 		bool periodicBoundaryConditions;
+		
+		Scalar kBoltzmann;
 	};
 }
 

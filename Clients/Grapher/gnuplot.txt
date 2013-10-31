@@ -3,7 +3,7 @@ set term png truecolor enhanced size 800,600
 k = 1.38e-23
 NA= 6.022e23
 u = 0.001 / NA
-T0 = 14
+T0 = 273.15
 a(m,T) = sqrt(k*T/(m*u))
 p(v,m,T) = 4 * pi * v**2 * (m*u/(2*pi*k*T))**1.5 * exp(-m * u * v**2 / (2*k*T))
 q(v,m,T) = erf(v/(sqrt(2)*a(m,T)))-sqrt(2/pi)*(v*exp(-v**2/(2*a(m,T)**2)))/a(m,T)
@@ -13,12 +13,24 @@ g1(x) = 100*sqrt(2/pi)*((x**2)*exp(-x**2/(2*a1**2)))/(a1**3)
 a1 = a(40,T0)
 fit f1(x) "graphdata.txt" via a1
 
+f2(x) = erf(x/(sqrt(2)*a2))-sqrt(2/pi)*(x*exp(-x**2/(2*a2**2)))/a2
+g2(x) = 100*sqrt(2/pi)*((x**2)*exp(-x**2/(2*a2**2)))/(a2**3)
+a2 = a(40,T0)
+fit f2(x) "graphdata2.txt" via a2
+
 set out "graphs.png"
-plot "graphdata.txt", \
+plot "graphdata2.txt", \
+	f2(x), \
+	"graphdata.txt", \
 	f1(x), \
 	q(x,40,T0)
 
+set style fill transparent solid 0.4
+set out "temperatures.png"
+plot "temperatures.txt" with linespoints
+
 set out "graphs2.png"
-plot "graphdata.txt", \
-	g1(x), \
+set xrange [1:700]
+plot g1(x), \
+	g2(x), \
 	100*p(x,40,T0)

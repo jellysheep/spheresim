@@ -2,6 +2,8 @@
 * Added periodic boundary conditions; currently works with pairwise forces only.
 * Added buttons to Viewer and methods to control kinetic energy of the system.
 * Added SystemCreator class to provide common systems for all clients.
+* Improved SystemCreator and SimulationGrapher to produce good speed distributions.
+* Added methods to target a specific system temperature.
 
 SphereSim 2.4.0:
 * Added methods to control and calculate Lennard-Jones potentials and forces.

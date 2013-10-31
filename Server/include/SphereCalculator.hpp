@@ -328,6 +328,9 @@ namespace SphereSim
 		 * \param factor Kinetic energy scale factor. */
 		void updateKineticEnergy(Scalar factor);
 		
+		/** \copydoc SimulatedSystemActions::updateTargetTemperature */
+		void updateTargetTemperature(Scalar targetTemperature);
+		
 		friend class SimulationWorker;
 		
 	signals:

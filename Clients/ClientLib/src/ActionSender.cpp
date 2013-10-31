@@ -479,6 +479,14 @@ void ActionSender::updateKineticEnergy(Scalar factor)
 	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateKineticEnergy, arr);
 }
 
+void ActionSender::updateTargetTemperature(Scalar targetTemperature)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<targetTemperature;
+	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateTargetTemperature, arr);
+}
+
 void ActionSender::framerateEvent()
 {
 	if(framerateTimer.elapsed()>1000)
