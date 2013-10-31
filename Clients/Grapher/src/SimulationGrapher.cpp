@@ -60,7 +60,7 @@ void SimulationGrapher::timerUpdate()
 		qDebug()<<++counter;
 		Scalar kineticEnergy = actionSender->getKineticEnergy();
 		qDebug()<<"kin. energy:"<<kineticEnergy;
-		Scalar temperature = kineticEnergy/(sphereCount*1.3806504e-23);
+		Scalar temperature = 2.0/3.0*kineticEnergy/(sphereCount*1.3806504e-23);
 		qDebug()<<"temperature:"<<temperature;
 		temperatures.append(temperature);
 		if(counter>2 && counter%10 == 0)

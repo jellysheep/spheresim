@@ -70,7 +70,7 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 	s.mass = 6.6335e-26;
 	Vector3 boxSize(boxLength,boxLength,boxLength);
 	boxSize /= 2;
-	Scalar speed, angle;
+	Scalar speed, angle1, angle2;
 	Scalar a = pow(0.66*1.3806504e-23*targetTemperature/s.mass, 1.0/2.0);
 	for(unsigned int i = 0; i<sphereCount; i++)
 	{
@@ -78,11 +78,13 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 		s.pos = boxSize;
 		s.pos(0) += 7.5f*8/sphereCountSqrt*radius*((sphereCountSqrt-1)/2.0-(i%sphereCountSqrt));
 		s.pos(1) += 7.5f*8/sphereCountSqrt*radius*((sphereCountSqrt-1)/2.0-(i/sphereCountSqrt));
-		s.pos(2) = 0;
+		s.pos(2) += boxLength/2*distribution2(generator);
 		speed = a*getMaxwellBoltzmannDistribution(distribution2(generator));
-		angle = 2*M_PI*distribution2(generator);
-		s.speed(0) = speed*cos(angle);
-		s.speed(1) = speed*sin(angle);
+		angle1 = 2*M_PI*distribution2(generator);
+		angle2 = 2*M_PI*distribution2(generator);
+		s.speed(0) = speed*sin(angle1)*cos(angle2);
+		s.speed(1) = speed*sin(angle1)*sin(angle2);
+		s.speed(2) = speed*cos(angle1);
 		actionSender->updateSphere(i, s);
 	}
 	actionSender->updateTargetTemperature(targetTemperature);

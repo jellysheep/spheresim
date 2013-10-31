@@ -472,7 +472,6 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 	#pragma omp parallel for
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
-		Scalar pos2 = sphArr[sphereIndex].pos(2);
 		Vector3 pos = newSpherePosArr[sphereIndex];
 		if(periodicBoundaries)
 		{
@@ -485,9 +484,6 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 			}
 		}
 		sphArr[sphereIndex].pos = pos;
-		sphArr[sphereIndex].pos(2) = pos2;
-		sphArr[sphereIndex].speed(2) = 0;
-		sphArr[sphereIndex].acc(2) = 0;
 	}
 	stepCounter++;
 }
@@ -1239,7 +1235,7 @@ void SphereCalculator::updateKineticEnergy(Scalar factor)
 
 void SphereCalculator::updateTargetTemperature(Scalar targetTemperature)
 {
-	Scalar factor = sphCount*simulatedSystem.kBoltzmann*targetTemperature/getKineticEnergy();
+	Scalar factor = 3*sphCount*simulatedSystem.kBoltzmann*targetTemperature/(2*getKineticEnergy());
 	updateKineticEnergy(factor);
 }
 

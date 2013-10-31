@@ -22,7 +22,8 @@ set out "graphs.png"
 plot "graphdata2.txt", \
 	f2(x), \
 	"graphdata.txt", \
-	f1(x)
+	f1(x), \
+	q(x,40,T0)
 
 set xtics 50
 set grid
@@ -33,4 +34,5 @@ plot "temperatures.txt" with linespoints
 set out "graphs2.png"
 set xrange [1:700]
 plot g1(x), \
-	g2(x)
+	g2(x), \
+	100*p(x,40,T0)

@@ -1,3 +1,4 @@
+SphereSim 2.4.1:
 * Improved simulated systems in Viewer and Grapher.
 * Added periodic boundary conditions; currently works with pairwise forces only.
 * Added buttons to Viewer and methods to control kinetic energy of the system.
@@ -6,6 +7,7 @@
 * Added methods to target a specific system temperature.
 * Improved simulated system: atom speeds are Maxwell-Boltzmann distributed.
 * Added methods to control periodic boundary conditions.
+* Activated 3 dimensional simulated system.
 
 SphereSim 2.4.0:
 * Added methods to control and calculate Lennard-Jones potentials and forces.
