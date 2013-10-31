@@ -8,6 +8,7 @@
 
 #include <MainWindow.hpp>
 #include <ActionSender.hpp>
+#include <SystemCreator.hpp>
 #include <ui_MainWindow.h>
 
 #include <random>
@@ -98,39 +99,9 @@ void MainWindow::prepareSystem2()
 
 void MainWindow::prepareSystem3()
 {
-	updateBoxLength(5.0e-9);
-	float radius = 0.017*boxLength;
-	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
-	std::default_random_engine generator(timepoint.count());
-	std::uniform_real_distribution<float> distribution(-radius/4, radius/4);
-	std::uniform_real_distribution<float> distribution2(-1, 1);
-	
-	Sphere s;
-	s.radius = 1.5*radius;
-	s.speed.setZero();
-	s.acc.setZero();
-	s.mass = 6.6335e-26;
-	Vector3 boxSize(boxLength,boxLength,boxLength);
-	boxSize /= 2;
-	for(unsigned int i = 0; i<64; i++)
-	{
-		actionSender->addSphere();
-		s.pos = boxSize;
-		s.pos(0) += 7.5f*radius*(3.5-(i%8)) + distribution(generator);
-		s.pos(1) += 7.5f*radius*(3.5-(i/8)) + distribution(generator);
-		s.pos(2) = 0;
-		s.speed(0) = 50*distribution2(generator);
-		s.speed(1) = 50*distribution2(generator);
-		actionSender->updateSphere(i, s);
-	}
-	
-	actionSender->updateCollisionDetection(false);
-	actionSender->updateGravityCalculation(false);
-	actionSender->updateGravitationalConstant(1.0e-4);
-	actionSender->updateLennardJonesPotentialCalculation(true);
-	actionSender->updateEarthGravity(Vector3(0,0,0));
-	actionSender->updateWallE(0);
+	SystemCreator systemCreator(actionSender);
+	Scalar length = systemCreator.createArgonGasSystem(100);
+	updateBoxLength(length);
 	actionSender->updateTimeStep(1.0e-13);
 }
 

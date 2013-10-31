@@ -43,9 +43,7 @@ namespace SphereSim
 		
 		QString filename;
 		
-		QFile file;
-		
-		QTextStream stream;
+		QString filename2;
 		
 		quint16 sphereCountSqrt;
 		
@@ -54,6 +52,10 @@ namespace SphereSim
 		quint16 dataPoints;
 		
 		QList<Scalar> data;
+		
+		QList<Scalar> data2;
+		
+		quint16 stepsToEquilibrium;
 		
 	public:
 		/** \brief Start a SimulationGrapher with the specified address and port.
