@@ -3,7 +3,7 @@
 
 pkgname=mingw-w64-spheresim-git
 _gitname=spheresim
-pkgver=latest
+pkgver=latest-1
 pkgrel=1
 pkgdesc="Physical simulation of particle movements. Second version and complete rewrite. (mingw-w64)"
 arch=('any')
@@ -11,7 +11,7 @@ url="http://sourceforge.net/projects/spheresim/"
 license=('BSD 3-clause')
 depends=('mingw-w64-crt')
 makedepends=('mingw-w64-gcc' 'mingw-w64-cmake')
-options=('!strip' '!buildflags')
+options=('!strip' '!buildflags' 'staticlibs')
 conflicts=('mingw-w64-spheresim')
 provides=('mingw-w64-spheresim')
 
