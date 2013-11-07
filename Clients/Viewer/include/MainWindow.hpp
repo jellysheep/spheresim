@@ -46,6 +46,8 @@ namespace SphereSim
 		
 		void updateBoxLength(Scalar length);
 		
+		quint8 systemToPrepare;
+		
 	public:
 		/** \brief Initialize member variables. */
 		MainWindow(ActionSender* actionSender, QWidget* parent = NULL);

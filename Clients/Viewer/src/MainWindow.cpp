@@ -41,9 +41,22 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	actionSender->updateWallE(20000);
 	actionSender->updateFrameSending(true);
 	
-	//prepareSystem1();
-	//prepareSystem2();
-	prepareSystem3();
+	systemToPrepare = 1;
+	
+	switch(systemToPrepare)
+	{
+	case 1:
+		prepareSystem1();
+		break;
+	default:
+		systemToPrepare = 2;
+	case 2:
+		prepareSystem2();
+		break;
+	case 3:
+		prepareSystem3();
+		break;
+	}
 }
 
 MainWindow::~MainWindow()
@@ -126,7 +139,10 @@ void MainWindow::decreaseEnergy()
 
 void MainWindow::updateTargetTemperature()
 {
-	if(timer.elapsed()<200)
-		return;
-	actionSender->updateTargetTemperature(473.15);
+	if(systemToPrepare == 3)
+	{
+		if(timer.elapsed()<200)
+			return;
+		actionSender->updateTargetTemperature(473.15);
+	}
 }
