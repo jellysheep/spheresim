@@ -41,20 +41,23 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	actionSender->updateWallE(20000);
 	actionSender->updateFrameSending(true);
 	
-	systemToPrepare = 1;
+	systemToPrepare = 4;
 	
 	switch(systemToPrepare)
 	{
 	case 1:
 		prepareSystem1();
 		break;
-	default:
-		systemToPrepare = 2;
 	case 2:
 		prepareSystem2();
 		break;
 	case 3:
 		prepareSystem3();
+		break;
+	default:
+		systemToPrepare = 4;
+	case 4:
+		prepareSystem4();
 		break;
 	}
 }
@@ -118,6 +121,15 @@ void MainWindow::prepareSystem3()
 	qDebug()<<"system box length:"<<length;
 	updateBoxLength(length);
 	actionSender->updateTimeStep(2.0e-14);
+}
+
+void MainWindow::prepareSystem4()
+{
+	SystemCreator systemCreator(actionSender);
+	Scalar length = systemCreator.createMacroscopicGravitationSystem(4*4*4);
+	qDebug()<<"system box length:"<<length;
+	updateBoxLength(length);
+	actionSender->updateTimeStep(1.0);
 }
 
 void MainWindow::updateBoxLength(Scalar length)

@@ -36,6 +36,9 @@ namespace SphereSim
 		 * \param calculateLennardJonesPotential Flag for gravity calculation. */
 		void runBenchmark_internal(bool detectCollisions, bool calculateGravity, bool calculateLennardJonesPotential);
 		
+		/** \brief Run a benchmark test with many spheres. */
+		void runBenchmark_internal2();
+		
 	public:
 		/** \brief Start a ServerBenchmark with the specified address and port.
 		 * \param args The arguments that the program was invoked with.

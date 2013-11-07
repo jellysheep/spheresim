@@ -9,6 +9,7 @@
 #include <ActionSender.hpp>
 #include <ServerBenchmark.hpp>
 #include <Integrators.hpp>
+#include <SystemCreator.hpp>
 
 #include <QtTest/QTest>
 #include <QHostAddress>
@@ -33,8 +34,7 @@ void ServerBenchmark::runBenchmark()
 	sender->updateWallPoissonRatio(0.5);
 	sender->updateEarthGravity(Vector3(0, -9.81, 0));
 	
-	sender->addSphere();
-	sender->addSphere();
+	runBenchmark_internal2();
 	
 	runBenchmark_internal(false, false, true);
 	runBenchmark_internal(false, true, false);
@@ -49,6 +49,9 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculat
 	Console::out<<"\nServerBenchmark: simulating with collision detection "<<(detectCollisions?"on":"off")<<".\n";
 	Console::out<<"ServerBenchmark: simulating with gravity calculation "<<(calculateGravity?"on":"off")<<".\n";
 	Console::out<<"ServerBenchmark: simulating with Lennard-Jones potential calculation "<<(calculateLennardJonesPotential?"on":"off")<<".\n";
+	
+	sender->addSphere();
+	sender->addSphere();
 	
 	Sphere s;
 	s.pos(0) = 0.11;
@@ -107,4 +110,48 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculat
 	endEnergy = sender->getTotalEnergy();
 	Scalar relError = 1.0-(beginEnergy/endEnergy);
 	Console::out<<"ServerBenchmark: rel. error: "<<relError<<"\n";
+	
+	sender->removeLastSphere();
+	sender->removeLastSphere();
+}
+
+void ServerBenchmark::runBenchmark_internal2()
+{
+	quint16 sphCount = 7;
+	SystemCreator systemCreator(sender);
+	systemCreator.createMacroscopicGravitationSystem(sphCount);
+	
+	Scalar timeStep = 0.0001;
+	Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
+	sender->updateTimeStep(timeStep);
+	
+	Scalar beginEnergy, endEnergy;
+	beginEnergy = sender->getTotalEnergy();
+	
+	QElapsedTimer timer = QElapsedTimer();
+	sender->startSimulation();
+	timer.start();
+	QTest::qWait(10*1000);sender->stopSimulation();
+	while(sender->getIsSimulating())
+	{
+		QTest::qWait(1);
+	}
+	quint64 elapsedTime = timer.elapsed();
+	quint32 stepCounter = sender->popStepCounter();
+	Scalar stepsPerSecond = stepCounter/(elapsedTime*0.001);
+	Console::out<<"\rServerBenchmark: simulated steps per second: "<<stepsPerSecond<<"\t\t\n";
+	quint32 calculationCounter = sender->popCalculationCounter();
+	Scalar calculationsPerSecond = calculationCounter/(elapsedTime*0.001);
+	Console::out<<"\rServerBenchmark: calculations per second: "<<calculationsPerSecond<<"\t\t\n";
+	
+	Scalar simulatedSeconds = stepCounter*timeStep;
+	Scalar simulatedSecondsPerSecond = simulatedSeconds/(elapsedTime*0.001);
+	Console::out<<"ServerBenchmark: simulated seconds per second: "<<simulatedSecondsPerSecond<<"\n";
+	
+	endEnergy = sender->getTotalEnergy();
+	Scalar relError = 1.0-(beginEnergy/endEnergy);
+	Console::out<<"ServerBenchmark: rel. error: "<<relError<<"\n";
+	
+	for(quint16 sphCounter = 0; sphCounter<sphCount; sphCounter++)
+		sender->removeLastSphere();
 }

@@ -24,7 +24,7 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	maxSpheresPerCell(1024), maxCellsPerSphere(1024),
 	sphereIndicesInCells(maxSpheresPerCell, cellCount3), cellIndicesOfSpheres(maxCellsPerSphere),
 	maxCollidingSpheresPerSphere(300), collidingSpheresPerSphere(maxCollidingSpheresPerSphere),
-	gravityCellCount(4), gravityCellCount3(gravityCellCount*gravityCellCount*gravityCellCount),
+	gravityCellCount(2), gravityCellCount3(gravityCellCount*gravityCellCount*gravityCellCount),
 	gravityAllCellCount(2*gravityCellCount3), maxSpheresPerGravityCell(1024),
 	sphereIndicesInGravityCells(maxSpheresPerGravityCell, gravityCellCount3), maxApproximatingCellsPerGravityCell(gravityCellCount3),
 	approximatingCellsPerGravityCell(maxApproximatingCellsPerGravityCell, gravityAllCellCount),
@@ -472,9 +472,9 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 	#pragma omp parallel for
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
-		Vector3 pos = newSpherePosArr[sphereIndex];
 		if(periodicBoundaries)
 		{
+			Vector3 pos = newSpherePosArr[sphereIndex];
 			for(quint8 dim = 0; dim<3; dim++)
 			{
 				if(pos(dim) > simulatedSystem.boxSize(dim))
@@ -482,8 +482,12 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 				else if(pos(dim) < 0)
 					pos(dim) += simulatedSystem.boxSize(dim);
 			}
+			sphArr[sphereIndex].pos = pos;
 		}
-		sphArr[sphereIndex].pos = pos;
+		else
+		{
+			sphArr[sphereIndex].pos = newSpherePosArr[sphereIndex];
+		}
 	}
 	stepCounter++;
 }

@@ -99,3 +99,47 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 	
 	return boxLength;
 }
+
+Scalar SystemCreator::createMacroscopicGravitationSystem(quint16 sphereCount)
+{
+	quint16 sphereCount1D = (quint16)ceil(pow(sphereCount, 1/3.0));
+	
+	Scalar radius = 1;
+	Scalar boxLength = 10*radius*sphereCount1D;
+	actionSender->updateBoxSize(Vector3(boxLength, boxLength, boxLength));
+	
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
+	std::default_random_engine generator(timepoint.count());
+	std::uniform_real_distribution<float> distribution(-radius/4, radius/4);
+	
+	Sphere s;
+	s.radius = radius;
+	s.speed.setZero();
+	s.acc.setZero();
+	s.mass = 100;
+	Vector3 boxSize(boxLength,boxLength,boxLength);
+	boxSize /= 2;
+	for(unsigned int i = 0; i<sphereCount; i++)
+	{
+		actionSender->addSphere();
+		s.pos = boxSize;
+		s.pos(0) += 8*radius*((sphereCount1D-1)/2.0-(i%sphereCount1D));
+		s.pos(1) += 8*radius*((sphereCount1D-1)/2.0-((i/sphereCount1D)%sphereCount1D));
+		s.pos(2) += 8*radius*((sphereCount1D-1)/2.0-((i/sphereCount1D)/sphereCount1D));
+		for(quint8 dim = 0; dim<3; dim++)
+		{
+			s.pos(dim) += distribution(generator);
+			s.speed(dim) += distribution(generator)/100;
+		}
+		actionSender->updateSphere(i, s);
+	}
+
+	actionSender->updateCollisionDetection(false);
+	actionSender->updateGravityCalculation(true);
+	actionSender->updateGravitationalConstant(1.0e-20);
+	actionSender->updateLennardJonesPotentialCalculation(false);
+	actionSender->updateEarthGravity(Vector3(0,0,0));
+	
+	return boxLength;
+}
