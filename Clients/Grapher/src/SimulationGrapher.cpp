@@ -25,7 +25,7 @@ SimulationGrapher::SimulationGrapher(QStringList args, QHostAddress addr, quint1
 {
 	actionSender = new ActionSender(args, addr, port);
 	dataUpdateTimer = new QTimer(this);
-	dataUpdateTimer->setInterval(20);
+	dataUpdateTimer->setInterval(5);
 	connect(dataUpdateTimer, SIGNAL(timeout()), this, SLOT(timerUpdate()));
 	counter = 0;
 	sphereCountSqrt = 16;

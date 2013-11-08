@@ -8,6 +8,7 @@
 
 #include <ActionSender.hpp>
 #include <SystemCreator.hpp>
+#include <Console.hpp>
 
 #include <QTimer>
 #include <random>
@@ -74,6 +75,7 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 	Scalar a = pow(0.66*1.3806504e-23*targetTemperature/s.mass, 1.0/2.0);
 	for(unsigned int i = 0; i<sphereCount; i++)
 	{
+		qDebug()<<"SystemCreator: sphere"<<(i+1)<<"|"<<sphereCount<<"\r";
 		actionSender->addSphere();
 		s.pos = boxSize;
 		s.pos(0) += 7.5f*8/sphereCountSqrt*radius*((sphereCountSqrt-1)/2.0-(i%sphereCountSqrt));
@@ -122,15 +124,17 @@ Scalar SystemCreator::createMacroscopicGravitationSystem(quint16 sphereCount)
 	boxSize /= 2;
 	for(unsigned int i = 0; i<sphereCount; i++)
 	{
+		Console::out<<"SystemCreator: sphere "<<(i+1)<<"|"<<sphereCount<<"\r";
 		actionSender->addSphere();
 		s.pos = boxSize;
 		s.pos(0) += 8*radius*((sphereCount1D-1)/2.0-(i%sphereCount1D));
 		s.pos(1) += 8*radius*((sphereCount1D-1)/2.0-((i/sphereCount1D)%sphereCount1D));
 		s.pos(2) += 8*radius*((sphereCount1D-1)/2.0-((i/sphereCount1D)/sphereCount1D));
+		s.speed.setZero();
 		for(quint8 dim = 0; dim<3; dim++)
 		{
 			s.pos(dim) += distribution(generator);
-			s.speed(dim) += distribution(generator)/100;
+			s.speed(dim) += distribution(generator)/5;
 		}
 		actionSender->updateSphere(i, s);
 	}

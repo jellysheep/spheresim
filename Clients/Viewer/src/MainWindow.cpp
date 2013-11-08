@@ -43,7 +43,7 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	
 	systemCreator = new SystemCreator(actionSender);
 	
-	systemToPrepare = 2;
+	systemToPrepare = 4;
 	
 	switch(systemToPrepare)
 	{
@@ -112,7 +112,7 @@ void MainWindow::prepareSystem3()
 
 void MainWindow::prepareSystem4()
 {
-	Scalar length = systemCreator->createMacroscopicGravitationSystem(4*4*4);
+	Scalar length = systemCreator->createMacroscopicGravitationSystem(8*8*8);
 	qDebug()<<"system box length:"<<length;
 	updateBoxLength(length);
 	actionSender->updateTimeStep(1.0);

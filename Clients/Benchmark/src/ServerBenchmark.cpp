@@ -117,7 +117,7 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculat
 
 void ServerBenchmark::runBenchmark_internal2()
 {
-	quint16 sphCount = 7;
+	quint16 sphCount = 512;
 	SystemCreator systemCreator(sender);
 	systemCreator.createMacroscopicGravitationSystem(sphCount);
 	
