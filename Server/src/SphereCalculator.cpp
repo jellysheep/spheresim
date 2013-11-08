@@ -57,6 +57,8 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	simulatedSystem.lenJonPotSigma = 0.3405e-9;
 	simulatedSystem.periodicBoundaryConditions = false;
 	simulatedSystem.kBoltzmann = 1.3806504e-23;
+	maxStepDivision = 16;
+	maxStepError = 1.0e-4;
 	
 	updateSphereBox();
 	massVectorSumPerCell = new Vector3[gravityAllCellCount];
@@ -144,6 +146,7 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 					if(collidingSpheresPerSphere.addElementIfNotContained(sphereIndex, sphereIndex2))
 					{
 						sphere2 = sphArr[sphereIndex2];
+						sphere2.pos += timeDiff*sphere2.speed;// + 0.5*sphere2.acc*timeDiff*timeDiff;
 						dVec = sphere2.pos - sphere.pos;
 						d = dVec.norm();
 						bothRadii = sphere2.radius + sphere.radius;
@@ -181,6 +184,7 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 				if(sphereIndex == sphereIndex2)
 					continue;
 				sphere2 = sphArr[sphereIndex2];
+				sphere2.pos += timeDiff*sphere2.speed;// + 0.5*sphere2.acc*timeDiff*timeDiff;
 				if(periodicBoundaries)
 				{
 					sphereOffset.setZero();
@@ -473,7 +477,7 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
 		newSpherePosArr[sphereIndex] = sphArr[sphereIndex].pos;
-		integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, timeStep, 0.0);
+		integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, timeStep, 0.0, 0);
 	}
 	#pragma omp parallel for schedule(dynamic,1)
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
@@ -499,7 +503,7 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 }
 
 template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
-quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff)
+quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff, quint16 stepDivisionCounter)
 {
 	Sphere sphere = sphArr[sphereIndex];
 	sphere.pos = newSpherePosArr[sphereIndex];
@@ -538,22 +542,24 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, 
 		speed_ += stepLength*butcherTableau.b_[j]*k_acc[j];
 	}
 	
-	Scalar error_pos_ = (pos-pos_).norm();
-	Scalar error_speed_ = (speed-speed_).norm();
-	Scalar dPos = (pos-origSphere.pos).norm();
-	Scalar dSpeed = (speed-origSphere.speed).norm();
-	if(error_pos_ > dPos*1.0e-04 || error_speed_ > dSpeed*1.0e-04)
+	if(stepDivisionCounter < maxStepDivision)
 	{
-		quint32 stepCount = 0;
-		stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, stepLength/2, timeDiff);
-		stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, stepLength/2, timeDiff+(stepLength/2));
-		return stepCount;
-	}else{
-		newSpherePosArr[sphereIndex] = pos;
-		sphArr[sphereIndex].speed = speed;
-		sphArr[sphereIndex].acc = (speed-origSphere.speed)/stepLength;
-		return 1;
+		Scalar error_pos_ = (pos-pos_).norm();
+		Scalar error_speed_ = (speed-speed_).norm();
+		Scalar dPos = (pos-origSphere.pos).norm();
+		Scalar dSpeed = (speed-origSphere.speed).norm();
+		if(error_pos_ > dPos*maxStepError || error_speed_ > dSpeed*maxStepError)
+		{
+			quint32 stepCount = 0;
+			stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, stepLength/2, timeDiff, stepDivisionCounter+1);
+			stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, stepLength/2, timeDiff+(stepLength/2), stepDivisionCounter+1);
+			return stepCount;
+		}
 	}
+	newSpherePosArr[sphereIndex] = pos;
+	sphArr[sphereIndex].speed = speed;
+	sphArr[sphereIndex].acc = (speed-origSphere.speed)/stepLength;
+	return 1;
 }
 
 quint16 SphereCalculator::removeSphere(quint16 i)
@@ -1103,6 +1109,16 @@ void SphereCalculator::updateGravityCalculation(bool calculateGravity)
 void SphereCalculator::updateLennardJonesPotentialCalculation(bool calculateLennardJonesPotential)
 {
 	lennardJonesPotentialFlag = calculateLennardJonesPotential;
+}
+
+void SphereCalculator::updateMaximumStepDivision(quint16 maxStepDivision_)
+{
+	maxStepDivision = maxStepDivision_;
+}
+
+void SphereCalculator::updateMaximumStepError(Scalar maxStepError_)
+{
+	maxStepError = maxStepError_;
 }
 
 Scalar SphereCalculator::getTotalEnergy()

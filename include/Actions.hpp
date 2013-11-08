@@ -110,7 +110,11 @@ namespace SphereSim
 			/** \brief Update if sphere-sphere gravitational forces get calculated. */
 			updateGravityCalculation,
 			/** \brief Update if Lennard-Jones potential and forces get calculated. */
-			updateLennardJonesPotentialCalculation
+			updateLennardJonesPotentialCalculation,
+			/** \brief Update how many times the currently simulated step can be divided. */
+			updateMaximumStepDivision,
+			/** \brief Update how much relative error is allowed for the current step. */
+			updateMaximumStepError
 		};
 	}
 	

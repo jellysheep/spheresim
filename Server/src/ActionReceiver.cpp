@@ -212,6 +212,7 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 	quint8 integratorMethod;
 	quint32 steps;
 	bool b;
+	quint16 maxStepDivision;
 	switch(action)
 	{
 	case CalculationActions::calculateStep:
@@ -270,6 +271,14 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 	case CalculationActions::updateLennardJonesPotentialCalculation:
 		stream>>b;
 		sphCalc.updateLennardJonesPotentialCalculation(b);
+		break;
+	case CalculationActions::updateMaximumStepDivision:
+		stream>>maxStepDivision;
+		sphCalc.updateMaximumStepDivision(maxStepDivision);
+		break;
+	case CalculationActions::updateMaximumStepError:
+		stream>>s;
+		sphCalc.updateMaximumStepError(s);
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);

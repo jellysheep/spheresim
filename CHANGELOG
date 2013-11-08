@@ -1,6 +1,7 @@
 * Improved simulated systems and Benchmark client.
 * Improved simulated systems again.
 * Improved simulation calculations; big error decrease.
+* Added methods to control step division in calculations.
 
 SphereSim 2.4.2:
 * Improved simulated system.

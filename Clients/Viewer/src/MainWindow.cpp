@@ -43,7 +43,7 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	
 	systemCreator = new SystemCreator(actionSender);
 	
-	systemToPrepare = 3;
+	systemToPrepare = 2;
 	
 	switch(systemToPrepare)
 	{
@@ -98,7 +98,8 @@ void MainWindow::prepareSystem2()
 	actionSender->updateGravityCalculation(true);
 	actionSender->updateGravitationalConstant(3.0e-4);
 	actionSender->updateEarthGravity(Vector3(0,0,0));
-	actionSender->updateTimeStep(0.01);
+	actionSender->updateTimeStep(0.1);
+	actionSender->updateMaximumStepError(1.0e-12);
 }
 
 void MainWindow::prepareSystem3()

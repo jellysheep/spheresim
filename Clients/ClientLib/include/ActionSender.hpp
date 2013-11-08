@@ -200,6 +200,12 @@ namespace SphereSim
 		/** \copydoc CalculationActions::updateLennardJonesPotentialCalculation */
 		void updateLennardJonesPotentialCalculation(bool calculateLennardJonesPotential);
 		
+		/** \copydoc CalculationActions::updateMaximumStepDivision */
+		void updateMaximumStepDivision(quint16 maxStepDivisionNumber);
+		
+		/** \copydoc CalculationActions::updateMaximumStepError */
+		void updateMaximumStepError(Scalar maxStepError);
+		
 		/** \copydoc InformationActions::getTotalEnergy
 		 * \return Total energy (in joules). */
 		Scalar getTotalEnergy();

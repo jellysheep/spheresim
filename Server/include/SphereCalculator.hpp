@@ -82,7 +82,7 @@ namespace SphereSim
 		 * \param timeDiff Time difference (in s) used for the movements of other spheres.
 		 * \return Number of steps used to integrate. */
 		template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
-		quint32 integrateRungeKuttaStep_internal(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff);
+		quint32 integrateRungeKuttaStep_internal(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff, quint16 stepDivisionCounter);
 		
 		/** \brief Butcher tableau used in the integrator. */
 		ButcherTableau butcherTableau;
@@ -206,6 +206,10 @@ namespace SphereSim
 		
 		quint16 *sphereCountPerGravityCell;
 		
+		quint16 maxStepDivision;
+		
+		Scalar maxStepError;
+		
 	public:
 		SphereCalculator();
 		~SphereCalculator();
@@ -287,6 +291,12 @@ namespace SphereSim
 		
 		/** \copydoc CalculationActions::updateLennardJonesPotentialCalculation */
 		void updateLennardJonesPotentialCalculation(bool calculateLennardJonesPotential);
+		
+		/** \copydoc CalculationActions::updateMaximumStepDivision */
+		void updateMaximumStepDivision(quint16 maxStepDivision);
+		
+		/** \copydoc CalculationActions::updateMaximumStepError */
+		void updateMaximumStepError(Scalar maxStepError);
 		
 		/** \copydoc InformationActions::getTotalEnergy
 		 * \return Requested total energy. */

@@ -495,6 +495,22 @@ void ActionSender::updatePeriodicBoundaryConditions(bool periodicBoundaryConditi
 	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updatePeriodicBoundaryConditions, arr);
 }
 
+void ActionSender::updateMaximumStepDivision(quint16 maxStepDivisionNumber)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<maxStepDivisionNumber;
+	sendAction(ActionGroups::calculation, CalculationActions::updateMaximumStepDivision, arr);
+}
+
+void ActionSender::updateMaximumStepError(Scalar maxStepError)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<maxStepError;
+	sendAction(ActionGroups::calculation, CalculationActions::updateMaximumStepError, arr);
+}
+
 void ActionSender::framerateEvent()
 {
 	if(framerateTimer.elapsed()>1000)
