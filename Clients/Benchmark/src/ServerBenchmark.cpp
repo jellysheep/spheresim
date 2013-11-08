@@ -121,7 +121,7 @@ void ServerBenchmark::runBenchmark_internal2()
 	SystemCreator systemCreator(sender);
 	systemCreator.createMacroscopicGravitationSystem(sphCount);
 	
-	Scalar timeStep = 1.0;
+	Scalar timeStep = 0.01;
 	Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
 	sender->updateTimeStep(timeStep);
 	

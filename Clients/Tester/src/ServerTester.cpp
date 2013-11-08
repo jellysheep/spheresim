@@ -9,6 +9,7 @@
 #include <ActionSender.hpp>
 #include <ServerTester.hpp>
 #include <Integrators.hpp>
+#include <SystemCreator.hpp>
 
 #include <QtTest/QTest>
 #include <QHostAddress>
@@ -39,10 +40,12 @@ ServerTester::ServerTester(QStringList args, QHostAddress addr, quint16 port)
 	successCounter = 0;
 	testSuccess = true;
 	testResult = 0;
+	systemCreator = new SystemCreator(sender);
 }
 
 ServerTester::~ServerTester()
 {
+	delete systemCreator;
 	delete sender;
 }
 
@@ -113,6 +116,7 @@ void ServerTester::runBasicActionTests()
 		verify(sender->getTrueString(), Equal, "true");
 	endTest();
 	
+	sender->updateFrameSending(false);
 }
 
 void ServerTester::runSpheresUpdatingActionTests()
@@ -230,19 +234,13 @@ void ServerTester::runCalculationActionTests()
 		verify(timeStep, ApproxEqual, sender->getTimeStep());
 	endTest();
 	
-	sender->addSphere();
-	sender->updateSphereE(5000);
-	sender->updateSpherePoissonRatio(0.5);
-	sender->updateWallE(5000);
-	sender->updateWallPoissonRatio(0.5);
-	sender->updateEarthGravity(Vector3(0, -9.81, 0));
-	
 	//runCalculationActionTests_internal_(IntegratorMethods::HeunEuler21);
-	runCalculationActionTests_internal_(IntegratorMethods::BogackiShampine32);
-	runCalculationActionTests_internal_(IntegratorMethods::RungeKuttaFehlberg54);
 	runCalculationActionTests_internal_(IntegratorMethods::CashKarp54);
+	runCalculationActionTests_internal_(IntegratorMethods::RungeKuttaFehlberg54);
 	runCalculationActionTests_internal_(IntegratorMethods::DormandPrince54);
+	runCalculationActionTests_internal_(IntegratorMethods::BogackiShampine32);
 	
+	systemCreator->createSimpleWallCollisionSystem();
 	sender->updateIntegratorMethod(IntegratorMethods::CashKarp54);
 	startTest_(CalculationActions::startSimulation);
 		sender->startSimulation();
@@ -260,21 +258,12 @@ void ServerTester::runCalculationActionTests()
 
 void ServerTester::runCalculationActionTests_internal(const char* integratorMethod)
 {
-	Sphere s;
-	s.pos(0) = 0.11;
-	s.pos(1) = 0.11;
-	s.pos(2) = 0.11;
-	s.speed(0) = 0.0;
-	s.speed(1) = 0.0;
-	s.speed(2) = 0.0;
-	s.acc(0) = 0.0;
-	s.acc(1) = 0.0;
-	s.acc(2) = 0.0;
-	s.mass = 1.0;
-	s.radius = 0.1;
-	sender->updateSphere(0, s);
+	systemCreator->createSimpleWallCollisionSystem();
 	
-	Scalar timeStep = 1;
+	quint16 sphereCount = sender->getSphereCount();
+	verify(sphereCount, Equal, 1);
+	
+	Scalar timeStep = 50;
 	sender->updateTimeStep(timeStep);
 	Scalar simulationTime = 50;
 	quint32 steps = (quint32)(simulationTime/timeStep);
@@ -291,10 +280,12 @@ void ServerTester::runCalculationActionTests_internal(const char* integratorMeth
 	Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/steps);
 	quint32 realSteps = sender->popCalculationCounter();
 	Console::out<<"real steps: "<<realSteps<<" \t";
-	Scalar integratorWorth = 10+log(steps)-0.1*log(fabs(relError))-log(realSteps);
+	Scalar integratorWorth = 20-0.1*log(fabs(relError))-log(realSteps);
 	Console::out<<"integrator worth: "<<integratorWorth<<" ("<<integratorMethod<<"). \t";
 	verify(fabs(relError), Smaller, 0.01);
 	verify(realSteps, Greater, 0);
+	
+	sender->removeLastSphere();
 }
 
 void ServerTester::runFrameBufferTests()

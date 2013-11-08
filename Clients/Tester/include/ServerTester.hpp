@@ -21,6 +21,7 @@ class QHostAddress;
 
 namespace SphereSim
 {
+	class SystemCreator;
 	
 	/** \brief Verifier of server actions. */
 	class ServerTester : public QObject
@@ -48,6 +49,8 @@ namespace SphereSim
 		
 		/** \brief Test result value (0 = all tests passed, 1 = at least one test failed). */
 		quint16 testResult;
+		
+		SystemCreator* systemCreator;
 		
 	public:
 		/** \brief Start a ServerTester with the specified address and port.

@@ -32,7 +32,11 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	maxPairwiseCellsPerGravityCell(gravityCellCount3), pairwiseCellsPerGravityCell(maxPairwiseCellsPerGravityCell, gravityAllCellCount)
 {
 	qDebug()<<"SphereCalculator: constructor called";
-	qDebug()<<"SphereCalculator: number of OpenMP threads:"<<omp_get_num_threads();
+	quint16 ompThreads = 0;
+	#pragma omp parallel
+	#pragma omp atomic
+	ompThreads++;
+	qDebug()<<"SphereCalculator: number of OpenMP threads:"<<omp_get_num_threads()<<"|"<<ompThreads;
 	updateData();
 	simulatedSystem.boxSize = Vector3(1,1,1);
 	timeStep = 0.002;
@@ -244,6 +248,7 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 	}
 	
 	acc = force/sphere.mass;
+	#pragma omp atomic
 	calculationCounter++;
 	return acc;
 }
@@ -464,12 +469,13 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 		updateSphereGravityCellLists();
 		updateGravityCellData();
 	}
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic,1)
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
+		newSpherePosArr[sphereIndex] = sphArr[sphereIndex].pos;
 		integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, timeStep, 0.0);
 	}
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic,1)
 	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
 	{
 		if(periodicBoundaries)
@@ -496,6 +502,7 @@ template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool 
 quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff)
 {
 	Sphere sphere = sphArr[sphereIndex];
+	sphere.pos = newSpherePosArr[sphereIndex];
 	Sphere origSphere = sphere;
 	const quint8 integratorOrder = butcherTableau.order;
 	Vector3 k_acc[integratorOrder];
@@ -533,7 +540,9 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, 
 	
 	Scalar error_pos_ = (pos-pos_).norm();
 	Scalar error_speed_ = (speed-speed_).norm();
-	if(error_pos_>1.0e-05 || error_speed_>1.0e-05)
+	Scalar dPos = (pos-origSphere.pos).norm();
+	Scalar dSpeed = (speed-origSphere.speed).norm();
+	if(error_pos_ > dPos*1.0e-04 || error_speed_ > dSpeed*1.0e-04)
 	{
 		quint32 stepCount = 0;
 		stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, stepLength/2, timeDiff);

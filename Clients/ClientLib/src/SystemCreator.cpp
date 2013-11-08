@@ -44,9 +44,9 @@ Scalar getMaxwellBoltzmannDistribution(Scalar random)
 
 using namespace SphereSim;
 
-SystemCreator::SystemCreator(ActionSender* sender)
+SystemCreator::SystemCreator(ActionSender* actionSender_)
 {
-	actionSender = sender;
+	actionSender = actionSender_;
 }
 
 Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTemperature)
@@ -147,6 +147,7 @@ Scalar SystemCreator::createMacroscopicGravitationSystem(quint16 sphereCount)
 Scalar SystemCreator::createMacroscopic2DCollisionSystem(quint16 sphereCount)
 {
 	Scalar boxLength = 1;
+	actionSender->updateBoxSize(Vector3(boxLength, boxLength, boxLength));
 	Scalar radius = 0.03*boxLength;
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
@@ -168,4 +169,37 @@ Scalar SystemCreator::createMacroscopic2DCollisionSystem(quint16 sphereCount)
 		s.pos(0) = 2*radius + 3.5f*radius*(i%8) + distribution(generator);
 		actionSender->updateSphere(i, s);
 	}
+	
+	return boxLength;
+}
+
+Scalar SystemCreator::createSimpleWallCollisionSystem()
+{
+	Scalar boxLength = 1;
+	actionSender->updateBoxSize(Vector3(boxLength, boxLength, boxLength));
+	actionSender->addSphere();
+	Sphere s;
+	s.pos(0) = 0.11;
+	s.pos(1) = 0.11;
+	s.pos(2) = 0.11;
+	s.speed(0) = 0.0;
+	s.speed(1) = 0.0;
+	s.speed(2) = 0.0;
+	s.acc(0) = 0.0;
+	s.acc(1) = 0.0;
+	s.acc(2) = 0.0;
+	s.mass = 1.0;
+	s.radius = 0.1;
+	actionSender->updateSphere(0, s);
+	
+	actionSender->updateSphereE(5000);
+	actionSender->updateSpherePoissonRatio(0.5);
+	actionSender->updateWallE(5000);
+	actionSender->updateWallPoissonRatio(0.5);
+	actionSender->updateEarthGravity(Vector3(0, -9.81, 0));
+	actionSender->updateCollisionDetection(false);
+	actionSender->updateGravityCalculation(false);
+	actionSender->updateLennardJonesPotentialCalculation(false);
+	
+	return boxLength;
 }

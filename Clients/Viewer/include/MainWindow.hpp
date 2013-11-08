@@ -43,6 +43,8 @@ namespace SphereSim
 		
 		void prepareSystem4();
 		
+		void prepareSystem5();
+		
 		QElapsedTimer timer;
 		
 		Scalar boxLength;

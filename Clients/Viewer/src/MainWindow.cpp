@@ -43,23 +43,26 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	
 	systemCreator = new SystemCreator(actionSender);
 	
-	systemToPrepare = 4;
+	systemToPrepare = 3;
 	
 	switch(systemToPrepare)
 	{
 	case 1:
 		prepareSystem1();
 		break;
+	default:
+		systemToPrepare = 2;
 	case 2:
 		prepareSystem2();
 		break;
 	case 3:
 		prepareSystem3();
 		break;
-	default:
-		systemToPrepare = 4;
 	case 4:
 		prepareSystem4();
+		break;
+	case 5:
+		prepareSystem5();
 		break;
 	}
 }
@@ -95,6 +98,7 @@ void MainWindow::prepareSystem2()
 	actionSender->updateGravityCalculation(true);
 	actionSender->updateGravitationalConstant(3.0e-4);
 	actionSender->updateEarthGravity(Vector3(0,0,0));
+	actionSender->updateTimeStep(0.01);
 }
 
 void MainWindow::prepareSystem3()
@@ -109,6 +113,13 @@ void MainWindow::prepareSystem4()
 {
 	Scalar length = systemCreator->createMacroscopicGravitationSystem(4*4*4);
 	qDebug()<<"system box length:"<<length;
+	updateBoxLength(length);
+	actionSender->updateTimeStep(1.0);
+}
+
+void MainWindow::prepareSystem5()
+{
+	Scalar length = systemCreator->createSimpleWallCollisionSystem();
 	updateBoxLength(length);
 	actionSender->updateTimeStep(1.0);
 }
@@ -137,5 +148,12 @@ void MainWindow::updateTargetTemperature()
 		if(timer.elapsed()<200)
 			return;
 		actionSender->updateTargetTemperature(473.15);
+	}
+	if(systemToPrepare == 5)
+	{
+		if(timer.elapsed()<1000)
+			return;
+		timer.restart();
+		qDebug()<<"energy:"<<actionSender->getTotalEnergy();
 	}
 }
