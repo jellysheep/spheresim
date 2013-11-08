@@ -28,6 +28,8 @@ namespace SphereSim
 		Scalar createArgonGasSystem(quint16 sphereCount, Scalar targetTemperature=473.15);
 		
 		Scalar createMacroscopicGravitationSystem(quint16 sphereCount);
+		
+		Scalar createMacroscopic2DCollisionSystem(quint16 sphereCount);
 	};
 	
 }

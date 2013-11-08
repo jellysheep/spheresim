@@ -41,6 +41,8 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	actionSender->updateWallE(20000);
 	actionSender->updateFrameSending(true);
 	
+	systemCreator = new SystemCreator(actionSender);
+	
 	systemToPrepare = 4;
 	
 	switch(systemToPrepare)
@@ -65,31 +67,12 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 MainWindow::~MainWindow()
 {
 	delete ui;
+	delete systemCreator;
 }
 
 void MainWindow::prepareSystem1()
 {
-	float radius = 0.03*boxLength;
-	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
-	std::default_random_engine generator(timepoint.count());
-	std::uniform_real_distribution<float> distribution(0.0f, radius/4);
-	
-	Sphere s;
-	s.radius = 1.5*radius;
-	s.pos(0) = 1.5*radius;
-	s.pos(1) = 1.5*radius;
-	s.pos(2) = 1.5*radius;
-	s.speed.setZero();
-	s.acc.setZero();
-	s.mass = 1;
-	for(unsigned int i = 0; i<64; i++)
-	{
-		actionSender->addSphere();
-		s.pos(1) = 2*radius + 3.5f*radius*(i/8) + distribution(generator);
-		s.pos(0) = 2*radius + 3.5f*radius*(i%8) + distribution(generator);
-		actionSender->updateSphere(i, s);
-	}
+	systemCreator->createMacroscopic2DCollisionSystem(64);
 }
 
 void MainWindow::prepareSystem2()
@@ -116,8 +99,7 @@ void MainWindow::prepareSystem2()
 
 void MainWindow::prepareSystem3()
 {
-	SystemCreator systemCreator(actionSender);
-	Scalar length = systemCreator.createArgonGasSystem(64, 473.15);
+	Scalar length = systemCreator->createArgonGasSystem(64, 473.15);
 	qDebug()<<"system box length:"<<length;
 	updateBoxLength(length);
 	actionSender->updateTimeStep(2.0e-14);
@@ -125,8 +107,7 @@ void MainWindow::prepareSystem3()
 
 void MainWindow::prepareSystem4()
 {
-	SystemCreator systemCreator(actionSender);
-	Scalar length = systemCreator.createMacroscopicGravitationSystem(4*4*4);
+	Scalar length = systemCreator->createMacroscopicGravitationSystem(4*4*4);
 	qDebug()<<"system box length:"<<length;
 	updateBoxLength(length);
 	actionSender->updateTimeStep(1.0);

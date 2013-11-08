@@ -77,7 +77,7 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculat
 	else
 		sender->updateWallE(5000);
 	
-	Scalar timeStep = 0.0001;
+	Scalar timeStep = 0.00001;
 	Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
 	sender->updateTimeStep(timeStep);
 	Scalar beginEnergy, endEnergy;
@@ -121,7 +121,7 @@ void ServerBenchmark::runBenchmark_internal2()
 	SystemCreator systemCreator(sender);
 	systemCreator.createMacroscopicGravitationSystem(sphCount);
 	
-	Scalar timeStep = 0.0001;
+	Scalar timeStep = 1.0;
 	Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
 	sender->updateTimeStep(timeStep);
 	
@@ -131,7 +131,12 @@ void ServerBenchmark::runBenchmark_internal2()
 	QElapsedTimer timer = QElapsedTimer();
 	sender->startSimulation();
 	timer.start();
-	QTest::qWait(10*1000);sender->stopSimulation();
+	for(quint16 i = 0; i<100; i++)
+	{
+		QTest::qWait(10*1000/100);
+		Console::out<<"\rServerBenchmark: progress: "<<(i+1)<<" % ";
+	}
+	sender->stopSimulation();
 	while(sender->getIsSimulating())
 	{
 		QTest::qWait(1);

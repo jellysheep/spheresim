@@ -214,12 +214,12 @@ void GLWidget::updateTimerFrequency(int frameBufferPercentageLevel)
 	if(controlTimer->elapsed()>500)
 	{
 		controlTimer->restart();
-		float frameBufferPercentageLevelAverage = frameBufferPercentageLevelSum*1.f/frameBufferPercentageLevelCounter;
-		float factor = (frameBufferPercentageLevelAverage-50)/50.f;
+		Scalar frameBufferPercentageLevelAverage = frameBufferPercentageLevelSum*1.f/frameBufferPercentageLevelCounter;
+		Scalar factor = (frameBufferPercentageLevelAverage-50)/50.0;
 		factor = pow(factor, 5);
-		float amplitude = 20;
-		float fps = 60+(factor*amplitude);
-		sleepTime = (quint16)std::max(0, (int)round(1000.f/fps));
+		Scalar amplitude = 20;
+		Scalar fps = 60+(factor*amplitude);
+		sleepTime = (quint16)std::max(0, (int)round(1000.0/fps));
 		qDebug()<<"GLWidget: level:"<<frameBufferPercentageLevelAverage<<"\tfps:"<<fps<<"\tms:"<<sleepTime;
 		frameBufferPercentageLevelSum = 0;
 		frameBufferPercentageLevelCounter = 0;

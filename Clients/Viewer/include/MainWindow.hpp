@@ -9,7 +9,7 @@
 #ifndef _MAINWINDOW_HPP_
 #define _MAINWINDOW_HPP_
 
-#include <Sphere.hpp>
+#include <Vector.hpp>
 
 #include <QMainWindow>
 #include <QElapsedTimer>
@@ -22,6 +22,7 @@ namespace Ui
 namespace SphereSim
 {
 	class ActionSender;
+	class SystemCreator;
 	
 	/** \brief Custom main window handling the widgets. */
 	class MainWindow : public QMainWindow
@@ -49,6 +50,8 @@ namespace SphereSim
 		void updateBoxLength(Scalar length);
 		
 		quint8 systemToPrepare;
+		
+		SystemCreator* systemCreator;
 		
 	public:
 		/** \brief Initialize member variables. */
