@@ -153,6 +153,21 @@ namespace SphereSim
 		 * \copydetails updateSphere */
 		void getAllSphereData(quint16 i, Sphere& s);
 		
+		/** \copydoc SpheresUpdatingActions::addSomeSpheres
+		 * \copydetails getSphereCount */
+		quint16 addSomeSpheres(quint16 sphCount);
+		
+		/** \copydoc SpheresUpdatingActions::removeSomeLastSpheres
+		 * \copydetails getSphereCount */
+		quint16 removeSomeLastSpheres(quint16 sphCount);
+		
+		/** \copydoc SpheresUpdatingActions::updateSpherePositionsInBox */
+		void updateSpherePositionsInBox(Scalar randomDisplacement, Scalar randomSpeed);
+		
+		/** \copydoc SpheresUpdatingActions::updateAllSpheres
+		 * \param s Sphere data. */
+		void updateAllSpheres(Sphere s);
+		
 		/** \copydoc CalculationActions::calculateStep */
 		void calculateStep();
 		
@@ -299,6 +314,12 @@ namespace SphereSim
 		/** \brief Percentage level of FrameBuffer changed greatly.
 		 * \copydetails frameBufferPercentageLevelUpdate */
 		void greatFrameBufferPercentageLevelUpdate(int percentageLevel);
+		
+		/** \brief Number of spheres changed. */
+		void sphereCountChanged(quint16 sphereCount);
+		
+		/** \brief Number of spheres changed. */
+		void sphereCountChangedDouble(double sphereCount);
 	};
 	
 }

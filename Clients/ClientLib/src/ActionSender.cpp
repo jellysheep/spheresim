@@ -177,6 +177,8 @@ void ActionSender::processReply()
 		QDataStream stream(&data, QIODevice::ReadOnly);
 		quint16 sphCount;
 		stream>>sphCount;
+		emit sphereCountChanged(sphCount);
+		emit sphereCountChangedDouble((double)sphCount);
 		frameBuffer.updateElementsPerFrame(sphCount);
 		quint16 sphereIndex;
 		Sphere sphere;
@@ -189,6 +191,12 @@ void ActionSender::processReply()
 		frameBuffer.pushFrame();
 		frameCounter++;
 		emit newFrameReceived();
+	}
+	else if(lastServerStatus == ServerStatusReplies::sphereCountChanged)
+	{
+		quint16 sphCount = QString(data).toUInt();
+		emit sphereCountChanged(sphCount);
+		emit sphereCountChangedDouble((double)sphCount);
 	}
 	else
 	{
@@ -518,6 +526,43 @@ quint32 ActionSender::getLastStepCalculationTime()
 	quint32 lastStepCalculationTime;
 	retStream>>lastStepCalculationTime;
 	return lastStepCalculationTime;
+}
+
+quint16 ActionSender::addSomeSpheres(quint16 sphCount)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<sphCount;
+	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::addSomeSpheres, arr)).toUInt();
+	updateSphereCount(sphereCount);
+	return sphereCount;
+}
+
+quint16 ActionSender::removeSomeLastSpheres(quint16 sphCount)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<sphCount;
+	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::removeSomeLastSpheres, arr)).toUInt();
+	updateSphereCount(sphereCount);
+	return sphereCount;
+}
+
+void ActionSender::updateSpherePositionsInBox(Scalar randomDisplacement, Scalar randomSpeed)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<randomDisplacement;
+	stream<<randomSpeed;
+	sendAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::updateSpherePositionsInBox, arr);
+}
+
+void ActionSender::updateAllSpheres(Sphere s)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	writeAllSphereData(stream, s);
+	sendAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::updateAllSpheres, arr);
 }
 
 void ActionSender::framerateEvent()

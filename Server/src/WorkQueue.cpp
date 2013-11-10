@@ -135,6 +135,7 @@ bool WorkQueue::getIsSimulating()
 
 void WorkQueue::sendFrameData()
 {
+	if(!sendFramesRegularly) return;
 	WorkQueueItem item;
 	item.type = WorkQueueItemType::prepareFrameData;
 	pushItem(item);

@@ -37,8 +37,26 @@ plot "graphdata.txt" with linespoints title "Geschwindigkeiten der Atome am Ende
 	q(x,40,T0) lw 2 title "Zu erwartende Geschwindigkeitsverteilung bei T=473,15 K"
 
 set xlabel "Geschwindigkeit v (m/s)"
-set ylabel "Wahrscheinlichkeitsdichte P(v)"
+set ylabel "Wahrscheinlichkeitsdichte P(v) (s/m)"
 set out "GeschwindigkeitDichtefunktion.pdf"
 set xrange [1:900]
 plot g1(x) lw 3 title "Annäherung an die Geschwindigkeiten der Atome am Ende der Simulation", \
 	100*p(x,40,T0) lw 3 title "Zu erwartende Wahrscheinlichkeitsdichte der Geschwindigkeiten bei T=473,15 K"
+
+l1(x) = t1*x*log(x)
+l2(x) = t2*x*x
+fit l1(x) "times.txt" using 1:2 via t1
+fit l2(x) "times.txt" using 1:2 via t2
+
+set xlabel "Anzahl an Teilchen"
+set ylabel "Rechenzeit pro Schritt (ms)"
+set out "RechenzeitProSchritt.pdf"
+#set log x
+#set log y
+set key left top
+set xtics 2000
+set xrange [0:16000]
+set yrange [0:8500]
+plot "times.txt" with linespoints title "Simulationsergebnis" ls 1 lc rgb "red" ps 1 lw 3, \
+	l1(x) lw 3 title "O(n*ln(n))", \
+	l2(x) lw 3 title "O(n²)"

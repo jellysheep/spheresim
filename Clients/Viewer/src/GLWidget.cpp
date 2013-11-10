@@ -62,6 +62,7 @@ void GLWidget::initializeGL()
 {
 	initializeGLFunctions();
 	qglClearColor(Qt::black);
+    glEnable(GL_DEPTH_TEST);
 	
 	if (!program.addShaderFromSourceFile(QGLShader::Vertex, ":/VertexShader.glsl"))
 		shaderLoadError();
@@ -127,7 +128,7 @@ void GLWidget::paintGL()
 	if(frameBuffer == NULL)
 		return;
 	
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	QMatrix4x4 worldMatrix = perspectiveMatrix;
 	worldMatrix.translate(0, 0, -1.5);

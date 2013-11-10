@@ -169,13 +169,16 @@ void ActionReceiver::handleSpheresUpdatingAction(quint8 actionGroup, quint8 acti
 	QDataStream stream(&data, QIODevice::ReadOnly);
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
+	Scalar s1, s2;
 	switch(action)
 	{
 	case SpheresUpdatingActions::addSphere:
 		sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc.addSphere()).toUtf8());
+		sendReply(ServerStatusReplies::sphereCountChanged, QString::number(sphCalc.getSphereCount()).toUtf8());
 		break;
 	case SpheresUpdatingActions::removeLastSphere:
 		sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc.removeLastSphere()).toUtf8());
+		sendReply(ServerStatusReplies::sphereCountChanged, QString::number(sphCalc.getSphereCount()).toUtf8());
 		break;
 	case SpheresUpdatingActions::updateSphere:
 		stream>>i;
@@ -196,6 +199,25 @@ void ActionReceiver::handleSpheresUpdatingAction(quint8 actionGroup, quint8 acti
 		s = sphCalc.getAllSphereData(i);
 		writeAllSphereData(retStream, s);
 		sendReply(ServerStatusReplies::acknowledge, retData);
+		break;
+	case SpheresUpdatingActions::addSomeSpheres:
+		stream>>i;
+		sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc.addSomeSpheres(i)).toUtf8());
+		sendReply(ServerStatusReplies::sphereCountChanged, QString::number(sphCalc.getSphereCount()).toUtf8());
+		break;
+	case SpheresUpdatingActions::removeSomeLastSpheres:
+		stream>>i;
+		sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc.removeSomeLastSpheres(i)).toUtf8());
+		sendReply(ServerStatusReplies::sphereCountChanged, QString::number(sphCalc.getSphereCount()).toUtf8());
+		break;
+	case SpheresUpdatingActions::updateSpherePositionsInBox:
+		stream>>s1;
+		stream>>s2;
+		sphCalc.updateSpherePositionsInBox(s1, s2);
+		break;
+	case SpheresUpdatingActions::updateAllSpheres:
+		readAllSphereData(stream, s);
+		sphCalc.updateAllSpheres(s);
 		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);

@@ -10,6 +10,7 @@
 #include <SimulationGrapher.hpp>
 #include <Integrators.hpp>
 #include <SystemCreator.hpp>
+#include <Console.hpp>
 
 #include <QDebug>
 #include <QHostAddress>
@@ -27,11 +28,14 @@ SimulationGrapher::SimulationGrapher(QStringList args, QHostAddress addr, quint1
 	dataUpdateTimer = new QTimer(this);
 	dataUpdateTimer->setInterval(5);
 	connect(dataUpdateTimer, SIGNAL(timeout()), this, SLOT(timerUpdate()));
+	systemCreator = new SystemCreator(actionSender);
+	actionSender->updateFrameSending(false);
 }
 
 SimulationGrapher::~SimulationGrapher()
 {
 	delete dataUpdateTimer;
+	delete systemCreator;
 	delete actionSender;
 }
 
@@ -41,15 +45,15 @@ void SimulationGrapher::runSimulation1()
 	actionSender->popStepCounter();
 	actionSender->popCalculationCounter();
 	counter = 0;
-	sphereCount = 64;
-	timeStep = 0.01;
-	time = 0.01;
+	sphereCount = 1;
+	timeStep = 0.0001;
+	time = 0.0001;
 	graphNumber = 1;
 	
-	SystemCreator systemCreator(actionSender);
-	Scalar length = systemCreator.createMacroscopic2DCollisionSystem();
+	Scalar length = systemCreator->createMacroscopicGravitationSystem(sphereCount);
 	actionSender->updateTimeStep(timeStep);
 	actionSender->updateFrameSending(false);
+	actionSender->updateMaximumStepDivision(0);
 	
 	dataUpdateTimer->start();
 }
@@ -68,8 +72,7 @@ void SimulationGrapher::runSimulation2()
 	data.reserve(dataPoints);
 	temperatures.reserve(stepsToEquilibrium + dataPoints/sphereCount);
 	
-	SystemCreator systemCreator(actionSender);
-	Scalar length = systemCreator.createArgonGasSystem(sphereCount, 473.15);
+	Scalar length = systemCreator->createArgonGasSystem(sphereCount, 473.15);
 	actionSender->updateTimeStep(timeStep);
 	actionSender->updateFrameSending(false);
 	
@@ -80,15 +83,17 @@ void SimulationGrapher::timerUpdate()
 {
 	if(!actionSender->getIsSimulating())
 	{
-		qDebug()<<++counter;
+		++counter;
 		if(graphNumber == 1)
 		{
-			if(counter > 0)
+			if(counter > 1)
 			{
 				quint32 lastStepCalculationTime = actionSender->getLastStepCalculationTime();
-				qDebug()<<"last step calculation time:"<<lastStepCalculationTime;
+				//qDebug()<<"sphere count:"<<sphereCount;
+				//qDebug()<<"last step calculation time:"<<lastStepCalculationTime;
+				Console::out<<sphereCount<<" "<<lastStepCalculationTime<<"\n";
 			}
-			if(counter > 5)
+			if(counter > 100)
 			{
 				for(quint16 i = 0; i<sphereCount; i++)
 					actionSender->removeLastSphere();
@@ -97,6 +102,9 @@ void SimulationGrapher::timerUpdate()
 			}
 			else
 			{
+				actionSender->removeSomeLastSpheres(sphereCount);
+				sphereCount = (quint16)pow(1.2, counter);
+				systemCreator->createMacroscopic2DCollisionSystem(sphereCount);
 				actionSender->calculateStep();
 			}
 		}

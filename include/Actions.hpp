@@ -71,7 +71,16 @@ namespace SphereSim
 			/** \brief Get basic data (radius and position) of one sphere. */
 			getBasicSphereData,
 			/** \brief Get all data of one sphere. */
-			getAllSphereData
+			getAllSphereData,
+			/** \brief Add some spheres to the simulation, without specific data. */
+			addSomeSpheres,
+			/** \brief Remove some last spheres of the simulation. */
+			removeSomeLastSpheres,
+			/** \brief Update the sphere positions to be well distributed in simulated box.
+			 * Spheres will have a random displacement and speed relative to their radius. */
+			updateSpherePositionsInBox,
+			/** \brief Update the data of all spheres. */
+			updateAllSpheres
 		};
 	}
 	
@@ -177,7 +186,9 @@ namespace SphereSim
 			/** \brief The server is sending sphere data. */
 			sendFrame,
 			/** \brief The server is terminating. */
-			terminating
+			terminating,
+			/** \brief The number of spheres changed. */
+			sphereCountChanged
 		};
 	}
 	

@@ -244,6 +244,23 @@ namespace SphereSim
 		 * \return Copy of the requested sphere. */
 		Sphere getAllSphereData(quint16 i);
 		
+		/** \copydoc SpheresUpdatingActions::addSomeSpheres
+		 * \copydetails getSphereCount */
+		quint16 addSomeSpheres(quint16 sphCount);
+		
+		/** \copydoc SpheresUpdatingActions::removeSomeLastSpheres
+		 * \copydetails getSphereCount */
+		quint16 removeSomeLastSpheres(quint16 sphCount);
+		
+		/** \copydoc SpheresUpdatingActions::updateSpherePositionsInBox */
+		void updateSpherePositionsInBox(Scalar randomDisplacement, Scalar randomSpeed);
+		
+		/** \copydoc SpheresUpdatingActions::updateAllSpheres
+		 * \param s Sphere data to update.
+		 * \return Current sphere count.
+		 */
+		quint16 updateAllSpheres(Sphere s);
+		
 		/** \copydoc CalculationActions::calculateStep */
 		void calculateStep();
 		

@@ -17,12 +17,13 @@
 #include <QTextStream>
 #include <QList>
 
-class ActionSender;
 class QHostAddress;
 class QTimer;
 
 namespace SphereSim
 {
+	class ActionSender;
+	class SystemCreator;
 	
 	/** \brief Grapher for server simulations. */
 	class SimulationGrapher : public QObject
@@ -56,6 +57,8 @@ namespace SphereSim
 		quint16 stepsBeforeMeasuring;
 		
 		quint8 graphNumber;
+		
+		SystemCreator* systemCreator;
 		
 	public:
 		/** \brief Start a SimulationGrapher with the specified address and port.

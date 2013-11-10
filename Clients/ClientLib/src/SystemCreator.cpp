@@ -104,41 +104,18 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 
 Scalar SystemCreator::createMacroscopicGravitationSystem(quint16 sphereCount)
 {
-	quint16 sphereCount1D = (quint16)ceil(pow(sphereCount, 1/3.0));
-	
-	Scalar radius = 1;
-	Scalar boxLength = 10*radius*sphereCount1D;
+	Scalar boxLength = 1;
 	actionSender->updateBoxSize(Vector3(boxLength, boxLength, boxLength));
+	Scalar radius = 0.03*boxLength;
+	Scalar mass = 1;
 	
-	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
-	std::default_random_engine generator(timepoint.count());
-	std::uniform_real_distribution<Scalar> distribution(-radius/4, radius/4);
+	Sphere sphere = Sphere();
+	sphere.radius = radius;
+	sphere.mass = mass;
+	actionSender->addSomeSpheres(sphereCount);
+	actionSender->updateAllSpheres(sphere);
+	actionSender->updateSpherePositionsInBox(0.01, 0.01);
 	
-	Sphere s;
-	s.radius = radius;
-	s.speed.setZero();
-	s.acc.setZero();
-	s.mass = 100;
-	Vector3 boxSize(boxLength,boxLength,boxLength);
-	boxSize /= 2;
-	for(unsigned int i = 0; i<sphereCount; i++)
-	{
-		Console::out<<"SystemCreator: sphere "<<(i+1)<<"|"<<sphereCount<<"\r";
-		actionSender->addSphere();
-		s.pos = boxSize;
-		s.pos(0) += 8*radius*((sphereCount1D-1)/2.0-(i%sphereCount1D));
-		s.pos(1) += 8*radius*((sphereCount1D-1)/2.0-((i/sphereCount1D)%sphereCount1D));
-		s.pos(2) += 8*radius*((sphereCount1D-1)/2.0-((i/sphereCount1D)/sphereCount1D));
-		s.speed.setZero();
-		for(quint8 dim = 0; dim<3; dim++)
-		{
-			s.pos(dim) += distribution(generator);
-			s.speed(dim) += distribution(generator)/5;
-		}
-		actionSender->updateSphere(i, s);
-	}
-
 	actionSender->updateCollisionDetection(false);
 	actionSender->updateGravityCalculation(true);
 	actionSender->updateGravitationalConstant(1.0e-20);
@@ -148,32 +125,19 @@ Scalar SystemCreator::createMacroscopicGravitationSystem(quint16 sphereCount)
 	return boxLength;
 }
 
-Scalar SystemCreator::createMacroscopic2DCollisionSystem()
+Scalar SystemCreator::createMacroscopic2DCollisionSystem(quint16 sphereCount)
 {
 	Scalar boxLength = 1;
 	actionSender->updateBoxSize(Vector3(boxLength, boxLength, boxLength));
 	Scalar radius = 0.03*boxLength;
-	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
-	std::default_random_engine generator(timepoint.count());
-	std::uniform_real_distribution<Scalar> distribution(0.0f, radius/4);
+	Scalar mass = 1;
 	
-	Sphere s;
-	s.radius = 1.5*radius;
-	s.pos(0) = 1.5*radius;
-	s.pos(1) = 1.5*radius;
-	s.pos(2) = 1.5*radius;
-	s.speed.setZero();
-	s.acc.setZero();
-	s.mass = 1;
-	for(unsigned int i = 0; i<64; i++)
-	{
-		Console::out<<"SystemCreator: sphere "<<(i+1)<<"|"<<64<<"\r";
-		actionSender->addSphere();
-		s.pos(1) = 2*radius + 3.5f*radius*(i/8) + distribution(generator);
-		s.pos(0) = 2*radius + 3.5f*radius*(i%8) + distribution(generator);
-		actionSender->updateSphere(i, s);
-	}
+	Sphere sphere = Sphere();
+	sphere.radius = radius;
+	sphere.mass = mass;
+	actionSender->addSomeSpheres(sphereCount);
+	actionSender->updateAllSpheres(sphere);
+	actionSender->updateSpherePositionsInBox(0.01, 0.01);
 	
 	return boxLength;
 }

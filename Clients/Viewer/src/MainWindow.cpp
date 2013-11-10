@@ -25,13 +25,9 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 	connect(ui->startButton, SIGNAL(clicked()), ui->glWidget, SLOT(startAnimation()));
 	connect(ui->stopButton, SIGNAL(clicked()), actionSender, SLOT(stopSimulation()));
 	connect(ui->stopButton, SIGNAL(clicked()), ui->glWidget, SLOT(stopAnimation()));
-	connect(actionSender, SIGNAL(greatFrameBufferPercentageLevelUpdate(int)), ui->frameBuffer, SLOT(setValue(int)));
 	connect(actionSender, SIGNAL(frameBufferPercentageLevelUpdate(int)), ui->glWidget, SLOT(updateTimerFrequency(int)));
-	connect(ui->addSphere, SIGNAL(clicked()), actionSender, SLOT(addSphere()));
-	connect(ui->removeSphere, SIGNAL(clicked()), actionSender, SLOT(removeLastSphere()));
-	connect(ui->increaseEnergy, SIGNAL(clicked()), SLOT(increaseEnergy()));
-	connect(ui->decreaseEnergy, SIGNAL(clicked()), SLOT(decreaseEnergy()));
 	connect(actionSender, SIGNAL(greatFrameBufferPercentageLevelUpdate(int)), SLOT(updateTargetTemperature()), Qt::QueuedConnection);
+	connect(actionSender, SIGNAL(sphereCountChangedDouble(double)), ui->sphereCount, SLOT(setValue(double)));
 	timer.start();
 	
 	updateBoxLength(1);
@@ -75,7 +71,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::prepareSystem1()
 {
-	systemCreator->createMacroscopic2DCollisionSystem();
+	Scalar length = systemCreator->createMacroscopicGravitationSystem(64);
+	updateBoxLength(length);
+	actionSender->updateTimeStep(0.1);
 }
 
 void MainWindow::prepareSystem2()
@@ -104,7 +102,7 @@ void MainWindow::prepareSystem2()
 
 void MainWindow::prepareSystem3()
 {
-	Scalar length = systemCreator->createArgonGasSystem(64, 473.15);
+	Scalar length = systemCreator->createArgonGasSystem(256, 473.15);
 	qDebug()<<"system box length:"<<length;
 	updateBoxLength(length);
 	actionSender->updateTimeStep(2.0e-14);

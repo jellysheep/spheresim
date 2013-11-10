@@ -19,6 +19,8 @@
 #include <QElapsedTimer>
 #include <cmath>
 #include <omp.h>
+#include <random>
+#include <chrono>
 
 using namespace SphereSim;
 
@@ -26,7 +28,7 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	maxSpheresPerCell(1024), maxCellsPerSphere(1024),
 	sphereIndicesInCells(maxSpheresPerCell, cellCount3), cellIndicesOfSpheres(maxCellsPerSphere),
 	maxCollidingSpheresPerSphere(300), collidingSpheresPerSphere(maxCollidingSpheresPerSphere),
-	gravityCellCount(2), gravityCellCount3(gravityCellCount*gravityCellCount*gravityCellCount),
+	gravityCellCount(4), gravityCellCount3(gravityCellCount*gravityCellCount*gravityCellCount),
 	gravityAllCellCount(2*gravityCellCount3), maxSpheresPerGravityCell(1024),
 	sphereIndicesInGravityCells(maxSpheresPerGravityCell, gravityCellCount3), maxApproximatingCellsPerGravityCell(gravityCellCount3),
 	approximatingCellsPerGravityCell(maxApproximatingCellsPerGravityCell, gravityAllCellCount),
@@ -932,7 +934,7 @@ quint16 SphereCalculator::addSphere()
 	collidingSpheresPerSphere.changeSize(spheres.count());
 	updateGravityCellIndexOfSpheresArray();
 	updateData();
-	workQueue->sendFrameData();
+	//workQueue->sendFrameData();
 	return getSphereCount();
 }
 
@@ -970,6 +972,68 @@ Sphere SphereCalculator::getAllSphereData(quint16 i)
 	}else{
 		return Sphere();
 	}
+}
+
+quint16 SphereCalculator::addSomeSpheres(quint16 sphCount)
+{
+	/*spheres.insert(spheres.count()-1, sphCount, Sphere());
+	newSpherePos.insert(newSpherePos.count()-1, sphCount, Vector3());
+	cellIndicesOfSpheres.changeSize(spheres.count());
+	collidingSpheresPerSphere.changeSize(spheres.count());
+	updateGravityCellIndexOfSpheresArray();
+	updateData();
+	workQueue->sendFrameData();
+	return getSphereCount();*/
+	for(quint16 i = 0; i<sphCount; i++)
+		addSphere();
+	return getSphereCount();
+}
+
+quint16 SphereCalculator::removeSomeLastSpheres(quint16 sphCount)
+{
+	for(quint16 i = 0; i<sphCount; i++)
+		removeLastSphere();
+	return getSphereCount();
+}
+
+void SphereCalculator::updateSpherePositionsInBox(Scalar randomDisplacement, Scalar randomSpeed)
+{
+	qDebug()<<"SphereCalculator: updateSpherePositionsInBox ...";
+	quint16 sphereCount1D = (quint16)ceil(pow(sphCount, 1/3.0));
+	
+	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
+	std::default_random_engine generator(timepoint.count());
+	std::uniform_real_distribution<Scalar> distribution(-1, 1);
+	
+	for(unsigned int i = 0; i<sphCount; i++)
+	{
+		Console::out<<"SphereCalculator: sphere "<<(i+1)<<"|"<<sphCount<<"\r";
+		Sphere& s = spheres[i];
+		s.pos = simulatedSystem.boxSize/2;
+		s.pos(0) += simulatedSystem.boxSize(0)/sphereCount1D*((sphereCount1D-1)/2.0-(i%sphereCount1D));
+		s.pos(1) += simulatedSystem.boxSize(1)/sphereCount1D*((sphereCount1D-1)/2.0-((i/sphereCount1D)%sphereCount1D));
+		s.pos(2) += simulatedSystem.boxSize(2)/sphereCount1D*((sphereCount1D-1)/2.0-((i/sphereCount1D)/sphereCount1D));
+		s.speed.setZero();
+		for(quint8 dim = 0; dim<3; dim++)
+		{
+			s.pos(dim) += s.radius*randomDisplacement*distribution(generator);
+			s.speed(dim) += s.radius*randomSpeed*distribution(generator);
+		}
+	}
+	updateData();
+	qDebug()<<"SphereCalculator: updateSpherePositionsInBox finished.";
+}
+
+quint16 SphereCalculator::updateAllSpheres(Sphere s)
+{
+	for(quint16 i = 0; i<spheres.count(); i++)
+	{
+		spheres[i] = s;
+	}
+	updateData();
+	workQueue->sendFrameData();
+	return getSphereCount();
 }
 
 void SphereCalculator::calculateStep()
