@@ -12,10 +12,12 @@ set(SOURCES ${SOURCES}
 	${PROJECT_SOURCE_DIR}/main.cpp
 	${PROJECT_SOURCE_DIR}/GLWidget.cpp
 	${PROJECT_SOURCE_DIR}/MainWindow.cpp
+	${PROJECT_SOURCE_DIR}/StartDialog.cpp
 )
 set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/GLWidget.hpp
 	${PROJECT_INCLUDE_DIR}/MainWindow.hpp
+	${PROJECT_INCLUDE_DIR}/StartDialog.hpp
 )
 
 find_package(Qt5Widgets REQUIRED)
@@ -23,9 +25,9 @@ find_package(Qt5OpenGL REQUIRED)
 
 find_package(OpenGL REQUIRED)
 
-set(UI QRC/MainWindow.ui)
+set(UI QRC/MainWindow.ui QRC/StartDialog.ui)
 qt5_wrap_ui(HEADERS_UI ${UI})
-qt5_add_resources(RESOURCES QRC/MainWindow.qrc QRC/Shaders.qrc)
+qt5_add_resources(RESOURCES QRC/MainWindow.qrc QRC/StartDialog.qrc QRC/Shaders.qrc)
 
 add_executable(SphereSim_Viewer ${SOURCES} ${HEADERS} ${HEADERS_UI} ${RESOURCES})
 target_link_libraries(SphereSim_Viewer SphereSim_ClientLib ${OPENGL_LIBRARIES} GLESv2)

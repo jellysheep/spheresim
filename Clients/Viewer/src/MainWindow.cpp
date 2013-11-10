@@ -16,7 +16,7 @@
 
 using namespace SphereSim;
 
-MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(parent), actionSender(actSend)
+MainWindow::MainWindow(ActionSender* actSend, quint16 sphCount, QWidget* parent):QMainWindow(parent), actionSender(actSend)
 {
 	ui = new Ui::MainWindow();
 	ui->setupUi(this);
@@ -52,7 +52,7 @@ MainWindow::MainWindow(ActionSender* actSend, QWidget* parent):QMainWindow(paren
 		prepareSystem2();
 		break;
 	case 3:
-		prepareSystem3();
+		prepareSystem3(sphCount);
 		break;
 	case 4:
 		prepareSystem4();
@@ -100,9 +100,9 @@ void MainWindow::prepareSystem2()
 	actionSender->updateMaximumStepError(1.0e-12);
 }
 
-void MainWindow::prepareSystem3()
+void MainWindow::prepareSystem3(quint16 sphCount)
 {
-	Scalar length = systemCreator->createArgonGasSystem(256, 473.15);
+	Scalar length = systemCreator->createArgonGasSystem(sphCount, 473.15);
 	qDebug()<<"system box length:"<<length;
 	updateBoxLength(length);
 	actionSender->updateTimeStep(2.0e-14);

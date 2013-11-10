@@ -39,7 +39,7 @@ namespace SphereSim
 		
 		void prepareSystem2();
 		
-		void prepareSystem3();
+		void prepareSystem3(quint16 sphCount);
 		
 		void prepareSystem4();
 		
@@ -57,7 +57,7 @@ namespace SphereSim
 		
 	public:
 		/** \brief Initialize member variables. */
-		MainWindow(ActionSender* actionSender, QWidget* parent = NULL);
+		MainWindow(ActionSender* actionSender, quint16 sphCount, QWidget* parent = NULL);
 		
 		/** \brief Clean up member variables. */
 		~MainWindow();

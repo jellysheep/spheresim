@@ -6,6 +6,7 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
+#include <StartDialog.hpp>
 #include <ActionSender.hpp>
 #include <Connection.hpp>
 #include <MainWindow.hpp>
@@ -13,6 +14,7 @@
 #include <QApplication>
 #include <QHostAddress>
 #include <QString>
+#include <QDialog>
 
 using namespace SphereSim;
 
@@ -27,10 +29,16 @@ int main(int argc, char** argv)
 	app.setStyle("fusion");
 	QStringList args = app.arguments();
 	
-	ActionSender actSend(args, QHostAddress(Connection::address), Connection::port);
+	quint16 sphereCount = StartDialog(&app).getSphereCount();
 	
-	MainWindow mainWindow(&actSend);
-	mainWindow.show();
-	
-	return app.exec();
+	if(sphereCount>0)
+	{
+		ActionSender actSend(args, QHostAddress(Connection::address), Connection::port);
+		
+		MainWindow mainWindow(&actSend, sphereCount);
+		mainWindow.show();
+		
+		return app.exec();
+	}
+	return 0;
 }
