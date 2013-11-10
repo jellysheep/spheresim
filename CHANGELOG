@@ -4,6 +4,8 @@
 * Added methods to control step division in calculations.
 * Improved simulated systems.
 * Improved Gnuplot script to output PDF files.
+* Switched to .zip extension for mingw-w64 package.
+* Improved output of SystemCreator class.
 
 SphereSim 2.4.2:
 * Improved simulated system.

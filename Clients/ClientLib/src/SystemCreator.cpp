@@ -75,7 +75,7 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 	Scalar a = pow(0.66*1.3806504e-23*targetTemperature/s.mass, 1.0/2.0);
 	for(unsigned int i = 0; i<sphereCount; i++)
 	{
-		qDebug()<<"SystemCreator: sphere"<<(i+1)<<"|"<<sphereCount<<"\r";
+		Console::out<<"SystemCreator: sphere "<<(i+1)<<"|"<<sphereCount<<"\r";
 		actionSender->addSphere();
 		s.pos = boxSize;
 		s.pos(0) += 7.5f*8/sphereCountSqrt*radius*((sphereCountSqrt-1)/2.0-(i%sphereCountSqrt));
@@ -168,6 +168,7 @@ Scalar SystemCreator::createMacroscopic2DCollisionSystem(quint16 sphereCount)
 	s.mass = 1;
 	for(unsigned int i = 0; i<64; i++)
 	{
+		Console::out<<"SystemCreator: sphere "<<(i+1)<<"|"<<64<<"\r";
 		actionSender->addSphere();
 		s.pos(1) = 2*radius + 3.5f*radius*(i/8) + distribution(generator);
 		s.pos(0) = 2*radius + 3.5f*radius*(i%8) + distribution(generator);
