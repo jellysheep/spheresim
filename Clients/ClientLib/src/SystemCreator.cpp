@@ -148,7 +148,7 @@ Scalar SystemCreator::createMacroscopicGravitationSystem(quint16 sphereCount)
 	return boxLength;
 }
 
-Scalar SystemCreator::createMacroscopic2DCollisionSystem(quint16 sphereCount)
+Scalar SystemCreator::createMacroscopic2DCollisionSystem()
 {
 	Scalar boxLength = 1;
 	actionSender->updateBoxSize(Vector3(boxLength, boxLength, boxLength));

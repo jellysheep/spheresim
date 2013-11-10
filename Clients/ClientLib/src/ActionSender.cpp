@@ -511,6 +511,15 @@ void ActionSender::updateMaximumStepError(Scalar maxStepError)
 	sendAction(ActionGroups::calculation, CalculationActions::updateMaximumStepError, arr);
 }
 
+quint32 ActionSender::getLastStepCalculationTime()
+{
+	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::getLastStepCalculationTime);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	quint32 lastStepCalculationTime;
+	retStream>>lastStepCalculationTime;
+	return lastStepCalculationTime;
+}
+
 void ActionSender::framerateEvent()
 {
 	if(framerateTimer.elapsed()>1000)

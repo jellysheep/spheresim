@@ -114,7 +114,9 @@ namespace SphereSim
 			/** \brief Update how many times the currently simulated step can be divided. */
 			updateMaximumStepDivision,
 			/** \brief Update how much relative error is allowed for the current step. */
-			updateMaximumStepError
+			updateMaximumStepError,
+			/** \brief Get the time (in ms) that was needed to calculate the last step. */
+			getLastStepCalculationTime
 		};
 	}
 	

@@ -206,6 +206,9 @@ namespace SphereSim
 		/** \copydoc CalculationActions::updateMaximumStepError */
 		void updateMaximumStepError(Scalar maxStepError);
 		
+		/** \copydoc CalculationActions::getLastStepCalculationTime */
+		quint32 getLastStepCalculationTime();
+		
 		/** \copydoc InformationActions::getTotalEnergy
 		 * \return Total energy (in joules). */
 		Scalar getTotalEnergy();

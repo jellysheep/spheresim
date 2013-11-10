@@ -15,6 +15,8 @@
 #include <QDebug>
 #include <QDataStream>
 #include <QThread>
+#include <QTimer>
+#include <QElapsedTimer>
 #include <cmath>
 #include <omp.h>
 
@@ -59,6 +61,8 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	simulatedSystem.kBoltzmann = 1.3806504e-23;
 	maxStepDivision = 16;
 	maxStepError = 1.0e-4;
+	lastStepCalculationTime = 0;
+	elapsedTimer = new QElapsedTimer();
 	
 	updateSphereBox();
 	massVectorSumPerCell = new Vector3[gravityAllCellCount];
@@ -101,6 +105,7 @@ SphereCalculator::~SphereCalculator()
 	if(gravityCellIndexOfSpheres != NULL)
 		delete[] gravityCellIndexOfSpheres;
 	delete[] sphereCountPerGravityCell;
+	delete elapsedTimer;
 }
 
 QVector<Sphere>& SphereCalculator::getSpheres()
@@ -385,6 +390,7 @@ void SphereCalculator::updateData()
 
 void SphereCalculator::integrateRungeKuttaStep()
 {
+	elapsedTimer->start();
 	if(collisionDetectionFlag)
 	{
 		if(gravityCalculationFlag)
@@ -459,6 +465,7 @@ void SphereCalculator::integrateRungeKuttaStep()
 			}
 		}
 	}
+	lastStepCalculationTime = elapsedTimer->elapsed()+1;
 }
 
 template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
@@ -1119,6 +1126,11 @@ void SphereCalculator::updateMaximumStepDivision(quint16 maxStepDivision_)
 void SphereCalculator::updateMaximumStepError(Scalar maxStepError_)
 {
 	maxStepError = maxStepError_;
+}
+
+quint32 SphereCalculator::getLastStepCalculationTime()
+{
+	return lastStepCalculationTime;
 }
 
 Scalar SphereCalculator::getTotalEnergy()

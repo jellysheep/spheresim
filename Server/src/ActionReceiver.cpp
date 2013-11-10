@@ -280,6 +280,10 @@ void ActionReceiver::handleCalculationAction(quint8 actionGroup, quint8 action, 
 		stream>>s;
 		sphCalc.updateMaximumStepError(s);
 		break;
+	case CalculationActions::getLastStepCalculationTime:
+		retStream<<sphCalc.getLastStepCalculationTime();
+		sendReply(ServerStatusReplies::acknowledge, retData);
+		break;
 	default:
 		handleUnknownAction(actionGroup, action, data);
 		break;

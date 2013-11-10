@@ -29,7 +29,7 @@ namespace SphereSim
 		
 		Scalar createMacroscopicGravitationSystem(quint16 sphereCount);
 		
-		Scalar createMacroscopic2DCollisionSystem(quint16 sphereCount);
+		Scalar createMacroscopic2DCollisionSystem();
 		
 		Scalar createSimpleWallCollisionSystem();
 	};

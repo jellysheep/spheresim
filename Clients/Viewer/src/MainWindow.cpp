@@ -75,7 +75,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::prepareSystem1()
 {
-	systemCreator->createMacroscopic2DCollisionSystem(64);
+	systemCreator->createMacroscopic2DCollisionSystem();
 }
 
 void MainWindow::prepareSystem2()

@@ -20,6 +20,7 @@
 #include <QObject>
 
 class QTimer;
+class QElapsedTimer;
 
 namespace SphereSim
 {
@@ -210,6 +211,10 @@ namespace SphereSim
 		
 		Scalar maxStepError;
 		
+		quint32 lastStepCalculationTime;
+		
+		QElapsedTimer* elapsedTimer;
+		
 	public:
 		SphereCalculator();
 		~SphereCalculator();
@@ -297,6 +302,9 @@ namespace SphereSim
 		
 		/** \copydoc CalculationActions::updateMaximumStepError */
 		void updateMaximumStepError(Scalar maxStepError);
+		
+		/** \copydoc CalculationActions::getLastStepCalculationTime */
+		quint32 getLastStepCalculationTime();
 		
 		/** \copydoc InformationActions::getTotalEnergy
 		 * \return Requested total energy. */

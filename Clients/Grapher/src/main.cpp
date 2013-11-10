@@ -27,6 +27,6 @@ int main(int argc, char** argv)
 	QCoreApplication app(argc, argv);
 	QStringList args = app.arguments();
 	SimulationGrapher* simGrapher = new SimulationGrapher(args, QHostAddress(Connection::address), Connection::port);
-	QTimer::singleShot(0, simGrapher, SLOT(runSimulation()));
+	QTimer::singleShot(0, simGrapher, SLOT(runSimulation1()));
 	return app.exec();
 }

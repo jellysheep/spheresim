@@ -55,6 +55,8 @@ namespace SphereSim
 		
 		quint16 stepsBeforeMeasuring;
 		
+		quint8 graphNumber;
+		
 	public:
 		/** \brief Start a SimulationGrapher with the specified address and port.
 		 * \param args The arguments that the program was invoked with.
@@ -65,8 +67,11 @@ namespace SphereSim
 		~SimulationGrapher();
 		
 	public slots:
-		/** \brief Run the simulation and output results. */
-		void runSimulation();
+		/** \brief Run the first simulation and output results. */
+		void runSimulation1();
+		
+		/** \brief Run the second simulation and output results. */
+		void runSimulation2();
 		
 		void timerUpdate();
 		
