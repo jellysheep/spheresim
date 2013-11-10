@@ -9,6 +9,7 @@
 * Added new simulated system to SimulationGrapher.
 * Added methods to measure step calculation time.
 * Added StartDialog to Viewer client.
+* Minor fix in the Gnuplot script.
 
 SphereSim 2.4.2:
 * Improved simulated system.

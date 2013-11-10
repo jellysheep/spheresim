@@ -28,7 +28,7 @@ plot "temperatures.txt" lw 2 with linespoints title "Temperatur des simulierten 
 	t(x) lw 3 title "Zieltemperatur (473,15 K)"
 
 set xlabel "Geschwindigkeit v (m/s)"
-set ylabel "Wahrscheinlichkeit F(v)"
+set ylabel "Wahrscheinlichkeit p(v)"
 set xtics 100
 set xrange [1:1300]
 set out "GeschwindigkeitVerteilungsfunktion.pdf"
@@ -37,7 +37,7 @@ plot "graphdata.txt" with linespoints title "Geschwindigkeiten der Atome am Ende
 	q(x,40,T0) lw 2 title "Zu erwartende Geschwindigkeitsverteilung bei T=473,15 K"
 
 set xlabel "Geschwindigkeit v (m/s)"
-set ylabel "Wahrscheinlichkeitsdichte P(v) (s/m)"
+set ylabel "Wahrscheinlichkeitsdichte f(v) (s/m)"
 set out "GeschwindigkeitDichtefunktion.pdf"
 set xrange [1:900]
 plot g1(x) lw 3 title "Annäherung an die Geschwindigkeiten der Atome am Ende der Simulation", \
