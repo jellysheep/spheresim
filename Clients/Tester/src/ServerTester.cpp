@@ -263,9 +263,9 @@ void ServerTester::runCalculationActionTests_internal(const char* integratorMeth
 	quint16 sphereCount = sender->getSphereCount();
 	verify(sphereCount, Equal, 1);
 	
-	Scalar timeStep = 50;
+	Scalar timeStep = 1;
 	sender->updateTimeStep(timeStep);
-	Scalar simulationTime = 50;
+	Scalar simulationTime = 1;
 	quint32 steps = (quint32)(simulationTime/timeStep);
 	Scalar beginEnergy, endEnergy;
 	beginEnergy = sender->getTotalEnergy();

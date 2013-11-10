@@ -1,4 +1,6 @@
-set term png truecolor enhanced size 1024,768
+#set term png truecolor enhanced font "Helvetica,24" size 2000,800
+#set term svg enhanced font "Helvetica,24" size 2000,800
+set term pdf enhanced font "Helvetica,24" size 11.5,4.6
 
 k = 1.38e-23
 NA= 6.022e23
@@ -7,24 +9,36 @@ T0 = 473.15
 a(m,T) = sqrt(k*T/(m*u))
 p(v,m,T) = 4 * pi * v**2 * (m*u/(2*pi*k*T))**1.5 * exp(-m * u * v**2 / (2*k*T))
 q(v,m,T) = erf(v/(sqrt(2)*a(m,T)))-sqrt(2/pi)*(v*exp(-v**2/(2*a(m,T)**2)))/a(m,T)
+t(x) = 473.15
 
 f1(x) = erf(x/(sqrt(2)*a1))-sqrt(2/pi)*(x*exp(-x**2/(2*a1**2)))/a1
 g1(x) = 100*sqrt(2/pi)*((x**2)*exp(-x**2/(2*a1**2)))/(a1**3)
 a1 = a(40,T0)
 fit f1(x) "graphdata.txt" via a1
 
-set out "graphs.png"
-plot "graphdata.txt", \
-	f1(x), \
-	q(x,40,T0)
+set key Right bottom
+set grid xtics ytics
 
+set xlabel "Simulationsschritte"
+set ylabel "Temperatur (K)"
 set xtics 50
 set grid
-set style fill transparent solid 0.4
-set out "temperatures.png"
-plot "temperatures.txt" with linespoints
+set out "Temperaturverteilung.pdf"
+plot "temperatures.txt" lw 2 with linespoints title "Temperatur des simulierten Systems", \
+	t(x) lw 3 title "Zieltemperatur (473,15 K)"
 
-set out "graphs2.png"
-set xrange [1:700]
-plot g1(x), \
-	100*p(x,40,T0)
+set xlabel "Geschwindigkeit v (m/s)"
+set ylabel "Wahrscheinlichkeit F(v)"
+set xtics 100
+set xrange [1:1300]
+set out "GeschwindigkeitVerteilungsfunktion.pdf"
+plot "graphdata.txt" with linespoints title "Geschwindigkeiten der Atome am Ende der Simulation" ls 1 lc rgb "red" ps 0.5, \
+	f1(x) lw 2 title "Angenäherte Geschwindigkeitsverteilung", \
+	q(x,40,T0) lw 2 title "Zu erwartende Geschwindigkeitsverteilung bei T=473,15 K"
+
+set xlabel "Geschwindigkeit v (m/s)"
+set ylabel "Wahrscheinlichkeitsdichte P(v)"
+set out "GeschwindigkeitDichtefunktion.pdf"
+set xrange [1:900]
+plot g1(x) lw 3 title "Annäherung an die Geschwindigkeiten der Atome am Ende der Simulation", \
+	100*p(x,40,T0) lw 3 title "Zu erwartende Wahrscheinlichkeitsdichte der Geschwindigkeiten bei T=473,15 K"

@@ -3,6 +3,7 @@
 * Improved simulation calculations; big error decrease.
 * Added methods to control step division in calculations.
 * Improved simulated systems.
+* Improved Gnuplot script to output PDF files.
 
 SphereSim 2.4.2:
 * Improved simulated system.
