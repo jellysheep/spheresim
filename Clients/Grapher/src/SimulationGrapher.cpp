@@ -30,6 +30,12 @@ SimulationGrapher::SimulationGrapher(QStringList args, QHostAddress addr, quint1
 	connect(dataUpdateTimer, SIGNAL(timeout()), this, SLOT(timerUpdate()));
 	systemCreator = new SystemCreator(actionSender);
 	actionSender->updateFrameSending(false);
+	
+	counter = 0;
+	timeStep = 1.0;
+	time = 1.0;
+	sphereCountSqrt = 1;
+	sphereCount = 1;
 }
 
 SimulationGrapher::~SimulationGrapher()

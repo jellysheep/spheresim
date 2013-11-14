@@ -1,3 +1,4 @@
+SphereSim 2.4.3:
 * Improved simulated systems and Benchmark client.
 * Improved simulated systems again.
 * Improved simulation calculations; big error decrease.
@@ -10,6 +11,8 @@
 * Added methods to measure step calculation time.
 * Added StartDialog to Viewer client.
 * Minor fix in the Gnuplot script.
+* Improved PKGBUILDs.
+* Fixed some initialized variables.
 
 SphereSim 2.4.2:
 * Improved simulated system.

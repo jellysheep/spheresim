@@ -24,12 +24,10 @@ include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${COMMON_SOURCE_DIR}")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=gnu++11")
 if(DEFINED COMPATIBLE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++03 -fPIC")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 	set(_COMPATIBLE ${COMPATIBLE})
-else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 endif()
 
 set(CMAKE_AUTOMOC ON)
@@ -57,12 +55,13 @@ set(SOURCES
 
 #documentation:
 FIND_PACKAGE(Doxygen)
-if (NOT DOXYGEN_FOUND)
+if (DOXYGEN_FOUND)
+	configure_file(Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
+	add_custom_target (docs COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
+		SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
+else()
 	message(WARNING "Doxygen is needed to build the documentation.")
 endif()
-configure_file(Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
-add_custom_target (docs COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
-	SOURCES ${PROJECT_BINARY_DIR}/Doxyfile)
 
 add_subdirectory(Server)
 add_subdirectory(Clients)
