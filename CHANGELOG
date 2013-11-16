@@ -14,6 +14,7 @@ SphereSim 2.4.3:
 * Improved PKGBUILDs.
 * Fixed some initialized variables.
 * Improved PKGBUILDs.
+* Small PKGBUILD fix: added Git as dependency.
 
 SphereSim 2.4.2:
 * Improved simulated system.
