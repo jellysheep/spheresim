@@ -998,7 +998,6 @@ quint16 SphereCalculator::removeSomeLastSpheres(quint16 sphCount)
 
 void SphereCalculator::updateSpherePositionsInBox(Scalar randomDisplacement, Scalar randomSpeed)
 {
-	qDebug()<<"SphereCalculator: updateSpherePositionsInBox ...";
 	quint16 sphereCount1D = (quint16)ceil(pow(sphCount, 1/3.0));
 	
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();

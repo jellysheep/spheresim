@@ -1,3 +1,5 @@
+* Added Array class and modified TwoDimArray to use the new class. No speed change.
+
 SphereSim 2.4.3:
 * Improved simulated systems and Benchmark client.
 * Improved simulated systems again.
