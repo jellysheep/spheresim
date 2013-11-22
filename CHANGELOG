@@ -1,4 +1,5 @@
 * Added Array class and modified TwoDimArray to use the new class. No speed change.
+* Switched from QVector to custom Array class. Nearly no speed improve.
 
 SphereSim 2.4.3:
 * Improved simulated systems and Benchmark client.

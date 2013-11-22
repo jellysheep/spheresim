@@ -27,17 +27,15 @@ namespace SphereSim
 		}
 	};
 	
-	template <typename T, bool extremeSpeed=false, bool throwExceptions=true>
+	template <typename T, bool extremeSpeed=true, bool throwExceptions=true>
 	class Array
 	{
 	private:
-		Array();
-		
 		Array(const Array<T>&);
 		
 		Array& operator=(const Array<T>&);
 		
-		T* data;
+		T* values;
 		
 		unsigned int counter;
 		
@@ -45,23 +43,23 @@ namespace SphereSim
 		
 		void deleteAll()
 		{
-			if(data != NULL)
+			if(values != NULL)
 			{
-				delete[] data;
-				data = NULL;
+				delete[] values;
+				values = NULL;
 			}
 			counter = 0;
 		}
 		
 		void initArrays()
 		{
-			data = new T[size];
+			values = new T[size];
 			counter = 0;
 		}
 		
 	public:
-		Array(const unsigned int _size)
-			:size(_size), data(NULL), counter(0)
+		Array(const unsigned int _size=0)
+			:size(_size), values(NULL), counter(0)
 		{
 			if(size>0)
 				initArrays();
@@ -76,9 +74,25 @@ namespace SphereSim
 		{
 			if(_size != size && _size > 0)
 			{
-				deleteAll();
-				size = _size;
-				initArrays();
+				T* newValues = new T[_size];
+				unsigned int commonSize = (size<_size?size:_size);
+				memcpy(newValues, values, commonSize*sizeof(T));
+				if(_size > size)
+					for(unsigned int i = size; i<_size; i++)
+						newValues[i] = T();
+				T* oldValues = values;
+				if(_size < size)
+				{
+					size = _size;
+					values = newValues;
+				}
+				else
+				{
+					values = newValues;
+					size = _size;
+				}
+				delete[] oldValues;
+				oldValues = NULL;
 			}
 		}
 		
@@ -86,35 +100,35 @@ namespace SphereSim
 		{
 			if(!extremeSpeed)
 			{
-				if(data == NULL)
+				if(values == NULL)
 				{
 					qDebug()<<"Array::operator[] error.";
 					if(throwExceptions)
 						throw ArrayException();
 				}
 			}
-			return data[index];
+			return values[index];
 		}
 		
 		inline const T& operator[](const unsigned int index) const
 		{
 			if(!extremeSpeed)
 			{
-				if(data == NULL)
+				if(values == NULL)
 				{
 					qDebug()<<"Array::operator[] const error.";
 					if(throwExceptions)
 						throw ArrayException();
 				}
 			}
-			return data[index];
+			return values[index];
 		}
 		
 		inline void addElement(T& element)
 		{
 			if(!extremeSpeed)
 			{
-				if(data == NULL)
+				if(values == NULL)
 				{
 					qDebug()<<"Array::addElement error.";
 					if(throwExceptions)
@@ -123,7 +137,7 @@ namespace SphereSim
 				}
 			}
 			if(counter < size)
-				data[counter++] = element;
+				values[counter++] = element;
 			else
 			{
 				qDebug()<<"Array::addElement error: full."<<counter<<size;
@@ -136,7 +150,7 @@ namespace SphereSim
 		{
 			if(!extremeSpeed)
 			{
-				if(data == NULL)
+				if(values == NULL)
 				{
 					qDebug()<<"Array::addElement error.";
 					if(throwExceptions)
@@ -148,10 +162,10 @@ namespace SphereSim
 			{
 				for(unsigned int i = 0; i<counter; ++i)
 				{
-					if(data[i] == element)
+					if(values[i] == element)
 						return false;
 				}
-				data[counter++] = element;
+				values[counter++] = element;
 				return true;
 			}
 			qDebug()<<"Array::addElementIfNotContained error: full.";
@@ -160,7 +174,12 @@ namespace SphereSim
 			return false;
 		}
 		
-		inline unsigned int getCount()
+		inline unsigned int count()
+		{
+			return size;
+		}
+		
+		inline unsigned int getCounter()
 		{
 			return counter;
 		}
@@ -168,6 +187,37 @@ namespace SphereSim
 		inline void resetCounter()
 		{
 			counter = 0;
+		}
+		
+		void append(unsigned int _size=1)
+		{
+			changeSize(size+_size);
+		}
+		
+		void remove(unsigned int index)
+		{
+			if(index >= size)
+				return;
+			T* newValues = new T[size-1];
+			if(index > 0)
+				memcpy(newValues, values, index*sizeof(T));
+			if(size-index > 1)
+				memcpy(&newValues[index], &values[index+1], (size-index-1)*sizeof(T));
+			T* oldValues = values;
+			size--;
+			values = newValues;
+			delete[] oldValues;
+			oldValues = NULL;
+		}
+		
+		inline T* data()
+		{
+			return values;
+		}
+		
+		inline const T* constData() const
+		{
+			return values;
 		}
 		
 		friend class TwoDimArray<T, extremeSpeed, throwExceptions>;

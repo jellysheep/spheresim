@@ -13,9 +13,9 @@
 #include <Integrators.hpp>
 #include <ButcherTableau.hpp>
 #include <SimulatedSystem.hpp>
+#include <Array.hpp>
 #include <TwoDimArray.hpp>
 
-#include <QVector>
 #include <QMutex>
 #include <QObject>
 
@@ -36,13 +36,13 @@ namespace SphereSim
 		
 	private:
 		/** \brief Spheres managed by the server. */
-		QVector<Sphere> spheres;
+		Array<Sphere> spheres;
 		
 		/** \brief Spheres array. */
 		Sphere* sphArr;
 		
 		/** \brief New calculated positions of the spheres. */
-		QVector<Vector3> newSpherePos;
+		Array<Vector3> newSpherePos;
 		
 		/** \brief New sphere position array. */
 		Vector3* newSpherePosArr;
@@ -52,9 +52,6 @@ namespace SphereSim
 		
 		/** \brief Step length (time in s). */
 		Scalar timeStep;
-		
-		/** \copydoc spheres */
-		QVector<Sphere>& getSpheres();
 		
 		/** \brief Calculate the current sphere acceleration.
 		 * \param sphereIndex Index of the sphere to be calculated.

@@ -13,20 +13,20 @@
 
 namespace SphereSim
 {
+	class ArrayException;
+	
 	template <typename T, bool extremeSpeed, bool throwExceptions>
 	class Array;
 	
-	template <typename T, bool extremeSpeed=false, bool throwExceptions=true>
+	template <typename T, bool extremeSpeed=true, bool throwExceptions=true>
 	class TwoDimArray
 	{
 	private:
-		TwoDimArray();
-		
 		TwoDimArray(const TwoDimArray<T>&);
 		
 		TwoDimArray& operator=(const TwoDimArray<T>&);
 		
-		Array<T, extremeSpeed, throwExceptions> data;
+		Array<T, extremeSpeed, throwExceptions> values;
 		
 		T** subArrays;
 		
@@ -38,7 +38,6 @@ namespace SphereSim
 		
 		void deleteAll()
 		{
-			data.deleteAll();
 			if(counter != NULL)
 			{
 				delete[] counter;
@@ -54,25 +53,24 @@ namespace SphereSim
 		void initArrays()
 		{
 			unsigned int totalSize = constInnerSize * outerSize;
-			data.changeSize(totalSize);
-			data.initArrays();
+			values.changeSize(totalSize);
 			subArrays = new T*[outerSize];
 			counter = new unsigned int[outerSize];
 			for(unsigned int i = 0; i<outerSize; i++)
 			{
 				counter[i] = 0;
-				subArrays[i] = &data[constInnerSize*i];
+				subArrays[i] = &values[constInnerSize*i];
 			}
 		}
 		
 	public:
 		TwoDimArray(const unsigned int size)
-			:constInnerSize(size), outerSize(0), data(0), counter(NULL), subArrays(NULL)
+			:constInnerSize(size), outerSize(0), values(0), counter(NULL), subArrays(NULL)
 		{
 		}
 		
 		TwoDimArray(const unsigned int size, const unsigned int size2)
-			:constInnerSize(size), outerSize(size2), data(0), counter(NULL), subArrays(NULL)
+			:constInnerSize(size), outerSize(size2), values(0), counter(NULL), subArrays(NULL)
 		{
 			if(size2 > 0)
 				initArrays();
@@ -89,6 +87,7 @@ namespace SphereSim
 			{
 				deleteAll();
 				outerSize = size;
+				values.changeSize(size);
 				initArrays();
 			}
 		}
@@ -174,7 +173,12 @@ namespace SphereSim
 			return false;
 		}
 		
-		inline unsigned int getCount(const unsigned int index)
+		inline unsigned int count()
+		{
+			return outerSize;
+		}
+		
+		inline unsigned int getCounter(const unsigned int index)
 		{
 			if(!extremeSpeed)
 			{
@@ -202,6 +206,16 @@ namespace SphereSim
 				}
 			}
 			counter[index] = 0;
+		}
+		
+		inline T* data()
+		{
+			return values;
+		}
+		
+		inline const T* constData() const
+		{
+			return values;
 		}
 			
 	};

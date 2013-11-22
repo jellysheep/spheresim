@@ -110,11 +110,6 @@ SphereCalculator::~SphereCalculator()
 	delete elapsedTimer;
 }
 
-QVector<Sphere>& SphereCalculator::getSpheres()
-{
-	return spheres;
-}
-
 template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff)
 {
@@ -142,10 +137,10 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 		quint32 cellIndex;
 		Scalar bothRadii, dOverlapping, R;
 		collidingSpheresPerSphere.resetCounter(sphereIndex);
-		for(int i = cellIndicesOfSpheres.getCount(sphereIndex)-1; i>=0; i--)
+		for(int i = cellIndicesOfSpheres.getCounter(sphereIndex)-1; i>=0; i--)
 		{
 			cellIndex = cellIndicesOfSpheres[sphereIndex][i];
-			for(int j = sphereIndicesInCells.getCount(cellIndex)-1; j>=0; j--)
+			for(int j = sphereIndicesInCells.getCounter(cellIndex)-1; j>=0; j--)
 			{
 				sphereIndex2 = sphereIndicesInCells[cellIndex][j];
 				if(sphereIndex2 != sphereIndex)
@@ -182,10 +177,10 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 		Vector3 boxSize = simulatedSystem.boxSize;
 		Vector3 dVecNew;
 		Scalar dNew;
-		for(int i = pairwiseCellsPerGravityCell.getCount(gravityCellIndex)-1; i>=0; i--)
+		for(int i = pairwiseCellsPerGravityCell.getCounter(gravityCellIndex)-1; i>=0; i--)
 		{
 			gravityCellIndex2 = pairwiseCellsPerGravityCell[gravityCellIndex][i] - gravityCellCount3;
-			for(int j = sphereIndicesInGravityCells.getCount(gravityCellIndex2)-1; j>=0; j--)
+			for(int j = sphereIndicesInGravityCells.getCounter(gravityCellIndex2)-1; j>=0; j--)
 			{
 				sphereIndex2 = sphereIndicesInGravityCells[gravityCellIndex2][j];
 				if(sphereIndex == sphereIndex2)
@@ -239,7 +234,7 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 				}
 			}
 		}
-		for(int i = approximatingCellsPerGravityCell.getCount(gravityCellIndex)-1; i>=0; i--)
+		for(int i = approximatingCellsPerGravityCell.getCounter(gravityCellIndex)-1; i>=0; i--)
 		{
 			gravityCellIndex2 = approximatingCellsPerGravityCell[gravityCellIndex][i];
 			if(periodicBoundaries)
@@ -305,10 +300,10 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 			Vector3 dVec;
 			Scalar d, bothRadii, dOverlapping, R, energy;
 			collidingSpheresPerSphere.resetCounter(sphereIndex);
-			for(int i = cellIndicesOfSpheres.getCount(sphereIndex)-1; i>=0; i--)
+			for(int i = cellIndicesOfSpheres.getCounter(sphereIndex)-1; i>=0; i--)
 			{
 				cellIndex = cellIndicesOfSpheres[sphereIndex][i];
-				for(int j = sphereIndicesInCells.getCount(cellIndex)-1; j>=0; j--)
+				for(int j = sphereIndicesInCells.getCounter(cellIndex)-1; j>=0; j--)
 				{
 					sphereIndex2 = sphereIndicesInCells[cellIndex][j];
 					if(sphereIndex2 != sphereIndex)
@@ -339,10 +334,10 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 			quint16 sphereIndex2;
 			Sphere sphere2;
 			Vector3 dVec;
-			for(int i = pairwiseCellsPerGravityCell.getCount(gravityCellIndex)-1; i>=0; i--)
+			for(int i = pairwiseCellsPerGravityCell.getCounter(gravityCellIndex)-1; i>=0; i--)
 			{
 				gravityCellIndex2 = pairwiseCellsPerGravityCell[gravityCellIndex][i] - gravityCellCount3;
-				for(int j = sphereIndicesInGravityCells.getCount(gravityCellIndex2)-1; j>=0; j--)
+				for(int j = sphereIndicesInGravityCells.getCounter(gravityCellIndex2)-1; j>=0; j--)
 				{
 					sphereIndex2 = sphereIndicesInGravityCells[gravityCellIndex2][j];
 					if(sphereIndex == sphereIndex2)
@@ -359,7 +354,7 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 					}
 				}
 			}
-			for(int i = approximatingCellsPerGravityCell.getCount(gravityCellIndex)-1; i>=0; i--)
+			for(int i = approximatingCellsPerGravityCell.getCounter(gravityCellIndex)-1; i>=0; i--)
 			{
 				gravityCellIndex2 = approximatingCellsPerGravityCell[gravityCellIndex][i];
 				if(periodicBoundaries)
@@ -387,7 +382,7 @@ void SphereCalculator::updateData()
 {
 	sphArr = spheres.data();
 	newSpherePosArr = newSpherePos.data();
-	sphCount = spheres.size();
+	sphCount = spheres.count();
 }
 
 void SphereCalculator::integrateRungeKuttaStep()
@@ -928,8 +923,8 @@ void SphereCalculator::updateGravityCellData()
 
 quint16 SphereCalculator::addSphere()
 {
-	spheres.append(Sphere());
-	newSpherePos.append(Vector3());
+	spheres.append();
+	newSpherePos.append();
 	cellIndicesOfSpheres.changeSize(spheres.count());
 	collidingSpheresPerSphere.changeSize(spheres.count());
 	updateGravityCellIndexOfSpheresArray();
@@ -961,7 +956,7 @@ quint16 SphereCalculator::updateSphere(quint16 i, Sphere s)
 
 quint16 SphereCalculator::getSphereCount()
 {
-	return spheres.size();
+	return spheres.count();
 }
 
 Sphere SphereCalculator::getAllSphereData(quint16 i)
