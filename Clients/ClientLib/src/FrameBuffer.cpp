@@ -97,7 +97,9 @@ T FrameBuffer<T>::popElement()
 	if(elementReadIndex<elementsPerFrame)
 	{
 		return currentReadFrame[elementReadIndex++];
-	}else{
+	}
+	else
+	{
 		return T();
 	}
 }

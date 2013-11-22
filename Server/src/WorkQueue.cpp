@@ -49,7 +49,9 @@ void WorkQueue::pushSimulationSteps(quint32 steps)
 		{
 			simulationSteps = 0;
 			continuousSimulationRunning = true;
-		}else{
+		}
+		else
+		{
 			simulationSteps += steps;
 		}
 		updateStatus();
@@ -74,23 +76,29 @@ WorkQueueItem WorkQueue::popItem()
 	if(items.count()>0)
 	{
 		item = items.takeFirst();
-	}else{
+	}
+	else
+	{
 		item = WorkQueueItem();
 		if(simulationSteps>0)
 		{
 			simulationSteps--;
 			item.type = WorkQueueItemType::calculateStep;
-		}else if(continuousSimulationRunning)
+		}
+		else if(continuousSimulationRunning)
 		{
 			item.type = WorkQueueItemType::calculateStep;
-		}else{
+		}
+		else
+		{
 			qDebug()<<"error!";
 			item.type = WorkQueueItemType::calculateStep;
 		}
 	}
 	if(item.type == WorkQueueItemType::calculateStep)
 	{
-		if(sendFramesRegularly && animationTimer->elapsed()>(1000/60)){
+		if(sendFramesRegularly && animationTimer->elapsed()>(1000/60))
+		{
 			animationTimer->restart();
 			WorkQueueItem item2 = WorkQueueItem();
 			item2.type = WorkQueueItemType::prepareFrameData;

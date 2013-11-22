@@ -54,7 +54,9 @@ void ActionReceiver::processData(QByteArray byteArray)
 			{
 				requestData.append(byteArray);
 			}
-		}else{
+		}
+		else
+		{
 			///only startByte
 			if(!collectingRequestData)
 			{
@@ -63,7 +65,9 @@ void ActionReceiver::processData(QByteArray byteArray)
 				requestData = byteArray.right(byteArray.size()-startIndex-1);
 			}
 		}
-	}else{
+	}
+	else
+	{
 		if(startIndex<0)
 		{
 			///only endByte
@@ -73,7 +77,9 @@ void ActionReceiver::processData(QByteArray byteArray)
 				collectingRequestData = false;
 				processRequest();
 			}
-		}else{
+		}
+		else
+		{
 			///startByte and endByte
 			if(startIndex<endIndex)
 			{
@@ -82,7 +88,9 @@ void ActionReceiver::processData(QByteArray byteArray)
 				collectingRequestData = false;
 				processRequest();
 				processData(byteArray.right(byteArray.size()-endIndex-1));
-			}else{
+			}
+			else
+			{
 				///endByte before startByte
 				if(collectingRequestData)
 				{
@@ -104,7 +112,9 @@ void ActionReceiver::processRequest()
 	if(data.size()>2)
 	{
 		data = data.right(data.length()-2);
-	}else{
+	}
+	else
+	{
 		data.clear();
 	}
 	handleAction(actionGroup, action, data);

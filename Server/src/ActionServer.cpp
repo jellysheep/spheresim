@@ -24,7 +24,9 @@ ActionServer::ActionServer(QStringList args, QHostAddress addr, quint16 port)
 	if(succeeded)
 	{
 		qDebug()<<"ActionServer: listening did succeed.";
-	}else{
+	}
+	else
+	{
 		qDebug()<<"ActionServer: listening did not succeed. Exiting.";
 		qApp->exit(1);
 	}

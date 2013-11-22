@@ -124,7 +124,9 @@ void ActionSender::processData(QByteArray byteArray)
 			{
 				replyData.append(byteArray);
 			}
-		}else{
+		}
+		else
+		{
 			///only startByte
 			if(!collectingReplyData)
 			{
@@ -133,7 +135,9 @@ void ActionSender::processData(QByteArray byteArray)
 				replyData = byteArray.right(byteArray.size()-startIndex-1);
 			}
 		}
-	}else{
+	}
+	else
+	{
 		if(startIndex<0)
 		{
 			///only endByte
@@ -143,7 +147,9 @@ void ActionSender::processData(QByteArray byteArray)
 				collectingReplyData = false;
 				processReply();
 			}
-		}else{
+		}
+		else
+		{
 			///startByte and endByte
 			if(startIndex<endIndex)
 			{
@@ -152,7 +158,9 @@ void ActionSender::processData(QByteArray byteArray)
 				collectingReplyData = false;
 				processReply();
 				processData(byteArray.right(byteArray.size()-endIndex-1));
-			}else{
+			}
+			else
+			{
 				///endByte before startByte
 				if(collectingReplyData)
 				{

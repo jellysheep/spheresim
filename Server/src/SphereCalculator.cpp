@@ -637,7 +637,9 @@ void SphereCalculator::updateSphereBox()
 		}
 		sphereBoxSize = max-min;
 		sphereBoxPosition = min;
-	}else{
+	}
+	else
+	{
 		sphereBoxSize = Vector3(0, 0, 0);
 		sphereBoxPosition = Vector3(0, 0, 0);
 	}
@@ -938,7 +940,9 @@ quint16 SphereCalculator::removeLastSphere()
 	if(getSphereCount()>0)
 	{
 		return removeSphere(getSphereCount()-1);
-	}else{
+	}
+	else
+	{
 		return getSphereCount();
 	}
 }
@@ -964,7 +968,9 @@ Sphere SphereCalculator::getAllSphereData(quint16 i)
 	if(getSphereCount()>i)
 	{
 		return spheres[i];
-	}else{
+	}
+	else
+	{
 		return Sphere();
 	}
 }
@@ -1058,7 +1064,8 @@ void SphereCalculator::updateIntegratorMethod(quint8 integrMethod)
 		const Scalar b_[2] = 	{1.0,	0.0};
 		const Scalar c[2] = 	{0.0,	1.0};
 		butcherTableau = ButcherTableau(2, a, b, b_, c);
-	}else if(integrMethod == IntegratorMethods::BogackiShampine32)
+	}
+	else if(integrMethod == IntegratorMethods::BogackiShampine32)
 	{
 		qDebug()<<"SphereCalculator: activated BogackiShampine32 integrator.";
 		const Scalar a[16] = 	{0.0,	0.0,	0.0,	0.0,
@@ -1069,7 +1076,8 @@ void SphereCalculator::updateIntegratorMethod(quint8 integrMethod)
 		const Scalar b_[4] = 	{7/24.0,	1/4.0,	1/3.0,	1/8.0};
 		const Scalar c[4] = 	{0.0,	1/2.0,	3/4.0,	1.0};
 		butcherTableau = ButcherTableau(4, a, b, b_, c);
-	}else if(integrMethod == IntegratorMethods::CashKarp54)
+	}
+	else if(integrMethod == IntegratorMethods::CashKarp54)
 	{
 		qDebug()<<"SphereCalculator: activated CashKarp54 integrator.";
 		const Scalar a[36] = 	{0.0,			0.0,		0.0,			0.0,			0.0,			0.0,
@@ -1082,7 +1090,8 @@ void SphereCalculator::updateIntegratorMethod(quint8 integrMethod)
 		const Scalar b_[6] = 	{2825/27648.0,	0.0,		18575/48384.0,	13525/55296.0,	277/14336.0,	1/4.0};
 		const Scalar c[6] = 	{0.0,			1/5.0,		3/10.0,			3/5.0,			1.0,			7/8.0};
 		butcherTableau = ButcherTableau(6, a, b, b_, c);
-	}else if(integrMethod == IntegratorMethods::DormandPrince54)
+	}
+	else if(integrMethod == IntegratorMethods::DormandPrince54)
 	{
 		qDebug()<<"SphereCalculator: activated DormandPrince54 integrator.";
 		const Scalar a[49] = 	{0.0,			0.0,			0.0,			0.0,		0.0,			0.0,		0.0,
@@ -1096,7 +1105,9 @@ void SphereCalculator::updateIntegratorMethod(quint8 integrMethod)
 		const Scalar b_[7] = 	{5179/57600.0,	0.0,			7571/16695.0,	393/640.0,	-92097/339200.0,187/2100.0,	1/40.0};
 		const Scalar c[7] = 	{0.0,			1/5.0,			3/10.0,			4/5.0,		8/9.0,			1.0,		1.0};
 		butcherTableau = ButcherTableau(7, a, b, b_, c);
-	}else{
+	}
+	else
+	{
 		qDebug()<<"SphereCalculator: activated RungeKuttaFehlberg54 integrator.";
 		integratorMethod = IntegratorMethods::RungeKuttaFehlberg54;
 		const Scalar a[36] = 	{0.0,			0.0,			0.0,			0.0,			0.0,		0.0,
@@ -1124,7 +1135,9 @@ quint32 SphereCalculator::popCalculationCounter()
 		quint32 counter = calculationCounter/sphCount;
 		calculationCounter = 0;
 		return counter;
-	}else{
+	}
+	else
+	{
 		return 0;
 	}
 }

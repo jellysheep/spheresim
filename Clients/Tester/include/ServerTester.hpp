@@ -92,8 +92,8 @@ namespace SphereSim
 				const char* nameT1, const char* nameT2)		\
 		{													\
 			if(!testSuccess) return;						\
-			if(t1 op t2){									\
-			}else{											\
+			if(!(t1 op t2))									\
+			{												\
 				Console::redBold<<"test failed: ";			\
 				Console::out<<"\n              ";			\
 				Console::bold<<nameT1;						\
@@ -102,7 +102,8 @@ namespace SphereSim
 				Console::out<<" [\""<<t2<<"\"]";			\
 				Console::out<<"\n              ";			\
 				Console::out<<"(line "<<line;				\
-				if(testActionName.length()>0){				\
+				if(testActionName.length()>0)				\
+				{											\
 					Console::out<<", "<<testActionName;		\
 				}											\
 				Console::out<<")\n";						\

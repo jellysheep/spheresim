@@ -21,9 +21,10 @@
 #define startNewTest_(x) \
 	startNewTest(TOSTR(x));
 
-#define runCalculationActionTests_internal_(integratorMethod){			\
+#define runCalculationActionTests_internal_(integratorMethod)			\
+{																		\
 	startTest_(integratorMethod);										\
-		sender->updateIntegratorMethod(integratorMethod);					\
+		sender->updateIntegratorMethod(integratorMethod);				\
 		verify(sender->getIntegratorMethod(), Equal, integratorMethod);	\
 		runCalculationActionTests_internal(TOSTR(integratorMethod));	\
 	endTest();															\
@@ -90,7 +91,9 @@ void ServerTester::runTests(quint8 actionGroup, const char* groupName)
 	if(testCounter == successCounter)
 	{
 		Console::greenBold<<"all "<<testCounter<<" tests passed.\n";
-	}else{
+	}
+	else
+	{
 		Console::redBold<<(testCounter-successCounter)<<" out of "<<testCounter<<" tests failed.\n";
 	}
 	Console::out<<"\n";

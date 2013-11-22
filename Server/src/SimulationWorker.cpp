@@ -38,10 +38,12 @@ void SimulationWorker::work()
 		if(workQueueItem.type == WorkQueueItemType::calculateStep)
 		{
 			sphCalc->integrateRungeKuttaStep();
-		}else if(workQueueItem.type == WorkQueueItemType::stop)
+		}
+		else if(workQueueItem.type == WorkQueueItemType::stop)
 		{
 			running = false;
-		}else if(workQueueItem.type == WorkQueueItemType::prepareFrameData)
+		}
+		else if(workQueueItem.type == WorkQueueItemType::prepareFrameData)
 		{
 			sphCalc->prepareFrameData();
 		}

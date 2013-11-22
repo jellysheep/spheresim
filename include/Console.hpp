@@ -91,7 +91,9 @@ namespace SphereSim
 				console<<t;
 				console<<"\x1b[0m";
 				console.flush();
-			}else{
+			}
+			else
+			{
 				console<<t;
 			}
 			return *this;
