@@ -33,7 +33,10 @@ namespace SphereSim
 			information,
 			/** \copydoc SimulatedSystemActions
 			 * \see SimulatedSystemActions */
-			simulatedSystem
+			simulatedSystem,
+			/** \copydoc WorkQueueActions
+			 * \see WorkQueueActions */
+			workQueue
 		};
 	}
 	
@@ -175,7 +178,7 @@ namespace SphereSim
 	namespace ServerStatusReplies
 	{
 		/** \see ServerStatusReplies */
-		enum Replies
+		enum Reply
 		{
 			/** \brief The server status is ok. */
 			acknowledge = 1,
@@ -189,6 +192,21 @@ namespace SphereSim
 			terminating,
 			/** \brief The number of spheres changed. */
 			sphereCountChanged
+		};
+	}
+	
+	/** \brief Type of work to be done by the SimulationWorker. */
+	namespace WorkQueueActions
+	{
+		/** \see WorkQueueAction */
+		enum Action
+		{
+			/** \brief Stop the worker. */
+			stopWorker,
+			/** \brief Prepare frame data which will be sent to client. */
+			prepareFrameData,
+			/** \copybrief CalculationActions::calculateStep */
+			calculateStep
 		};
 	}
 	

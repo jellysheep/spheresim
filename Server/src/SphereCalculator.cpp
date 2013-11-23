@@ -11,6 +11,7 @@
 #include <WorkQueue.hpp>
 #include <Console.hpp>
 #include <SphereTransmit.hpp>
+#include <ActionReceiver.hpp>
 
 #include <QDebug>
 #include <QDataStream>
@@ -24,7 +25,8 @@
 
 using namespace SphereSim;
 
-SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount*cellCount*cellCount),
+SphereCalculator::SphereCalculator(ActionReceiver* actRcv):
+	cellCount(8), cellCount3((quint32)cellCount*cellCount*cellCount),
 	maxSpheresPerCell(1024), maxCellsPerSphere(1024),
 	sphereIndicesInCells(maxSpheresPerCell, cellCount3), cellIndicesOfSpheres(maxCellsPerSphere),
 	maxCollidingSpheresPerSphere(300), collidingSpheresPerSphere(maxCollidingSpheresPerSphere),
@@ -80,7 +82,7 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	
 	workQueueMutex = new QMutex();
 	workQueue = new WorkQueue(workQueueMutex);
-	simulationWorker = new SimulationWorker(this, workQueue);
+	simulationWorker = new SimulationWorker(this, workQueue, actRcv);
 	simulationThread = new QThread();
 	simulationWorker->moveToThread(simulationThread);
 	QObject::connect(simulationThread, SIGNAL(started()), simulationWorker, SLOT(work()));
@@ -90,6 +92,7 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	QObject::connect(this, SIGNAL(requestingSimulationStop()), workQueue, SLOT(stopSimulation()));
 	QObject::connect(this, SIGNAL(requestingWorkerStop()), simulationWorker, SLOT(stop()));
 	QObject::connect(this, SIGNAL(requestingWorkerStop()), workQueue, SLOT(stop()));
+	QObject::connect(simulationWorker, SIGNAL(sendReply(quint8, QByteArray)), actRcv, SLOT(sendReply(quint8, QByteArray)));
 	simulationThread->start();
 }
 
@@ -107,6 +110,11 @@ SphereCalculator::~SphereCalculator()
 		delete[] gravityCellIndexOfSpheres;
 	delete[] sphereCountPerGravityCell;
 	delete elapsedTimer;
+}
+
+WorkQueue* SphereCalculator::getWorkQueue()
+{
+	return workQueue;
 }
 
 template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>

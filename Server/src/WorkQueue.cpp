@@ -10,6 +10,7 @@
 
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QDataStream>
 
 using namespace SphereSim;
 
@@ -40,6 +41,43 @@ void WorkQueue::pushItem(WorkQueueItem item)
 		updateStatus();
 		if(canWork) workCondition.wakeAll();
 	mutex->unlock();
+}
+
+void WorkQueue::pushItem(quint8 actionGroup, quint8 action, QByteArray data)
+{
+	if(actionGroup == ActionGroups::calculation)
+	{
+		QDataStream stream(&data, QIODevice::ReadOnly);
+		quint32 steps;
+		bool actionDone = false;
+		switch(action)
+		{
+		case CalculationActions::calculateStep:
+			pushSimulationSteps(1);
+			actionDone = true;
+			break;
+		case CalculationActions::calculateSomeSteps:
+			stream>>steps;
+			pushSimulationSteps(steps);
+			actionDone = true;
+			break;
+		case CalculationActions::startSimulation:
+			pushSimulationSteps(0);
+			actionDone = true;
+			break;
+		case CalculationActions::stopSimulation:
+			stopSimulation();
+			actionDone = true;
+			break;
+		}
+		if(actionDone)
+			return;
+	}
+	WorkQueueItem item;
+	item.actionGroup = actionGroup;
+	item.action = action;
+	item.data = data;
+	pushItem(item);
 }
 
 void WorkQueue::pushSimulationSteps(quint32 steps)
@@ -83,25 +121,30 @@ WorkQueueItem WorkQueue::popItem()
 		if(simulationSteps>0)
 		{
 			simulationSteps--;
-			item.type = WorkQueueItemType::calculateStep;
+			item.actionGroup = ActionGroups::workQueue;
+			item.action = WorkQueueActions::calculateStep;
 		}
 		else if(continuousSimulationRunning)
 		{
-			item.type = WorkQueueItemType::calculateStep;
+			item.actionGroup = ActionGroups::workQueue;
+			item.action = WorkQueueActions::calculateStep;
 		}
 		else
 		{
 			qDebug()<<"error!";
-			item.type = WorkQueueItemType::calculateStep;
+			item.actionGroup = ActionGroups::workQueue;
+			item.action = WorkQueueActions::calculateStep;
 		}
 	}
-	if(item.type == WorkQueueItemType::calculateStep)
+	if(item.actionGroup == ActionGroups::workQueue &&
+		item.action == WorkQueueActions::calculateStep)
 	{
 		if(sendFramesRegularly && animationTimer->elapsed()>(1000/60))
 		{
 			animationTimer->restart();
 			WorkQueueItem item2 = WorkQueueItem();
-			item2.type = WorkQueueItemType::prepareFrameData;
+			item2.actionGroup = ActionGroups::workQueue;
+			item2.action = WorkQueueActions::prepareFrameData;
 			items.prepend(item2);
 		}
 	}
@@ -132,7 +175,8 @@ void WorkQueue::stopSimulation()
 void WorkQueue::stop()
 {
 	WorkQueueItem item;
-	item.type = WorkQueueItemType::stop;
+	item.actionGroup = ActionGroups::workQueue;
+	item.action = WorkQueueActions::stopWorker;
 	pushItem(item);
 }
 
@@ -145,7 +189,8 @@ void WorkQueue::sendFrameData()
 {
 	if(!sendFramesRegularly) return;
 	WorkQueueItem item;
-	item.type = WorkQueueItemType::prepareFrameData;
+	item.actionGroup = ActionGroups::workQueue;
+	item.action = WorkQueueActions::prepareFrameData;
 	pushItem(item);
 }
 

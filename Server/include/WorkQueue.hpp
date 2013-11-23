@@ -9,6 +9,8 @@
 #ifndef _WORKQUEUE_HPP_
 #define _WORKQUEUE_HPP_
 
+#include <Actions.hpp>
+
 #include <QMutex>
 #include <QWaitCondition>
 #include <QList>
@@ -19,33 +21,24 @@ class QElapsedTimer;
 namespace SphereSim
 {
 	
-	/** \brief Type of work to be done by the worker. */
-	namespace WorkQueueItemType
-	{
-		/** \copydoc WorkQueueItemType */
-		enum ItemType{
-			calculateStep,
-			addSphere,
-			removeSphere,
-			updateSphere,
-			stop,
-			prepareFrameData
-		};
-	}
-	
 	/** \brief Info about a work to be done by the worker. */
 	class WorkQueueItem{
 	public:
-		/** \copydoc WorkQueueItemType */
-		WorkQueueItemType::ItemType type;
-		/** \brief Any parameter for the work item. */
-		void* param;
+		/** \see ActionGroups */
+		quint8 actionGroup;
+		
+		/** \see ActionGroups
+		 * \see WorkQueueAction */
+		quint8 action;
+		
+		/** \brief Any data or parameter for the work item. */
+		QByteArray data;
 		
 		/** \brief Initialize WorkQueueItem. */
-		WorkQueueItem()
+		WorkQueueItem():data()
 		{
-			type = WorkQueueItemType::calculateStep;
-			param = NULL;
+			actionGroup = ActionGroups::calculation;
+			action = CalculationActions::calculateStep;
 		}
 	};
 	
@@ -96,6 +89,9 @@ namespace SphereSim
 		
 		/** \brief Add a new item to the end of the work queue. */
 		void pushItem(WorkQueueItem item);
+		
+		/** \copybrief pushItem */
+		void pushItem(quint8 actionGroup, quint8 action, QByteArray data);
 		
 		/** \brief Increase the number of steps to simulate (0 = start continuous simulation). */
 		void pushSimulationSteps(quint32 steps);

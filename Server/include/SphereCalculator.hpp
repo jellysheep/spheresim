@@ -26,6 +26,7 @@ namespace SphereSim
 	
 	class SimulationWorker;
 	class WorkQueue;
+	class ActionReceiver;
 	
 	/** \brief Calculator of sphere movements.
 	 */
@@ -200,9 +201,24 @@ namespace SphereSim
 		QElapsedTimer* elapsedTimer;
 		
 	public:
-		SphereCalculator();
+		SphereCalculator(ActionReceiver* actRcv);
 		~SphereCalculator();
 		
+		WorkQueue* getWorkQueue();
+		
+		friend class SimulationWorker;
+		
+	signals:
+		/** \brief Stop the running simulation. */
+		void requestingSimulationStop();
+		
+		/** \brief Stop and delete the worker. */
+		void requestingWorkerStop();
+		
+		/** \brief Send frame to client. */
+		void frameToSend(QByteArray frameData);
+		
+	public slots:
 		/** \copydoc SpheresUpdatingActions::addSphere
 		 * \return New sphere count. */
 		quint16 addSphere();
@@ -352,18 +368,6 @@ namespace SphereSim
 		
 		/** \copydoc SimulatedSystemActions::updatePeriodicBoundaryConditions */
 		void updatePeriodicBoundaryConditions(bool periodicBoundaryConditions);
-		
-		friend class SimulationWorker;
-		
-	signals:
-		/** \brief Stop the running simulation. */
-		void requestingSimulationStop();
-		
-		/** \brief Stop and delete the worker. */
-		void requestingWorkerStop();
-		
-		/** \brief Send frame to client. */
-		void frameToSend(QByteArray frameData);
 		
 	};
 	

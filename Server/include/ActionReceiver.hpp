@@ -43,47 +43,10 @@ namespace SphereSim
 		/** \brief Process and reply to received request. */
 		void processRequest();
 		
-		/** \brief Handle any action request and forward to specific handlers.
-		 * \param actionGroup Action group that will be handled.
-		 * \param action Action that will be handled.
-		 * \param data Data sent with the action request. */
-		void handleAction(quint8 actionGroup, quint8 action, QByteArray data);
-		
-		/** \brief Handle BasicActions requests. 
-		 * \copydetails handleAction */
-		void handleBasicAction(quint8 actionGroup, quint8 action, QByteArray data);
-		
-		/** \brief Handle SpheresUpdatingActions requests. 
-		 * \copydetails handleAction */
-		void handleSpheresUpdatingAction(quint8 actionGroup, quint8 action, QByteArray data);
-		
-		/** \brief Handle CalculationActions requests. 
-		 * \copydetails handleAction */
-		void handleCalculationAction(quint8 actionGroup, quint8 action, QByteArray data);
-		
-		/** \brief Handle InformationActions requests. 
-		 * \copydetails handleAction */
-		void handleInformationAction(quint8 actionGroup, quint8 action, QByteArray data);
-		
-		/** \brief Handle SimulatedSystemActions requests. 
-		 * \copydetails handleAction */
-		void handleSimulatedSystemAction(quint8 actionGroup, quint8 action, QByteArray data);
-		
-		/** \brief Handle unknown action group requests. 
-		 * \copydetails handleAction */
-		void handleUnknownActionGroup(quint8 actionGroup, quint8 action, QByteArray data);
-		
-		/** \brief Handle unknown action requests. 
-		 * \copydetails handleAction */
-		void handleUnknownAction(quint8 actionGroup, quint8 action, QByteArray data);
-		
-		/** \brief Send encoded reply to client.
-		 * \param serverStatus Server status to be sent.
-		 * \param data Reply data to be sent to client. */
-		void sendReply(quint8 serverStatus, const QByteArray& data);
-		
 		/** \brief Storage and calculator of sphere data. */
 		SphereCalculator sphCalc;
+		
+		WorkQueue* workQueue;
 		
 	public:
 		/** \brief Start a new server handling requests from the client.
@@ -99,6 +62,13 @@ namespace SphereSim
 		
 		/** \brief Send frame to client. */
 		void sendFrame(QByteArray frameData);
+		
+		/** \brief Send encoded reply to client.
+		 * \param serverStatus Server status to be sent.
+		 * \param data Reply data to be sent to client. */
+		void sendReply(quint8 serverStatus, QByteArray data);
+		
+		void terminateServer();
 	};
 	
 }
