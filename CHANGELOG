@@ -5,6 +5,7 @@ SphereSim 2.4.4:
 * Added flags to switch between STL, Qt and custom array class in Server.
 * Added automatic version number to Viewer title.
 * Improved array handling in Server.
+* Added automatic uploading to build script.
 
 SphereSim 2.4.3:
 * Improved simulated systems and Benchmark client.
