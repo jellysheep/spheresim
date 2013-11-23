@@ -34,12 +34,12 @@ void ServerBenchmark::runBenchmark()
 	sender->updateWallPoissonRatio(0.5);
 	sender->updateEarthGravity(Vector3(0, -9.81, 0));
 	
-	runBenchmark_internal2();
+	//runBenchmark_internal2();
 	
 	runBenchmark_internal(false, false, true);
-	runBenchmark_internal(false, true, false);
-	runBenchmark_internal(true, false, false);
-	runBenchmark_internal(false, false, false);
+	//runBenchmark_internal(false, true, false);
+	//runBenchmark_internal(true, false, false);
+	//runBenchmark_internal(false, false, false);
 	
 	qApp->exit(0);
 }

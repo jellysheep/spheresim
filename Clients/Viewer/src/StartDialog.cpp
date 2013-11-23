@@ -7,7 +7,8 @@
  * Full license text is under the file "LICENSE" provided with this code. */
 
 #include <StartDialog.hpp>
-#include "ui_StartDialog.h"
+#include <Version.hpp>
+#include <ui_StartDialog.h>
 
 using namespace SphereSim;
 
@@ -17,6 +18,7 @@ StartDialog::StartDialog(QApplication* a)
 	sphCount = 64;
 	startDialog = new Ui::StartDialog();
 	startDialog->setupUi(this);
+	setWindowTitle("SphereSim " VERSION_STR);
 	QObject::connect(this, SIGNAL(accepted()), this, SLOT(accepted_()), Qt::AutoConnection);
 	QObject::connect(this, SIGNAL(rejected()), this, SLOT(rejected_()), Qt::AutoConnection);
 	exec();

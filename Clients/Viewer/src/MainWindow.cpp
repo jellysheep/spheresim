@@ -9,6 +9,7 @@
 #include <MainWindow.hpp>
 #include <ActionSender.hpp>
 #include <SystemCreator.hpp>
+#include <Version.hpp>
 #include <ui_MainWindow.h>
 
 #include <random>
@@ -20,6 +21,7 @@ MainWindow::MainWindow(ActionSender* actSend, quint16 sphCount, QWidget* parent)
 {
 	ui = new Ui::MainWindow();
 	ui->setupUi(this);
+	setWindowTitle("SphereSim " VERSION_STR);
 	ui->glWidget->setFrameBuffer(actSend->getFrameBuffer());
 	connect(ui->startButton, SIGNAL(clicked()), actionSender, SLOT(startSimulation()));
 	connect(ui->startButton, SIGNAL(clicked()), ui->glWidget, SLOT(startAnimation()));

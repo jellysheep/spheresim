@@ -1,6 +1,10 @@
+SphereSim 2.4.4:
 * Added Array class and modified TwoDimArray to use the new class. No speed change.
 * Switched from QVector to custom Array class. Nearly no speed improve.
 * Improved code formatting.
+* Added flags to switch between STL, Qt and custom array class in Server.
+* Added automatic version number to Viewer title.
+* Improved array handling in Server.
 
 SphereSim 2.4.3:
 * Improved simulated systems and Benchmark client.

@@ -15,9 +15,6 @@ namespace SphereSim
 {
 	class ArrayException;
 	
-	template <typename T, bool extremeSpeed, bool throwExceptions>
-	class Array;
-	
 	template <typename T, bool extremeSpeed=true, bool throwExceptions=true>
 	class TwoDimArray
 	{
@@ -26,7 +23,7 @@ namespace SphereSim
 		
 		TwoDimArray& operator=(const TwoDimArray<T>&);
 		
-		Array<T, extremeSpeed, throwExceptions> values;
+		Array<T> values;
 		
 		T** subArrays;
 		
@@ -53,7 +50,7 @@ namespace SphereSim
 		void initArrays()
 		{
 			unsigned int totalSize = constInnerSize * outerSize;
-			values.changeSize(totalSize);
+			values.resize(totalSize);
 			subArrays = new T*[outerSize];
 			counter = new unsigned int[outerSize];
 			for(unsigned int i = 0; i<outerSize; i++)
@@ -81,13 +78,13 @@ namespace SphereSim
 			deleteAll();
 		}
 		
-		void changeSize(const unsigned int size)
+		void resize(const unsigned int size)
 		{
 			if(size != outerSize && size > 0)
 			{
 				deleteAll();
 				outerSize = size;
-				values.changeSize(size);
+				values.resize(size);
 				initArrays();
 			}
 		}

@@ -13,7 +13,6 @@
 #include <Integrators.hpp>
 #include <ButcherTableau.hpp>
 #include <SimulatedSystem.hpp>
-#include <Array.hpp>
 #include <TwoDimArray.hpp>
 
 #include <QMutex>
@@ -38,17 +37,8 @@ namespace SphereSim
 		/** \brief Spheres managed by the server. */
 		Array<Sphere> spheres;
 		
-		/** \brief Spheres array. */
-		Sphere* sphArr;
-		
 		/** \brief New calculated positions of the spheres. */
 		Array<Vector3> newSpherePos;
-		
-		/** \brief New sphere position array. */
-		Vector3* newSpherePosArr;
-		
-		/** \brief Spheres count. */
-		quint16 sphCount;
 		
 		/** \brief Step length (time in s). */
 		Scalar timeStep;
@@ -60,9 +50,6 @@ namespace SphereSim
 		 * \return Calculated current acceleration of the sphere. */
 		template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 		Vector3 sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff);
-		
-		/** \brief Update local data about spheres. */
-		void updateData();
 		
 		/** \brief Method to approximately solve differential equations. */
 		quint8 integratorMethod;

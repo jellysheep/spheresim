@@ -41,7 +41,6 @@ SphereCalculator::SphereCalculator():cellCount(8), cellCount3((quint32)cellCount
 	#pragma omp atomic
 	ompThreads++;
 	qDebug()<<"SphereCalculator: number of OpenMP threads:"<<omp_get_num_threads()<<"|"<<ompThreads;
-	updateData();
 	simulatedSystem.boxSize = Vector3(1,1,1);
 	timeStep = 0.002;
 	updateIntegratorMethod(IntegratorMethods::CashKarp54);
@@ -147,7 +146,7 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 				{
 					if(collidingSpheresPerSphere.addElementIfNotContained(sphereIndex, sphereIndex2))
 					{
-						sphere2 = sphArr[sphereIndex2];
+						sphere2 = spheres[sphereIndex2];
 						sphere2.pos += timeDiff*sphere2.speed;// + 0.5*sphere2.acc*timeDiff*timeDiff;
 						dVec = sphere2.pos - sphere.pos;
 						d = dVec.norm();
@@ -185,7 +184,7 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 				sphereIndex2 = sphereIndicesInGravityCells[gravityCellIndex2][j];
 				if(sphereIndex == sphereIndex2)
 					continue;
-				sphere2 = sphArr[sphereIndex2];
+				sphere2 = spheres[sphereIndex2];
 				sphere2.pos += timeDiff*sphere2.speed;// + 0.5*sphere2.acc*timeDiff*timeDiff;
 				if(periodicBoundaries)
 				{
@@ -274,9 +273,9 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 	
 	Scalar totalEnergy = 0.0, sphereEnergy, d;
 	Sphere sphere;
-	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
+	for(quint16 sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
 	{
-		sphere = sphArr[sphereIndex];
+		sphere = spheres[sphereIndex];
 		sphereEnergy = -sphere.mass*simulatedSystem.earthGravity.dot(sphere.pos);
 		sphereEnergy += 0.5*sphere.mass*sphere.speed.squaredNorm();
 		
@@ -310,7 +309,7 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 					{
 						if(collidingSpheresPerSphere.addElementIfNotContained(sphereIndex, sphereIndex2))
 						{
-							sphere2 = sphArr[sphereIndex2];
+							sphere2 = spheres[sphereIndex2];
 							dVec = sphere2.pos - sphere.pos;
 							d = dVec.norm();
 							bothRadii = sphere2.radius + sphere.radius;
@@ -342,7 +341,7 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 					sphereIndex2 = sphereIndicesInGravityCells[gravityCellIndex2][j];
 					if(sphereIndex == sphereIndex2)
 						continue;
-					sphere2 = sphArr[sphereIndex2];
+					sphere2 = spheres[sphereIndex2];
 					dVec = sphere2.pos-sphere.pos;
 					d = dVec.norm();
 					if(gravity)
@@ -376,13 +375,6 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 		totalEnergy += sphereEnergy;
 	}
 	return totalEnergy;
-}
-
-void SphereCalculator::updateData()
-{
-	sphArr = spheres.data();
-	newSpherePosArr = newSpherePos.data();
-	sphCount = spheres.count();
 }
 
 void SphereCalculator::integrateRungeKuttaStep()
@@ -478,17 +470,17 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 		updateGravityCellData();
 	}
 	#pragma omp parallel for schedule(dynamic,1)
-	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
+	for(quint16 sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
 	{
-		newSpherePosArr[sphereIndex] = sphArr[sphereIndex].pos;
+		newSpherePos[sphereIndex] = spheres[sphereIndex].pos;
 		integrateRungeKuttaStep_internal<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, timeStep, 0.0, 0);
 	}
 	#pragma omp parallel for schedule(dynamic,1)
-	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
+	for(quint16 sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
 	{
 		if(periodicBoundaries)
 		{
-			Vector3 pos = newSpherePosArr[sphereIndex];
+			Vector3 pos = newSpherePos[sphereIndex];
 			for(quint8 dim = 0; dim<3; dim++)
 			{
 				if(pos(dim) > simulatedSystem.boxSize(dim))
@@ -496,11 +488,11 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 				else if(pos(dim) < 0)
 					pos(dim) += simulatedSystem.boxSize(dim);
 			}
-			sphArr[sphereIndex].pos = pos;
+			spheres[sphereIndex].pos = pos;
 		}
 		else
 		{
-			sphArr[sphereIndex].pos = newSpherePosArr[sphereIndex];
+			spheres[sphereIndex].pos = newSpherePos[sphereIndex];
 		}
 	}
 	stepCounter++;
@@ -509,8 +501,8 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff, quint16 stepDivisionCounter)
 {
-	Sphere sphere = sphArr[sphereIndex];
-	sphere.pos = newSpherePosArr[sphereIndex];
+	Sphere sphere = spheres[sphereIndex];
+	sphere.pos = newSpherePos[sphereIndex];
 	Sphere origSphere = sphere;
 	const quint8 integratorOrder = butcherTableau.order;
 	Vector3 k_acc[integratorOrder];
@@ -560,24 +552,23 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, 
 			return stepCount;
 		}
 	}
-	newSpherePosArr[sphereIndex] = pos;
-	sphArr[sphereIndex].speed = speed;
-	sphArr[sphereIndex].acc = (speed-origSphere.speed)/stepLength;
+	newSpherePos[sphereIndex] = pos;
+	spheres[sphereIndex].speed = speed;
+	spheres[sphereIndex].acc = (speed-origSphere.speed)/stepLength;
 	return 1;
 }
 
 quint16 SphereCalculator::removeSphere(quint16 i)
 {
-	if(getSphereCount()>i)
+	if(spheres.size()>i)
 	{
-		spheres.remove(i);
-		newSpherePos.remove(i);
-		cellIndicesOfSpheres.changeSize(spheres.count());
-		collidingSpheresPerSphere.changeSize(spheres.count());
+		spheres.erase(spheres.begin()+i);
+		newSpherePos.erase(newSpherePos.begin()+i);
+		cellIndicesOfSpheres.resize(spheres.size());
+		collidingSpheresPerSphere.resize(spheres.size());
 		updateGravityCellIndexOfSpheresArray();
-		updateData();
 	}
-	return getSphereCount();
+	return spheres.size();
 }
 
 void SphereCalculator::stopWorker()
@@ -601,27 +592,26 @@ void SphereCalculator::prepareFrameData()
 {
 	QByteArray frameData;
 	QDataStream dataStream(&frameData, QIODevice::WriteOnly);
-	//updateData();
-	dataStream<<sphCount;
-	for(quint16 i = 0; i<sphCount; i++)
+	dataStream<<(quint16)spheres.size();
+	for(quint16 i = 0; i<spheres.size(); i++)
 	{
 		dataStream<<i;
-		writeBasicSphereData(dataStream, sphArr[i]);
+		writeBasicSphereData(dataStream, spheres[i]);
 	}
 	emit frameToSend(frameData);
 }
 
 void SphereCalculator::updateSphereBox()
 {
-	if(spheres.count()>0)
+	if(spheres.size()>0)
 	{
-		Vector3 pos = sphArr[0].pos;
+		Vector3 pos = spheres[0].pos;
 		Scalar radius;
 		Vector3 max = pos, min = pos;
-		for(quint16 i = 1; i<spheres.count(); i++)
+		for(quint16 i = 1; i<spheres.size(); i++)
 		{
-			pos = sphArr[i].pos;
-			radius = sphArr[i].radius;
+			pos = spheres[i].pos;
+			radius = spheres[i].radius;
 			if(pos(0)+radius>max(0))
 				max(0) = pos(0)+radius;
 			if(pos(1)+radius>max(1))
@@ -656,9 +646,9 @@ void SphereCalculator::updateSphereCellLists()
 	quint32 indexAll;
 	Scalar value, pos;
 	Sphere s;
-	for(quint16 i = 0; i<sphCount; i++)
+	for(quint16 i = 0; i<spheres.size(); i++)
 	{
-		s = sphArr[i];
+		s = spheres[i];
 		cellIndicesOfSpheres.resetCounter(i);
 		
 		pos = s.pos(0);
@@ -731,9 +721,9 @@ void SphereCalculator::updateSphereGravityCellLists()
 	quint32 indexAll;
 	Vector3 pos;
 	Scalar value;
-	for(quint16 i = 0; i<sphCount; i++)
+	for(quint16 i = 0; i<spheres.size(); i++)
 	{
-		pos = sphArr[i].pos;
+		pos = spheres[i].pos;
 		value = (pos(0)-sphereBoxPosition(0))/sphereBoxSize(0);
 		indexX = (quint16)(value*gravityCellCount);
 		indexX = (indexX<gravityCellCount?indexX:gravityCellCount-1);
@@ -884,7 +874,7 @@ void SphereCalculator::updateGravityCellIndexOfSpheresArray()
 	if(gravityCellIndexOfSpheres != NULL)
 		delete[] gravityCellIndexOfSpheres;
 	gravityCellIndexOfSpheres = NULL;
-	quint16 count = spheres.count();
+	quint16 count = spheres.size();
 	if(count > 0)
 		gravityCellIndexOfSpheres = new quint32[count];
 }
@@ -900,9 +890,9 @@ void SphereCalculator::updateGravityCellData()
 	}
 	quint32 sphereIndex;
 	Sphere s;
-	for(sphereIndex = 0; sphereIndex<sphCount; sphereIndex++)
+	for(sphereIndex = 0; sphereIndex<spheres.size(); sphereIndex++)
 	{
-		s = sphArr[sphereIndex];
+		s = spheres[sphereIndex];
 		cellIndex = gravityCellCount3 + gravityCellIndexOfSpheres[sphereIndex];
 		massVectorSumPerCell[cellIndex] += s.mass*s.pos;
 		massSumPerCell[cellIndex] += s.mass;
@@ -925,47 +915,45 @@ void SphereCalculator::updateGravityCellData()
 
 quint16 SphereCalculator::addSphere()
 {
-	spheres.append();
-	newSpherePos.append();
-	cellIndicesOfSpheres.changeSize(spheres.count());
-	collidingSpheresPerSphere.changeSize(spheres.count());
+	spheres.push_back(Sphere());
+	newSpherePos.push_back(Vector3());
+	cellIndicesOfSpheres.resize(spheres.size());
+	collidingSpheresPerSphere.resize(spheres.size());
 	updateGravityCellIndexOfSpheresArray();
-	updateData();
 	//workQueue->sendFrameData();
-	return getSphereCount();
+	return spheres.size();
 }
 
 quint16 SphereCalculator::removeLastSphere()
 {
-	if(getSphereCount()>0)
+	if(spheres.size()>0)
 	{
-		return removeSphere(getSphereCount()-1);
+		return removeSphere(spheres.size()-1);
 	}
 	else
 	{
-		return getSphereCount();
+		return spheres.size();
 	}
 }
 
 quint16 SphereCalculator::updateSphere(quint16 i, Sphere s)
 {
-	if(getSphereCount()>i)
+	if(spheres.size()>i)
 	{
 		spheres[i] = s;
-		updateData();
 		workQueue->sendFrameData();
 	}
-	return getSphereCount();
+	return spheres.size();
 }
 
 quint16 SphereCalculator::getSphereCount()
 {
-	return spheres.count();
+	return spheres.size();
 }
 
 Sphere SphereCalculator::getAllSphereData(quint16 i)
 {
-	if(getSphereCount()>i)
+	if(spheres.size()>i)
 	{
 		return spheres[i];
 	}
@@ -975,40 +963,39 @@ Sphere SphereCalculator::getAllSphereData(quint16 i)
 	}
 }
 
-quint16 SphereCalculator::addSomeSpheres(quint16 sphCount)
+quint16 SphereCalculator::addSomeSpheres(quint16 sphereCount)
 {
-	/*spheres.insert(spheres.count()-1, sphCount, Sphere());
-	newSpherePos.insert(newSpherePos.count()-1, sphCount, Vector3());
-	cellIndicesOfSpheres.changeSize(spheres.count());
-	collidingSpheresPerSphere.changeSize(spheres.count());
+	/*spheres.insert(spheres.size()-1, spheres.size(), Sphere());
+	newSpherePos.insert(newSpherePos.size()-1, spheres.size(), Vector3());
+	cellIndicesOfSpheres.resize(spheres.size());
+	collidingSpheresPerSphere.resize(spheres.size());
 	updateGravityCellIndexOfSpheresArray();
-	updateData();
 	workQueue->sendFrameData();
-	return getSphereCount();*/
-	for(quint16 i = 0; i<sphCount; i++)
+	return spheres.size();*/
+	for(quint16 i = 0; i<sphereCount; i++)
 		addSphere();
-	return getSphereCount();
+	return spheres.size();
 }
 
-quint16 SphereCalculator::removeSomeLastSpheres(quint16 sphCount)
+quint16 SphereCalculator::removeSomeLastSpheres(quint16 sphereCount)
 {
-	for(quint16 i = 0; i<sphCount; i++)
+	for(quint16 i = 0; i<sphereCount; i++)
 		removeLastSphere();
-	return getSphereCount();
+	return spheres.size();
 }
 
 void SphereCalculator::updateSpherePositionsInBox(Scalar randomDisplacement, Scalar randomSpeed)
 {
-	quint16 sphereCount1D = (quint16)ceil(pow(sphCount, 1/3.0));
+	quint16 sphereCount1D = (quint16)ceil(pow(spheres.size(), 1/3.0));
 	
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
 	std::default_random_engine generator(timepoint.count());
 	std::uniform_real_distribution<Scalar> distribution(-1, 1);
 	
-	for(unsigned int i = 0; i<sphCount; i++)
+	for(unsigned int i = 0; i<spheres.size(); i++)
 	{
-		Console::out<<"SphereCalculator: sphere "<<(i+1)<<"|"<<sphCount<<"\r";
+		Console::out<<"SphereCalculator: sphere "<<(i+1)<<"|"<<spheres.size()<<"\r";
 		Sphere& s = spheres[i];
 		s.pos = simulatedSystem.boxSize/2;
 		s.pos(0) += simulatedSystem.boxSize(0)/sphereCount1D*((sphereCount1D-1)/2.0-(i%sphereCount1D));
@@ -1021,19 +1008,17 @@ void SphereCalculator::updateSpherePositionsInBox(Scalar randomDisplacement, Sca
 			s.speed(dim) += s.radius*randomSpeed*distribution(generator);
 		}
 	}
-	updateData();
 	qDebug()<<"SphereCalculator: updateSpherePositionsInBox finished.";
 }
 
 quint16 SphereCalculator::updateAllSpheres(Sphere s)
 {
-	for(quint16 i = 0; i<spheres.count(); i++)
+	for(quint16 i = 0; i<spheres.size(); i++)
 	{
 		spheres[i] = s;
 	}
-	updateData();
 	workQueue->sendFrameData();
-	return getSphereCount();
+	return spheres.size();
 }
 
 void SphereCalculator::calculateStep()
@@ -1130,9 +1115,9 @@ quint8 SphereCalculator::getIntegratorMethod()
 
 quint32 SphereCalculator::popCalculationCounter()
 {
-	if(sphCount>0)
+	if(spheres.size()>0)
 	{
-		quint32 counter = calculationCounter/sphCount;
+		quint32 counter = calculationCounter/spheres.size();
 		calculationCounter = 0;
 		return counter;
 	}
@@ -1286,9 +1271,9 @@ Scalar SphereCalculator::getKineticEnergy()
 {
 	Scalar totalEnergy = 0.0, sphereEnergy;
 	Sphere sphere;
-	for(quint16 sphereIndex = 0; sphereIndex<sphCount; ++sphereIndex)
+	for(quint16 sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
 	{
-		sphere = sphArr[sphereIndex];
+		sphere = spheres[sphereIndex];
 		sphereEnergy = 0.5*sphere.mass*sphere.speed.squaredNorm();
 		totalEnergy += sphereEnergy;
 	}
@@ -1339,15 +1324,15 @@ void SphereCalculator::updateBoxSize(Vector3 boxSize)
 void SphereCalculator::updateKineticEnergy(Scalar factor)
 {
 	factor = sqrt(factor);
-	for(quint16 sphereIndex = 0; sphereIndex<sphCount; sphereIndex++)
+	for(quint16 sphereIndex = 0; sphereIndex<spheres.size(); sphereIndex++)
 	{
-		sphArr[sphereIndex].speed *= factor;
+		spheres[sphereIndex].speed *= factor;
 	}
 }
 
 void SphereCalculator::updateTargetTemperature(Scalar targetTemperature)
 {
-	Scalar factor = 3*sphCount*simulatedSystem.kBoltzmann*targetTemperature/(2*getKineticEnergy());
+	Scalar factor = 3*spheres.size()*simulatedSystem.kBoltzmann*targetTemperature/(2*getKineticEnergy());
 	updateKineticEnergy(factor);
 }
 

@@ -11,14 +11,10 @@
 
 #include <TwoDimArray.hpp>
 
-#include <QDebug>
 #include <exception>
 
 namespace SphereSim
 {
-	template <typename T, bool extremeSpeed, bool throwExceptions>
-	class TwoDimArray;
-	
 	class ArrayException : public std::exception
 	{
 		const char* what() const noexcept
@@ -26,6 +22,25 @@ namespace SphereSim
 			return "Array exception.";
 		}
 	};
+}
+
+#define USE_STL_VECTOR 0
+#define USE_QT_VECTOR 0
+
+#if USE_STL_VECTOR
+	#include <vector>
+	#define Array std::vector
+#elif USE_QT_VECTOR
+	#include <QVector>
+	#define Array QVector
+#else
+
+#include <QDebug>
+
+namespace SphereSim
+{
+	template <typename T, bool extremeSpeed, bool throwExceptions>
+	class TwoDimArray;
 	
 	template <typename T, bool extremeSpeed=true, bool throwExceptions=true>
 	class Array
@@ -39,7 +54,7 @@ namespace SphereSim
 		
 		unsigned int counter;
 		
-		unsigned int size;
+		unsigned int count;
 		
 		void deleteAll()
 		{
@@ -53,15 +68,15 @@ namespace SphereSim
 		
 		void initArrays()
 		{
-			values = new T[size];
+			values = new T[count];
 			counter = 0;
 		}
 		
 	public:
-		Array(const unsigned int _size=0)
-			:size(_size), values(NULL), counter(0)
+		Array(const unsigned int _count=0)
+			:count(_count), values(NULL), counter(0)
 		{
-			if(size>0)
+			if(count>0)
 				initArrays();
 		}
 		
@@ -70,26 +85,26 @@ namespace SphereSim
 			deleteAll();
 		}
 		
-		void changeSize(const unsigned int _size)
+		void resize(const unsigned int _count)
 		{
-			if(_size != size && _size > 0)
+			if(_count != count && _count > 0)
 			{
-				T* newValues = new T[_size];
-				unsigned int commonSize = (size<_size?size:_size);
+				T* newValues = new T[_count];
+				unsigned int commonSize = (count<_count?count:_count);
 				memcpy(newValues, values, commonSize*sizeof(T));
-				if(_size > size)
-					for(unsigned int i = size; i<_size; i++)
+				if(_count > count)
+					for(unsigned int i = count; i<_count; i++)
 						newValues[i] = T();
 				T* oldValues = values;
-				if(_size < size)
+				if(_count < count)
 				{
-					size = _size;
+					count = _count;
 					values = newValues;
 				}
 				else
 				{
 					values = newValues;
-					size = _size;
+					count = _count;
 				}
 				delete[] oldValues;
 				oldValues = NULL;
@@ -136,11 +151,11 @@ namespace SphereSim
 					return;
 				}
 			}
-			if(counter < size)
+			if(counter < count)
 				values[counter++] = element;
 			else
 			{
-				qDebug()<<"Array::addElement error: full."<<counter<<size;
+				qDebug()<<"Array::addElement error: full."<<counter<<count;
 				if(throwExceptions)
 					throw ArrayException();
 			}
@@ -158,7 +173,7 @@ namespace SphereSim
 					return false;
 				}
 			}
-			if(counter < size)
+			if(counter < count)
 			{
 				for(unsigned int i = 0; i<counter; ++i)
 				{
@@ -174,9 +189,9 @@ namespace SphereSim
 			return false;
 		}
 		
-		inline unsigned int count()
+		inline unsigned int size()
 		{
-			return size;
+			return count;
 		}
 		
 		inline unsigned int getCounter()
@@ -189,22 +204,23 @@ namespace SphereSim
 			counter = 0;
 		}
 		
-		void append(unsigned int _size=1)
+		void push_back(T t)
 		{
-			changeSize(size+_size);
+			resize(count+1);
+			values[count-1] = t;
 		}
 		
-		void remove(unsigned int index)
+		void erase(unsigned int index)
 		{
-			if(index >= size)
+			if(index >= count)
 				return;
-			T* newValues = new T[size-1];
+			T* newValues = new T[count-1];
 			if(index > 0)
 				memcpy(newValues, values, index*sizeof(T));
-			if(size-index > 1)
-				memcpy(&newValues[index], &values[index+1], (size-index-1)*sizeof(T));
+			if(count-index > 1)
+				memcpy(&newValues[index], &values[index+1], (count-index-1)*sizeof(T));
 			T* oldValues = values;
-			size--;
+			count--;
 			values = newValues;
 			delete[] oldValues;
 			oldValues = NULL;
@@ -220,9 +236,16 @@ namespace SphereSim
 			return values;
 		}
 		
+		inline const unsigned int begin() const
+		{
+			return 0;
+		}
+		
 		friend class TwoDimArray<T, extremeSpeed, throwExceptions>;
 			
 	};
 }
+
+#endif
 
 #endif
