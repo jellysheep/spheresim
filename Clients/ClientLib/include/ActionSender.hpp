@@ -269,6 +269,8 @@ namespace SphereSim
 		
 		/** \copydoc SimulatedSystemActions::updatePeriodicBoundaryConditions */
 		void updatePeriodicBoundaryConditions(bool periodicBoundaryConditions);
+		
+		bool failureExitWhenDisconnected;
 	
 	public slots:
 		/** Set connectedFlag to true. 
@@ -277,6 +279,8 @@ namespace SphereSim
 		{
 			connectedFlag = true;
 		}
+		
+		void disconnected();
 		
 		/** \brief Read data from server. */
 		void readData();
@@ -320,6 +324,9 @@ namespace SphereSim
 		
 		/** \brief Number of spheres changed. */
 		void sphereCountChangedDouble(double sphereCount);
+		
+		/** \brief Server connection was closed. */
+		void connectionClosed();
 	};
 	
 }

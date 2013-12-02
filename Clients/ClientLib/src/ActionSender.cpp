@@ -25,9 +25,11 @@ ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuf
 	connectedFlag = false;
 	createdOwnServer = false;
 	receivedServerReply = false;
+	failureExitWhenDisconnected = false;
 	lastServerStatus = ServerStatusReplies::acknowledge;
 	socket = new QTcpSocket();
 	connect(socket, SIGNAL(connected()), SLOT(connected()));
+	connect(socket, SIGNAL(disconnected()), SLOT(disconnected()));
 	connect(socket, SIGNAL(readyRead()), SLOT(readData()));
 	frameCounter = 0;
 	receivedFramesPerSecond = 0;
@@ -585,4 +587,12 @@ void ActionSender::framerateEvent()
 		}
 		framerateTimer.restart();
 	}
+}
+
+void ActionSender::disconnected()
+{
+	qDebug()<<"Server connection closed."<<failureExitWhenDisconnected;
+	emit connectionClosed();
+	if(failureExitWhenDisconnected)
+		qApp->exit(1);
 }

@@ -13,12 +13,14 @@
 
 #include <QtTest/QTest>
 #include <QHostAddress>
+#include <QCoreApplication>
 
 using namespace SphereSim;
 
 ServerBenchmark::ServerBenchmark(QStringList args, QHostAddress addr, quint16 port)
 {
 	sender = new ActionSender(args, addr, port);
+	sender->failureExitWhenDisconnected = true;
 }
 
 ServerBenchmark::~ServerBenchmark()
@@ -97,7 +99,7 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculat
 	sender->stopSimulation();
 	while(sender->getIsSimulating())
 	{
-		QTest::qWait(1);
+		QCoreApplication::processEvents();
 	}
 	quint64 elapsedTime = timer.elapsed();
 	Scalar stepsPerSecond = stepCounter/(elapsedTime*0.001);
@@ -139,7 +141,7 @@ void ServerBenchmark::runBenchmark_internal2()
 	sender->stopSimulation();
 	while(sender->getIsSimulating())
 	{
-		QTest::qWait(1);
+		QCoreApplication::processEvents();
 	}
 	quint64 elapsedTime = timer.elapsed();
 	quint32 stepCounter = sender->popStepCounter();

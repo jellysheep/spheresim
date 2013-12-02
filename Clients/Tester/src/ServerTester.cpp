@@ -37,6 +37,7 @@ const int ServerTester::framebuffer = 255;
 ServerTester::ServerTester(QStringList args, QHostAddress addr, quint16 port)
 {
 	sender = new ActionSender(args, addr, port);
+	sender->failureExitWhenDisconnected = true;
 	testCounter = 0;
 	successCounter = 0;
 	testSuccess = true;

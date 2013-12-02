@@ -25,6 +25,7 @@ SimulationGrapher::SimulationGrapher(QStringList args, QHostAddress addr, quint1
 	:dataPoints(2048), stepsToEquilibrium(400), stepsBeforeMeasuring(30), graphNumber(1)
 {
 	actionSender = new ActionSender(args, addr, port);
+	actionSender->failureExitWhenDisconnected = true;
 	dataUpdateTimer = new QTimer(this);
 	dataUpdateTimer->setInterval(5);
 	connect(dataUpdateTimer, SIGNAL(timeout()), this, SLOT(timerUpdate()));

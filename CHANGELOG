@@ -1,4 +1,5 @@
 * Improved Server to execute all actions in a queue.
+* Added methods to clients to react on server disconnection.
 
 SphereSim 2.4.4:
 * Added Array class and modified TwoDimArray to use the new class. No speed change.
