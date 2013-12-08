@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>468</width>
+    <width>677</width>
     <height>483</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>SphereSim 2.4.2</string>
+   <string>SphereSim</string>
   </property>
   <property name="windowIcon">
    <iconset resource="MainWindow.qrc">

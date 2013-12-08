@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>SphereSim 2.4.2</string>
+   <string>SphereSim</string>
   </property>
   <property name="windowIcon">
    <iconset resource="StartDialog.qrc">
@@ -178,10 +178,4 @@
    </hints>
   </connection>
  </connections>
- <buttongroups>
-  <buttongroup name="simType"/>
-  <buttongroup name="dimension"/>
-  <buttongroup name="magnitude"/>
-  <buttongroup name="language"/>
- </buttongroups>
 </ui>
