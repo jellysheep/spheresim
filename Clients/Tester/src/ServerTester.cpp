@@ -21,12 +21,12 @@
 #define startNewTest_(x) \
 	startNewTest(TOSTR(x));
 
-#define runCalculationActionTests_internal_(integratorMethod)			\
+#define runCalculationActionTests_internal_(order, integratorMethod)	\
 {																		\
 	startTest_(integratorMethod);										\
 		sender->updateIntegratorMethod(integratorMethod);				\
 		verify(sender->getIntegratorMethod(), Equal, integratorMethod);	\
-		runCalculationActionTests_internal(TOSTR(integratorMethod));	\
+		runCalculationActionTests_internal(order, TOSTR(integratorMethod));	\
 	endTest();															\
 }
 
@@ -238,11 +238,11 @@ void ServerTester::runCalculationActionTests()
 		verify(timeStep, ApproxEqual, sender->getTimeStep());
 	endTest();
 	
-	//runCalculationActionTests_internal_(IntegratorMethods::HeunEuler21);
-	runCalculationActionTests_internal_(IntegratorMethods::CashKarp54);
-	runCalculationActionTests_internal_(IntegratorMethods::RungeKuttaFehlberg54);
-	runCalculationActionTests_internal_(IntegratorMethods::DormandPrince54);
-	runCalculationActionTests_internal_(IntegratorMethods::BogackiShampine32);
+	//runCalculationActionTests_internal_(2, IntegratorMethods::HeunEuler21);
+	runCalculationActionTests_internal_(6, IntegratorMethods::CashKarp54);
+	runCalculationActionTests_internal_(6, IntegratorMethods::RungeKuttaFehlberg54);
+	runCalculationActionTests_internal_(7, IntegratorMethods::DormandPrince54);
+	runCalculationActionTests_internal_(4, IntegratorMethods::BogackiShampine32);
 	
 	systemCreator->createSimpleWallCollisionSystem();
 	sender->updateIntegratorMethod(IntegratorMethods::CashKarp54);
@@ -260,14 +260,16 @@ void ServerTester::runCalculationActionTests()
 	endTest();
 }
 
-void ServerTester::runCalculationActionTests_internal(const char* integratorMethod)
+void ServerTester::runCalculationActionTests_internal(quint8 order, const char* integratorMethod)
 {
 	systemCreator->createSimpleWallCollisionSystem();
 	
 	quint16 sphereCount = sender->getSphereCount();
 	verify(sphereCount, Equal, 1);
 	
-	Scalar timeStep = 1;
+	sender->updateMaximumStepDivision(16);
+	
+	Scalar timeStep = 0.02;
 	sender->updateTimeStep(timeStep);
 	Scalar simulationTime = 1;
 	quint32 steps = (quint32)(simulationTime/timeStep);
@@ -275,9 +277,7 @@ void ServerTester::runCalculationActionTests_internal(const char* integratorMeth
 	beginEnergy = sender->getTotalEnergy();
 	sender->calculateSomeSteps(steps);
 	while(sender->getIsSimulating())
-	{
 		QTest::qWait(10);
-	}
 	endEnergy = sender->getTotalEnergy();
 	Scalar relError = 1.0-(beginEnergy/endEnergy);
 	Console::out<<"rel. error: "<<relError<<" \t";
@@ -285,10 +285,26 @@ void ServerTester::runCalculationActionTests_internal(const char* integratorMeth
 	quint32 realSteps = sender->popCalculationCounter();
 	Console::out<<"real steps: "<<realSteps<<" \t";
 	Scalar integratorWorth = 20-0.1*log(fabs(relError))-log(realSteps);
-	Console::out<<"integrator worth: "<<integratorWorth<<" ("<<integratorMethod<<"). \t";
+	Console::out<<"integrator worth: "<<integratorWorth<<" \t";
 	verify(fabs(relError), Smaller, 0.01);
 	verify(realSteps, Greater, 0);
+	sender->removeLastSphere();
 	
+	systemCreator->createSimpleWallCollisionSystem();
+	beginEnergy = sender->getTotalEnergy();
+	realSteps /= order;
+	timeStep = simulationTime/realSteps;
+	sender->updateTimeStep(timeStep);
+	sender->updateMaximumStepDivision(0);
+	sender->calculateSomeSteps(realSteps);
+	while(sender->getIsSimulating())
+		QTest::qWait(10);
+	realSteps = sender->popCalculationCounter();
+	endEnergy = sender->getTotalEnergy();
+	relError = 1.0-(beginEnergy/endEnergy);
+	Console::out<<"rel. error: "<<relError<<" \t";
+	integratorWorth = 20-0.1*log(fabs(relError))-log(realSteps);
+	Console::out<<"integrator worth: "<<integratorWorth<<" ("<<integratorMethod<<"). \t";
 	sender->removeLastSphere();
 }
 

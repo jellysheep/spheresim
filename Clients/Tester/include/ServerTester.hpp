@@ -77,7 +77,7 @@ namespace SphereSim
 		
 		/** \brief Simulation of a bouncing sphere.
 		 * \param integratorMethod Name of the used integrator method. */
-		void runCalculationActionTests_internal(const char* integratorMethod);
+		void runCalculationActionTests_internal(quint8 order, const char* integratorMethod);
 		
 		/** \brief Verification of the FrameBuffer. */
 		void runFrameBufferTests();

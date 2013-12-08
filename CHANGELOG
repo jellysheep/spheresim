@@ -1,6 +1,7 @@
 * Improved Server to execute all actions in a queue.
 * Added methods to clients to react on server disconnection.
 * Improved Viewer windows: removed version from title and fixing size.
+* Added comparison of adaptive and static stepsize to Tester.
 
 SphereSim 2.4.4:
 * Added Array class and modified TwoDimArray to use the new class. No speed change.
