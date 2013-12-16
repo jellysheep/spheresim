@@ -26,7 +26,12 @@ SOURCES		+=	main.cpp				\
 				SimulationWorker.cpp	\
 				WorkQueue.cpp
 
-LIBS		+=	-lgomp
+equals(NO_OPENMP, "true") {
+	DEFINES			+=	NO_OPENMP=1
+} else {
+	LIBS			+=	-lgomp
+	QMAKE_CXXFLAGS	+=	-fopenmp
+}
 
-QMAKE_CXXFLAGS_RELEASE	+=	-Ofast -fno-fast-math -fopenmp
-QMAKE_LFLAGS_RELEASE	+=	-Ofast -fno-fast-math
+QMAKE_CXXFLAGS		+=	-Ofast -fno-fast-math
+QMAKE_LFLAGS		+=	-Ofast -fno-fast-math

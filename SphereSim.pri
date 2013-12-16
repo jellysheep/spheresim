@@ -7,7 +7,7 @@ QT			+=	network
 
 CONFIG		+=	c++11
 
-INCLUDEPATH	+=	$$PWD/include/
+INCLUDEPATH	+=	$$PWD/include/ /usr/include/eigen3
 
 VPATH 		+=	$$PWD/include/ $$PWD/src/
 

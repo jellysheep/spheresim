@@ -39,7 +39,7 @@ build()
 		${_arch}-cmake \
 		-DBUILD_SHARED_LIBS:BOOL=ON \
 		-DCMAKE_INSTALL_PREFIX:PATH="/usr/${_arch}" \
-		..
+		.. -Wno-dev
 		make -j"${CORE_COUNT}"
 		popd
 	done

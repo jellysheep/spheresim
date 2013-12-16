@@ -5,6 +5,7 @@ set(CMAKE_MODULE_PATH ${SphereSim_SOURCE_DIR}/cmake)
 
 file(STRINGS "VERSION" VERSION)
 add_definitions("-DVERSION=${VERSION}")
+add_definitions("-DQT_DEBUG_OUTPUT")
 
 set(USE_EIGEN_LIBRARY 1)
 if(USE_EIGEN_LIBRARY GREATER 0)

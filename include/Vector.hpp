@@ -20,7 +20,7 @@ typedef FLOATING_TYPE Scalar;
 
 #if USE_EIGEN_LIBRARY
 	//#define NDEBUG
-	#include <eigen3/Eigen/Dense>
+	#include <Eigen/Dense>
 	typedef Eigen::Matrix<Scalar, 1, 1> Vector1;
 	typedef Eigen::Matrix<Scalar, 2, 1> Vector2;
 	typedef Eigen::Matrix<Scalar, 3, 1> Vector3;

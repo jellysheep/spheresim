@@ -19,9 +19,15 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include <cmath>
-#include <omp.h>
 #include <random>
 #include <chrono>
+
+#ifndef NO_OPENMP
+	#define NO_OPENMP 0
+#endif
+#if NO_OPENMP != 1
+	#include <omp.h>
+#endif
 
 using namespace SphereSim;
 
@@ -38,11 +44,13 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv):
 	maxPairwiseCellsPerGravityCell(gravityCellCount3), pairwiseCellsPerGravityCell(maxPairwiseCellsPerGravityCell, gravityAllCellCount)
 {
 	qDebug()<<"SphereCalculator: constructor called";
+#if NO_OPENMP != 1
 	quint16 ompThreads = 0;
 	#pragma omp parallel
 	#pragma omp atomic
 	ompThreads++;
 	qDebug()<<"SphereCalculator: number of OpenMP threads:"<<omp_get_num_threads()<<"|"<<ompThreads;
+#endif
 	simulatedSystem.boxSize = Vector3(1,1,1);
 	timeStep = 0.002;
 	updateIntegratorMethod(IntegratorMethods::CashKarp54);
