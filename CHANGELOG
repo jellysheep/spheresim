@@ -1,10 +1,13 @@
+SphereSim 2.5.1:
+* Improved build scripts and added OpenMP flag to Server.pro.
+* Improved SimulationWorker and WorkQueue of server and fixed segfaults.
+
 SphereSim 2.5.0:
 * Improved Server to execute all actions in a queue.
 * Added methods to clients to react on server disconnection.
 * Improved Viewer windows: removed version from title and fixing size.
 * Added comparison of adaptive and static stepsize to Tester.
 * Added QMake build files.
-* Improved build scripts and added OpenMP flag to Server.pro.
 
 SphereSim 2.4.4:
 * Added Array class and modified TwoDimArray to use the new class. No speed change.

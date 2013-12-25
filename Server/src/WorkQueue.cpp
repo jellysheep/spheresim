@@ -33,7 +33,7 @@ WorkQueue::~WorkQueue()
 	delete animationTimer;
 }
 
-void WorkQueue::pushItem(WorkQueueItem item)
+void WorkQueue::pushItem(WorkQueueItem& item)
 {
 	mutex->lock();
 		items.append(item);
@@ -73,10 +73,7 @@ void WorkQueue::pushItem(quint8 actionGroup, quint8 action, QByteArray data)
 		if(actionDone)
 			return;
 	}
-	WorkQueueItem item;
-	item.actionGroup = actionGroup;
-	item.action = action;
-	item.data = data;
+	WorkQueueItem item(actionGroup, action, data);
 	pushItem(item);
 }
 
@@ -98,7 +95,7 @@ void WorkQueue::pushSimulationSteps(quint32 steps)
 	mutex->unlock();
 }
 
-WorkQueueItem WorkQueue::popItem()
+WorkQueueItem* WorkQueue::popItem()
 {
 	mutex->lock();
 		if(!((simulationSteps>0) || continuousSimulationRunning))
@@ -109,46 +106,34 @@ WorkQueueItem WorkQueue::popItem()
 		{
 			workCondition.wait(mutex);
 		}
-	mutex->unlock();
-	WorkQueueItem item = WorkQueueItem();
-	if(items.count()>0)
-	{
-		item = items.takeFirst();
-	}
-	else
-	{
-		item = WorkQueueItem();
-		if(simulationSteps>0)
+	
+		WorkQueueItem* item;
+		if(items.count()>0)
 		{
-			simulationSteps--;
-			item.actionGroup = ActionGroups::workQueue;
-			item.action = WorkQueueActions::calculateStep;
-		}
-		else if(continuousSimulationRunning)
-		{
-			item.actionGroup = ActionGroups::workQueue;
-			item.action = WorkQueueActions::calculateStep;
+			item = new WorkQueueItem(items.takeFirst());
 		}
 		else
 		{
-			qDebug()<<"error!";
-			item.actionGroup = ActionGroups::workQueue;
-			item.action = WorkQueueActions::calculateStep;
+			item = new WorkQueueItem(ActionGroups::workQueue, WorkQueueActions::calculateStep);
+			if(simulationSteps>0)
+			{
+				simulationSteps--;
+			}
+			else if(!continuousSimulationRunning)
+			{
+				qDebug()<<"error!";
+			}
 		}
-	}
-	if(item.actionGroup == ActionGroups::workQueue &&
-		item.action == WorkQueueActions::calculateStep)
-	{
-		if(sendFramesRegularly && animationTimer->elapsed()>(1000/60))
+		if(item->actionGroup == ActionGroups::workQueue &&
+			item->action == WorkQueueActions::calculateStep)
 		{
-			animationTimer->restart();
-			WorkQueueItem item2 = WorkQueueItem();
-			item2.actionGroup = ActionGroups::workQueue;
-			item2.action = WorkQueueActions::prepareFrameData;
-			items.prepend(item2);
+			if(sendFramesRegularly && animationTimer->elapsed()>(1000/60))
+			{
+				animationTimer->restart();
+				WorkQueueItem item2(ActionGroups::workQueue, WorkQueueActions::prepareFrameData);
+				items.prepend(item2);
+			}
 		}
-	}
-	mutex->lock();
 		if(items.count()<=0)
 		{
 			queueEmpty = true;
@@ -174,9 +159,7 @@ void WorkQueue::stopSimulation()
 
 void WorkQueue::stop()
 {
-	WorkQueueItem item;
-	item.actionGroup = ActionGroups::workQueue;
-	item.action = WorkQueueActions::stopWorker;
+	WorkQueueItem item(ActionGroups::workQueue, WorkQueueActions::stopWorker);
 	pushItem(item);
 }
 
@@ -188,9 +171,7 @@ bool WorkQueue::getIsSimulating()
 void WorkQueue::sendFrameData()
 {
 	if(!sendFramesRegularly) return;
-	WorkQueueItem item;
-	item.actionGroup = ActionGroups::workQueue;
-	item.action = WorkQueueActions::prepareFrameData;
+	WorkQueueItem item(ActionGroups::workQueue, WorkQueueActions::prepareFrameData);
 	pushItem(item);
 }
 

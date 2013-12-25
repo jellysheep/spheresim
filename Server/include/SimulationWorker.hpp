@@ -16,6 +16,7 @@ namespace SphereSim
 	
 	class SphereCalculator;
 	class WorkQueue;
+	class WorkQueueItem;
 	class ActionReceiver;
 	
 	/** \brief Worker for calculation work. */
@@ -42,39 +43,39 @@ namespace SphereSim
 		 * \param actionGroup Action group that will be handled.
 		 * \param action Action that will be handled.
 		 * \param data Data sent with the action request. */
-		void handleAction(quint8 actionGroup, quint8 action, QByteArray data);
+		void handleAction(WorkQueueItem* workQueueItem);
 		
 		/** \brief Handle BasicActions requests.
 		 * \copydetails handleAction */
-		void handleBasicAction(quint8 actionGroup, quint8 action, QByteArray data);
+		void handleBasicAction(WorkQueueItem* workQueueItem);
 		
 		/** \brief Handle SpheresUpdatingActions requests.
 		 * \copydetails handleAction */
-		void handleSpheresUpdatingAction(quint8 actionGroup, quint8 action, QByteArray data);
+		void handleSpheresUpdatingAction(WorkQueueItem* workQueueItem);
 		
 		/** \brief Handle CalculationActions requests.
 		 * \copydetails handleAction */
-		void handleCalculationAction(quint8 actionGroup, quint8 action, QByteArray data);
+		void handleCalculationAction(WorkQueueItem* workQueueItem);
 		
 		/** \brief Handle InformationActions requests.
 		 * \copydetails handleAction */
-		void handleInformationAction(quint8 actionGroup, quint8 action, QByteArray data);
+		void handleInformationAction(WorkQueueItem* workQueueItem);
 		
 		/** \brief Handle SimulatedSystemActions requests.
 		 * \copydetails handleAction */
-		void handleSimulatedSystemAction(quint8 actionGroup, quint8 action, QByteArray data);
+		void handleSimulatedSystemAction(WorkQueueItem* workQueueItem);
 		
 		/** \brief Handle WorkQueueActions requests.
 		 * \copydetails handleAction */
-		void handleWorkQueueAction(quint8 actionGroup, quint8 action, QByteArray data);
+		void handleWorkQueueAction(WorkQueueItem* workQueueItem);
 		
 		/** \brief Handle unknown action group requests.
 		 * \copydetails handleAction */
-		void handleUnknownActionGroup(quint8 actionGroup, quint8 action, QByteArray data);
+		void handleUnknownActionGroup(WorkQueueItem* workQueueItem);
 		
 		/** \brief Handle unknown action requests.
 		 * \copydetails handleAction */
-		void handleUnknownAction(quint8 actionGroup, quint8 action, QByteArray data);
+		void handleUnknownAction(WorkQueueItem* workQueueItem);
 		
 	public:
 		/** \brief Initialize member variables. */

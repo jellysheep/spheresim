@@ -38,11 +38,13 @@ SimulationWorker::~SimulationWorker()
 
 void SimulationWorker::work()
 {
-	WorkQueueItem workQueueItem;
+	WorkQueueItem* workQueueItem;
 	while(running)
 	{
 		workQueueItem = queue->popItem();
-		handleAction(workQueueItem.actionGroup, workQueueItem.action, workQueueItem.data);
+		handleAction(workQueueItem);
+		delete workQueueItem;
+		workQueueItem = NULL;
 		QCoreApplication::processEvents();
 	}
 	hasFinished = true;
@@ -59,37 +61,37 @@ bool SimulationWorker::getHasFinished()
 	return hasFinished;
 }
 
-void SimulationWorker::handleAction(quint8 actionGroup, quint8 action, QByteArray data)
+void SimulationWorker::handleAction(WorkQueueItem* workQueueItem)
 {
-	switch(actionGroup)
+	switch(workQueueItem->actionGroup)
 	{
 	case ActionGroups::basic:
-		handleBasicAction(actionGroup, action, data);
+		handleBasicAction(workQueueItem);
 		break;
 	case ActionGroups::spheresUpdating:
-		handleSpheresUpdatingAction(actionGroup, action, data);
+		handleSpheresUpdatingAction(workQueueItem);
 		break;
 	case ActionGroups::calculation:
-		handleCalculationAction(actionGroup, action, data);
+		handleCalculationAction(workQueueItem);
 		break;
 	case ActionGroups::information:
-		handleInformationAction(actionGroup, action, data);
+		handleInformationAction(workQueueItem);
 		break;
 	case ActionGroups::simulatedSystem:
-		handleSimulatedSystemAction(actionGroup, action, data);
+		handleSimulatedSystemAction(workQueueItem);
 		break;
 	case ActionGroups::workQueue:
-		handleWorkQueueAction(actionGroup, action, data);
+		handleWorkQueueAction(workQueueItem);
 		break;
 	default:
-		handleUnknownActionGroup(actionGroup, action, data);
+		handleUnknownActionGroup(workQueueItem);
 		break;
 	}
 }
 
-void SimulationWorker::handleBasicAction(quint8 actionGroup, quint8 action, QByteArray data)
+void SimulationWorker::handleBasicAction(WorkQueueItem* workQueueItem)
 {
-	switch(action)
+	switch(workQueueItem->action)
 	{
 	case BasicActions::getServerVersion:
 		emit sendReply(ServerStatusReplies::acknowledge, "SphereSim Server v" VERSION_STR);
@@ -105,20 +107,20 @@ void SimulationWorker::handleBasicAction(quint8 actionGroup, quint8 action, QByt
 		emit sendReply(ServerStatusReplies::acknowledge, TOSTR(FLOATING_TYPE));
 		break;
 	default:
-		handleUnknownAction(actionGroup, action, data);
+		handleUnknownAction(workQueueItem);
 		break;
 	}
 }
 
-void SimulationWorker::handleSpheresUpdatingAction(quint8 actionGroup, quint8 action, QByteArray data)
+void SimulationWorker::handleSpheresUpdatingAction(WorkQueueItem* workQueueItem)
 {
 	quint16 i;
 	Sphere s;
-	QDataStream stream(&data, QIODevice::ReadOnly);
+	QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	Scalar s1, s2;
-	switch(action)
+	switch(workQueueItem->action)
 	{
 	case SpheresUpdatingActions::addSphere:
 		emit sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc->addSphere()).toUtf8());
@@ -168,14 +170,14 @@ void SimulationWorker::handleSpheresUpdatingAction(quint8 actionGroup, quint8 ac
 		sphCalc->updateAllSpheres(s);
 		break;
 	default:
-		handleUnknownAction(actionGroup, action, data);
+		handleUnknownAction(workQueueItem);
 		break;
 	}
 }
 
-void SimulationWorker::handleCalculationAction(quint8 actionGroup, quint8 action, QByteArray data)
+void SimulationWorker::handleCalculationAction(WorkQueueItem* workQueueItem)
 {
-	QDataStream stream(&data, QIODevice::ReadOnly);
+	QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	Scalar s;
@@ -183,7 +185,7 @@ void SimulationWorker::handleCalculationAction(quint8 actionGroup, quint8 action
 	quint32 steps;
 	bool b;
 	quint16 maxStepDivision;
-	switch(action)
+	switch(workQueueItem->action)
 	{
 	case CalculationActions::updateTimeStep:
 		stream>>s;
@@ -242,17 +244,17 @@ void SimulationWorker::handleCalculationAction(quint8 actionGroup, quint8 action
 		emit sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
 	default:
-		handleUnknownAction(actionGroup, action, data);
+		handleUnknownAction(workQueueItem);
 		break;
 	}
 }
 
-void SimulationWorker::handleInformationAction(quint8 actionGroup, quint8 action, QByteArray data)
+void SimulationWorker::handleInformationAction(WorkQueueItem* workQueueItem)
 {
-	QDataStream stream(&data, QIODevice::ReadOnly);
+	QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
-	switch(action)
+	switch(workQueueItem->action)
 	{
 	case InformationActions::getTotalEnergy:
 		retStream<<sphCalc->getTotalEnergy();
@@ -263,19 +265,19 @@ void SimulationWorker::handleInformationAction(quint8 actionGroup, quint8 action
 		emit sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
 	default:
-		handleUnknownAction(actionGroup, action, data);
+		handleUnknownAction(workQueueItem);
 		break;
 	}
 }
 
-void SimulationWorker::handleSimulatedSystemAction(quint8 actionGroup, quint8 action, QByteArray data)
+void SimulationWorker::handleSimulatedSystemAction(WorkQueueItem* workQueueItem)
 {
-	QDataStream stream(&data, QIODevice::ReadOnly);
+	QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	Scalar s, s2, s3;
 	bool b;
-	switch(action)
+	switch(workQueueItem->action)
 	{
 	case SimulatedSystemActions::updateSphereE:
 		stream>>s;
@@ -322,14 +324,14 @@ void SimulationWorker::handleSimulatedSystemAction(quint8 actionGroup, quint8 ac
 		sphCalc->updatePeriodicBoundaryConditions(b);
 		break;
 	default:
-		handleUnknownAction(actionGroup, action, data);
+		handleUnknownAction(workQueueItem);
 		break;
 	}
 }
 
-void SimulationWorker::handleWorkQueueAction(quint8 actionGroup, quint8 action, QByteArray data)
+void SimulationWorker::handleWorkQueueAction(WorkQueueItem* workQueueItem)
 {
-	switch(action)
+	switch(workQueueItem->action)
 	{
 	case WorkQueueActions::stopWorker:
 		stop();
@@ -341,21 +343,21 @@ void SimulationWorker::handleWorkQueueAction(quint8 actionGroup, quint8 action, 
 		sphCalc->integrateRungeKuttaStep();
 		break;
 	default:
-		handleUnknownAction(actionGroup, action, data);
+		handleUnknownAction(workQueueItem);
 		break;
 	}
 }
 
-void SimulationWorker::handleUnknownActionGroup(quint8 actionGroup, quint8 action, QByteArray data)
+void SimulationWorker::handleUnknownActionGroup(WorkQueueItem* workQueueItem)
 {
 	qWarning()<<"SimulationWorker: Warning: received unknown action group"
-		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
+		<<Connection::startByte<<(int)workQueueItem->actionGroup<<(int)workQueueItem->action<<Connection::endByte;
 	emit sendReply(ServerStatusReplies::unknownActionGroup, "unknown action group");
 }
 
-void SimulationWorker::handleUnknownAction(quint8 actionGroup, quint8 action, QByteArray data)
+void SimulationWorker::handleUnknownAction(WorkQueueItem* workQueueItem)
 {
 	qWarning()<<"SimulationWorker: Warning: received unknown action"
-		<<Connection::startByte<<(int)actionGroup<<(int)action<<Connection::endByte;
+		<<Connection::startByte<<(int)workQueueItem->actionGroup<<(int)workQueueItem->action<<Connection::endByte;
 	emit sendReply(ServerStatusReplies::unknownAction, "unknown action");
 }

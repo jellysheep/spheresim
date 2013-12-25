@@ -23,6 +23,9 @@ namespace SphereSim
 	
 	/** \brief Info about a work to be done by the worker. */
 	class WorkQueueItem{
+	private:
+		WorkQueueItem();
+		
 	public:
 		/** \see ActionGroups */
 		quint8 actionGroup;
@@ -35,10 +38,14 @@ namespace SphereSim
 		QByteArray data;
 		
 		/** \brief Initialize WorkQueueItem. */
-		WorkQueueItem():data()
+		WorkQueueItem(const quint8 actGrp, const quint8 act, const QByteArray d = QByteArray())
+			:actionGroup(actGrp), action(act), data(d)
 		{
-			actionGroup = ActionGroups::calculation;
-			action = CalculationActions::calculateStep;
+		}
+		
+		WorkQueueItem(const WorkQueueItem& wqi)
+			:actionGroup(wqi.actionGroup), action(wqi.action), data(wqi.data)
+		{
 		}
 	};
 	
@@ -88,7 +95,7 @@ namespace SphereSim
 		~WorkQueue();
 		
 		/** \brief Add a new item to the end of the work queue. */
-		void pushItem(WorkQueueItem item);
+		void pushItem(WorkQueueItem& item);
 		
 		/** \copybrief pushItem */
 		void pushItem(quint8 actionGroup, quint8 action, QByteArray data);
@@ -97,7 +104,7 @@ namespace SphereSim
 		void pushSimulationSteps(quint32 steps);
 		
 		/** \brief Return the next work to do and remove it from the queue. */
-		WorkQueueItem popItem();
+		WorkQueueItem* popItem();
 		
 		/** \copydoc isSimulating */
 		bool getIsSimulating();
