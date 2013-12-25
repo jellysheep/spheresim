@@ -3,8 +3,8 @@
 
 pkgname=mingw-w64-spheresim-git
 _gitname=spheresim
-pkgver=2.4.3
-pkgrel=3
+pkgver=latest
+pkgrel=1
 pkgdesc="Physical simulation of particle movements (server and clients). (mingw-w64)"
 arch=('any')
 url="http://sourceforge.net/projects/spheresim/"

@@ -1,3 +1,5 @@
+* Improved package releasing script and added automatic version number.
+
 SphereSim 2.5.1:
 * Improved build scripts and added OpenMP flag to Server.pro.
 * Improved SimulationWorker and WorkQueue of server and fixed segfaults.

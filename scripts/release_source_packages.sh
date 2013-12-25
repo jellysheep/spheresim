@@ -31,6 +31,7 @@ for buildscript_dir in "${BUILDSCRIPT_DIRS[@]}"; do
 	cd $BUILD_DIR
 	
 	cp $buildscript_dir/* ./
+	sed -i -e "s|pkgver=.*$|pkgver=$(cat ${DIR}/VERSION)|" -e "s|pkgrel=.*$|pkgrel=1|" PKGBUILD
 	makepkg -S
 	cp *.src.tar.gz $RELEASE_DIR/
 	rm -rf $BUILD_DIR
