@@ -56,7 +56,7 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 	sphereCount = sphereCountSqrt*sphereCountSqrt;
 	
 	Scalar boxLength = sphereCountSqrt/8.0*2.5e-9;
-	actionSender->updateBoxSize(Vector3(boxLength, boxLength, boxLength));
+	actionSender->simulatedSystem->set(SimulationVariables::boxSize, Vector3(boxLength, boxLength, boxLength));
 	Scalar radius = 0.017*boxLength;
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
@@ -89,15 +89,15 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 		s.speed(2) = speed*cos(angle1);
 		actionSender->updateSphere(i, s);
 	}
-	actionSender->updateTargetTemperature(targetTemperature);
+	actionSender->simulatedSystem->set(SimulationVariables::targetTemperature, targetTemperature);
 	
-	actionSender->updateCollisionDetection(false);
-	actionSender->updateGravityCalculation(false);
-	actionSender->updateGravitationalConstant(1.0e-4);
-	actionSender->updateLennardJonesPotentialCalculation(true);
-	actionSender->updateEarthGravity(Vector3(0,0,0));
-	actionSender->updateWallE(0);
-	actionSender->updatePeriodicBoundaryConditions(true);
+	actionSender->simulatedSystem->set(SimulationVariables::collisionDetection, false);
+	actionSender->simulatedSystem->set(SimulationVariables::gravityCalculation, false);
+	actionSender->simulatedSystem->set(SimulationVariables::gravitationalConstant, 1.0e-4);
+	actionSender->simulatedSystem->set(SimulationVariables::lennardJonesPotential, true);
+	actionSender->simulatedSystem->set(SimulationVariables::earthGravity, Vector3(0,0,0));
+	actionSender->simulatedSystem->set(SimulationVariables::wallE, 0);
+	actionSender->simulatedSystem->set(SimulationVariables::periodicBoundaryConditions, true);
 	
 	return boxLength;
 }
@@ -105,7 +105,7 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 Scalar SystemCreator::createMacroscopicGravitationSystem(quint16 sphereCount)
 {
 	Scalar boxLength = 1;
-	actionSender->updateBoxSize(Vector3(boxLength, boxLength, boxLength));
+	actionSender->simulatedSystem->set(SimulationVariables::boxSize, Vector3(boxLength, boxLength, boxLength));
 	Scalar radius = 0.03*boxLength;
 	Scalar mass = 1;
 	
@@ -116,11 +116,11 @@ Scalar SystemCreator::createMacroscopicGravitationSystem(quint16 sphereCount)
 	actionSender->updateAllSpheres(sphere);
 	actionSender->updateSpherePositionsInBox(0.01, 0.01);
 	
-	actionSender->updateCollisionDetection(false);
-	actionSender->updateGravityCalculation(true);
-	actionSender->updateGravitationalConstant(1.0e-20);
-	actionSender->updateLennardJonesPotentialCalculation(false);
-	actionSender->updateEarthGravity(Vector3(0,0,0));
+	actionSender->simulatedSystem->set(SimulationVariables::collisionDetection, false);
+	actionSender->simulatedSystem->set(SimulationVariables::gravityCalculation, true);
+	actionSender->simulatedSystem->set(SimulationVariables::gravitationalConstant, 1.0e-20);
+	actionSender->simulatedSystem->set(SimulationVariables::lennardJonesPotential, false);
+	actionSender->simulatedSystem->set(SimulationVariables::earthGravity, Vector3(0,0,0));
 	
 	return boxLength;
 }
@@ -128,7 +128,7 @@ Scalar SystemCreator::createMacroscopicGravitationSystem(quint16 sphereCount)
 Scalar SystemCreator::createMacroscopic2DCollisionSystem(quint16 sphereCount)
 {
 	Scalar boxLength = 1;
-	actionSender->updateBoxSize(Vector3(boxLength, boxLength, boxLength));
+	actionSender->simulatedSystem->set(SimulationVariables::boxSize, Vector3(boxLength, boxLength, boxLength));
 	Scalar radius = 0.03*boxLength;
 	Scalar mass = 1;
 	
@@ -139,13 +139,22 @@ Scalar SystemCreator::createMacroscopic2DCollisionSystem(quint16 sphereCount)
 	actionSender->updateAllSpheres(sphere);
 	actionSender->updateSpherePositionsInBox(0.01, 0.01);
 	
+	actionSender->simulatedSystem->set(SimulationVariables::sphereE, 5000);
+	actionSender->simulatedSystem->set(SimulationVariables::spherePoissonRatio, 0.5);
+	actionSender->simulatedSystem->set(SimulationVariables::wallE, 5000);
+	actionSender->simulatedSystem->set(SimulationVariables::wallPoissonRatio, 0.5);
+	actionSender->simulatedSystem->set(SimulationVariables::earthGravity, Vector3(0, -9.81, 0));
+	actionSender->simulatedSystem->set(SimulationVariables::collisionDetection, true);
+	actionSender->simulatedSystem->set(SimulationVariables::gravityCalculation, false);
+	actionSender->simulatedSystem->set(SimulationVariables::lennardJonesPotential, false);
+	
 	return boxLength;
 }
 
 Scalar SystemCreator::createSimpleWallCollisionSystem()
 {
 	Scalar boxLength = 1;
-	actionSender->updateBoxSize(Vector3(boxLength, boxLength, boxLength));
+	actionSender->simulatedSystem->set(SimulationVariables::boxSize, Vector3(boxLength, boxLength, boxLength));
 	actionSender->addSphere();
 	Sphere s;
 	s.pos(0) = 0.11;
@@ -161,14 +170,14 @@ Scalar SystemCreator::createSimpleWallCollisionSystem()
 	s.radius = 0.1;
 	actionSender->updateSphere(0, s);
 	
-	actionSender->updateSphereE(5000);
-	actionSender->updateSpherePoissonRatio(0.5);
-	actionSender->updateWallE(5000);
-	actionSender->updateWallPoissonRatio(0.5);
-	actionSender->updateEarthGravity(Vector3(0, -9.81, 0));
-	actionSender->updateCollisionDetection(false);
-	actionSender->updateGravityCalculation(false);
-	actionSender->updateLennardJonesPotentialCalculation(false);
+	actionSender->simulatedSystem->set(SimulationVariables::sphereE, 5000);
+	actionSender->simulatedSystem->set(SimulationVariables::spherePoissonRatio, 0.5);
+	actionSender->simulatedSystem->set(SimulationVariables::wallE, 5000);
+	actionSender->simulatedSystem->set(SimulationVariables::wallPoissonRatio, 0.5);
+	actionSender->simulatedSystem->set(SimulationVariables::earthGravity, Vector3(0, -9.81, 0));
+	actionSender->simulatedSystem->set(SimulationVariables::collisionDetection, true);
+	actionSender->simulatedSystem->set(SimulationVariables::gravityCalculation, false);
+	actionSender->simulatedSystem->set(SimulationVariables::lennardJonesPotential, false);
 	
 	return boxLength;
 }

@@ -35,14 +35,13 @@ namespace SphereSim
 		Q_OBJECT
 		
 	private:
+		SphereCalculator();
+		
 		/** \brief Spheres managed by the server. */
 		Array<Sphere> spheres;
 		
 		/** \brief New calculated positions of the spheres. */
 		Array<Vector3> newSpherePos;
-		
-		/** \brief Step length (time in s). */
-		Scalar timeStep;
 		
 		/** \brief Calculate the current sphere acceleration.
 		 * \param sphereIndex Index of the sphere to be calculated.
@@ -51,9 +50,6 @@ namespace SphereSim
 		 * \return Calculated current acceleration of the sphere. */
 		template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 		Vector3 sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff);
-		
-		/** \brief Method to approximately solve differential equations. */
-		quint8 integratorMethod;
 		
 		/** \brief Integrate one step using the Runge Kutta method defined by the Butcher tableau. */
 		void integrateRungeKuttaStep();
@@ -79,14 +75,8 @@ namespace SphereSim
 		/** \brief Number of calculated steps. */
 		quint32 stepCounter;
 		
-		/** \brief Storage for physical constants. */
-		SimulatedSystem simulatedSystem;
-		
-		/** \brief Update the E modulus (E*) used for sphere-sphere collisions. */
-		void updateSphereSphereE();
-		
-		/** \brief Update the E modulus (E*) used for sphere-wall collisions. */
-		void updateSphereWallE();
+		/** \brief Storage for physical constants and other variables. */
+		SimulatedSystem* simulatedSystem;
 		
 		/** \brief Thread used for simulation. */
 		QThread* simulationThread;
@@ -131,16 +121,12 @@ namespace SphereSim
 		
 		void updateSphereCellLists();
 		
-		bool collisionDetectionFlag;
-		
 		const quint16 maxCollidingSpheresPerSphere;
 		
 		TwoDimArray<quint16, true> collidingSpheresPerSphere;
 		
 		template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
 		Scalar getTotalEnergy_internal();
-		
-		bool gravityCalculationFlag;
 		
 		const quint16 gravityCellCount;
 		
@@ -188,20 +174,49 @@ namespace SphereSim
 		
 		void updateGravityCellData();
 		
-		bool lennardJonesPotentialFlag;
-		
 		quint16 *sphereCountPerGravityCell;
-		
-		quint16 maxStepDivision;
-		
-		Scalar maxStepError;
 		
 		quint32 lastStepCalculationTime;
 		
 		QElapsedTimer* elapsedTimer;
 		
+		void updateIntegratorMethod();
+		
+		void updateTargetTemperature();
+		
+		void updateSphereSphereE();
+		
+		void updateSphereWallE();
+		
+		const int &sphereCount;
+		const Scalar &timeStep;
+		const int &integratorMethod;
+		const bool &collisionDetection;
+		const bool &gravityCalculation;
+		const bool &lennardJonesPotential;
+		const int &maximumStepDivision;
+		const Scalar &maximumStepError;
+		const Scalar &sphereE;
+		const Scalar &spherePoissonRatio;
+		const Scalar &wallE;
+		const Scalar &wallPoissonRatio;
+		const Vector3 &earthGravity;
+		const Scalar &gravitationalConstant;
+		const Vector3 &boxSize;
+		const Scalar &targetTemperature;
+		const bool &periodicBoundaryConditions;
+		const Scalar &maximumTheta;
+		const Scalar &kBoltzmann;
+		const Scalar &lenJonPotEpsilon;
+		const Scalar &lenJonPotSigma;
+		
+		Scalar sphereSphereE;
+		Scalar sphereWallE;
+		
+		quint16 getAndUpdateSphereCount();
+		
 	public:
-		SphereCalculator(ActionReceiver* actRcv);
+		SphereCalculator(ActionReceiver* actRcv, SimulatedSystem* simulatedSystem);
 		~SphereCalculator();
 		
 		WorkQueue* getWorkQueue();
@@ -234,11 +249,6 @@ namespace SphereSim
 		 */
 		quint16 updateSphere(quint16 i, Sphere s);
 		
-		/** \copydoc SpheresUpdatingActions::getSphereCount
-		 * \return Current sphere count.
-		 */
-		quint16 getSphereCount();
-		
 		/** \copydoc SpheresUpdatingActions::getAllSphereData
 		 * \param i Index of the sphere to get.
 		 * \return Copy of the requested sphere. */
@@ -261,24 +271,12 @@ namespace SphereSim
 		 */
 		quint16 updateAllSpheres(Sphere s);
 		
+		/** \copydoc SpheresUpdatingActions::updateKineticEnergy
+		 * \param factor Kinetic energy scale factor. */
+		void updateKineticEnergy(Scalar factor);
+		
 		/** \copydoc CalculationActions::calculateStep */
 		void calculateStep();
-		
-		/** \copydoc CalculationActions::updateTimeStep
-		 * \param timeSt Requested time step in seconds. */
-		void updateTimeStep(Scalar timeSt);
-		
-		/** \copydoc CalculationActions::getTimeStep
-		 * \return Requested time step in seconds. */
-		Scalar getTimeStep();
-		
-		/** \copydoc CalculationActions::updateIntegratorMethod
-		 * \param integrMethod Requested integrator method. */
-		void updateIntegratorMethod(quint8 integrMethod);
-		
-		/** \copydoc CalculationActions::getIntegratorMethod
-		 * \return Requested integrator method. */
-		quint8 getIntegratorMethod();
 		
 		/** \copydoc CalculationActions::popCalculationCounter
 		 * \return Requested number of force calculations per sphere. */
@@ -294,31 +292,9 @@ namespace SphereSim
 		/** \copydoc CalculationActions::stopSimulation */
 		void stopSimulation();
 		
-		/** \copydoc CalculationActions::getIsSimulating
-		 * \return Flag if simulation is running or not. */
-		bool getIsSimulating();
-		
 		/** \copydoc CalculationActions::popStepCounter
 		 * \return Requested number of calculated steps. */
 		quint32 popStepCounter();
-		
-		/** \copydoc CalculationActions::updateFrameSending */
-		void updateFrameSending(bool sendFramesRegularly);
-		
-		/** \copydoc CalculationActions::updateCollisionDetection */
-		void updateCollisionDetection(bool detectCollisions);
-		
-		/** \copydoc CalculationActions::updateGravityCalculation */
-		void updateGravityCalculation(bool calculateGravity);
-		
-		/** \copydoc CalculationActions::updateLennardJonesPotentialCalculation */
-		void updateLennardJonesPotentialCalculation(bool calculateLennardJonesPotential);
-		
-		/** \copydoc CalculationActions::updateMaximumStepDivision */
-		void updateMaximumStepDivision(quint16 maxStepDivision);
-		
-		/** \copydoc CalculationActions::updateMaximumStepError */
-		void updateMaximumStepError(Scalar maxStepError);
 		
 		/** \copydoc CalculationActions::getLastStepCalculationTime */
 		quint32 getLastStepCalculationTime();
@@ -331,43 +307,7 @@ namespace SphereSim
 		 * \return Requested kinetic energy. */
 		Scalar getKineticEnergy();
 		
-		/** \copydoc SimulatedSystemActions::updateSphereE
-		 * \param E_sphere Requested sphere E modulus. */
-		void updateSphereE(Scalar E_sphere);
-		
-		/** \copydoc SimulatedSystemActions::updateSpherePoissonRatio
-		 * \param poisson_sphere Requested sphere poisson number. */
-		void updateSpherePoissonRatio(Scalar poisson_sphere);
-		
-		/** \copydoc SimulatedSystemActions::updateWallE
-		 * \param E_wall Requested wall E modulus. */
-		void updateWallE(Scalar E_wall);
-		
-		/** \copydoc SimulatedSystemActions::updateWallPoissonRatio
-		 * \param poisson_wall Requested wall poisson number. */
-		void updateWallPoissonRatio(Scalar poisson_wall);
-		
-		/** \copydoc SimulatedSystemActions::updateEarthGravity
-		 * \param earthGravity Requested earth gravity. */
-		void updateEarthGravity(Vector3 earthGravity);
-		
-		/** \copydoc SimulatedSystemActions::updateGravitationalConstant
-		 * \param G Gravitational constant G. */
-		void updateGravitationalConstant(Scalar G);
-		
-		/** \copydoc SimulatedSystemActions::updateBoxSize
-		 * \param boxSize Requested box size. */
-		void updateBoxSize(Vector3 boxSize);
-		
-		/** \copydoc SimulatedSystemActions::updateKineticEnergy
-		 * \param factor Kinetic energy scale factor. */
-		void updateKineticEnergy(Scalar factor);
-		
-		/** \copydoc SimulatedSystemActions::updateTargetTemperature */
-		void updateTargetTemperature(Scalar targetTemperature);
-		
-		/** \copydoc SimulatedSystemActions::updatePeriodicBoundaryConditions */
-		void updatePeriodicBoundaryConditions(bool periodicBoundaryConditions);
+		void variableUpdated(int var);
 		
 	};
 	

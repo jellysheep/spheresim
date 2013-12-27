@@ -21,7 +21,9 @@ HEADERS		=	Actions.hpp			\
 				Console.hpp			\
 				Dimension.hpp		\
 				Wall.hpp			\
-				Integrators.hpp
+				Integrators.hpp		\
+				Object.hpp			\
+				SimulatedSystem.hpp
 
 SOURCES		=	Connection.cpp		\
 				Console.cpp

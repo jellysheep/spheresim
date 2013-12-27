@@ -50,7 +50,7 @@ namespace SphereSim
 		
 	public slots:
 		/** \brief Run all benchmarks and output results. */
-		void runBenchmark();
+		void run();
 		
 	};
 	

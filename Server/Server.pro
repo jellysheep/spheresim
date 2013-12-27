@@ -12,7 +12,6 @@ HEADERS		+=	ActionServer.hpp		\
 				ActionReceiver.hpp		\
 				SphereCalculator.hpp	\
 				ButcherTableau.hpp		\
-				SimulatedSystem.hpp		\
 				SimulationWorker.hpp	\
 				WorkQueue.hpp			\
 				Array.hpp				\

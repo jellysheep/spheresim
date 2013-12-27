@@ -17,12 +17,14 @@
 
 using namespace SphereSim;
 
-MainWindow::MainWindow(ActionSender* actSend, quint16 sphCount, QWidget* parent):QMainWindow(parent), actionSender(actSend)
+MainWindow::MainWindow(QStringList args, QHostAddress addr, quint16 port, quint16 sphCount, QWidget* parent):QMainWindow(parent)
 {
+	actionSender = new ActionSender(args, addr, port, this);
+	
 	ui = new Ui::MainWindow();
 	ui->setupUi(this);
 	setWindowTitle("SphereSim " VERSION_STR);
-	ui->glWidget->setFrameBuffer(actSend->getFrameBuffer());
+	ui->glWidget->setFrameBuffer(actionSender->getFrameBuffer());
 	connect(ui->startButton, SIGNAL(clicked()), actionSender, SLOT(startSimulation()));
 	connect(ui->startButton, SIGNAL(clicked()), ui->glWidget, SLOT(startAnimation()));
 	connect(ui->stopButton, SIGNAL(clicked()), actionSender, SLOT(stopSimulation()));
@@ -33,11 +35,11 @@ MainWindow::MainWindow(ActionSender* actSend, quint16 sphCount, QWidget* parent)
 	timer.start();
 	
 	updateBoxLength(1);
-	actionSender->updateTimeStep(0.001);
-	actionSender->updateEarthGravity(Vector3(0, -0.81, 0));
-	actionSender->updateSphereE(20000);
-	actionSender->updateWallE(20000);
-	actionSender->updateFrameSending(true);
+	actionSender->simulatedSystem->set(SimulationVariables::timeStep, 0.001);
+	actionSender->simulatedSystem->set(SimulationVariables::earthGravity, Vector3(0, -0.81, 0));
+	actionSender->simulatedSystem->set(SimulationVariables::sphereE, 20000);
+	actionSender->simulatedSystem->set(SimulationVariables::wallE, 20000);
+	actionSender->simulatedSystem->set(SimulationVariables::frameSending, true);
 	
 	systemCreator = new SystemCreator(actionSender);
 	
@@ -73,9 +75,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::prepareSystem1()
 {
-	Scalar length = systemCreator->createMacroscopicGravitationSystem(64);
+	Scalar length = systemCreator->createMacroscopic2DCollisionSystem(64);
 	updateBoxLength(length);
-	actionSender->updateTimeStep(0.1);
+	actionSender->simulatedSystem->set(SimulationVariables::timeStep, 0.001);
 }
 
 void MainWindow::prepareSystem2()
@@ -95,11 +97,11 @@ void MainWindow::prepareSystem2()
 	actionSender->addSphere();
 	actionSender->updateSphere(1, s);
 	
-	actionSender->updateGravityCalculation(true);
-	actionSender->updateGravitationalConstant(3.0e-4);
-	actionSender->updateEarthGravity(Vector3(0,0,0));
-	actionSender->updateTimeStep(0.02);
-	actionSender->updateMaximumStepError(1.0e-12);
+	actionSender->simulatedSystem->set(SimulationVariables::gravityCalculation, true);
+	actionSender->simulatedSystem->set(SimulationVariables::gravitationalConstant, 3.0e-4);
+	actionSender->simulatedSystem->set(SimulationVariables::earthGravity, Vector3(0,0,0));
+	actionSender->simulatedSystem->set(SimulationVariables::timeStep, 0.02);
+	actionSender->simulatedSystem->set(SimulationVariables::maximumStepError, 1.0e-12);
 }
 
 void MainWindow::prepareSystem3(quint16 sphCount)
@@ -107,7 +109,7 @@ void MainWindow::prepareSystem3(quint16 sphCount)
 	Scalar length = systemCreator->createArgonGasSystem(sphCount, 473.15);
 	qDebug()<<"system box length:"<<length;
 	updateBoxLength(length);
-	actionSender->updateTimeStep(2.0e-14);
+	actionSender->simulatedSystem->set(SimulationVariables::timeStep, 2.0e-14);
 }
 
 void MainWindow::prepareSystem4()
@@ -115,21 +117,21 @@ void MainWindow::prepareSystem4()
 	Scalar length = systemCreator->createMacroscopicGravitationSystem(8*8*8);
 	qDebug()<<"system box length:"<<length;
 	updateBoxLength(length);
-	actionSender->updateTimeStep(1.0);
+	actionSender->simulatedSystem->set(SimulationVariables::timeStep, 1.0);
 }
 
 void MainWindow::prepareSystem5()
 {
 	Scalar length = systemCreator->createSimpleWallCollisionSystem();
 	updateBoxLength(length);
-	actionSender->updateTimeStep(1.0);
+	actionSender->simulatedSystem->set(SimulationVariables::timeStep, 1.0);
 }
 
 void MainWindow::updateBoxLength(Scalar length)
 {
 	boxLength = length;
 	ui->glWidget->setBoxLength(boxLength);
-	actionSender->updateBoxSize(Vector3(boxLength,boxLength,boxLength));
+	actionSender->simulatedSystem->set(SimulationVariables::boxSize, Vector3(boxLength,boxLength,boxLength));
 }
 
 void MainWindow::increaseEnergy()
@@ -148,7 +150,7 @@ void MainWindow::updateTargetTemperature()
 	{
 		if(timer.elapsed()<200)
 			return;
-		actionSender->updateTargetTemperature(473.15);
+		actionSender->simulatedSystem->set(SimulationVariables::targetTemperature, 473.15);
 	}
 	if(systemToPrepare == 5)
 	{
@@ -157,4 +159,9 @@ void MainWindow::updateTargetTemperature()
 		timer.restart();
 		qDebug()<<"energy:"<<actionSender->getTotalEnergy();
 	}
+}
+
+void MainWindow::run()
+{
+	//emit ui->startButton->clicked();
 }

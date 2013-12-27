@@ -43,6 +43,8 @@ namespace SphereSim
 		/** \brief Process and reply to received request. */
 		void processRequest();
 		
+		SimulatedSystem simulatedSystem;
+		
 		/** \brief Storage and calculator of sphere data. */
 		SphereCalculator sphCalc;
 		
@@ -60,13 +62,16 @@ namespace SphereSim
 		/** \brief New data available: Read data from client. */
 		void readData();
 		
-		/** \brief Send frame to client. */
-		void sendFrame(QByteArray frameData);
+		void sendFrame(QByteArray frameToSend);
 		
-		/** \brief Send encoded reply to client.
+		void sendVariable(QByteArray variableToSend);
+		
+		void simulating(bool isSimulating);
+		
+		/** \brief Send encoded data to client.
 		 * \param serverStatus Server status to be sent.
-		 * \param data Reply data to be sent to client. */
-		void sendReply(quint8 serverStatus, QByteArray data);
+		 * \param data Data to be sent to client. */
+		void sendReply(quint8 serverStatus, QByteArray dataToSend);
 		
 		void terminateServer();
 	};

@@ -27,6 +27,5 @@ int main(int argc, char** argv)
 	QCoreApplication app(argc, argv);
 	QStringList args = app.arguments();
 	ServerBenchmark* svrBenchmark = new ServerBenchmark(args, QHostAddress(Connection::address), Connection::port);
-	QTimer::singleShot(0, svrBenchmark, SLOT(runBenchmark()));
 	return app.exec();
 }

@@ -6,8 +6,13 @@ set (PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(USE_DOUBLE 1)
 add_definitions("-DUSE_DOUBLE=${USE_DOUBLE}")
+set(NO_OPENMP 1)
+add_definitions("-DNO_OPENMP=${NO_OPENMP}")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -Ofast -fno-fast-math")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -fno-fast-math")
+if(NO_OPENMP EQUAL 0)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+endif()
 
 include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
@@ -26,7 +31,6 @@ set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/ActionReceiver.hpp
 	${PROJECT_INCLUDE_DIR}/SphereCalculator.hpp
 	${PROJECT_INCLUDE_DIR}/ButcherTableau.hpp
-	${PROJECT_INCLUDE_DIR}/SimulatedSystem.hpp
 	${PROJECT_INCLUDE_DIR}/SimulationWorker.hpp
 	${PROJECT_INCLUDE_DIR}/WorkQueue.hpp
 	${PROJECT_INCLUDE_DIR}/Array.hpp
@@ -34,7 +38,11 @@ set(HEADERS ${HEADERS}
 )
 
 add_executable(SphereSim_Server ${SOURCES} ${HEADERS})
-target_link_libraries(SphereSim_Server gomp)
+if(NO_OPENMP EQUAL 0)
+	target_link_libraries(SphereSim_Server gomp)
+else()
+	target_link_libraries(SphereSim_Server)
+endif()
 qt5_use_modules(SphereSim_Server Core Network)
 
 install(TARGETS SphereSim_Server

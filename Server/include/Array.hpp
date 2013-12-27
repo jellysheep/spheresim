@@ -113,7 +113,7 @@ namespace SphereSim
 		
 		inline T& operator[](const unsigned int index)
 		{
-			if(!extremeSpeed)
+			//if(!extremeSpeed)
 			{
 				if(values == NULL)
 				{

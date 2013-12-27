@@ -48,10 +48,14 @@ set(HEADERS
 	${PROJECT_INCLUDE_DIR}/Dimension.hpp
 	${PROJECT_INCLUDE_DIR}/Wall.hpp
 	${PROJECT_INCLUDE_DIR}/Integrators.hpp
+	${PROJECT_INCLUDE_DIR}/Object.hpp
+	${PROJECT_INCLUDE_DIR}/SimulatedSystem.hpp
 )
 set(SOURCES
 	${COMMON_SOURCE_DIR}/Connection.cpp
 	${COMMON_SOURCE_DIR}/Console.cpp
+	${COMMON_SOURCE_DIR}/SimulatedSystem.cpp
+	${COMMON_SOURCE_DIR}/Object.cpp
 )
 
 #documentation:

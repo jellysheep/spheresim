@@ -33,9 +33,7 @@ int main(int argc, char** argv)
 	
 	if(sphereCount>0)
 	{
-		ActionSender actSend(args, QHostAddress(Connection::address), Connection::port);
-		
-		MainWindow mainWindow(&actSend, sphereCount);
+		MainWindow mainWindow(args, QHostAddress(Connection::address), Connection::port, sphereCount);
 		mainWindow.show();
 		
 		return app.exec();

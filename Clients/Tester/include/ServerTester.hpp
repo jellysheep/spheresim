@@ -141,7 +141,7 @@ namespace SphereSim
 		
 	public slots:
 		/** \brief Verification of all actions. */
-		void runTests();
+		void run();
 		
 	};
 	

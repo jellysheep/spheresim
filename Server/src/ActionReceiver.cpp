@@ -16,7 +16,7 @@
 
 using namespace SphereSim;
 
-ActionReceiver::ActionReceiver(QTcpSocket* sock):sphCalc(this)
+ActionReceiver::ActionReceiver(QTcpSocket* sock):simulatedSystem(), sphCalc(this, &simulatedSystem)
 {
 	workQueue = sphCalc.getWorkQueue();
 	collectingRequestData = false;
@@ -24,6 +24,9 @@ ActionReceiver::ActionReceiver(QTcpSocket* sock):sphCalc(this)
 	connect(socket, SIGNAL(disconnected()), SLOT(deleteLater()));
 	connect(socket, SIGNAL(readyRead()), SLOT(readData()));
 	connect(&sphCalc, SIGNAL(frameToSend(QByteArray)), SLOT(sendFrame(QByteArray)));
+	connect(&simulatedSystem, SIGNAL(variableToSend(QByteArray)), SLOT(sendVariable(QByteArray)));
+	connect(workQueue, SIGNAL(simulating(bool)), SLOT(simulating(bool)));
+	simulatedSystem.sendAllVariables();
 }
 
 ActionReceiver::~ActionReceiver()
@@ -120,7 +123,7 @@ void ActionReceiver::processRequest()
 	quint8 action = data[1];
 	if(data.size()>2)
 	{
-		data = data.right(data.length()-2);
+		data = data.mid(2);
 	}
 	else
 	{
@@ -129,9 +132,9 @@ void ActionReceiver::processRequest()
 	workQueue->pushItem(actionGroup, action, data);
 }
 
-void ActionReceiver::sendReply(quint8 serverStatus, QByteArray arr)
+void ActionReceiver::sendReply(quint8 serverStatus, QByteArray dataToSend)
 {
-	QByteArray data = arr;
+	QByteArray data = dataToSend;
 	data.prepend(serverStatus);
 	data = data.toBase64();
 	data.prepend(Connection::startByte);
@@ -139,12 +142,17 @@ void ActionReceiver::sendReply(quint8 serverStatus, QByteArray arr)
 	socket->write(data);
 }
 
-void ActionReceiver::sendFrame(QByteArray frameData)
+void ActionReceiver::sendFrame(QByteArray frameToSend)
 {
-	QByteArray data = frameData;
-	data.prepend(ServerStatusReplies::sendFrame);
-	data = data.toBase64();
-	data.prepend(Connection::startByte);
-	data.append(Connection::endByte);
-	socket->write(data);
+	sendReply(ServerStatusReplies::sendFrame, frameToSend);
+}
+
+void ActionReceiver::sendVariable(QByteArray variableToSend)
+{
+	sendReply(ServerStatusReplies::sendVariable, variableToSend);
+}
+
+void ActionReceiver::simulating(bool isSimulating)
+{
+	simulatedSystem.set(SimulationVariables::simulating, isSimulating);
 }

@@ -12,6 +12,7 @@
 #include <Actions.hpp>
 #include <Sphere.hpp>
 #include <FrameBuffer.hpp>
+#include <SimulatedSystem.hpp>
 
 #include <QtGlobal>
 #include <QObject>
@@ -109,12 +110,14 @@ namespace SphereSim
 		/** \brief Measured rate of received frames per second. */
 		Scalar receivedFramesPerSecond;
 		
+		void willBeSimulating();
+		
 	public:
 		/** \brief Start an ActionSender with the specified address and port.
 		 * \param args The arguments that the program was invoked with.
 		 * \param addr The address that the socket will be connecting to.
 		 * \param port The port that the socket will be connecting to. */
-		ActionSender(QStringList args, QHostAddress addr, quint16 port);
+		ActionSender(QStringList args, QHostAddress addr, quint16 port, QObject* client);
 		
 		~ActionSender();
 		
@@ -124,26 +127,10 @@ namespace SphereSim
 		
 		FrameBuffer<Sphere>* getFrameBuffer();
 		
-		/** \copydoc BasicActions::getServerVersion
-		 * \return Version string reported by server. */
-		QString getServerVersion();
-		
-		/** \copydoc BasicActions::getTrueString
-		 * \return "True" string sent by server. */
-		QString getTrueString();
-		
-		/** \copydoc BasicActions::getServerFloatingType
-		 * \return The floating type string sent by the server. */
-		QString getServerFloatingType();
-		
 		/** \copydoc SpheresUpdatingActions::updateSphere
 		 * \param i Sphere index.
 		 * \param s Sphere data. */
 		void updateSphere(quint16 i, Sphere s);
-		
-		/** \copydoc SpheresUpdatingActions::getSphereCount
-		 * \return Current sphere count reported by server. */
-		quint16 getSphereCount();
 		
 		/** \copydoc SpheresUpdatingActions::getBasicSphereData
 		 * \copydetails updateSphere */
@@ -168,24 +155,12 @@ namespace SphereSim
 		 * \param s Sphere data. */
 		void updateAllSpheres(Sphere s);
 		
+		/** \copydoc SpheresUpdatingActions::updateKineticEnergy
+		 * \param factor Kinetic energy scale factor. */
+		void updateKineticEnergy(Scalar factor);
+		
 		/** \copydoc CalculationActions::calculateStep */
 		void calculateStep();
-		
-		/** \copydoc CalculationActions::updateTimeStep
-		 * \param timeStep Time step in seconds. */
-		void updateTimeStep(Scalar timeStep);
-		
-		/** \copydoc CalculationActions::getTimeStep
-		 * \return Time step in seconds. */
-		Scalar getTimeStep();
-		
-		/** \copydoc CalculationActions::updateIntegratorMethod
-		 * \param integratorMethod Integrator method. */
-		void updateIntegratorMethod(quint8 integratorMethod);
-		
-		/** \copydoc CalculationActions::getIntegratorMethod
-		 * \return Integrator method. */
-		quint8 getIntegratorMethod();
 		
 		/** \copydoc CalculationActions::popCalculationCounter
 		 * \return Numer of force calculations per step. */
@@ -195,31 +170,9 @@ namespace SphereSim
 		 * \param steps Number of steps to calculate (0 = unlimited). */
 		void calculateSomeSteps(quint32 steps);
 		
-		/** \copydoc CalculationActions::getIsSimulating
-		 * \return Simulation run flag. */
-		bool getIsSimulating();
-		
 		/** \copydoc CalculationActions::popStepCounter
 		 * \return Number of simulatied time steps. */
 		quint32 popStepCounter();
-		
-		/** \copydoc CalculationActions::updateFrameSending */
-		void updateFrameSending(bool sendFramesRegularly);
-		
-		/** \copydoc CalculationActions::updateCollisionDetection */
-		void updateCollisionDetection(bool detectCollisions);
-		
-		/** \copydoc CalculationActions::updateGravityCalculation */
-		void updateGravityCalculation(bool calculateGravity);
-		
-		/** \copydoc CalculationActions::updateLennardJonesPotentialCalculation */
-		void updateLennardJonesPotentialCalculation(bool calculateLennardJonesPotential);
-		
-		/** \copydoc CalculationActions::updateMaximumStepDivision */
-		void updateMaximumStepDivision(quint16 maxStepDivisionNumber);
-		
-		/** \copydoc CalculationActions::updateMaximumStepError */
-		void updateMaximumStepError(Scalar maxStepError);
 		
 		/** \copydoc CalculationActions::getLastStepCalculationTime */
 		quint32 getLastStepCalculationTime();
@@ -232,45 +185,9 @@ namespace SphereSim
 		 * \return Kinetic energy (in joules). */
 		Scalar getKineticEnergy();
 		
-		/** \copydoc SimulatedSystemActions::updateSphereE
-		 * \param E_sphere Sphere E modulus. */
-		void updateSphereE(Scalar E_sphere);
-		
-		/** \copydoc SimulatedSystemActions::updateSpherePoissonRatio
-		 * \param poisson_sphere Sphere poisson number. */
-		void updateSpherePoissonRatio(Scalar poisson_sphere);
-		
-		/** \copydoc SimulatedSystemActions::updateWallE
-		 * \param E_wall Requested wall E modulus. */
-		void updateWallE(Scalar E_wall);
-		
-		/** \copydoc SimulatedSystemActions::updateWallPoissonRatio
-		 * \param poisson_wall Requested wall poisson number. */
-		void updateWallPoissonRatio(Scalar poisson_wall);
-		
-		/** \copydoc SimulatedSystemActions::updateEarthGravity
-		 * \param earthGravity Requested earth gravity. */
-		void updateEarthGravity(Vector3 earthGravity);
-		
-		/** \copydoc SimulatedSystemActions::updateGravitationalConstant
-		 * \param G Gravitational constant G. */
-		void updateGravitationalConstant(Scalar G);
-		
-		/** \copydoc SimulatedSystemActions::updateBoxSize
-		 * \param boxSize Requested box size. */
-		void updateBoxSize(Vector3 boxSize);
-		
-		/** \copydoc SimulatedSystemActions::updateKineticEnergy
-		 * \param factor Kinetic energy scale factor. */
-		void updateKineticEnergy(Scalar factor);
-		
-		/** \copydoc SimulatedSystemActions::updateKineticEnergy */
-		void updateTargetTemperature(Scalar targetTemperature);
-		
-		/** \copydoc SimulatedSystemActions::updatePeriodicBoundaryConditions */
-		void updatePeriodicBoundaryConditions(bool periodicBoundaryConditions);
-		
 		bool failureExitWhenDisconnected;
+		
+		SimulatedSystem* simulatedSystem;
 	
 	public slots:
 		/** Set connectedFlag to true. 
@@ -302,6 +219,10 @@ namespace SphereSim
 		
 		/** \copydoc CalculationActions::stopSimulation */
 		void stopSimulation();
+		
+		void sendVariable(QByteArray variableToSend);
+		
+		void variableUpdated(int var);
 		
 	signals:
 		/** \brief New frame received from server. */

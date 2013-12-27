@@ -10,9 +10,11 @@
 #include <ServerTester.hpp>
 #include <Integrators.hpp>
 #include <SystemCreator.hpp>
+#include <Object.hpp>
 
 #include <QtTest/QTest>
 #include <QHostAddress>
+#include <iostream>
 
 #define runTests_(x) \
 	runTests(x, TOSTR(x));
@@ -21,13 +23,12 @@
 #define startNewTest_(x) \
 	startNewTest(TOSTR(x));
 
-#define runCalculationActionTests_internal_(order, integratorMethod)	\
-{																		\
-	startTest_(integratorMethod);										\
-		sender->updateIntegratorMethod(integratorMethod);				\
-		verify(sender->getIntegratorMethod(), Equal, integratorMethod);	\
-		runCalculationActionTests_internal(order, TOSTR(integratorMethod));	\
-	endTest();															\
+#define runCalculationActionTests_internal_(order, integrMethod)								\
+{																								\
+	startTest_(integratorMethod);																\
+		sender->simulatedSystem->set(SimulationVariables::integratorMethod, (int)integrMethod);	\
+		runCalculationActionTests_internal(order, TOSTR(integrMethod));							\
+	endTest();																					\
 }
 
 using namespace SphereSim;
@@ -36,7 +37,7 @@ const int ServerTester::framebuffer = 255;
 
 ServerTester::ServerTester(QStringList args, QHostAddress addr, quint16 port)
 {
-	sender = new ActionSender(args, addr, port);
+	sender = new ActionSender(args, addr, port, this);
 	sender->failureExitWhenDisconnected = true;
 	testCounter = 0;
 	successCounter = 0;
@@ -51,7 +52,7 @@ ServerTester::~ServerTester()
 	delete sender;
 }
 
-void ServerTester::runTests()
+void ServerTester::run()
 {
 	Console::out<<"\n";
 	runTests_(ActionGroups::basic);
@@ -111,27 +112,22 @@ void ServerTester::runBasicActionTests()
 		Console::bold<<"SphereSim Tester v" VERSION_STR;
 		Console::out<<" (using floating type '"<<TOSTR(FLOATING_TYPE)<<"')\n";
 		Console::out<<"ServerTester: ";
-		Console::bold<<sender->getServerVersion();
-		Console::out<<" (using floating type '"<<sender->getServerFloatingType()<<"')\n";
+		Console::bold<<"SphereSim Server v";
+		Console::bold<<sender->simulatedSystem->get<std::string>(SimulationVariables::serverVersion).c_str();
+		Console::out<<" (using floating type '"<<sender->simulatedSystem->get<std::string>(SimulationVariables::serverFloatingType).c_str()<<"')\n";
 	}
-	startTest_(BasicActions::getServerVersion);
-		verify(sender->getServerVersion().length(), Greater, 0);
-	startNewTest_(BasicActions::getTrueString);
-		verify(sender->getTrueString(), Equal, "true");
-	endTest();
-	
-	sender->updateFrameSending(false);
+	sender->simulatedSystem->set(SimulationVariables::frameSending, false);
 }
 
 void ServerTester::runSpheresUpdatingActionTests()
 {
 	startTest_(SpheresUpdatingActions::getSphereCount);
-		verify(sender->getSphereCount(), Equal, 0);
+		verify(sender->simulatedSystem->get<int>(SimulationVariables::sphereCount), Equal, 0);
 	startNewTest_(SpheresUpdatingActions::addSphere);
 		verify(sender->addSphere(), Equal, 1);
 		verify(sender->addSphere(), Equal, 2);
 	startNewTest_(SpheresUpdatingActions::getSphereCount);
-		verify(sender->getSphereCount(), Equal, 2);
+		verify(sender->simulatedSystem->get<int>(SimulationVariables::sphereCount), Equal, 2);
 	startNewTest_(SpheresUpdatingActions::removeLast);
 		verify(sender->removeLastSphere(), Equal, 1);
 		verify(sender->addSphere(), Equal, 2);
@@ -139,7 +135,7 @@ void ServerTester::runSpheresUpdatingActionTests()
 		verify(sender->removeLastSphere(), Equal, 0);
 		verify(sender->removeLastSphere(), Equal, 0);
 	startNewTest_(SpheresUpdatingActions::getSphereCount);
-		verify(sender->getSphereCount(), Equal, 0);
+		verify(sender->simulatedSystem->get<int>(SimulationVariables::sphereCount), Equal, 0);
 	endTest();
 	
 	sender->addSphere();
@@ -234,8 +230,8 @@ void ServerTester::runCalculationActionTests()
 {
 	Scalar timeStep = 0.01;
 	startTest_(CalculationActions::updateTimeStep);
-		sender->updateTimeStep(timeStep);
-		verify(timeStep, ApproxEqual, sender->getTimeStep());
+		sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
+		verify(timeStep, ApproxEqual, sender->simulatedSystem->get<Scalar>(SimulationVariables::timeStep));
 	endTest();
 	
 	//runCalculationActionTests_internal_(2, IntegratorMethods::HeunEuler21);
@@ -245,15 +241,16 @@ void ServerTester::runCalculationActionTests()
 	runCalculationActionTests_internal_(4, IntegratorMethods::BogackiShampine32);
 	
 	systemCreator->createSimpleWallCollisionSystem();
-	sender->updateIntegratorMethod(IntegratorMethods::CashKarp54);
+	sender->simulatedSystem->set(SimulationVariables::integratorMethod, (int)IntegratorMethods::CashKarp54);
 	startTest_(CalculationActions::startSimulation);
 		sender->startSimulation();
 		QTest::qWait(10);
 		sender->stopSimulation();
-		while(sender->getIsSimulating())
+		do
 		{
 			QTest::qWait(10);
 		}
+		while(sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
 		quint32 steps = sender->popCalculationCounter();
 		Console::out<<"real steps: "<<steps<<" \t";
 		verify(steps, Greater, 0);
@@ -264,21 +261,25 @@ void ServerTester::runCalculationActionTests_internal(quint8 order, const char* 
 {
 	systemCreator->createSimpleWallCollisionSystem();
 	
-	quint16 sphereCount = sender->getSphereCount();
+	quint16 sphereCount = sender->simulatedSystem->get<int>(SimulationVariables::sphereCount);
 	verify(sphereCount, Equal, 1);
 	
-	sender->updateMaximumStepDivision(16);
+	sender->simulatedSystem->set(SimulationVariables::maximumStepDivision, 16);
 	
 	Scalar timeStep = 0.02;
-	sender->updateTimeStep(timeStep);
+	sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
 	Scalar simulationTime = 1;
 	quint32 steps = (quint32)(simulationTime/timeStep);
 	Scalar beginEnergy, endEnergy;
 	beginEnergy = sender->getTotalEnergy();
 	sender->calculateSomeSteps(steps);
-	while(sender->getIsSimulating())
+	do
+	{
 		QTest::qWait(10);
+	}
+	while(sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
 	endEnergy = sender->getTotalEnergy();
+	Console::out<<"total energy: "<<beginEnergy<<" \t"<<endEnergy<<" \t";
 	Scalar relError = 1.0-(beginEnergy/endEnergy);
 	Console::out<<"rel. error: "<<relError<<" \t";
 	Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/steps);
@@ -294,11 +295,14 @@ void ServerTester::runCalculationActionTests_internal(quint8 order, const char* 
 	beginEnergy = sender->getTotalEnergy();
 	realSteps /= order;
 	timeStep = simulationTime/realSteps;
-	sender->updateTimeStep(timeStep);
-	sender->updateMaximumStepDivision(0);
+	sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
+	sender->simulatedSystem->set(SimulationVariables::maximumStepDivision, 0);
 	sender->calculateSomeSteps(realSteps);
-	while(sender->getIsSimulating())
+	do
+	{
 		QTest::qWait(10);
+	}
+	while(sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
 	realSteps = sender->popCalculationCounter();
 	endEnergy = sender->getTotalEnergy();
 	relError = 1.0-(beginEnergy/endEnergy);

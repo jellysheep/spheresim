@@ -13,6 +13,7 @@
 
 #include <QMainWindow>
 #include <QElapsedTimer>
+#include <QHostAddress>
 
 namespace Ui
 {
@@ -57,7 +58,7 @@ namespace SphereSim
 		
 	public:
 		/** \brief Initialize member variables. */
-		MainWindow(ActionSender* actionSender, quint16 sphCount, QWidget* parent = NULL);
+		MainWindow(QStringList args, QHostAddress addr, quint16 port, quint16 sphCount, QWidget* parent = NULL);
 		
 		/** \brief Clean up member variables. */
 		~MainWindow();
@@ -68,6 +69,8 @@ namespace SphereSim
 		void decreaseEnergy();
 		
 		void updateTargetTemperature();
+		
+		void run();
 		
 	};
 }

@@ -18,7 +18,7 @@
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuffer(10),framerateTimer()
+ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p, QObject* client):frameBuffer(10),framerateTimer()
 {
 	addr = new QHostAddress(a);
 	port = p;
@@ -53,6 +53,11 @@ ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p):frameBuf
 			}
 		}
 	}
+	simulatedSystem = new SimulatedSystem();
+	connect(simulatedSystem, SIGNAL(variableToSend(QByteArray)), SLOT(sendVariable(QByteArray)));
+	connect(simulatedSystem, SIGNAL(variableUpdated(int)), SLOT(variableUpdated(int)));
+	connect(simulatedSystem, SIGNAL(receivedAllVariables()), client, SLOT(run()), Qt::QueuedConnection);
+	simulatedSystem->sendAllVariables();
 }
 
 ActionSender::~ActionSender()
@@ -180,7 +185,7 @@ void ActionSender::processReply()
 {
 	QByteArray data = QByteArray::fromBase64(replyData);
 	lastServerStatus = data[0];
-	data = data.right(data.length()-1);
+	data = data.mid(1);
 	
 	if(lastServerStatus == ServerStatusReplies::sendFrame)
 	{
@@ -202,11 +207,13 @@ void ActionSender::processReply()
 		frameCounter++;
 		emit newFrameReceived();
 	}
-	else if(lastServerStatus == ServerStatusReplies::sphereCountChanged)
+	else if(lastServerStatus == ServerStatusReplies::sendVariable)
 	{
-		quint16 sphCount = QString(data).toUInt();
-		emit sphereCountChanged(sphCount);
-		emit sphereCountChangedDouble((double)sphCount);
+		int _var = ((char)data.at(0))*256 + (char)data.at(1);
+		SimulationVariables::Variable var = (SimulationVariables::Variable)_var;
+		data = data.mid(2);
+		Object::Type type = (Object::Type)data.at(0);
+		simulatedSystem->receiveVariable(var, data);
 	}
 	else
 	{
@@ -220,6 +227,11 @@ void ActionSender::updateSphereCount(quint16 sphereCount)
 	frameBuffer.updateElementsPerFrame(sphereCount);
 }
 
+void ActionSender::willBeSimulating()
+{
+	simulatedSystem->set(SimulationVariables::simulating, true);
+}
+
 bool ActionSender::isConnected()
 {
 	socket->waitForConnected(10);
@@ -229,21 +241,6 @@ bool ActionSender::isConnected()
 FrameBuffer<Sphere>* ActionSender::getFrameBuffer()
 {
 	return &frameBuffer;
-}
-
-QString ActionSender::getServerVersion()
-{
-	return sendReplyAction(ActionGroups::basic, BasicActions::getServerVersion);
-}
-
-QString ActionSender::getTrueString()
-{
-	return sendReplyAction(ActionGroups::basic, BasicActions::getTrueString);
-}
-
-QString ActionSender::getServerFloatingType()
-{
-	return sendReplyAction(ActionGroups::basic, BasicActions::getServerFloatingType);
 }
 
 quint16 ActionSender::addSphere()
@@ -256,13 +253,6 @@ quint16 ActionSender::addSphere()
 quint16 ActionSender::removeLastSphere()
 {
 	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::removeLastSphere)).toUInt();
-	updateSphereCount(sphereCount);
-	return sphereCount;
-}
-
-quint16 ActionSender::getSphereCount()
-{
-	quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getSphereCount)).toUInt();
 	updateSphereCount(sphereCount);
 	return sphereCount;
 }
@@ -285,6 +275,7 @@ void ActionSender::getBasicSphereData(quint16 i, Sphere& s)
 	QDataStream retStream(&retArr, QIODevice::ReadOnly);
 	readBasicSphereData(retStream, s);
 }
+
 void ActionSender::getAllSphereData(quint16 i, Sphere& s)
 {
 	QByteArray arr;
@@ -293,249 +284,6 @@ void ActionSender::getAllSphereData(quint16 i, Sphere& s)
 	QByteArray retArr = sendReplyAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::getAllSphereData, arr);
 	QDataStream retStream(&retArr, QIODevice::ReadOnly);
 	readAllSphereData(retStream, s);
-}
-
-void ActionSender::calculateStep()
-{
-	sendAction(ActionGroups::calculation, CalculationActions::calculateStep);
-}
-
-void ActionSender::updateTimeStep(Scalar timeStep)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<timeStep;
-	sendAction(ActionGroups::calculation, CalculationActions::updateTimeStep, arr);
-}
-
-Scalar ActionSender::getTimeStep()
-{
-	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::getTimeStep);
-	QDataStream retStream(&retArr, QIODevice::ReadOnly);
-	Scalar timeStep;
-	retStream>>timeStep;
-	return timeStep;
-}
-
-void ActionSender::updateIntegratorMethod(quint8 integratorMethod)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<integratorMethod;
-	sendAction(ActionGroups::calculation, CalculationActions::updateIntegratorMethod, arr);
-}
-
-quint8 ActionSender::getIntegratorMethod()
-{
-	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::getIntegratorMethod);
-	QDataStream retStream(&retArr, QIODevice::ReadOnly);
-	quint8 integratorMethod;
-	retStream>>integratorMethod;
-	return integratorMethod;
-}
-
-quint32 ActionSender::popCalculationCounter()
-{
-	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::popCalculationCounter);
-	QDataStream retStream(&retArr, QIODevice::ReadOnly);
-	quint32 calculationCounter;
-	retStream>>calculationCounter;
-	return calculationCounter;
-}
-
-quint32 ActionSender::popStepCounter()
-{
-	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::popStepCounter);
-	QDataStream retStream(&retArr, QIODevice::ReadOnly);
-	quint32 stepCounter;
-	retStream>>stepCounter;
-	return stepCounter;
-}
-
-void ActionSender::calculateSomeSteps(quint32 steps)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<steps;
-	sendAction(ActionGroups::calculation, CalculationActions::calculateSomeSteps, arr);
-}
-
-Scalar ActionSender::getTotalEnergy()
-{
-	QByteArray retArr = sendReplyAction(ActionGroups::information, InformationActions::getTotalEnergy);
-	QDataStream retStream(&retArr, QIODevice::ReadOnly);
-	Scalar totalEnergy;
-	retStream>>totalEnergy;
-	return totalEnergy;
-}
-
-Scalar ActionSender::getKineticEnergy()
-{
-	QByteArray retArr = sendReplyAction(ActionGroups::information, InformationActions::getKineticEnergy);
-	QDataStream retStream(&retArr, QIODevice::ReadOnly);
-	Scalar kineticEnergy;
-	retStream>>kineticEnergy;
-	return kineticEnergy;
-}
-
-void ActionSender::updateSphereE(Scalar E_sphere)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<E_sphere;
-	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateSphereE, arr);
-}
-
-void ActionSender::updateSpherePoissonRatio(Scalar poisson_sphere)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<poisson_sphere;
-	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateSpherePoissonRatio, arr);
-}
-
-void ActionSender::updateWallE(Scalar E_wall)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<E_wall;
-	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateWallE, arr);
-}
-
-void ActionSender::updateWallPoissonRatio(Scalar poisson_wall)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<poisson_wall;
-	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateWallPoissonRatio, arr);
-}
-
-void ActionSender::updateEarthGravity(Vector3 earthGravity)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<earthGravity(0);
-	stream<<earthGravity(1);
-	stream<<earthGravity(2);
-	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateEarthGravity, arr);
-}
-
-void ActionSender::startSimulation()
-{
-	sendAction(ActionGroups::calculation, CalculationActions::startSimulation);
-}
-
-void ActionSender::stopSimulation()
-{
-	sendAction(ActionGroups::calculation, CalculationActions::stopSimulation);
-}
-
-bool ActionSender::getIsSimulating()
-{
-	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::getIsSimulating);
-	QDataStream retStream(&retArr, QIODevice::ReadOnly);
-	bool simulationStatus;
-	retStream>>simulationStatus;
-	return simulationStatus;
-}
-
-void ActionSender::updateFrameSending(bool sendFramesRegularly)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<sendFramesRegularly;
-	sendAction(ActionGroups::calculation, CalculationActions::updateFrameSending, arr);
-}
-
-void ActionSender::updateCollisionDetection(bool detectCollisions)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<detectCollisions;
-	sendAction(ActionGroups::calculation, CalculationActions::updateCollisionDetection, arr);
-}
-
-void ActionSender::updateGravityCalculation(bool calculateGravity)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<calculateGravity;
-	sendAction(ActionGroups::calculation, CalculationActions::updateGravityCalculation, arr);
-}
-
-void ActionSender::updateGravitationalConstant(Scalar G)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<G;
-	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateGravitationalConstant, arr);
-}
-
-void ActionSender::updateLennardJonesPotentialCalculation(bool calculateLennardJonesPotential)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<calculateLennardJonesPotential;
-	sendAction(ActionGroups::calculation, CalculationActions::updateLennardJonesPotentialCalculation, arr);
-}
-
-void ActionSender::updateBoxSize(Vector3 boxSize)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<boxSize(0);
-	stream<<boxSize(1);
-	stream<<boxSize(2);
-	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateBoxSize, arr);
-}
-
-void ActionSender::updateKineticEnergy(Scalar factor)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<factor;
-	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateKineticEnergy, arr);
-}
-
-void ActionSender::updateTargetTemperature(Scalar targetTemperature)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<targetTemperature;
-	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updateTargetTemperature, arr);
-}
-
-void ActionSender::updatePeriodicBoundaryConditions(bool periodicBoundaryConditions)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<periodicBoundaryConditions;
-	sendAction(ActionGroups::simulatedSystem, SimulatedSystemActions::updatePeriodicBoundaryConditions, arr);
-}
-
-void ActionSender::updateMaximumStepDivision(quint16 maxStepDivisionNumber)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<maxStepDivisionNumber;
-	sendAction(ActionGroups::calculation, CalculationActions::updateMaximumStepDivision, arr);
-}
-
-void ActionSender::updateMaximumStepError(Scalar maxStepError)
-{
-	QByteArray arr;
-	QDataStream stream(&arr, QIODevice::WriteOnly);
-	stream<<maxStepError;
-	sendAction(ActionGroups::calculation, CalculationActions::updateMaximumStepError, arr);
-}
-
-quint32 ActionSender::getLastStepCalculationTime()
-{
-	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::getLastStepCalculationTime);
-	QDataStream retStream(&retArr, QIODevice::ReadOnly);
-	quint32 lastStepCalculationTime;
-	retStream>>lastStepCalculationTime;
-	return lastStepCalculationTime;
 }
 
 quint16 ActionSender::addSomeSpheres(quint16 sphCount)
@@ -575,6 +323,86 @@ void ActionSender::updateAllSpheres(Sphere s)
 	sendAction(ActionGroups::spheresUpdating, SpheresUpdatingActions::updateAllSpheres, arr);
 }
 
+void ActionSender::updateKineticEnergy(Scalar factor)
+{
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<factor;
+	sendAction(ActionGroups::simulatedSystem, SpheresUpdatingActions::updateKineticEnergy, arr);
+}
+
+void ActionSender::calculateStep()
+{
+	sendAction(ActionGroups::calculation, CalculationActions::calculateStep);
+	willBeSimulating();
+}
+
+quint32 ActionSender::popCalculationCounter()
+{
+	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::popCalculationCounter);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	quint32 calculationCounter;
+	retStream>>calculationCounter;
+	return calculationCounter;
+}
+
+void ActionSender::calculateSomeSteps(quint32 steps)
+{
+	if(steps <= 0) return;
+	QByteArray arr;
+	QDataStream stream(&arr, QIODevice::WriteOnly);
+	stream<<steps;
+	sendAction(ActionGroups::calculation, CalculationActions::calculateSomeSteps, arr);
+	willBeSimulating();
+}
+
+void ActionSender::startSimulation()
+{
+	sendAction(ActionGroups::calculation, CalculationActions::startSimulation);
+	willBeSimulating();
+}
+
+void ActionSender::stopSimulation()
+{
+	sendAction(ActionGroups::calculation, CalculationActions::stopSimulation);
+}
+
+quint32 ActionSender::popStepCounter()
+{
+	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::popStepCounter);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	quint32 stepCounter;
+	retStream>>stepCounter;
+	return stepCounter;
+}
+
+quint32 ActionSender::getLastStepCalculationTime()
+{
+	QByteArray retArr = sendReplyAction(ActionGroups::calculation, CalculationActions::getLastStepCalculationTime);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	quint32 lastStepCalculationTime;
+	retStream>>lastStepCalculationTime;
+	return lastStepCalculationTime;
+}
+
+Scalar ActionSender::getTotalEnergy()
+{
+	QByteArray retArr = sendReplyAction(ActionGroups::information, InformationActions::getTotalEnergy);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	Scalar totalEnergy;
+	retStream>>totalEnergy;
+	return totalEnergy;
+}
+
+Scalar ActionSender::getKineticEnergy()
+{
+	QByteArray retArr = sendReplyAction(ActionGroups::information, InformationActions::getKineticEnergy);
+	QDataStream retStream(&retArr, QIODevice::ReadOnly);
+	Scalar kineticEnergy;
+	retStream>>kineticEnergy;
+	return kineticEnergy;
+}
+
 void ActionSender::framerateEvent()
 {
 	if(framerateTimer.elapsed()>1000)
@@ -595,4 +423,22 @@ void ActionSender::disconnected()
 	emit connectionClosed();
 	if(failureExitWhenDisconnected)
 		qApp->exit(1);
+}
+
+void ActionSender::sendVariable(QByteArray variableToSend)
+{
+	sendAction(ActionGroups::basic, BasicActions::updateVariable, variableToSend);
+}
+
+void ActionSender::variableUpdated(int var)
+{
+	quint16 sphCount;
+	switch(var)
+	{
+	case SimulationVariables::sphereCount:
+		sphCount = simulatedSystem->get<int>(SimulationVariables::sphereCount);
+		emit sphereCountChanged(sphCount);
+		emit sphereCountChangedDouble((double)sphCount);
+		break;
+	}
 }

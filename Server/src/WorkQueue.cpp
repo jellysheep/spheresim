@@ -14,7 +14,7 @@
 
 using namespace SphereSim;
 
-WorkQueue::WorkQueue(QMutex* mutex_):items()
+WorkQueue::WorkQueue(QMutex* mutex_, const bool &frameSending):items(),sendFramesRegularly(frameSending)
 {
 	mutex = mutex_;
 	queueEmpty = true;
@@ -22,7 +22,6 @@ WorkQueue::WorkQueue(QMutex* mutex_):items()
 	continuousSimulationRunning = false;
 	updateStatus();
 	isSimulating = false;
-	sendFramesRegularly = false;
 	animationTimer = new QElapsedTimer();
 	animationTimer->start();
 }
@@ -39,7 +38,7 @@ void WorkQueue::pushItem(WorkQueueItem& item)
 		items.append(item);
 		queueEmpty = false;
 		updateStatus();
-		if(canWork) workCondition.wakeAll();
+		if(canWork) workCondition.wakeOne();
 	mutex->unlock();
 }
 
@@ -91,7 +90,8 @@ void WorkQueue::pushSimulationSteps(quint32 steps)
 		}
 		updateStatus();
 		isSimulating = true;
-		workCondition.wakeAll();
+		emit simulating(isSimulating);
+		workCondition.wakeOne();
 	mutex->unlock();
 }
 
@@ -101,6 +101,7 @@ WorkQueueItem* WorkQueue::popItem()
 		if(!((simulationSteps>0) || continuousSimulationRunning))
 		{
 			isSimulating = false;
+			emit simulating(isSimulating);
 		}
 		if(!canWork)
 		{
@@ -163,19 +164,9 @@ void WorkQueue::stop()
 	pushItem(item);
 }
 
-bool WorkQueue::getIsSimulating()
-{
-	return isSimulating;
-}
-
 void WorkQueue::sendFrameData()
 {
 	if(!sendFramesRegularly) return;
 	WorkQueueItem item(ActionGroups::workQueue, WorkQueueActions::prepareFrameData);
 	pushItem(item);
-}
-
-void WorkQueue::updateFrameSending(bool sendFrames)
-{
-	sendFramesRegularly = sendFrames;
 }

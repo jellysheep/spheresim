@@ -71,7 +71,7 @@ namespace SphereSim
 		
 	public slots:
 		/** \brief Run the first simulation and output results. */
-		void runSimulation1();
+		void run();
 		
 		/** \brief Run the second simulation and output results. */
 		void runSimulation2();

@@ -12,6 +12,70 @@
 namespace SphereSim
 {
 	
+	/** \brief Variables which are synchronized between client and server. */
+	namespace SimulationVariables
+	{
+		/** \see SimulationVariables */
+		enum Variable
+		{
+			/** \brief Software version of the server. */
+			serverVersion,
+			/** \brief Floating type of the server ("float" or "qreal"). */
+			serverFloatingType,
+			/** \brief Number of spheres in the simulation. */
+			sphereCount,
+			/** \brief Integration time step. */
+			timeStep,
+			/** \brief Runge-Kutta method used for integrating the system. */
+			integratorMethod,
+			/** \brief Flag if a simulation is currently running. */
+			simulating,
+			/** \brief Flag if Server sends frames regularly. */
+			frameSending,
+			/** \brief Flag if sphere collisions get detected. */
+			collisionDetection,
+			/** \brief Flag if sphere-sphere gravitational forces get calculated. */
+			gravityCalculation,
+			/** \brief Flag if Lennard-Jones potential and forces get calculated. */
+			lennardJonesPotential,
+			/** \brief Maximum number of dividing simulation steps. */
+			maximumStepDivision,
+			/** \brief Maximum allowed relative error for simulation steps. */
+			maximumStepError,
+			/** \brief Elastic modulus of the sphere material used for sphere-sphere or sphere-wall collisions. */
+			sphereE,
+			/** \brief Poisson ratio of the sphere material used for sphere-sphere or sphere-wall collisions. */
+			spherePoissonRatio,
+			/** \brief Elastic modulus of the wall material used for sphere-wall collisions. */
+			wallE,
+			/** \brief Poisson ratio of the wall material used for sphere-wall collisions. */
+			wallPoissonRatio,
+			/** \brief 3D vector of the earth gravity used for the simulation. */
+			earthGravity,
+			/** \brief Gravitational constant G. */
+			gravitationalConstant,
+			/** \brief Size of the simulated system box. */
+			boxSize,
+			/** \brief Kinetic energy of each sphere to reach a target temperature. */
+			targetTemperature,
+			/** \brief Flag if periodic boundary conditions are enabled. */
+			periodicBoundaryConditions,
+			/** \brief Maximum theta used for Barnes-Hut algorithm. */
+			maximumTheta,
+			/** \brief k_Boltzmann constant. */
+			kBoltzmann,
+			/** \brief Epsilon used for Lennard-Jones potential. */
+			lenJonPotEpsilon,
+			/** \brief Sigma used for Lennard-Jones potential. */
+			lenJonPotSigma,
+			/** \brief Next-to-last enum value indicating if all variables have been received. */
+			allVariablesReceived,
+			/** \brief Last enum value equals number of variables. */
+			numberOfVariables
+		};
+	}
+	
+	
 	/** \brief Action groups provided by the server and requested by the clients;
 	 * actions are used for TCP communication between clients and server. */
 	namespace ActionGroups
@@ -21,7 +85,7 @@ namespace SphereSim
 		{
 			/** \copydoc BasicActions
 			 * \see BasicActions */
-			basic = 1,
+			basic,
 			/** \copydoc SpheresUpdatingActions
 			 * \see SpheresUpdatingActions */
 			spheresUpdating,
@@ -46,14 +110,10 @@ namespace SphereSim
 		/** \see BasicActions */
 		enum Action
 		{
-			/** \brief Get the software version of the server. */
-			getServerVersion = 1,
-			/** \brief Get a string "true". */
-			getTrueString,
 			/** \brief Terminate the server. */
 			terminateServer,
-			/** \brief Get the floating type of the server ("float" or "qreal"). */
-			getServerFloatingType
+			/** \brief Inform about an updated variable. */
+			updateVariable
 		};
 	}
 	
@@ -64,13 +124,11 @@ namespace SphereSim
 		enum Action
 		{
 			/** \brief Add one sphere to the simulation, without specific data. */
-			addSphere = 1,
+			addSphere,
 			/** \brief Remove the last sphere of the simulation. */
 			removeLastSphere,
 			/** \brief Update the data of one sphere. */
 			updateSphere,
-			/** \brief Get the number of spheres in the simulation. */
-			getSphereCount,
 			/** \brief Get basic data (radius and position) of one sphere. */
 			getBasicSphereData,
 			/** \brief Get all data of one sphere. */
@@ -83,7 +141,9 @@ namespace SphereSim
 			 * Spheres will have a random displacement and speed relative to their radius. */
 			updateSpherePositionsInBox,
 			/** \brief Update the data of all spheres. */
-			updateAllSpheres
+			updateAllSpheres,
+			/** \brief Update kinetic energy of each sphere by a scale factor. */
+			updateKineticEnergy
 		};
 	}
 	
@@ -94,15 +154,7 @@ namespace SphereSim
 		enum Action
 		{
 			/** \brief Start a simulation of one step. */
-			calculateStep = 1,
-			/** \brief Update the integration time step. */
-			updateTimeStep,
-			/** \brief Get the integration time step. */
-			getTimeStep,
-			/** \brief Update the Runge-Kutta method used for integrating the system. */
-			updateIntegratorMethod,
-			/** \brief Get the Runge-Kutta method used for integrating the system. */
-			getIntegratorMethod,
+			calculateStep,
 			/** \brief Get and reset the number of force calculations per sphere. */
 			popCalculationCounter,
 			/** \brief Start a simulation of a specific number of steps. */
@@ -111,22 +163,8 @@ namespace SphereSim
 			startSimulation,
 			/** \brief Stop a currently running simulation. */
 			stopSimulation,
-			/** \brief Get if a simulation is currently running. */
-			getIsSimulating,
 			/** \brief Get and reset the number of simulated time steps. */
 			popStepCounter,
-			/** \brief Update if Server sends frames regularly. */
-			updateFrameSending,
-			/** \brief Update if sphere collisions get detected. */
-			updateCollisionDetection,
-			/** \brief Update if sphere-sphere gravitational forces get calculated. */
-			updateGravityCalculation,
-			/** \brief Update if Lennard-Jones potential and forces get calculated. */
-			updateLennardJonesPotentialCalculation,
-			/** \brief Update how many times the currently simulated step can be divided. */
-			updateMaximumStepDivision,
-			/** \brief Update how much relative error is allowed for the current step. */
-			updateMaximumStepError,
 			/** \brief Get the time (in ms) that was needed to calculate the last step. */
 			getLastStepCalculationTime
 		};
@@ -139,7 +177,7 @@ namespace SphereSim
 		enum Action
 		{
 			/** \brief Calculate and get the total energy of the simulated system. */
-			getTotalEnergy = 1,
+			getTotalEnergy,
 			/** \brief Calculate and get the kinetic energy of the simulated system. */
 			getKineticEnergy
 		};
@@ -151,26 +189,6 @@ namespace SphereSim
 		/** \see SimulatedSystemActions */
 		enum Action
 		{
-			/** \brief Update the elastic modulus of the sphere material used for sphere-sphere or sphere-wall collisions. */
-			updateSphereE = 1,
-			/** \brief Update the Poisson ratio of the sphere material used for sphere-sphere or sphere-wall collisions. */
-			updateSpherePoissonRatio,
-			/** \brief Update the elastic modulus of the wall material used for sphere-wall collisions. */
-			updateWallE,
-			/** \brief Update the Poisson ratio of the wall material used for sphere-wall collisions. */
-			updateWallPoissonRatio,
-			/** \brief Update the 3D vector of the earth gravity used for the simulation. */
-			updateEarthGravity,
-			/** \brief Update the gravitational constant G. */
-			updateGravitationalConstant,
-			/** \brief Update the size of the simulated system box. */
-			updateBoxSize,
-			/** \brief Update the kinetic energy of each sphere by a scale factor. */
-			updateKineticEnergy,
-			/** \brief Update the kinetic energy of each sphere to reach a target temperature. */
-			updateTargetTemperature,
-			/** \brief Update if periodic boundary conditions are enabled. */
-			updatePeriodicBoundaryConditions
 		};
 	}
 	
@@ -181,7 +199,7 @@ namespace SphereSim
 		enum Reply
 		{
 			/** \brief The server status is ok. */
-			acknowledge = 1,
+			acknowledge,
 			/** \brief The action group requested by the client is unknown to the server. */
 			unknownActionGroup,
 			/** \brief The action requested by the client is unknown to the server. */
@@ -190,8 +208,8 @@ namespace SphereSim
 			sendFrame,
 			/** \brief The server is terminating. */
 			terminating,
-			/** \brief The number of spheres changed. */
-			sphereCountChanged
+			/** \brief The server is sending an updated variable. */
+			sendVariable
 		};
 	}
 	

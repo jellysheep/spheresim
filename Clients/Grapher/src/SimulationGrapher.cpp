@@ -24,13 +24,13 @@ using namespace SphereSim;
 SimulationGrapher::SimulationGrapher(QStringList args, QHostAddress addr, quint16 port)
 	:dataPoints(2048), stepsToEquilibrium(400), stepsBeforeMeasuring(30), graphNumber(1)
 {
-	actionSender = new ActionSender(args, addr, port);
+	actionSender = new ActionSender(args, addr, port, this);
 	actionSender->failureExitWhenDisconnected = true;
 	dataUpdateTimer = new QTimer(this);
 	dataUpdateTimer->setInterval(5);
 	connect(dataUpdateTimer, SIGNAL(timeout()), this, SLOT(timerUpdate()));
 	systemCreator = new SystemCreator(actionSender);
-	actionSender->updateFrameSending(false);
+	actionSender->simulatedSystem->set(SimulationVariables::frameSending, false);
 	
 	counter = 0;
 	timeStep = 1.0;
@@ -46,7 +46,7 @@ SimulationGrapher::~SimulationGrapher()
 	delete actionSender;
 }
 
-void SimulationGrapher::runSimulation1()
+void SimulationGrapher::run()
 {
 	qDebug()<<"starting simulation 1";
 	actionSender->popStepCounter();
@@ -58,9 +58,9 @@ void SimulationGrapher::runSimulation1()
 	graphNumber = 1;
 	
 	Scalar length = systemCreator->createMacroscopicGravitationSystem(sphereCount);
-	actionSender->updateTimeStep(timeStep);
-	actionSender->updateFrameSending(false);
-	actionSender->updateMaximumStepDivision(0);
+	actionSender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
+	actionSender->simulatedSystem->set(SimulationVariables::frameSending, false);
+	actionSender->simulatedSystem->set(SimulationVariables::maximumStepDivision, 0);
 	
 	dataUpdateTimer->start();
 }
@@ -80,15 +80,15 @@ void SimulationGrapher::runSimulation2()
 	temperatures.reserve(stepsToEquilibrium + dataPoints/sphereCount);
 	
 	Scalar length = systemCreator->createArgonGasSystem(sphereCount, 473.15);
-	actionSender->updateTimeStep(timeStep);
-	actionSender->updateFrameSending(false);
+	actionSender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
+	actionSender->simulatedSystem->set(SimulationVariables::frameSending, false);
 	
 	dataUpdateTimer->start();
 }
 
 void SimulationGrapher::timerUpdate()
 {
-	if(!actionSender->getIsSimulating())
+	if(!actionSender->simulatedSystem->get<bool>(SimulationVariables::simulating))
 	{
 		++counter;
 		if(graphNumber == 1)
@@ -121,7 +121,7 @@ void SimulationGrapher::timerUpdate()
 			qDebug()<<"kin. energy:"<<kineticEnergy;
 			if(counter<10 || counter%10 == 0)
 			{
-				actionSender->updateTargetTemperature(473.15);
+				actionSender->simulatedSystem->set(SimulationVariables::targetTemperature, 473.15);
 				kineticEnergy = actionSender->getKineticEnergy();
 				qDebug()<<"updated kin. energy:"<<kineticEnergy;
 			}

@@ -27,6 +27,5 @@ int main(int argc, char** argv)
 	QCoreApplication app(argc, argv);
 	QStringList args = app.arguments();
 	ServerTester* svrTester = new ServerTester(args, QHostAddress(Connection::address), Connection::port);
-	QTimer::singleShot(0, svrTester, SLOT(runTests()));
 	return app.exec();
 }

@@ -1,4 +1,7 @@
+SphereSim 3.0.0:
 * Improved package releasing script and added automatic version number.
+* Added NO_OPENMP flag to control OpenMP in server.
+* Added automatic variable transmission. Incompatible to prior versions.
 
 SphereSim 2.5.1:
 * Improved build scripts and added OpenMP flag to Server.pro.

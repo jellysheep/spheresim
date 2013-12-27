@@ -91,20 +91,22 @@ void SimulationWorker::handleAction(WorkQueueItem* workQueueItem)
 
 void SimulationWorker::handleBasicAction(WorkQueueItem* workQueueItem)
 {
+	QByteArray data;
+	SimulationVariables::Variable var;
+	int _var;
+	Object::Type type;
 	switch(workQueueItem->action)
 	{
-	case BasicActions::getServerVersion:
-		emit sendReply(ServerStatusReplies::acknowledge, "SphereSim Server v" VERSION_STR);
-		break;
-	case BasicActions::getTrueString:
-		emit sendReply(ServerStatusReplies::acknowledge, "true");
-		break;
 	case BasicActions::terminateServer:
 		emit sendReply(ServerStatusReplies::terminating, "Server terminating...");
 		actRcv->terminateServer();
 		break;
-	case BasicActions::getServerFloatingType:
-		emit sendReply(ServerStatusReplies::acknowledge, TOSTR(FLOATING_TYPE));
+	case BasicActions::updateVariable:
+		_var = ((char)workQueueItem->data.at(0))*256 + (char)workQueueItem->data.at(1);
+		var = (SimulationVariables::Variable)_var;
+		data = workQueueItem->data.mid(2);
+		type = (Object::Type)data.at(0);
+		sphCalc->simulatedSystem->receiveVariable(var, data);
 		break;
 	default:
 		handleUnknownAction(workQueueItem);
@@ -124,19 +126,14 @@ void SimulationWorker::handleSpheresUpdatingAction(WorkQueueItem* workQueueItem)
 	{
 	case SpheresUpdatingActions::addSphere:
 		emit sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc->addSphere()).toUtf8());
-		emit sendReply(ServerStatusReplies::sphereCountChanged, QString::number(sphCalc->getSphereCount()).toUtf8());
 		break;
 	case SpheresUpdatingActions::removeLastSphere:
 		emit sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc->removeLastSphere()).toUtf8());
-		emit sendReply(ServerStatusReplies::sphereCountChanged, QString::number(sphCalc->getSphereCount()).toUtf8());
 		break;
 	case SpheresUpdatingActions::updateSphere:
 		stream>>i;
 		readAllSphereData(stream, s);
 		sphCalc->updateSphere(i, s);
-		break;
-	case SpheresUpdatingActions::getSphereCount:
-		emit sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc->getSphereCount()).toUtf8());
 		break;
 	case SpheresUpdatingActions::getBasicSphereData:
 		stream>>i;
@@ -153,12 +150,10 @@ void SimulationWorker::handleSpheresUpdatingAction(WorkQueueItem* workQueueItem)
 	case SpheresUpdatingActions::addSomeSpheres:
 		stream>>i;
 		emit sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc->addSomeSpheres(i)).toUtf8());
-		emit sendReply(ServerStatusReplies::sphereCountChanged, QString::number(sphCalc->getSphereCount()).toUtf8());
 		break;
 	case SpheresUpdatingActions::removeSomeLastSpheres:
 		stream>>i;
 		emit sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc->removeSomeLastSpheres(i)).toUtf8());
-		emit sendReply(ServerStatusReplies::sphereCountChanged, QString::number(sphCalc->getSphereCount()).toUtf8());
 		break;
 	case SpheresUpdatingActions::updateSpherePositionsInBox:
 		stream>>s1;
@@ -168,6 +163,10 @@ void SimulationWorker::handleSpheresUpdatingAction(WorkQueueItem* workQueueItem)
 	case SpheresUpdatingActions::updateAllSpheres:
 		readAllSphereData(stream, s);
 		sphCalc->updateAllSpheres(s);
+		break;
+	case SpheresUpdatingActions::updateKineticEnergy:
+		stream>>s1;
+		sphCalc->updateKineticEnergy(s1);
 		break;
 	default:
 		handleUnknownAction(workQueueItem);
@@ -187,22 +186,6 @@ void SimulationWorker::handleCalculationAction(WorkQueueItem* workQueueItem)
 	quint16 maxStepDivision;
 	switch(workQueueItem->action)
 	{
-	case CalculationActions::updateTimeStep:
-		stream>>s;
-		sphCalc->updateTimeStep(s);
-		break;
-	case CalculationActions::getTimeStep:
-		retStream<<sphCalc->getTimeStep();
-		emit sendReply(ServerStatusReplies::acknowledge, retData);
-		break;
-	case CalculationActions::updateIntegratorMethod:
-		stream>>integratorMethod;
-		sphCalc->updateIntegratorMethod(integratorMethod);
-		break;
-	case CalculationActions::getIntegratorMethod:
-		retStream<<sphCalc->getIntegratorMethod();
-		emit sendReply(ServerStatusReplies::acknowledge, retData);
-		break;
 	case CalculationActions::popCalculationCounter:
 		retStream<<sphCalc->popCalculationCounter();
 		emit sendReply(ServerStatusReplies::acknowledge, retData);
@@ -210,34 +193,6 @@ void SimulationWorker::handleCalculationAction(WorkQueueItem* workQueueItem)
 	case CalculationActions::popStepCounter:
 		retStream<<sphCalc->popStepCounter();
 		emit sendReply(ServerStatusReplies::acknowledge, retData);
-		break;
-	case CalculationActions::getIsSimulating:
-		retStream<<sphCalc->getIsSimulating();
-		emit sendReply(ServerStatusReplies::acknowledge, retData);
-		break;
-	case CalculationActions::updateFrameSending:
-		stream>>b;
-		sphCalc->updateFrameSending(b);
-		break;
-	case CalculationActions::updateCollisionDetection:
-		stream>>b;
-		sphCalc->updateCollisionDetection(b);
-		break;
-	case CalculationActions::updateGravityCalculation:
-		stream>>b;
-		sphCalc->updateGravityCalculation(b);
-		break;
-	case CalculationActions::updateLennardJonesPotentialCalculation:
-		stream>>b;
-		sphCalc->updateLennardJonesPotentialCalculation(b);
-		break;
-	case CalculationActions::updateMaximumStepDivision:
-		stream>>maxStepDivision;
-		sphCalc->updateMaximumStepDivision(maxStepDivision);
-		break;
-	case CalculationActions::updateMaximumStepError:
-		stream>>s;
-		sphCalc->updateMaximumStepError(s);
 		break;
 	case CalculationActions::getLastStepCalculationTime:
 		retStream<<sphCalc->getLastStepCalculationTime();
@@ -279,50 +234,6 @@ void SimulationWorker::handleSimulatedSystemAction(WorkQueueItem* workQueueItem)
 	bool b;
 	switch(workQueueItem->action)
 	{
-	case SimulatedSystemActions::updateSphereE:
-		stream>>s;
-		sphCalc->updateSphereE(s);
-		break;
-	case SimulatedSystemActions::updateSpherePoissonRatio:
-		stream>>s;
-		sphCalc->updateSpherePoissonRatio(s);
-		break;
-	case SimulatedSystemActions::updateWallE:
-		stream>>s;
-		sphCalc->updateWallE(s);
-		break;
-	case SimulatedSystemActions::updateWallPoissonRatio:
-		stream>>s;
-		sphCalc->updateWallPoissonRatio(s);
-		break;
-	case SimulatedSystemActions::updateEarthGravity:
-		stream>>s;
-		stream>>s2;
-		stream>>s3;
-		sphCalc->updateEarthGravity(Vector3(s, s2, s3));
-		break;
-	case SimulatedSystemActions::updateGravitationalConstant:
-		stream>>s;
-		sphCalc->updateGravitationalConstant(s);
-		break;
-	case SimulatedSystemActions::updateBoxSize:
-		stream>>s;
-		stream>>s2;
-		stream>>s3;
-		sphCalc->updateBoxSize(Vector3(s, s2, s3));
-		break;
-	case SimulatedSystemActions::updateKineticEnergy:
-		stream>>s;
-		sphCalc->updateKineticEnergy(s);
-		break;
-	case SimulatedSystemActions::updateTargetTemperature:
-		stream>>s;
-		sphCalc->updateTargetTemperature(s);
-		break;
-	case SimulatedSystemActions::updatePeriodicBoundaryConditions:
-		stream>>b;
-		sphCalc->updatePeriodicBoundaryConditions(b);
-		break;
 	default:
 		handleUnknownAction(workQueueItem);
 		break;

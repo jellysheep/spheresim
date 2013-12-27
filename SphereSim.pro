@@ -1,4 +1,4 @@
 
 TEMPLATE	=	subdirs
 
-SUBDIRS		=	Server Clients
+SUBDIRS		=	Clients Server

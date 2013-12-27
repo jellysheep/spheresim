@@ -9,6 +9,7 @@ set(HEADERS ${HEADERS}
 	${CLIENTLIB_INCLUDE_DIR}/ActionSender.hpp
 )
 
+add_subdirectory(ObjectTester)
 add_subdirectory(ClientLib)
 add_subdirectory(Tester)
 add_subdirectory(Viewer)

@@ -43,6 +43,7 @@ namespace SphereSim
 		{
 		}
 		
+		/** \brief Initialize WorkQueueItem. */
 		WorkQueueItem(const WorkQueueItem& wqi)
 			:actionGroup(wqi.actionGroup), action(wqi.action), data(wqi.data)
 		{
@@ -85,11 +86,11 @@ namespace SphereSim
 		QElapsedTimer* animationTimer;
 		
 		/** \brief Animation timer. */
-		bool sendFramesRegularly;
+		const bool &sendFramesRegularly;
 		
 	public:
 		/** \brief Initialize member variables. */
-		WorkQueue(QMutex* mutex);
+		WorkQueue(QMutex* mutex, const bool &frameSending);
 		
 		/** \brief Clean up member variables. */
 		~WorkQueue();
@@ -106,14 +107,8 @@ namespace SphereSim
 		/** \brief Return the next work to do and remove it from the queue. */
 		WorkQueueItem* popItem();
 		
-		/** \copydoc isSimulating */
-		bool getIsSimulating();
-		
 		/** \brief Send updated frame data to client. */
 		void sendFrameData();
-		
-		/** \copydoc CalculationActions::updateFrameSending */
-		void updateFrameSending(bool sendFramesRegularly);
 		
 	public slots:
 		/** \brief Stop a running simulation. */
@@ -121,6 +116,9 @@ namespace SphereSim
 		
 		/** \brief Stop the worker. */
 		void stop();
+		
+	signals:
+		void simulating(bool isSimulating);
 		
 	};
 	

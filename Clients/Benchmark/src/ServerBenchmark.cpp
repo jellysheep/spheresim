@@ -19,7 +19,7 @@ using namespace SphereSim;
 
 ServerBenchmark::ServerBenchmark(QStringList args, QHostAddress addr, quint16 port)
 {
-	sender = new ActionSender(args, addr, port);
+	sender = new ActionSender(args, addr, port, this);
 	sender->failureExitWhenDisconnected = true;
 }
 
@@ -28,13 +28,13 @@ ServerBenchmark::~ServerBenchmark()
 	delete sender;
 }
 
-void ServerBenchmark::runBenchmark()
+void ServerBenchmark::run()
 {
-	sender->updateSphereE(5000);
-	sender->updateSpherePoissonRatio(0.5);
-	sender->updateWallE(5000);
-	sender->updateWallPoissonRatio(0.5);
-	sender->updateEarthGravity(Vector3(0, -9.81, 0));
+	sender->simulatedSystem->set(SimulationVariables::sphereE, 5000);
+	sender->simulatedSystem->set(SimulationVariables::spherePoissonRatio, 0.5);
+	sender->simulatedSystem->set(SimulationVariables::wallE, 5000);
+	sender->simulatedSystem->set(SimulationVariables::wallPoissonRatio, 0.5);
+	sender->simulatedSystem->set(SimulationVariables::earthGravity, Vector3(0, -9.81, 0));
 	
 	//runBenchmark_internal2();
 	
@@ -70,18 +70,18 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculat
 	sender->updateSphere(0, s);
 	s.pos(1) = 0.4;
 	sender->updateSphere(1, s);
-	sender->updateCollisionDetection(detectCollisions);
-	sender->updateGravityCalculation(calculateGravity);
-	sender->updateGravitationalConstant(1.3e-3);
-	sender->updateLennardJonesPotentialCalculation(calculateLennardJonesPotential);
+	sender->simulatedSystem->set(SimulationVariables::collisionDetection, detectCollisions);
+	sender->simulatedSystem->set(SimulationVariables::gravityCalculation, calculateGravity);
+	sender->simulatedSystem->set(SimulationVariables::gravitationalConstant, 1.3e-3);
+	sender->simulatedSystem->set(SimulationVariables::lennardJonesPotential, calculateLennardJonesPotential);
 	if(calculateGravity)
-		sender->updateWallE(0);
+		sender->simulatedSystem->set(SimulationVariables::wallE, 0);
 	else
-		sender->updateWallE(5000);
+		sender->simulatedSystem->set(SimulationVariables::wallE, 5000);
 	
 	Scalar timeStep = 0.00001;
 	Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
-	sender->updateTimeStep(timeStep);
+	sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
 	Scalar beginEnergy, endEnergy;
 	beginEnergy = sender->getTotalEnergy();
 	
@@ -97,7 +97,7 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculat
 		Console::out<<"\rServerBenchmark: progress: "<<(((i+1)*100)/numParts)<<" % ";
 	}
 	sender->stopSimulation();
-	while(sender->getIsSimulating())
+	while(sender->simulatedSystem->get<bool>(SimulationVariables::simulating))
 	{
 		QCoreApplication::processEvents();
 	}
@@ -125,7 +125,7 @@ void ServerBenchmark::runBenchmark_internal2()
 	
 	Scalar timeStep = 0.01;
 	Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
-	sender->updateTimeStep(timeStep);
+	sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
 	
 	Scalar beginEnergy, endEnergy;
 	beginEnergy = sender->getTotalEnergy();
@@ -139,7 +139,7 @@ void ServerBenchmark::runBenchmark_internal2()
 		Console::out<<"\rServerBenchmark: progress: "<<(i+1)<<" % ";
 	}
 	sender->stopSimulation();
-	while(sender->getIsSimulating())
+	while(sender->simulatedSystem->get<bool>(SimulationVariables::simulating))
 	{
 		QCoreApplication::processEvents();
 	}
