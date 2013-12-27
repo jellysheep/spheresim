@@ -1,4 +1,5 @@
 * Corrected version number.
+* Removed local ObjectTester from clients.
 
 SphereSim 3.0.0:
 * Improved package releasing script and added automatic version number.
