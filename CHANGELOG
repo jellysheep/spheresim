@@ -1,3 +1,5 @@
+* Corrected version number.
+
 SphereSim 3.0.0:
 * Improved package releasing script and added automatic version number.
 * Added NO_OPENMP flag to control OpenMP in server.
