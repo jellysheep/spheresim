@@ -27,8 +27,6 @@ namespace SphereSim
 	private:
 		std::vector<Object> vars;
 		
-		bool initialized;
-		
 		template <class T>
 		void addVariable(SimulationVariables::Variable var, Object::Type type, const T& t);
 		

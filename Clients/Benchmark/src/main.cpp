@@ -26,6 +26,6 @@ int main(int argc, char** argv)
 {
 	QCoreApplication app(argc, argv);
 	QStringList args = app.arguments();
-	ServerBenchmark* svrBenchmark = new ServerBenchmark(args, QHostAddress(Connection::address), Connection::port);
+	ServerBenchmark svrBenchmark(args, QHostAddress(Connection::address), Connection::port);
 	return app.exec();
 }

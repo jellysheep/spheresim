@@ -26,6 +26,13 @@ int main(int argc, char** argv)
 {
 	QCoreApplication app(argc, argv);
 	QStringList args = app.arguments();
-	SimulationGrapher* simGrapher = new SimulationGrapher(args, QHostAddress(Connection::address), Connection::port);
-	return app.exec();
+	try
+	{
+		SimulationGrapher simGrapher(args, QHostAddress(Connection::address), Connection::port);
+		return app.exec();
+	}
+	catch(std::exception ex)
+	{
+		return 0;
+	}
 }

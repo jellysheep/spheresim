@@ -1,5 +1,8 @@
+SphereSim 3.0.1:
 * Corrected version number.
 * Removed local ObjectTester from clients.
+* Updated license information and fixed mingw-w64 PKGBUILD.
+* Fixed minor code issues.
 
 SphereSim 3.0.0:
 * Improved package releasing script and added automatic version number.
