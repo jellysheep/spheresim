@@ -30,7 +30,11 @@ qt5_wrap_ui(HEADERS_UI ${UI})
 qt5_add_resources(RESOURCES QRC/MainWindow.qrc QRC/StartDialog.qrc QRC/Shaders.qrc)
 
 add_executable(SphereSim_Viewer ${SOURCES} ${HEADERS} ${HEADERS_UI} ${RESOURCES})
-target_link_libraries(SphereSim_Viewer SphereSim_ClientLib ${OPENGL_LIBRARIES} libGLESv2)
+if(WIN32)
+	target_link_libraries(SphereSim_Viewer SphereSim_ClientLib ${OPENGL_LIBRARIES} libGLESv2)
+else()
+	target_link_libraries(SphereSim_Viewer SphereSim_ClientLib ${OPENGL_LIBRARIES})
+endif()
 qt5_use_modules(SphereSim_Viewer Core Network Widgets OpenGL)
 
 install(TARGETS SphereSim_Viewer

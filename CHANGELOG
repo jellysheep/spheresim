@@ -1,3 +1,5 @@
+* Fixed Viewer linking.
+
 SphereSim 3.0.1:
 * Corrected version number.
 * Removed local ObjectTester from clients.
