@@ -1,7 +1,7 @@
 language: cpp
 before_install:
- - sudo apt-add-repository ppa:ubuntu-sdk-team/ppa
- - sudo apt-add-repository ppa:kalakris/eigen
- - sudo apt-get update -qq
+ - sudo apt-add-repository ppa:ubuntu-sdk-team/ppa -y
+ - sudo apt-add-repository ppa:kalakris/eigen -y
+ - sudo apt-get update -qq -y
 install: sudo apt-get install -q qt5-default libqt5opengl5 eigen3
 script: mkdir -p build && cd build && cmake ../ && make
