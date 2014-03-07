@@ -1,6 +1,7 @@
 * Fixed Viewer linking.
 * Fixed Eigen package name in PKGBUILDs.
 * Updated build script and added .travis.yml file.
+* Updated .travis.yml file.
 
 SphereSim 3.0.1:
 * Corrected version number.
