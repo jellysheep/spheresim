@@ -57,7 +57,7 @@ if [ "$?" != "0" ]; then error "rm failed! Aborting."; exit; fi
 msg "Tarball is located under '$CURDIR/$TARBALL_BASE'"
 
 msg "Uploading tarball..."
-curl --noproxy '*' --form project=SphereSim --form token=cJZrLvknfeviUpTOaFgEFw --form email=max.mail@dameweb.de \
+curl --noproxy '*' --form project=SphereSim --form token=TITPuELE6wnJfQAT19Hbfw --form email=max.mail@dameweb.de \
 	--form file=@"$CURDIR/$TARBALL_BASE" --form version="$(cat $CURDIR/VERSION)" \
 	--form description="$(cat $CURDIR/VERSION) build" http://scan5.coverity.com/cgi-bin/upload.py
 if [ "$?" != "0" ]; then error "curl failed! Aborting."; exit; fi
