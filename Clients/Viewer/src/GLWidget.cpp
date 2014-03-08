@@ -112,8 +112,7 @@ void GLWidget::shaderLoadError()
 
 void GLWidget::resizeGL(int width, int height)
 {
-	const qreal retinaScale = devicePixelRatio();
-	glViewport(0, 0, width * retinaScale, height * retinaScale);
+	glViewport(0, 0, width, height);
 
 	qreal aspect = qreal(width) / qreal(height ? height : 1);
 
