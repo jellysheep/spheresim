@@ -2,5 +2,5 @@ language: cpp
 before_install:
  - sudo apt-add-repository ppa:ubuntu-sdk-team/ppa -y
  - sudo apt-get update -qq -y
-install: sudo apt-get install -q qt5-default libqt5opengl5 libeigen3-dev doxygen
-script: mkdir -p build && cd build && cmake ../ && make
+install: sudo apt-get install -q qt5-default libqt5opengl5 libeigen3-dev
+script: mkdir -p build && cd build && qmake ../ && make -j2
