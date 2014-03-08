@@ -1,10 +1,26 @@
 language: cpp
+compiler: g++
+
+env:
+  global:
+    secure: "GuB7s4pGBaMYcrQhwYAA22MDH0J2YkVPG/ig1gwlystm0Uks4PQedKiIBEB7+qfBxnKza61NZfG5aT1U2FVqLASQjV5ndNl1Vb4lWdLXU0eU60QIp7ui5knuSu5BsoyCdpvavBdMHhIFwTbih6IZuHggLKNZQp9vftrvR92AVRI="
+
+addons:
+  coverity_scan:
+    project:
+      name: "jellysheep/spheresim"
+      description: "Physical simulation of particle movements."
+    notification_email: max.mail@dameweb.de
+    build_command_prepend: "mkdir -p build && cd build && qmake ../ && cd .."
+    build_command: "cd build && make -j4 && cd .."
+    branch_pattern: master
+
 before_install:
- - sudo apt-add-repository ppa:ubuntu-toolchain-r/test -y
- - sudo apt-add-repository ppa:ubuntu-sdk-team/ppa -y
- - sudo apt-get update -q -y
+  sudo apt-add-repository ppa:ubuntu-toolchain-r/test -y
+  sudo apt-add-repository ppa:ubuntu-sdk-team/ppa -y
+  sudo apt-get update -q -y
 install:
- - sudo apt-get install -q -y gcc-4.8 g++-4.8 qt5-default libqt5opengl5-dev libeigen3-dev
- - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
- - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
-script: mkdir -p build && cd build && qmake ../ && make -j2
+  sudo apt-get install -q -y gcc-4.8 g++-4.8 qt5-default libqt5opengl5-dev libeigen3-dev
+  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+  sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
+script: mkdir -p build && cd build && qmake ../ && make -j4
