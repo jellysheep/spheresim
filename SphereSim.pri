@@ -33,5 +33,5 @@ SOURCES		=	Connection.cpp		\
 QMAKE_CXXFLAGS_RELEASE	+=	-O3 -Wno-unused-local-typedefs -Wno-enum-compare \
 							-Wno-unused-parameter -Wno-unused-variable \
 							-Wno-ignored-qualifiers -Wno-strict-aliasing \
-							-Wno-reorder -Wno-maybe-uninitialized
-QMAKE_LFLAGS_RELEASE	+=	-O3
+							-Wno-reorder -Wno-maybe-uninitialized -fPIC
+QMAKE_LFLAGS_RELEASE	+=	-O3 -fPIC
