@@ -9,6 +9,8 @@ include_directories("${PROJECT_SOURCE_DIR}")
 
 add_definitions("-DQT_NO_DEBUG_OUTPUT")
 
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Network REQUIRED)
 find_package(Qt5Test REQUIRED)
 
 set(SOURCES ${SOURCES}

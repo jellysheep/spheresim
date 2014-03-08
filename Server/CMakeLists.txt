@@ -17,6 +17,9 @@ endif()
 include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
 
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Network REQUIRED)
+
 set(SOURCES ${SOURCES}
 	${PROJECT_SOURCE_DIR}/main.cpp
 	${PROJECT_SOURCE_DIR}/ActionServer.cpp

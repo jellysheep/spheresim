@@ -20,6 +20,8 @@ set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/StartDialog.hpp
 )
 
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Network REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
 
