@@ -11,8 +11,8 @@ addons:
       name: "jellysheep/spheresim"
       description: "Physical simulation of particle movements."
     notification_email: max.mail@dameweb.de
-    build_command_prepend: "mkdir -p build && cd build && qmake ../ && cd .."
-    build_command: "cd build && make -j4 && cd .."
+    build_command_prepend: "mkdir -p build && cd build && qmake ../"
+    build_command: "make -j4"
     branch_pattern: master
 
 before_install:
