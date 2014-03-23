@@ -31,39 +31,76 @@
 
 using namespace SphereSim;
 
-SphereCalculator::SphereCalculator(ActionReceiver* actRcv, SimulatedSystem *_simulatedSystem):
-	cellCount(8), cellCount3((quint32)cellCount*cellCount*cellCount),
+SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
+	SimulatedSystem *simulatedSystem)
+	:spheres(), newSpherePos(), butcherTableau(), calculationCounter(0),
+	stepCounter(0), simulatedSystem(simulatedSystem),
+	simulationThread(new QThread()), workQueueMutex(new QMutex()),
+	workQueue(new WorkQueue(workQueueMutex,
+		simulatedSystem->getRef<bool>(SimulationVariables::frameSending))),
+	simulationWorker(new SimulationWorker(this, workQueue, actRcv)),
+	sphereBoxSize(), sphereBoxPosition(), cellCount(8),
+	cellCount3((quint32)cellCount*cellCount*cellCount),
 	maxSpheresPerCell(1024), maxCellsPerSphere(1024),
-	sphereIndicesInCells(maxSpheresPerCell, cellCount3), cellIndicesOfSpheres(maxCellsPerSphere),
-	maxCollidingSpheresPerSphere(300), collidingSpheresPerSphere(maxCollidingSpheresPerSphere),
-	gravityCellCount(4), gravityCellCount3(gravityCellCount*gravityCellCount*gravityCellCount),
+	sphereIndicesInCells(maxSpheresPerCell, cellCount3),
+	cellIndicesOfSpheres(maxCellsPerSphere), maxCollidingSpheresPerSphere(300),
+	collidingSpheresPerSphere(maxCollidingSpheresPerSphere), gravityCellCount(4),
+	gravityCellCount3(gravityCellCount*gravityCellCount*gravityCellCount),
 	gravityAllCellCount(2*gravityCellCount3), maxSpheresPerGravityCell(1024),
-	sphereIndicesInGravityCells(maxSpheresPerGravityCell, gravityCellCount3), maxApproximatingCellsPerGravityCell(gravityCellCount3),
-	approximatingCellsPerGravityCell(maxApproximatingCellsPerGravityCell, gravityAllCellCount),
-	approximatingCellsOffsetPerGravityCell(maxApproximatingCellsPerGravityCell, gravityAllCellCount),
-	maxPairwiseCellsPerGravityCell(gravityCellCount3), pairwiseCellsPerGravityCell(maxPairwiseCellsPerGravityCell, gravityAllCellCount),
-	simulatedSystem(_simulatedSystem),
+	sphereIndicesInGravityCells(maxSpheresPerGravityCell, gravityCellCount3),
+	massVectorSumPerCell(nullptr), massSumPerCell(nullptr),
+	massCenterPerCell(nullptr), gravityCellSizes(nullptr),
+	gravityCellHalfDiagonalLength(nullptr), gravityCellPositions(nullptr),
+	maxApproximatingCellsPerGravityCell(gravityCellCount3),
+	approximatingCellsPerGravityCell(maxApproximatingCellsPerGravityCell,
+		gravityAllCellCount),
+	approximatingCellsOffsetPerGravityCell(maxApproximatingCellsPerGravityCell,
+		gravityAllCellCount),
+	maxPairwiseCellsPerGravityCell(gravityCellCount3), pairwiseCellsPerGravityCell(
+		maxPairwiseCellsPerGravityCell, gravityAllCellCount),
+	gravityCellIndexOfSpheres(nullptr), sphereCountPerGravityCell(nullptr),
+	lastStepCalculationTime(0), elapsedTimer(new QElapsedTimer()),
 	sphereCount(simulatedSystem->getRef<int>(SimulationVariables::sphereCount)),
 	timeStep(simulatedSystem->getRef<Scalar>(SimulationVariables::timeStep)),
-	integratorMethod(simulatedSystem->getRef<int>(SimulationVariables::integratorMethod)),
-	collisionDetection(simulatedSystem->getRef<bool>(SimulationVariables::collisionDetection)),
-	gravityCalculation(simulatedSystem->getRef<bool>(SimulationVariables::gravityCalculation)),
-	lennardJonesPotential(simulatedSystem->getRef<bool>(SimulationVariables::lennardJonesPotential)),
-	maximumStepDivision(simulatedSystem->getRef<int>(SimulationVariables::maximumStepDivision)),
-	maximumStepError(simulatedSystem->getRef<Scalar>(SimulationVariables::maximumStepError)),
-	sphereE(simulatedSystem->getRef<Scalar>(SimulationVariables::sphereE)),
-	spherePoissonRatio(simulatedSystem->getRef<Scalar>(SimulationVariables::spherePoissonRatio)),
-	wallE(simulatedSystem->getRef<Scalar>(SimulationVariables::wallE)),
-	wallPoissonRatio(simulatedSystem->getRef<Scalar>(SimulationVariables::wallPoissonRatio)),
-	earthGravity(simulatedSystem->getRef<Vector3>(SimulationVariables::earthGravity)),
-	gravitationalConstant(simulatedSystem->getRef<Scalar>(SimulationVariables::gravitationalConstant)),
-	boxSize(simulatedSystem->getRef<Vector3>(SimulationVariables::boxSize)),
-	targetTemperature(simulatedSystem->getRef<Scalar>(SimulationVariables::targetTemperature)),
-	periodicBoundaryConditions(simulatedSystem->getRef<bool>(SimulationVariables::periodicBoundaryConditions)),
-	maximumTheta(simulatedSystem->getRef<Scalar>(SimulationVariables::maximumTheta)),
-	kBoltzmann(simulatedSystem->getRef<Scalar>(SimulationVariables::kBoltzmann)),
-	lenJonPotEpsilon(simulatedSystem->getRef<Scalar>(SimulationVariables::lenJonPotEpsilon)),
-	lenJonPotSigma(simulatedSystem->getRef<Scalar>(SimulationVariables::lenJonPotSigma))
+	integratorMethod(simulatedSystem->getRef<int>(
+		SimulationVariables::integratorMethod)),
+	collisionDetection(simulatedSystem->getRef<bool>(
+		SimulationVariables::collisionDetection)),
+	gravityCalculation(simulatedSystem->getRef<bool>(
+		SimulationVariables::gravityCalculation)),
+	lennardJonesPotential(simulatedSystem->getRef<bool>(
+		SimulationVariables::lennardJonesPotential)),
+	maximumStepDivision(simulatedSystem->getRef<int>(
+		SimulationVariables::maximumStepDivision)),
+	maximumStepError(simulatedSystem->getRef<Scalar>(
+		SimulationVariables::maximumStepError)),
+	sphereE(simulatedSystem->getRef<Scalar>(
+		SimulationVariables::sphereE)),
+	spherePoissonRatio(simulatedSystem->getRef<Scalar>(
+		SimulationVariables::spherePoissonRatio)),
+	wallE(simulatedSystem->getRef<Scalar>(
+		SimulationVariables::wallE)),
+	wallPoissonRatio(simulatedSystem->getRef<Scalar>(
+		SimulationVariables::wallPoissonRatio)),
+	earthGravity(simulatedSystem->getRef<Vector3>(
+		SimulationVariables::earthGravity)),
+	gravitationalConstant(simulatedSystem->getRef<Scalar>(
+		SimulationVariables::gravitationalConstant)),
+	boxSize(simulatedSystem->getRef<Vector3>(
+		SimulationVariables::boxSize)),
+	targetTemperature(simulatedSystem->getRef<Scalar>(
+		SimulationVariables::targetTemperature)),
+	periodicBoundaryConditions(simulatedSystem->getRef<bool>(
+		SimulationVariables::periodicBoundaryConditions)),
+	maximumTheta(simulatedSystem->getRef<Scalar>(
+		SimulationVariables::maximumTheta)),
+	kBoltzmann(simulatedSystem->getRef<Scalar>(
+		SimulationVariables::kBoltzmann)),
+	lenJonPotEpsilon(simulatedSystem->getRef<Scalar>(
+		SimulationVariables::lenJonPotEpsilon)),
+	lenJonPotSigma(simulatedSystem->getRef<Scalar>(
+		SimulationVariables::lenJonPotSigma)),
+	sphereSphereE(0), sphereWallE(0)
 {
 	qDebug()<<"SphereCalculator: constructor called";
 #if NO_OPENMP != 1
@@ -73,11 +110,6 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv, SimulatedSystem *_sim
 	ompThreads++;
 	qDebug()<<"SphereCalculator: number of OpenMP threads:"<<omp_get_num_threads()<<"|"<<ompThreads;
 #endif
-	calculationCounter = 0;
-	stepCounter = 0;
-	lastStepCalculationTime = 0;
-	elapsedTimer = new QElapsedTimer();
-	
 	updateSphereBox();
 	massVectorSumPerCell = new Vector3[gravityAllCellCount];
 	massSumPerCell = new Scalar[gravityAllCellCount];
@@ -85,7 +117,6 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv, SimulatedSystem *_sim
 	gravityCellSizes = new Vector3[gravityAllCellCount];
 	gravityCellHalfDiagonalLength = new Scalar[gravityAllCellCount];
 	gravityCellPositions = new Vector3[gravityAllCellCount];
-	gravityCellIndexOfSpheres = NULL;
 	sphereCountPerGravityCell = new quint16[gravityAllCellCount];
 	updateGravityCellIndexOfSpheresArray();
 	buildGravityCells();
@@ -94,11 +125,7 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv, SimulatedSystem *_sim
 	updateSphereSphereE();
 	updateSphereWallE();
 	QObject::connect(simulatedSystem, SIGNAL(variableUpdated(int)), SLOT(variableUpdated(int)));
-	
-	workQueueMutex = new QMutex();
-	workQueue = new WorkQueue(workQueueMutex, simulatedSystem->getRef<bool>(SimulationVariables::frameSending));
-	simulationWorker = new SimulationWorker(this, workQueue, actRcv);
-	simulationThread = new QThread();
+
 	simulationWorker->moveToThread(simulationThread);
 	QObject::connect(simulationThread, SIGNAL(started()), simulationWorker, SLOT(work()));
 	QObject::connect(simulationWorker, SIGNAL(finished()), simulationThread, SLOT(quit()));
@@ -121,7 +148,7 @@ SphereCalculator::~SphereCalculator()
 	delete[] gravityCellSizes;
 	delete[] gravityCellHalfDiagonalLength;
 	delete[] gravityCellPositions;
-	if(gravityCellIndexOfSpheres != NULL)
+	if(gravityCellIndexOfSpheres != nullptr)
 		delete[] gravityCellIndexOfSpheres;
 	delete[] sphereCountPerGravityCell;
 	delete elapsedTimer;
@@ -193,12 +220,12 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 			}
 		}
 	}
-	
+
 	if(gravity || lennardJonesPotential)
 	{
 		quint32 gravityCellIndex = gravityCellCount3 + gravityCellIndexOfSpheres[sphereIndex];
 		quint32 gravityCellIndex2;
-		
+
 		Vector3 sphereOffset;
 		Vector3 sphereTestPos;
 		Vector3 sphereTestPos2;
@@ -279,7 +306,7 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 			}
 		}
 	}
-	
+
 	acc = force/sphere.mass;
 	#pragma omp atomic
 	calculationCounter++;
@@ -298,7 +325,7 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 		updateSphereGravityCellLists();
 		updateGravityCellData();
 	}
-	
+
 	Scalar totalEnergy = 0.0, sphereEnergy, d;
 	Sphere sphere;
 	for(quint16 sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
@@ -306,7 +333,7 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 		sphere = spheres[sphereIndex];
 		sphereEnergy = -sphere.mass*earthGravity.dot(sphere.pos);
 		sphereEnergy += 0.5*sphere.mass*sphere.speed.squaredNorm();
-		
+
 		for(quint8 dim = 0; dim<3; dim++)
 		{
 			if((d = (sphere.radius - sphere.pos(dim))) > 0)
@@ -318,7 +345,7 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 				sphereEnergy += 8.0/15.0*sphereWallE*sqrt(sphere.radius)*pow(d, 2.5);
 			}
 		}
-		
+
 		if(detectCollisions)
 		{
 			quint32 cellIndex;
@@ -353,7 +380,7 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 				}
 			}
 		}
-	
+
 		if(gravity || lennardJonesPotential)
 		{
 			quint32 gravityCellIndex = gravityCellCount3 + gravityCellIndexOfSpheres[sphereIndex];
@@ -399,7 +426,7 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 				}
 			}
 		}
-		
+
 		totalEnergy += sphereEnergy;
 	}
 	return totalEnergy;
@@ -535,7 +562,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, 
 	const quint8 integratorOrder = butcherTableau.order;
 	Vector3 k_acc[integratorOrder];
 	Vector3 k_speed[integratorOrder];
-	
+
 	k_acc[0] = sphereAcceleration<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, sphere, timeDiff);
 	k_speed[0] = sphere.speed;
 	for(quint8 n = 1; n<integratorOrder; n++)
@@ -546,14 +573,14 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, 
 			sphere.pos += stepLength*butcherTableau.a[n][j]*k_speed[j];
 		}
 		k_acc[n] = sphereAcceleration<detectCollisions, gravity, lennardJonesPotential, periodicBoundaries>(sphereIndex, sphere, timeDiff);
-		
+
 		k_speed[n] = origSphere.speed;
 		for(quint8 j = 0; j<n; j++)
 		{
 			k_speed[n] += stepLength*butcherTableau.a[n][j]*k_acc[j];
 		}
 	}
-	
+
 	Vector3 pos = origSphere.pos;
 	Vector3 pos_ = pos;
 	Vector3 speed = origSphere.speed;
@@ -565,7 +592,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex, 
 		speed += stepLength*butcherTableau.b[j]*k_acc[j];
 		speed_ += stepLength*butcherTableau.b_[j]*k_acc[j];
 	}
-	
+
 	if(stepDivisionCounter < maximumStepDivision)
 	{
 		Scalar error_pos_ = (pos-pos_).norm();
@@ -666,28 +693,28 @@ void SphereCalculator::updateSphereCellLists()
 	{
 		s = spheres[i];
 		cellIndicesOfSpheres.resetCounter(i);
-		
+
 		pos = s.pos(0);
 		pos = fmin(pos, pos + timeStep*s.speed(0));
 		pos = fmin(pos, pos + 0.5*s.acc(0)*timeStep*timeStep);
 		value = (pos-sphereBoxPosition(0)-s.radius)/sphereBoxSize(0);
 		indexMinX = (quint16)(value*cellCount);
 		indexMinX = (indexMinX<cellCount?indexMinX:cellCount-1);
-		
+
 		pos = s.pos(1);
 		pos = fmin(pos, pos + timeStep*s.speed(1));
 		pos = fmin(pos, pos + 0.5*s.acc(1)*timeStep*timeStep);
 		value = (pos-sphereBoxPosition(1)-s.radius)/sphereBoxSize(1);
 		indexMinY = (quint16)(value*cellCount);
 		indexMinY = (indexMinY<cellCount?indexMinY:cellCount-1);
-		
+
 		pos = s.pos(2);
 		pos = fmin(pos, pos + timeStep*s.speed(2));
 		pos = fmin(pos, pos + 0.5*s.acc(2)*timeStep*timeStep);
 		value = (pos-sphereBoxPosition(2)-s.radius)/sphereBoxSize(2);
 		indexMinZ = (quint16)(value*cellCount);
 		indexMinZ = (indexMinZ<cellCount?indexMinZ:cellCount-1);
-		
+
 		pos = s.pos(0);
 		pos = fmax(pos, pos + timeStep*s.speed(0));
 		pos = fmax(pos, pos + 0.5*s.acc(0)*timeStep*timeStep);
@@ -695,7 +722,7 @@ void SphereCalculator::updateSphereCellLists()
 		indexMaxX = (quint16)(value*cellCount);
 		indexMaxX = (indexMaxX<cellCount?indexMaxX:cellCount-1);
 		indexMaxX = (indexMaxX<indexMinX?indexMinX:indexMaxX);
-		
+
 		pos = s.pos(1);
 		pos = fmax(pos, pos + timeStep*s.speed(1));
 		pos = fmax(pos, pos + 0.5*s.acc(1)*timeStep*timeStep);
@@ -703,7 +730,7 @@ void SphereCalculator::updateSphereCellLists()
 		indexMaxY = (quint16)(value*cellCount);
 		indexMaxY = (indexMaxY<cellCount?indexMaxY:cellCount-1);
 		indexMaxY = (indexMaxY<indexMinY?indexMinY:indexMaxY);
-		
+
 		pos = s.pos(2);
 		pos = fmax(pos, pos + timeStep*s.speed(2));
 		pos = fmax(pos, pos + 0.5*s.acc(2)*timeStep*timeStep);
@@ -711,7 +738,7 @@ void SphereCalculator::updateSphereCellLists()
 		indexMaxZ = (quint16)(value*cellCount);
 		indexMaxZ = (indexMaxZ<cellCount?indexMaxZ:cellCount-1);
 		indexMaxZ = (indexMaxZ<indexMinZ?indexMinZ:indexMaxZ);
-		
+
 		for(quint16 z = indexMinZ; z<=indexMaxZ; z++)
 		{
 			for(quint16 y = indexMinY; y<=indexMaxY; y++)
@@ -887,9 +914,9 @@ void SphereCalculator::rebuildGravityCellPairs(quint32 currentCellIndex, quint32
 
 void SphereCalculator::updateGravityCellIndexOfSpheresArray()
 {
-	if(gravityCellIndexOfSpheres != NULL)
+	if(gravityCellIndexOfSpheres != nullptr)
 		delete[] gravityCellIndexOfSpheres;
-	gravityCellIndexOfSpheres = NULL;
+	gravityCellIndexOfSpheres = nullptr;
 	quint16 count = spheres.size();
 	if(count > 0)
 		gravityCellIndexOfSpheres = new quint32[count];
@@ -922,7 +949,7 @@ void SphereCalculator::updateGravityCellData()
 			parentCellIndex = cellIndex/2;
 			massVectorSumPerCell[parentCellIndex] += massVectorSumPerCell[cellIndex];
 			massSumPerCell[parentCellIndex] += massSumPerCell[cellIndex];
-			
+
 			massCenterPerCell[cellIndex] = massVectorSumPerCell[cellIndex]/massSumPerCell[cellIndex];
 			sphereCountPerGravityCell[parentCellIndex] += sphereCountPerGravityCell[cellIndex];
 		}
@@ -998,12 +1025,12 @@ quint16 SphereCalculator::removeSomeLastSpheres(quint16 count)
 void SphereCalculator::updateSpherePositionsInBox(Scalar randomDisplacement, Scalar randomSpeed)
 {
 	quint16 sphereCount1D = (quint16)ceil(pow(spheres.size(), 1/3.0));
-	
+
 	std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::chrono::system_clock::duration timepoint = now.time_since_epoch();
 	std::default_random_engine generator(timepoint.count());
 	std::uniform_real_distribution<Scalar> distribution(-1, 1);
-	
+
 	for(unsigned int i = 0; i<spheres.size(); i++)
 	{
 		Console::out<<"SphereCalculator: sphere "<<(i+1)<<"|"<<spheres.size()<<"\r";
@@ -1040,7 +1067,7 @@ void SphereCalculator::calculateStep()
 void SphereCalculator::updateIntegratorMethod()
 {
 	quint8 integrMethod = integratorMethod;
-	
+
 	if(integrMethod == IntegratorMethods::HeunEuler21)
 	{
 		qDebug()<<"SphereCalculator: activated HeunEuler21 integrator.";

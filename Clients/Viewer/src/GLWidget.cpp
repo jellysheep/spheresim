@@ -17,25 +17,18 @@
 
 using namespace SphereSim;
 
-GLWidget::GLWidget(QWidget* parent):QGLWidget(parent), program(this), circleEdges(50)
+GLWidget::GLWidget(QWidget* parent)
+	:QGLWidget(parent), frameBuffer(nullptr), program(this),
+	verticesAttr(0), colorsAttr(0), worldMatrixUniform(0), sphereMatrixUniform(0),
+	perspectiveMatrix(), animationTimer(new QTimer()),
+	controlTimer(new QElapsedTimer()), sleepTime(20),
+	frameBufferPercentageLevelSum(0), frameBufferPercentageLevelCounter(0),
+	animating(false), circleEdges(50),
+	circleVertices(nullptr), circleColors(nullptr), boxLength(1)
 {
-	frameBuffer = NULL;
-	sleepTime = 20;
-	animating = false;
-	frameBufferPercentageLevelSum = 0;
-	frameBufferPercentageLevelCounter = 0;
-	animationTimer = new QTimer();
 	connect(animationTimer, SIGNAL(timeout()), SLOT(timerUpdate()));
 	animationTimer->setTimerType(Qt::PreciseTimer);
 	animationTimer->setSingleShot(true);
-	controlTimer = new QElapsedTimer();
-	verticesAttr = 0;
-	colorsAttr = 0;
-	worldMatrixUniform = 0;
-	sphereMatrixUniform = 0;
-	circleVertices = NULL;
-	circleColors = NULL;
-	boxLength = 1;
 }
 
 void GLWidget::setFrameBuffer(FrameBuffer<Sphere>* fb)
@@ -52,7 +45,7 @@ GLWidget::~GLWidget()
 {
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(0);
-	
+
 	program.release();
 	delete animationTimer;
 	delete controlTimer;
@@ -63,7 +56,7 @@ void GLWidget::initializeGL()
 	initializeGLFunctions();
 	qglClearColor(Qt::black);
     glEnable(GL_DEPTH_TEST);
-	
+
 	if (!program.addShaderFromSourceFile(QGLShader::Vertex, ":/VertexShader.glsl"))
 		shaderLoadError();
 	if (!program.addShaderFromSourceFile(QGLShader::Fragment, ":/FragmentShader.glsl"))
@@ -72,14 +65,14 @@ void GLWidget::initializeGL()
 		shaderLoadError();
 	if (!program.bind())
 		shaderLoadError();
-	
+
 	program.bind();
-	
+
 	verticesAttr = program.attributeLocation("verticesAttr");
 	colorsAttr = program.attributeLocation("colorsAttr");
 	worldMatrixUniform = program.uniformLocation("worldMatrix");
 	sphereMatrixUniform = program.uniformLocation("sphereMatrix");
-	
+
 	circleVertices = new float[2*(circleEdges+2)];
 	circleVertices[0] = -0.15;
 	circleVertices[1] = 0.15;
@@ -124,9 +117,9 @@ void GLWidget::resizeGL(int width, int height)
 
 void GLWidget::paintGL()
 {
-	if(frameBuffer == NULL)
+	if(frameBuffer == nullptr)
 		return;
-	
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	QMatrix4x4 worldMatrix = perspectiveMatrix;
@@ -135,29 +128,29 @@ void GLWidget::paintGL()
 	worldMatrix.scale(1/boxLength);
 
 	program.setUniformValue(worldMatrixUniform, worldMatrix);
-	
+
 	QMatrix4x4 boxMatrix;
 	boxMatrix.scale(boxLength);
 	program.setUniformValue(sphereMatrixUniform, boxMatrix);
-	
+
 	float boxVertices[] =
 	{
 		0, 0, 0, 0, 0, 1,
 		0, 0, 1, 0, 1, 1,
 		0, 1, 1, 0, 1, 0,
 		0, 1, 0, 0, 0, 0,
-		
+
 		1, 0, 0, 1, 0, 1,
 		1, 0, 1, 1, 1, 1,
 		1, 1, 1, 1, 1, 0,
 		1, 1, 0, 1, 0, 0,
-		
+
 		0, 0, 0, 1, 0, 0,
 		0, 0, 1, 1, 0, 1,
 		0, 1, 1, 1, 1, 1,
 		0, 1, 0, 1, 1, 0
 	};
-	
+
 	float col = 0.5;
 	float colR = col, colG = col, colB = col;
 	float boxColors[] =
@@ -172,26 +165,26 @@ void GLWidget::paintGL()
 
 	glVertexAttribPointer(verticesAttr, 3, GL_FLOAT, GL_FALSE, 0, boxVertices);
 	glVertexAttribPointer(colorsAttr, 3, GL_FLOAT, GL_FALSE, 0, boxColors);
-	
+
 	glDrawArrays(GL_LINES, 0, 24);
 
 	glVertexAttribPointer(verticesAttr, 2, GL_FLOAT, GL_FALSE, 0, circleVertices);
 	glVertexAttribPointer(colorsAttr, 3, GL_FLOAT, GL_FALSE, 0, circleColors);
-	
+
 	Sphere s;
-	
+
 	while(frameBuffer->hasElements())
 	{
 		s = frameBuffer->popElement();
-		
+
 		QMatrix4x4 sphereMatrix;
 		sphereMatrix.translate(s.pos(0), s.pos(1), s.pos(2));
 		sphereMatrix.scale(s.radius);
 		program.setUniformValue(sphereMatrixUniform, sphereMatrix);
-		
+
 		glDrawArrays(GL_TRIANGLE_FAN, 0, circleEdges+2);
 	}
-	
+
 	frameBuffer->popFrame();
 }
 

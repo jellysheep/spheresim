@@ -16,9 +16,8 @@ class QDataStream;
 namespace SphereSim
 {
 	/** \brief Physical data of a sphere. */
-	class Sphere
+	struct Sphere
 	{
-	public:
 		/** \brief Sphere position (in metres). */
 		Vector3 pos;
 		/** \brief Sphere speed (in metres per second). */
@@ -29,19 +28,10 @@ namespace SphereSim
 		Scalar radius;
 		/** \brief Sphere mass (in kilograms). */
 		Scalar mass;
-		
-		/** \brief Initialize Sphere with position, speed, acceleration, radius and mass. */
-		Sphere(Vector3 x, Vector3 v, Vector3 a, Scalar r, Scalar m)
-		{
-			pos = x;
-			speed = v;
-			acc = a;
-			radius = r;
-			mass = m;
-		}
-		
-		/** \brief Initialize default Sphere. */
-		Sphere():Sphere(Vector3(0,0,0),Vector3(0,0,0),Vector3(0,0,0),0,0)
+
+		Sphere()
+			:pos(Vector3(0,0,0)), speed(Vector3(0,0,0)), acc(Vector3(0,0,0)),
+			radius(0), mass(0)
 		{
 		}
 	};

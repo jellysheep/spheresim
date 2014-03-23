@@ -12,11 +12,9 @@
 
 using namespace SphereSim;
 
-StartDialog::StartDialog(QApplication* a)
+StartDialog::StartDialog()
+	:startDialog(new Ui::StartDialog), selected(false), sphCount(64)
 {
-	selected = false;
-	sphCount = 64;
-	startDialog = new Ui::StartDialog();
 	startDialog->setupUi(this);
 	setWindowTitle("SphereSim " VERSION_STR);
 	QObject::connect(this, SIGNAL(accepted()), this, SLOT(accepted_()), Qt::AutoConnection);

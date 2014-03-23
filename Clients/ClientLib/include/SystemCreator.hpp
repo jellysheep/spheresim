@@ -15,25 +15,29 @@ class ActionSender;
 
 namespace SphereSim
 {
-	
+
 	/** \brief Create simulation systems. */
 	class SystemCreator
 	{
 	private:
 		ActionSender* actionSender;
-		
+
 	public:
 		SystemCreator(ActionSender* actionSender);
-		
+
+		SystemCreator() = delete;
+		SystemCreator(const SystemCreator&) = delete;
+		SystemCreator& operator=(const SystemCreator&) = delete;
+
 		Scalar createArgonGasSystem(quint16 sphereCount, Scalar targetTemperature=473.15);
-		
+
 		Scalar createMacroscopicGravitationSystem(quint16 sphereCount);
-		
+
 		Scalar createMacroscopic2DCollisionSystem(quint16 sphereCount);
-		
+
 		Scalar createSimpleWallCollisionSystem();
 	};
-	
+
 }
 
 #endif

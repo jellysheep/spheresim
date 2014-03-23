@@ -36,14 +36,11 @@ using namespace SphereSim;
 const int ServerTester::framebuffer = 255;
 
 ServerTester::ServerTester(QStringList args, QHostAddress addr, quint16 port)
+	:sender(new ActionSender(args, addr, port, this)), testCounter(0),
+	successCounter(0), testSuccess(true), testActionName(), testResult(0),
+	systemCreator(new SystemCreator(sender))
 {
-	sender = new ActionSender(args, addr, port, this);
 	sender->failureExitWhenDisconnected = true;
-	testCounter = 0;
-	successCounter = 0;
-	testSuccess = true;
-	testResult = 0;
-	systemCreator = new SystemCreator(sender);
 }
 
 ServerTester::~ServerTester()
@@ -66,7 +63,7 @@ void ServerTester::runTests(quint8 actionGroup, const char* groupName)
 {
 	testCounter = 0;
 	successCounter = 0;
-	
+
 	Console::out<<"ServerTester: ";
 	Console::bold<<"Testing "<<groupName<<". \n";
 	switch(actionGroup)
@@ -88,7 +85,7 @@ void ServerTester::runTests(quint8 actionGroup, const char* groupName)
 		Console::bold<<"Unknown action group requested. \n";
 		break;
 	}
-	
+
 	Console::out<<"ServerTester: ";
 	if(testCounter == successCounter)
 	{
@@ -137,7 +134,7 @@ void ServerTester::runSpheresUpdatingActionTests()
 	startNewTest_(SpheresUpdatingActions::getSphereCount);
 		verify(sender->simulatedSystem->get<int>(SimulationVariables::sphereCount), Equal, 0);
 	endTest();
-	
+
 	sender->addSphere();
 	Sphere s;
 	s.pos(0) = 1.0;
@@ -233,13 +230,13 @@ void ServerTester::runCalculationActionTests()
 		sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
 		verify(timeStep, ApproxEqual, sender->simulatedSystem->get<Scalar>(SimulationVariables::timeStep));
 	endTest();
-	
+
 	//runCalculationActionTests_internal_(2, IntegratorMethods::HeunEuler21);
 	runCalculationActionTests_internal_(6, IntegratorMethods::CashKarp54);
 	runCalculationActionTests_internal_(6, IntegratorMethods::RungeKuttaFehlberg54);
 	runCalculationActionTests_internal_(7, IntegratorMethods::DormandPrince54);
 	runCalculationActionTests_internal_(4, IntegratorMethods::BogackiShampine32);
-	
+
 	systemCreator->createSimpleWallCollisionSystem();
 	sender->simulatedSystem->set(SimulationVariables::integratorMethod, (int)IntegratorMethods::CashKarp54);
 	startTest_(CalculationActions::startSimulation);
@@ -260,12 +257,12 @@ void ServerTester::runCalculationActionTests()
 void ServerTester::runCalculationActionTests_internal(quint8 order, const char* integratorMethod)
 {
 	systemCreator->createSimpleWallCollisionSystem();
-	
+
 	quint16 sphereCount = sender->simulatedSystem->get<int>(SimulationVariables::sphereCount);
 	verify(sphereCount, Equal, 1);
-	
+
 	sender->simulatedSystem->set(SimulationVariables::maximumStepDivision, 16);
-	
+
 	Scalar timeStep = 0.02;
 	sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
 	Scalar simulationTime = 1;
@@ -290,7 +287,7 @@ void ServerTester::runCalculationActionTests_internal(quint8 order, const char* 
 	verify(fabs(relError), Smaller, 0.01);
 	verify(realSteps, Greater, 0);
 	sender->removeLastSphere();
-	
+
 	systemCreator->createSimpleWallCollisionSystem();
 	beginEnergy = sender->getTotalEnergy();
 	realSteps /= order;

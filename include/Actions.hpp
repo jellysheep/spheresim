@@ -11,7 +11,7 @@
 
 namespace SphereSim
 {
-	
+
 	/** \brief Variables which are synchronized between client and server. */
 	namespace SimulationVariables
 	{
@@ -74,8 +74,8 @@ namespace SphereSim
 			numberOfVariables
 		};
 	}
-	
-	
+
+
 	/** \brief Action groups provided by the server and requested by the clients;
 	 * actions are used for TCP communication between clients and server. */
 	namespace ActionGroups
@@ -103,7 +103,7 @@ namespace SphereSim
 			workQueue
 		};
 	}
-	
+
 	/** \brief Basic things concerning client and server software. */
 	namespace BasicActions
 	{
@@ -116,7 +116,7 @@ namespace SphereSim
 			updateVariable
 		};
 	}
-	
+
 	/** \brief Update or get spheres. */
 	namespace SpheresUpdatingActions
 	{
@@ -146,7 +146,7 @@ namespace SphereSim
 			updateKineticEnergy
 		};
 	}
-	
+
 	/** \brief Update and get calculation parameters or control a simulation. */
 	namespace CalculationActions
 	{
@@ -169,7 +169,7 @@ namespace SphereSim
 			getLastStepCalculationTime
 		};
 	}
-	
+
 	/** \brief Get information about the simulation. */
 	namespace InformationActions
 	{
@@ -182,7 +182,7 @@ namespace SphereSim
 			getKineticEnergy
 		};
 	}
-	
+
 	/** \brief Update or get physical constants, wall properties and other parameters of the simulated system. */
 	namespace SimulatedSystemActions
 	{
@@ -191,7 +191,7 @@ namespace SphereSim
 		{
 		};
 	}
-	
+
 	/** \brief Server status replies. */
 	namespace ServerStatusReplies
 	{
@@ -212,7 +212,7 @@ namespace SphereSim
 			sendVariable
 		};
 	}
-	
+
 	/** \brief Type of work to be done by the SimulationWorker. */
 	namespace WorkQueueActions
 	{
@@ -227,7 +227,7 @@ namespace SphereSim
 			calculateStep
 		};
 	}
-	
+
 }
 
 #endif

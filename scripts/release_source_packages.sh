@@ -29,7 +29,7 @@ for buildscript_dir in "${BUILDSCRIPT_DIRS[@]}"; do
 	msg "Building $buildscript_dir/PKGBUILD source package ..."
 	mkdir -p $BUILD_DIR
 	cd $BUILD_DIR
-	
+
 	cp $buildscript_dir/* ./
 	sed -i -e "s|pkgver=.*$|pkgver=$(cat ${DIR}/VERSION)|" PKGBUILD
 	makepkg -S

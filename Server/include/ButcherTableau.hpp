@@ -16,7 +16,7 @@
 
 namespace SphereSim
 {
-	
+
 	/** \brief Butcher tableau values for an adaptive stepsize Runge-Kutta method. */
 	class ButcherTableau
 	{
@@ -31,23 +31,28 @@ namespace SphereSim
 		Scalar b_[10];
 		/** \brief Left vector. */
 		Scalar c[10];
-		
+
 		/** \brief Initialize empty ButcherTableau. */
 		ButcherTableau();
-		
+
 		/** \copydoc ButcherTableau
 		 * \param order Runge-Kutta method order. */
 		ButcherTableau(quint8 order);
-		
+
 		/** \brief Initialization of the Butcher tableau.
 		 * \param order Runge-Kutta method order and array size.
 		 * \param a Central matrix.
 		 * \param b First bottom vector.
 		 * \param b_ Second bottom vector.
 		 * \param c Left vector. */
-		ButcherTableau(quint8 order, const Scalar* a, const Scalar* b, const Scalar* b_, const Scalar* c);
+		ButcherTableau(quint8 order, const Scalar* a, const Scalar* b,
+			const Scalar* b_, const Scalar* c);
+
+		ButcherTableau(const ButcherTableau&) = default;
+		ButcherTableau& operator=(const ButcherTableau&) = default;
+
 	};
-	
+
 }
 
 #endif

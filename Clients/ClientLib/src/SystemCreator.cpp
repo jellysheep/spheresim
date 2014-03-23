@@ -45,16 +45,16 @@ Scalar getMaxwellBoltzmannDistribution(Scalar random)
 
 using namespace SphereSim;
 
-SystemCreator::SystemCreator(ActionSender* actionSender_)
+SystemCreator::SystemCreator(ActionSender* actionSender)
+	:actionSender(actionSender)
 {
-	actionSender = actionSender_;
 }
 
 Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTemperature)
 {
 	quint16 sphereCountSqrt = (quint16)sqrt(sphereCount);
 	sphereCount = sphereCountSqrt*sphereCountSqrt;
-	
+
 	Scalar boxLength = sphereCountSqrt/8.0*2.5e-9;
 	actionSender->simulatedSystem->set(SimulationVariables::boxSize, Vector3(boxLength, boxLength, boxLength));
 	Scalar radius = 0.017*boxLength;
@@ -63,7 +63,7 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 	std::default_random_engine generator(timepoint.count());
 	std::uniform_real_distribution<Scalar> distribution(-radius/4, radius/4);
 	std::uniform_real_distribution<Scalar> distribution2(0, 1);
-	
+
 	Sphere s;
 	s.radius = 0.5*radius;
 	s.speed.setZero();
@@ -90,7 +90,7 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 		actionSender->updateSphere(i, s);
 	}
 	actionSender->simulatedSystem->set(SimulationVariables::targetTemperature, targetTemperature);
-	
+
 	actionSender->simulatedSystem->set(SimulationVariables::collisionDetection, false);
 	actionSender->simulatedSystem->set(SimulationVariables::gravityCalculation, false);
 	actionSender->simulatedSystem->set(SimulationVariables::gravitationalConstant, 1.0e-4);
@@ -98,7 +98,7 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount, Scalar targetTem
 	actionSender->simulatedSystem->set(SimulationVariables::earthGravity, Vector3(0,0,0));
 	actionSender->simulatedSystem->set(SimulationVariables::wallE, 0);
 	actionSender->simulatedSystem->set(SimulationVariables::periodicBoundaryConditions, true);
-	
+
 	return boxLength;
 }
 
@@ -108,20 +108,20 @@ Scalar SystemCreator::createMacroscopicGravitationSystem(quint16 sphereCount)
 	actionSender->simulatedSystem->set(SimulationVariables::boxSize, Vector3(boxLength, boxLength, boxLength));
 	Scalar radius = 0.03*boxLength;
 	Scalar mass = 1;
-	
+
 	Sphere sphere = Sphere();
 	sphere.radius = radius;
 	sphere.mass = mass;
 	actionSender->addSomeSpheres(sphereCount);
 	actionSender->updateAllSpheres(sphere);
 	actionSender->updateSpherePositionsInBox(0.01, 0.01);
-	
+
 	actionSender->simulatedSystem->set(SimulationVariables::collisionDetection, false);
 	actionSender->simulatedSystem->set(SimulationVariables::gravityCalculation, true);
 	actionSender->simulatedSystem->set(SimulationVariables::gravitationalConstant, 1.0e-20);
 	actionSender->simulatedSystem->set(SimulationVariables::lennardJonesPotential, false);
 	actionSender->simulatedSystem->set(SimulationVariables::earthGravity, Vector3(0,0,0));
-	
+
 	return boxLength;
 }
 
@@ -131,14 +131,14 @@ Scalar SystemCreator::createMacroscopic2DCollisionSystem(quint16 sphereCount)
 	actionSender->simulatedSystem->set(SimulationVariables::boxSize, Vector3(boxLength, boxLength, boxLength));
 	Scalar radius = 0.03*boxLength;
 	Scalar mass = 1;
-	
+
 	Sphere sphere = Sphere();
 	sphere.radius = radius;
 	sphere.mass = mass;
 	actionSender->addSomeSpheres(sphereCount);
 	actionSender->updateAllSpheres(sphere);
 	actionSender->updateSpherePositionsInBox(0.01, 0.01);
-	
+
 	actionSender->simulatedSystem->set(SimulationVariables::sphereE, 5000);
 	actionSender->simulatedSystem->set(SimulationVariables::spherePoissonRatio, 0.5);
 	actionSender->simulatedSystem->set(SimulationVariables::wallE, 5000);
@@ -147,7 +147,7 @@ Scalar SystemCreator::createMacroscopic2DCollisionSystem(quint16 sphereCount)
 	actionSender->simulatedSystem->set(SimulationVariables::collisionDetection, true);
 	actionSender->simulatedSystem->set(SimulationVariables::gravityCalculation, false);
 	actionSender->simulatedSystem->set(SimulationVariables::lennardJonesPotential, false);
-	
+
 	return boxLength;
 }
 
@@ -169,7 +169,7 @@ Scalar SystemCreator::createSimpleWallCollisionSystem()
 	s.mass = 1.0;
 	s.radius = 0.1;
 	actionSender->updateSphere(0, s);
-	
+
 	actionSender->simulatedSystem->set(SimulationVariables::sphereE, 5000);
 	actionSender->simulatedSystem->set(SimulationVariables::spherePoissonRatio, 0.5);
 	actionSender->simulatedSystem->set(SimulationVariables::wallE, 5000);
@@ -178,6 +178,6 @@ Scalar SystemCreator::createSimpleWallCollisionSystem()
 	actionSender->simulatedSystem->set(SimulationVariables::collisionDetection, true);
 	actionSender->simulatedSystem->set(SimulationVariables::gravityCalculation, false);
 	actionSender->simulatedSystem->set(SimulationVariables::lennardJonesPotential, false);
-	
+
 	return boxLength;
 }

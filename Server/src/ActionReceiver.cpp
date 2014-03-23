@@ -16,11 +16,10 @@
 
 using namespace SphereSim;
 
-ActionReceiver::ActionReceiver(QTcpSocket* sock):simulatedSystem(), sphCalc(this, &simulatedSystem)
+ActionReceiver::ActionReceiver(QTcpSocket* socket)
+	:socket(socket), requestData(), collectingRequestData(false), simulatedSystem(),
+	sphCalc(this, &simulatedSystem), workQueue(sphCalc.getWorkQueue())
 {
-	workQueue = sphCalc.getWorkQueue();
-	collectingRequestData = false;
-	socket = sock;
 	connect(socket, SIGNAL(disconnected()), SLOT(deleteLater()));
 	connect(socket, SIGNAL(readyRead()), SLOT(readData()));
 	connect(&sphCalc, SIGNAL(frameToSend(QByteArray)), SLOT(sendFrame(QByteArray)));
@@ -56,7 +55,7 @@ void ActionReceiver::processData(QByteArray byteArray)
 	qint16 endIndex, startIndex;
 	endIndex = byteArray.indexOf(Connection::endByte);
 	startIndex = byteArray.indexOf(Connection::startByte);
-	
+
 	if(endIndex<0)
 	{
 		if(startIndex<0)

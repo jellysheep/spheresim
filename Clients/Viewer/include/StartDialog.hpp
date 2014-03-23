@@ -23,19 +23,23 @@ namespace SphereSim
 	class StartDialog : public QDialog
 	{
 		Q_OBJECT
-		
+
 	protected:
 		Ui::StartDialog* startDialog;
-		
+
 		bool selected;
-		
+
 		quint16 sphCount;
-		
+
 	public:
-		StartDialog(QApplication* a);
-		
+		StartDialog();
+
+		StartDialog() = delete;
+		StartDialog(const StartDialog&) = delete;
+		StartDialog& operator=(const StartDialog&) = delete;
+
 		quint16 getSphereCount();
-		
+
 	public slots:
 		void accepted_();
 		void rejected_();

@@ -23,30 +23,33 @@ namespace SphereSim
 	class SimulatedSystem : public QObject
 	{
 		Q_OBJECT
-		
+
 	private:
 		std::vector<Object> vars;
-		
+
 		template <class T>
 		void addVariable(SimulationVariables::Variable var, Object::Type type, const T& t);
-		
+
 		void sendVariable(SimulationVariables::Variable var);
-		
+
 	public:
 		SimulatedSystem();
-		
+
+		SimulatedSystem(const SimulatedSystem&) = delete;
+		SimulatedSystem& operator=(const SimulatedSystem&) = delete;
+
 		template<class T>
 		const T get(SimulationVariables::Variable var) const
 		{
 			return vars[var].get<T>();
 		}
-		
+
 		template<class T>
 		const T& getRef(SimulationVariables::Variable var) const
 		{
 			return vars[var].getRef<T>();
 		}
-		
+
 		template<class T>
 		void set(SimulationVariables::Variable var, const T& t)
 		{
@@ -56,21 +59,21 @@ namespace SphereSim
 				emit variableUpdated((int)var);
 			}
 		}
-		
+
 		void receiveVariable(SimulationVariables::Variable var, QByteArray data);
-		
+
 	signals:
 		void variableToSend(QByteArray data);
-		
+
 		void variableUpdated(int var);
-		
+
 		void receivedAllVariables();
-		
+
 	public slots:
 		void sendAllVariables();
-		
+
 		void printUpdatedVariable(int var);
-		
+
 	};
 }
 

@@ -14,7 +14,7 @@
 
 namespace SphereSim
 {
-	
+
 	/** \brief Connection details for client and server. */
 	namespace Connection
 	{
@@ -29,7 +29,7 @@ namespace SphereSim
 		/** \brief The byte used to end an encoded request. */
 		extern char endByte;
 	}
-	
+
 }
 
 #endif

@@ -22,21 +22,16 @@
 using namespace SphereSim;
 
 SimulationGrapher::SimulationGrapher(QStringList args, QHostAddress addr, quint16 port)
-	:dataPoints(2048), stepsToEquilibrium(400), stepsBeforeMeasuring(30), graphNumber(1)
+	:actionSender(new ActionSender(args, addr, port, this)),
+	dataUpdateTimer(new QTimer(this)), counter(0), timeStep(1.0), time(1.0),
+	sphereCountSqrt(1), sphereCount(1), dataPoints(2048), data(), temperatures(),
+	stepsToEquilibrium(400), stepsBeforeMeasuring(30), graphNumber(1),
+	systemCreator(new SystemCreator(actionSender))
 {
-	actionSender = new ActionSender(args, addr, port, this);
 	actionSender->failureExitWhenDisconnected = true;
-	dataUpdateTimer = new QTimer(this);
 	dataUpdateTimer->setInterval(5);
 	connect(dataUpdateTimer, SIGNAL(timeout()), this, SLOT(timerUpdate()));
-	systemCreator = new SystemCreator(actionSender);
 	actionSender->simulatedSystem->set(SimulationVariables::frameSending, false);
-	
-	counter = 0;
-	timeStep = 1.0;
-	time = 1.0;
-	sphereCountSqrt = 1;
-	sphereCount = 1;
 }
 
 SimulationGrapher::~SimulationGrapher()
@@ -56,12 +51,12 @@ void SimulationGrapher::run()
 	timeStep = 0.0001;
 	time = 0.0001;
 	graphNumber = 1;
-	
-	Scalar length = systemCreator->createMacroscopicGravitationSystem(sphereCount);
+
+	systemCreator->createMacroscopicGravitationSystem(sphereCount);
 	actionSender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
 	actionSender->simulatedSystem->set(SimulationVariables::frameSending, false);
 	actionSender->simulatedSystem->set(SimulationVariables::maximumStepDivision, 0);
-	
+
 	dataUpdateTimer->start();
 }
 
@@ -78,11 +73,11 @@ void SimulationGrapher::runSimulation2()
 	graphNumber = 2;
 	data.reserve(dataPoints);
 	temperatures.reserve(stepsToEquilibrium + dataPoints/sphereCount);
-	
-	Scalar length = systemCreator->createArgonGasSystem(sphereCount, 473.15);
+
+	systemCreator->createArgonGasSystem(sphereCount, 473.15);
 	actionSender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
 	actionSender->simulatedSystem->set(SimulationVariables::frameSending, false);
-	
+
 	dataUpdateTimer->start();
 }
 
@@ -128,7 +123,7 @@ void SimulationGrapher::timerUpdate()
 			Scalar temperature = 2.0/3.0*kineticEnergy/(sphereCount*1.3806504e-23);
 			qDebug()<<"temperature:"<<temperature;
 			temperatures.append(temperature);
-			
+
 			Sphere s;
 			Scalar speed;
 			for(quint16 i = 0; i<sphereCount; i++)
@@ -141,7 +136,7 @@ void SimulationGrapher::timerUpdate()
 			if(counter >= stepsToEquilibrium + dataPoints/sphereCount)
 			{
 				dataUpdateTimer->stop();
-				
+
 				qSort(data);
 				data.prepend(0);
 				Scalar factor = 1.0/dataPoints;
@@ -154,7 +149,7 @@ void SimulationGrapher::timerUpdate()
 				}
 				stream.flush();
 				file.close();
-				
+
 				QFile file3("./temperatures.txt");
 				QTextStream stream3(&file3);
 				file3.open(QIODevice::WriteOnly);
@@ -164,7 +159,7 @@ void SimulationGrapher::timerUpdate()
 				}
 				stream3.flush();
 				file3.close();
-				
+
 				qApp->exit(0);
 			}
 			else

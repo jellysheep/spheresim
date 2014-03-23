@@ -14,39 +14,35 @@
 namespace SphereSim
 {
 	class ArrayException;
-	
+
 	template <typename T, bool extremeSpeed=true, bool throwExceptions=true>
 	class TwoDimArray
 	{
 	private:
-		TwoDimArray(const TwoDimArray<T>&);
-		
-		TwoDimArray& operator=(const TwoDimArray<T>&);
-		
 		Array<T> values;
-		
+
 		T** subArrays;
-		
+
 		unsigned int* counter;
-		
+
 		const unsigned int constInnerSize;
-		
+
 		unsigned int outerSize;
-		
+
 		void deleteAll()
 		{
-			if(counter != NULL)
+			if(counter != nullptr)
 			{
 				delete[] counter;
-				counter = NULL;
+				counter = nullptr;
 			}
-			if(subArrays != NULL)
+			if(subArrays != nullptr)
 			{
 				delete[] subArrays;
-				subArrays = NULL;
+				subArrays = nullptr;
 			}
 		}
-		
+
 		void initArrays()
 		{
 			unsigned int totalSize = constInnerSize * outerSize;
@@ -59,25 +55,31 @@ namespace SphereSim
 				subArrays[i] = &values[constInnerSize*i];
 			}
 		}
-		
+
 	public:
 		TwoDimArray(const unsigned int size)
-			:constInnerSize(size), outerSize(0), values(0), counter(NULL), subArrays(NULL)
+			:values(0), subArrays(nullptr), counter(nullptr),
+			constInnerSize(size), outerSize(0)
 		{
 		}
-		
+
 		TwoDimArray(const unsigned int size, const unsigned int size2)
-			:constInnerSize(size), outerSize(size2), values(0), counter(NULL), subArrays(NULL)
+			:values(0), subArrays(nullptr), counter(nullptr),
+			constInnerSize(size), outerSize(size2)
 		{
 			if(size2 > 0)
 				initArrays();
 		}
-		
+
 		~TwoDimArray()
 		{
 			deleteAll();
 		}
-		
+
+		TwoDimArray() = delete;
+		TwoDimArray(const TwoDimArray&) = delete;
+		TwoDimArray& operator=(const TwoDimArray&) = delete;
+
 		void resize(const unsigned int size)
 		{
 			if(size != outerSize && size > 0)
@@ -88,42 +90,42 @@ namespace SphereSim
 				initArrays();
 			}
 		}
-		
+
 		inline T* operator[](const unsigned int index)
 		{
 			if(!extremeSpeed)
 			{
-				if(index >= outerSize || subArrays == NULL || subArrays[index] == NULL)
+				if(index >= outerSize || subArrays == nullptr || subArrays[index] == nullptr)
 				{
 					qDebug()<<"TwoDimArray::operator[] error.";
 					if(throwExceptions)
 						throw ArrayException();
-					return NULL;
+					return nullptr;
 				}
 			}
 			return subArrays[index];
 		}
-		
+
 		inline const T* operator[](const unsigned int index) const
 		{
 			if(!extremeSpeed)
 			{
-				if(index >= outerSize || subArrays == NULL || subArrays[index] == NULL)
+				if(index >= outerSize || subArrays == nullptr || subArrays[index] == nullptr)
 				{
 					qDebug()<<"TwoDimArray::operator[] const error.";
 					if(throwExceptions)
 						throw ArrayException();
-					return NULL;
+					return nullptr;
 				}
 			}
 			return subArrays[index];
 		}
-		
+
 		inline void addElement(const unsigned int index, T& element)
 		{
 			if(!extremeSpeed)
 			{
-				if(counter == NULL || index >= outerSize || subArrays == NULL || subArrays[index] == NULL)
+				if(counter == nullptr || index >= outerSize || subArrays == nullptr || subArrays[index] == nullptr)
 				{
 					qDebug()<<"TwoDimArray::addElement error.";
 					if(throwExceptions)
@@ -140,12 +142,12 @@ namespace SphereSim
 					throw ArrayException();
 			}
 		}
-		
+
 		inline bool addElementIfNotContained(const unsigned int index, T& element)
 		{
 			if(!extremeSpeed)
 			{
-				if(counter == NULL || index >= outerSize || subArrays == NULL || subArrays[index] == NULL)
+				if(counter == nullptr || index >= outerSize || subArrays == nullptr || subArrays[index] == nullptr)
 				{
 					qDebug()<<"TwoDimArray::addElementIfNotContained error.";
 					if(throwExceptions)
@@ -169,17 +171,17 @@ namespace SphereSim
 				throw ArrayException();
 			return false;
 		}
-		
+
 		inline unsigned int count()
 		{
 			return outerSize;
 		}
-		
+
 		inline unsigned int getCounter(const unsigned int index)
 		{
 			if(!extremeSpeed)
 			{
-				if(counter == NULL || index >= outerSize)
+				if(counter == nullptr || index >= outerSize)
 				{
 					qDebug()<<"TwoDimArray::getCount error.";
 					if(throwExceptions)
@@ -189,12 +191,12 @@ namespace SphereSim
 			}
 			return counter[index];
 		}
-		
+
 		inline void resetCounter(const unsigned int index)
 		{
 			if(!extremeSpeed)
 			{
-				if(counter == NULL || index >= outerSize)
+				if(counter == nullptr || index >= outerSize)
 				{
 					qDebug()<<"TwoDimArray::resetCounter error.";
 					if(throwExceptions)
@@ -204,17 +206,17 @@ namespace SphereSim
 			}
 			counter[index] = 0;
 		}
-		
+
 		inline T* data()
 		{
 			return values;
 		}
-		
+
 		inline const T* constData() const
 		{
 			return values;
 		}
-			
+
 	};
 }
 

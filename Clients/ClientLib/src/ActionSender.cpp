@@ -18,28 +18,26 @@
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(QStringList args, QHostAddress a, quint16 p, QObject* client):frameBuffer(10),framerateTimer()
+ActionSender::ActionSender(QStringList args, QHostAddress addr, quint16 port,
+	QObject* client)
+	:addr(new QHostAddress(addr)), port(port), socket(new QTcpSocket()),
+	connectedFlag(false), connectionTryCount(0), serverProcess(),
+	createdOwnServer(false), frameBuffer(10),
+	lastServerStatus(ServerStatusReplies::acknowledge),
+	receivedServerReply(false), lastServerReplyData(), replyData(),
+	collectingReplyData(false), framerateTimer(), frameCounter(0),
+	receivedFramesPerSecond(0), failureExitWhenDisconnected(false),
+	simulatedSystem(nullptr)
 {
-	addr = new QHostAddress(a);
-	port = p;
-	connectedFlag = false;
-	createdOwnServer = false;
-	receivedServerReply = false;
-	failureExitWhenDisconnected = false;
-	lastServerStatus = ServerStatusReplies::acknowledge;
-	socket = new QTcpSocket();
 	connect(socket, SIGNAL(connected()), SLOT(connected()));
 	connect(socket, SIGNAL(disconnected()), SLOT(disconnected()));
 	connect(socket, SIGNAL(readyRead()), SLOT(readData()));
-	frameCounter = 0;
-	receivedFramesPerSecond = 0;
 	framerateTimer.start();
 	frameBuffer.setActionSender(this);
 	connect(this, SIGNAL(newFrameReceived()), SLOT(framerateEvent()));
-	connectionTryCount = 0;
 	while(connectionTryCount<1000 && !connectedFlag)
 	{
-		socket->connectToHost(*addr, port);
+		socket->connectToHost(*this->addr, this->port);
 		connectionTryCount++;
 		socket->waitForConnected(100);
 		if(!connectedFlag)
@@ -121,7 +119,7 @@ void ActionSender::processData(QByteArray byteArray)
 	qint16 endIndex, startIndex;
 	endIndex = byteArray.indexOf(Connection::endByte);
 	startIndex = byteArray.indexOf(Connection::startByte);
-	
+
 	if(endIndex<0)
 	{
 		if(startIndex<0)
@@ -186,7 +184,7 @@ void ActionSender::processReply()
 	QByteArray data = QByteArray::fromBase64(replyData);
 	lastServerStatus = data[0];
 	data = data.mid(1);
-	
+
 	if(lastServerStatus == ServerStatusReplies::sendFrame)
 	{
 		QDataStream stream(&data, QIODevice::ReadOnly);
@@ -212,7 +210,6 @@ void ActionSender::processReply()
 		int _var = ((char)data.at(0))*256 + (char)data.at(1);
 		SimulationVariables::Variable var = (SimulationVariables::Variable)_var;
 		data = data.mid(2);
-		Object::Type type = (Object::Type)data.at(0);
 		simulatedSystem->receiveVariable(var, data);
 	}
 	else

@@ -78,15 +78,16 @@
 template <typename T, quint8 dim>
 class LibVector
 {
-private:
-	LibVector(){}
 public:
 	T x,y,z,w;
 	LibVector(const T& t):x(t),y(t),z(t),w(t){}
 	LibVector(const T& a, const T& b, const T& c, const T& d):x(a),y(b),z(c),w(d){}
 	LibVector(const LibVector& v):x(v.x),y(v.y),z(v.z),w(v.w){}
 	~LibVector(){}
-	
+
+	LibVector() = delete;
+	LibVector& operator=(const LibVector&) = delete;
+
 	inline T getX() const
 	{
 		return x;
@@ -103,7 +104,7 @@ public:
 	{
 		return w;
 	}
-	
+
 	inline T operator()(quint8 index)
 	{
 		switch(index)
@@ -124,7 +125,7 @@ public:
 	{
 		return operator()(index);
 	}
-	
+
 	overloadAssignOperator(=)
 	overloadAssignOperator(+=)
 	overloadAssignOperator(-=)
@@ -135,12 +136,12 @@ public:
 	overloadTemporaryOperator(-)
 	overloadTemporaryOperator(*)
 	overloadTemporaryOperator(/)
-	
+
 	declareTemporaryFriendOperator(+)
 	declareTemporaryFriendOperator(-)
 	declareTemporaryFriendOperator(*)
 	declareTemporaryFriendOperator(/)
-	
+
 	inline void print(const char* before)
 	{
 		printf("%s: ", before);

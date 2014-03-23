@@ -41,50 +41,49 @@ namespace SphereSim
 {
 	template <typename T, bool extremeSpeed, bool throwExceptions>
 	class TwoDimArray;
-	
+
 	template <typename T, bool extremeSpeed=true, bool throwExceptions=true>
 	class Array
 	{
 	private:
-		Array(const Array<T>&);
-		
-		Array& operator=(const Array<T>&);
-		
 		T* values;
-		
+
 		unsigned int counter;
-		
+
 		unsigned int count;
-		
+
 		void deleteAll()
 		{
-			if(values != NULL)
+			if(values != nullptr)
 			{
 				delete[] values;
-				values = NULL;
+				values = nullptr;
 			}
 			counter = 0;
 		}
-		
+
 		void initArrays()
 		{
 			values = new T[count];
 			counter = 0;
 		}
-		
+
 	public:
-		Array(const unsigned int _count=0)
-			:count(_count), values(NULL), counter(0)
+		Array(const unsigned int count=0)
+			:values(nullptr), counter(0), count(count)
 		{
 			if(count>0)
 				initArrays();
 		}
-		
+
 		~Array()
 		{
 			deleteAll();
 		}
-		
+
+		Array(const Array<T>&) = delete;
+		Array& operator=(const Array<T>&) = delete;
+
 		void resize(const unsigned int _count)
 		{
 			if(_count != count && _count > 0)
@@ -107,15 +106,15 @@ namespace SphereSim
 					count = _count;
 				}
 				delete[] oldValues;
-				oldValues = NULL;
+				oldValues = nullptr;
 			}
 		}
-		
+
 		inline T& operator[](const unsigned int index)
 		{
 			//if(!extremeSpeed)
 			{
-				if(values == NULL)
+				if(values == nullptr)
 				{
 					qDebug()<<"Array::operator[] error.";
 					if(throwExceptions)
@@ -124,12 +123,12 @@ namespace SphereSim
 			}
 			return values[index];
 		}
-		
+
 		inline const T& operator[](const unsigned int index) const
 		{
 			if(!extremeSpeed)
 			{
-				if(values == NULL)
+				if(values == nullptr)
 				{
 					qDebug()<<"Array::operator[] const error.";
 					if(throwExceptions)
@@ -138,12 +137,12 @@ namespace SphereSim
 			}
 			return values[index];
 		}
-		
+
 		inline void addElement(T& element)
 		{
 			if(!extremeSpeed)
 			{
-				if(values == NULL)
+				if(values == nullptr)
 				{
 					qDebug()<<"Array::addElement error.";
 					if(throwExceptions)
@@ -160,12 +159,12 @@ namespace SphereSim
 					throw ArrayException();
 			}
 		}
-		
+
 		inline bool addElementIfNotContained(T& element)
 		{
 			if(!extremeSpeed)
 			{
-				if(values == NULL)
+				if(values == nullptr)
 				{
 					qDebug()<<"Array::addElement error.";
 					if(throwExceptions)
@@ -188,28 +187,28 @@ namespace SphereSim
 				throw ArrayException();
 			return false;
 		}
-		
+
 		inline unsigned int size()
 		{
 			return count;
 		}
-		
+
 		inline unsigned int getCounter()
 		{
 			return counter;
 		}
-		
+
 		inline void resetCounter()
 		{
 			counter = 0;
 		}
-		
+
 		void push_back(T t)
 		{
 			resize(count+1);
 			values[count-1] = t;
 		}
-		
+
 		void erase(unsigned int index)
 		{
 			if(index >= count)
@@ -223,26 +222,26 @@ namespace SphereSim
 			count--;
 			values = newValues;
 			delete[] oldValues;
-			oldValues = NULL;
+			oldValues = nullptr;
 		}
-		
+
 		inline T* data()
 		{
 			return values;
 		}
-		
+
 		inline const T* constData() const
 		{
 			return values;
 		}
-		
-		inline const unsigned int begin() const
+
+		inline unsigned int begin() const
 		{
 			return 0;
 		}
-		
+
 		friend class TwoDimArray<T, extremeSpeed, throwExceptions>;
-			
+
 	};
 }
 

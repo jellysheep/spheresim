@@ -28,14 +28,14 @@ int main(int argc, char** argv)
 	QApplication app(argc, argv);
 	app.setStyle("fusion");
 	QStringList args = app.arguments();
-	
+
 	quint16 sphereCount = StartDialog(&app).getSphereCount();
-	
+
 	if(sphereCount>0)
 	{
 		MainWindow mainWindow(args, QHostAddress(Connection::address), Connection::port, sphereCount);
 		mainWindow.show();
-		
+
 		return app.exec();
 	}
 	return 0;

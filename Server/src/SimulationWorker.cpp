@@ -21,14 +21,11 @@
 
 using namespace SphereSim;
 
-SimulationWorker::SimulationWorker(SphereCalculator* sphCalc_, 
-	WorkQueue* queue_, ActionReceiver* actRcv_)
+SimulationWorker::SimulationWorker(SphereCalculator* sphCalc, WorkQueue* queue,
+	ActionReceiver* actRcv)
+	:sphCalc(sphCalc), actRcv(actRcv), running(true), queue(queue),
+	hasFinished(false)
 {
-	sphCalc = sphCalc_;
-	actRcv = actRcv_;
-	running = true;
-	queue = queue_;
-	hasFinished = false;
 }
 
 SimulationWorker::~SimulationWorker()
@@ -44,7 +41,7 @@ void SimulationWorker::work()
 		workQueueItem = queue->popItem();
 		handleAction(workQueueItem);
 		delete workQueueItem;
-		workQueueItem = NULL;
+		workQueueItem = nullptr;
 		QCoreApplication::processEvents();
 	}
 	hasFinished = true;
@@ -94,7 +91,6 @@ void SimulationWorker::handleBasicAction(WorkQueueItem* workQueueItem)
 	QByteArray data;
 	SimulationVariables::Variable var;
 	int _var;
-	Object::Type type;
 	switch(workQueueItem->action)
 	{
 	case BasicActions::terminateServer:
@@ -105,7 +101,6 @@ void SimulationWorker::handleBasicAction(WorkQueueItem* workQueueItem)
 		_var = ((char)workQueueItem->data.at(0))*256 + (char)workQueueItem->data.at(1);
 		var = (SimulationVariables::Variable)_var;
 		data = workQueueItem->data.mid(2);
-		type = (Object::Type)data.at(0);
 		sphCalc->simulatedSystem->receiveVariable(var, data);
 		break;
 	default:
@@ -179,11 +174,6 @@ void SimulationWorker::handleCalculationAction(WorkQueueItem* workQueueItem)
 	QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
-	Scalar s;
-	quint8 integratorMethod;
-	quint32 steps;
-	bool b;
-	quint16 maxStepDivision;
 	switch(workQueueItem->action)
 	{
 	case CalculationActions::popCalculationCounter:
@@ -230,8 +220,6 @@ void SimulationWorker::handleSimulatedSystemAction(WorkQueueItem* workQueueItem)
 	QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
-	Scalar s, s2, s3;
-	bool b;
 	switch(workQueueItem->action)
 	{
 	default:

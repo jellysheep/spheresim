@@ -13,7 +13,7 @@
 
 namespace SphereSim
 {
-	
+
 	/** \brief Methods for numerically integrating differential equations. */
 	namespace IntegratorMethods
 	{

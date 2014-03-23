@@ -10,6 +10,7 @@
 * Updated build files and fixed compilation issues.
 * Added build type switch and improved warning output.
 * Improved build time by reusing globally built files.
+* Improved code style and fixed compiler warnings.
 
 SphereSim 3.0.1:
 * Corrected version number.

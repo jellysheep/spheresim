@@ -16,18 +16,11 @@
 using namespace SphereSim;
 using namespace SphereSim::SimulationVariables;
 
-template <class T>
-void SimulatedSystem::addVariable(SimulationVariables::Variable var, Object::Type type, const T& t)
-{
-	if(var != vars.size())
-		throw new std::exception();
-	vars.push_back(Object(type, t));
-}
-
 SimulatedSystem::SimulatedSystem()
+	:vars()
 {
 	vars.reserve(numberOfVariables);
-	
+
 	addVariable(serverVersion, Object::STRING, std::string(VERSION_STR));
 	addVariable(serverFloatingType, Object::STRING, std::string(TOSTR(FLOATING_TYPE)));
 	addVariable(sphereCount, Object::INT, 0);
@@ -56,6 +49,14 @@ SimulatedSystem::SimulatedSystem()
 	addVariable(allVariablesReceived, Object::BOOL, false);
 }
 
+template <class T>
+void SimulatedSystem::addVariable(SimulationVariables::Variable var, Object::Type type, const T& t)
+{
+	if(var != vars.size())
+		throw new std::exception();
+	vars.push_back(Object(type, t));
+}
+
 void SimulatedSystem::sendVariable(SimulationVariables::Variable var)
 {
 	QByteArray bytes;
@@ -66,7 +67,7 @@ void SimulatedSystem::sendVariable(SimulationVariables::Variable var)
 		Object &o = vars[var];
 		bytes = o.getData();
 	}
-	
+
 	QByteArray data;
 	data.append(var/256);
 	data.append(var%256);
@@ -83,7 +84,7 @@ void SimulatedSystem::sendAllVariables()
 void SimulatedSystem::receiveVariable(SimulationVariables::Variable var, QByteArray data)
 {
 	if(var >= numberOfVariables) return;
-	
+
 	Object &o = vars[var];
 	if(o.setData(data))
 	{

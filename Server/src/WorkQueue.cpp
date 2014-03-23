@@ -14,15 +14,12 @@
 
 using namespace SphereSim;
 
-WorkQueue::WorkQueue(QMutex* mutex_, const bool &frameSending):items(),sendFramesRegularly(frameSending)
+WorkQueue::WorkQueue(QMutex* mutex, const bool &frameSending)
+	:items(), mutex(mutex), queueEmpty(true), canWork(false), workCondition(),
+	simulationSteps(0), continuousSimulationRunning(false), isSimulating(false),
+	animationTimer(new QElapsedTimer()), sendFramesRegularly(frameSending)
 {
-	mutex = mutex_;
-	queueEmpty = true;
-	simulationSteps = 0;
-	continuousSimulationRunning = false;
 	updateStatus();
-	isSimulating = false;
-	animationTimer = new QElapsedTimer();
 	animationTimer->start();
 }
 
@@ -107,7 +104,7 @@ WorkQueueItem* WorkQueue::popItem()
 		{
 			workCondition.wait(mutex);
 		}
-	
+
 		WorkQueueItem* item;
 		if(items.count()>0)
 		{

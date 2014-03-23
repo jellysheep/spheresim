@@ -17,11 +17,13 @@
 
 using namespace SphereSim;
 
-MainWindow::MainWindow(QStringList args, QHostAddress addr, quint16 port, quint16 sphCount, QWidget* parent):QMainWindow(parent)
+MainWindow::MainWindow(QStringList args, QHostAddress addr, quint16 port,
+	quint16 sphCount, QWidget* parent)
+	:QMainWindow(parent), ui(new Ui::MainWindow()),
+	actionSender(new ActionSender(args, addr, port, this)),
+	timer(), boxLength(0), systemToPrepare(3),
+	systemCreator(new SystemCreator(actionSender))
 {
-	actionSender = new ActionSender(args, addr, port, this);
-	
-	ui = new Ui::MainWindow();
 	ui->setupUi(this);
 	setWindowTitle("SphereSim " VERSION_STR);
 	ui->glWidget->setFrameBuffer(actionSender->getFrameBuffer());
@@ -33,18 +35,14 @@ MainWindow::MainWindow(QStringList args, QHostAddress addr, quint16 port, quint1
 	connect(actionSender, SIGNAL(greatFrameBufferPercentageLevelUpdate(int)), SLOT(updateTargetTemperature()), Qt::QueuedConnection);
 	connect(actionSender, SIGNAL(sphereCountChangedDouble(double)), ui->sphereCount, SLOT(setValue(double)));
 	timer.start();
-	
+
 	updateBoxLength(1);
 	actionSender->simulatedSystem->set(SimulationVariables::timeStep, 0.001);
 	actionSender->simulatedSystem->set(SimulationVariables::earthGravity, Vector3(0, -0.81, 0));
 	actionSender->simulatedSystem->set(SimulationVariables::sphereE, 20000);
 	actionSender->simulatedSystem->set(SimulationVariables::wallE, 20000);
 	actionSender->simulatedSystem->set(SimulationVariables::frameSending, true);
-	
-	systemCreator = new SystemCreator(actionSender);
-	
-	systemToPrepare = 3;
-	
+
 	switch(systemToPrepare)
 	{
 	case 1:
@@ -96,7 +94,7 @@ void MainWindow::prepareSystem2()
 	s.speed *= -1;
 	actionSender->addSphere();
 	actionSender->updateSphere(1, s);
-	
+
 	actionSender->simulatedSystem->set(SimulationVariables::gravityCalculation, true);
 	actionSender->simulatedSystem->set(SimulationVariables::gravitationalConstant, 3.0e-4);
 	actionSender->simulatedSystem->set(SimulationVariables::earthGravity, Vector3(0,0,0));

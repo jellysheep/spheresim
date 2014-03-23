@@ -13,24 +13,18 @@
 using namespace SphereSim;
 
 template <typename T>
-FrameBuffer<T>::FrameBuffer(quint16 bufferSize_)
+FrameBuffer<T>::FrameBuffer(quint16 bufferSize)
+	:frames(nullptr), currentReadFrame(nullptr), currentWriteFrame(nullptr),
+	bufferSize(bufferSize), elementsPerFrame(0), readIndex(0), writeIndex(0),
+	elementReadIndex(0), elementWriteIndex(0), percentageLevel(0),
+	lastFrameBufferAction(pop), actionSender(nullptr)
 {
-	bufferSize = bufferSize_;
-	elementsPerFrame = 0;
-	frames = NULL;
-	currentReadFrame = NULL;
-	currentWriteFrame = NULL;
-	readIndex = 0;
-	writeIndex = 0;
-	elementReadIndex = 0;
-	elementWriteIndex = 0;
-	actionSender = NULL;
 	updatePercentageLevel();
-	lastFrameBufferAction = pop;
 }
 
 template <typename T>
-FrameBuffer<T>::FrameBuffer(quint16 bufferSize_, quint16 elementsPerFrame_):FrameBuffer(bufferSize_)
+FrameBuffer<T>::FrameBuffer(quint16 bufferSize_, quint16 elementsPerFrame_)
+	:FrameBuffer(bufferSize_)
 {
 	elementsPerFrame = elementsPerFrame_;
 	quint32 totalElements = bufferSize*elementsPerFrame;
@@ -42,7 +36,7 @@ FrameBuffer<T>::FrameBuffer(quint16 bufferSize_, quint16 elementsPerFrame_):Fram
 template <typename T>
 FrameBuffer<T>::~FrameBuffer()
 {
-	if(frames != NULL)
+	if(frames != nullptr)
 	{
 		delete[] frames;
 	}
@@ -53,7 +47,7 @@ void FrameBuffer<T>::updateElementsPerFrame(quint16 elementsPerFrame_)
 {
 	if(elementsPerFrame_ != elementsPerFrame)
 	{
-		if(frames != NULL)
+		if(frames != nullptr)
 		{
 			delete[] frames;
 		}
@@ -141,9 +135,9 @@ quint16 FrameBuffer<T>::getFrameCount()
 template <typename T>
 void FrameBuffer<T>::updatePercentageLevel(bool greaterThanHysteresis)
 {
-	if(actionSender == NULL)
+	if(actionSender == nullptr)
 		return;
-	
+
 	if(bufferSize == 0)
 	{
 		percentageLevel = 0;

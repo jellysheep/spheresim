@@ -16,9 +16,9 @@
 using namespace SphereSim;
 
 ActionServer::ActionServer(QStringList args, QHostAddress addr, quint16 port)
+	:server(new QTcpServer())
 {
 	qDebug()<<"ActionServer: constructor called";
-	server = new QTcpServer();
 	connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
 	bool succeeded = server->listen(addr, port);
 	if(succeeded)

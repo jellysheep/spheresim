@@ -13,29 +13,33 @@
 
 namespace SphereSim
 {
-	
+
 	/** \brief State of a 2D or 3D simulation. */
 	class Dimension
 	{
 	private:
 		/** \brief Flag if 2D or 3D spheres are simulated. */
 		static bool _is3D;
-		
+
 		/** \brief Update the dimension state.
 		 * \param b True if 3D and false if 2D. */
 		static void updateIs3D(bool b)
 		{
 			_is3D = b;
 		}
-		
+
 	public:
+		Dimension() = delete;
+		Dimension(const Dimension&) = delete;
+		Dimension& operator=(const Dimension&) = delete;
+
 		/** \brief Get the dimension state.
 		 * \return True if 3D and false if 2D. */
 		static bool getIs3D()
 		{
 			return _is3D;
 		}
-		
+
 	};
 }
 

@@ -22,66 +22,70 @@ class QHostAddress;
 namespace SphereSim
 {
 	class SystemCreator;
-	
+
 	/** \brief Verifier of server actions. */
 	class ServerTester : public QObject
 	{
 		Q_OBJECT
-		
+
 	private:
 		/** \brief Client object to communicate with server. */
 		ActionSender* sender;
-		
+
 		/** \brief Number of already done tests. */
 		quint16 testCounter;
-		
+
 		/** \brief Number of succeeded tests. */
 		quint16 successCounter;
-		
+
 		/** \brief Success flag of the current test. */
 		bool testSuccess;
-		
+
 		/** \brief Name of the currently tested action. */
 		QString testActionName;
-		
+
 		/** \brief Dummy variable to name the framebuffer test. */
 		static const int framebuffer;
-		
+
 		/** \brief Test result value (0 = all tests passed, 1 = at least one test failed). */
 		quint16 testResult;
-		
+
 		SystemCreator* systemCreator;
-		
+
 	public:
 		/** \brief Start a ServerTester with the specified address and port.
 		 * \param args The arguments that the program was invoked with.
 		 * \param addr The address that the socket will be connecting to.
 		 * \param port The port that the socket will be connecting to. */
 		ServerTester(QStringList args, QHostAddress addr, quint16 port);
-		
+
 		~ServerTester();
-		
+
+		ServerTester() = delete;
+		ServerTester(const ServerTester&) = delete;
+		ServerTester& operator=(const ServerTester&) = delete;
+
 		/** \brief Run all tests of a specific action group on the server and verify the replies.
 		 * \param actionGroup Group of the actions that will be tested.
 		 * \param groupName Name of the specified action group. Used for console outputs. */
 		void runTests(quint8 actionGroup, const char* groupName);
-		
+
 		/** \brief Verification of all BasicActions. */
 		void runBasicActionTests();
-		
+
 		/** \brief Verification of all SpheresUpdatingActions. */
 		void runSpheresUpdatingActionTests();
-		
+
 		/** \brief Verification of all CalculationActions. */
 		void runCalculationActionTests();
-		
+
 		/** \brief Simulation of a bouncing sphere.
 		 * \param integratorMethod Name of the used integrator method. */
 		void runCalculationActionTests_internal(quint8 order, const char* integratorMethod);
-		
+
 		/** \brief Verification of the FrameBuffer. */
 		void runFrameBufferTests();
-		
+
 		/** \brief Verification of a comparison and result printing on console. */
 		#define verify(t1,op,t2)							\
 			verify##op(t1,t2,__LINE__,TOSTR(t1),TOSTR(t2));
@@ -116,35 +120,35 @@ namespace SphereSim
 		verifyFunc(Smaller,<,>=);
 		verifyFunc(GreaterOrEqual,>=,<);
 		verifyFunc(SmallerOrEqual,<=,>);
-		
+
 		/** \brief Declaration of an approximately-equal verification method. */
 		#define verifyApproxEqual(t1,t2,line,str1,str2)		\
 			verifySmallerOrEqual(fabs(t1-t2),				\
 			0.0001*(fabs(t1)+fabs(t2)),						\
 			line,"|" str1 " - " str2 "|",					\
 			"0.0001*(|" str1 "| + |" str2 "|)");
-		
+
 		/** \brief Introduction of a new test.
 		 * \param actionName Name of the action that will be tested. */
 		void startTest(const char* actionName);
-		
+
 		/** \brief Completion of a test. */
 		void endTest();
-		
+
 		/** \brief Completion of a test and introduction of a new test.
 		 * \copydetails startTest */
 		void startNewTest(const char* actionName);
-		
+
 		/** \copydoc testResult
 		 * \return Test result value. */
 		quint16 result();
-		
+
 	public slots:
 		/** \brief Verification of all actions. */
 		void run();
-		
+
 	};
-	
+
 }
 
 #endif

@@ -13,7 +13,7 @@
 
 namespace SphereSim
 {
-	
+
 	/** \brief Types of Format for the console output. */
 	namespace Format
 	{
@@ -24,7 +24,7 @@ namespace SphereSim
 			bold
 		};
 	}
-	
+
 	/** \brief Color used for the console output. */
 	namespace Color
 	{
@@ -49,31 +49,33 @@ namespace SphereSim
 			white
 		};
 	}
-	
+
 	/** \brief Helper class used for formatted console output. */
 	class InternalConsole
 	{
 	private:
 		/** \brief Initialize console. */
 		InternalConsole();
-		
+
 		/** \copydoc InternalConsole
 		 * \param c Console color.
 		 * \param f Text formatting. */
 		InternalConsole(quint16 c, quint16 f);
-		
+
 		/** \copydoc Color
 		 * \see Color */
 		quint16 color;
 		/** \copydoc Format
 		 * \see Format */
 		quint16 font;
-		
+
 		/** \brief Qt console that is used internally to output text. */
 		static QTextStream console;
-		
+
 	public:
-		
+		InternalConsole(const InternalConsole&) = delete;
+		InternalConsole& operator=(const InternalConsole&) = delete;
+
 		/** \brief Output formatted string.
 		 * \param t Object to be printed to console. */
 		template<typename T>
@@ -98,23 +100,24 @@ namespace SphereSim
 			}
 			return *this;
 		}
-		
+
 		friend class Console;
-		
+
 	};
-	
+
 	/** \brief Manage formatted console output. */
 	class Console
 	{
-	private:
-		Console(){}
-		
 	public:
+		Console() = delete;
+		Console(const Console&) = delete;
+		Console& operator=(const Console&) = delete;
+
 		/** \brief Print out normally formatted text. */
 		static InternalConsole out;
 		/** \brief Print out bold and normally colored text. */
 		static InternalConsole bold;
-		
+
 		/** \brief Print out black text. */
 		static InternalConsole black;
 		/** \brief Print out red text. */
@@ -131,7 +134,7 @@ namespace SphereSim
 		static InternalConsole cyan;
 		/** \brief Print out white text. */
 		static InternalConsole white;
-		
+
 		/** \brief Print out bold black text. */
 		static InternalConsole blackBold;
 		/** \brief Print out bold red text. */
@@ -150,7 +153,7 @@ namespace SphereSim
 		static InternalConsole whiteBold;
 
 	};
-	
+
 }
 
 #endif

@@ -14,7 +14,7 @@
 
 namespace SphereSim
 {
-	
+
 	class Object
 	{
 	public:
@@ -34,69 +34,69 @@ namespace SphereSim
 			VECTOR3	= 'v',
 			STRING	= 's'
 		};
-		
+
 		enum Flags
 		{
 			CLIENT_WRITABLE = 1<<0,
 			SERVER_WRITABLE = 1<<1
 		};
-		
+
 	private:
 		const Type type;
 		void* data;
-		
-		Object();
-		
+
 		template<class T>
 		T* getPtr() const
 		{
 			return (T*)data;
 		}
-		
+
 		template<class T>
 		static T getTypeFromBytes(const QByteArray &bytes);
-		
+
 		template<class T>
 		static QByteArray getBytesFromType(const T &t);
-		
+
 	public:
+		Object() = delete;
+
 		Object(const Type _type);
-		
+
 		Object(const Object& o);
-		
+
 		Object& operator=(const Object& o);
-		
+
 		template<class T>
 		Object(const Type _type, const T& t):Object(_type)
 		{
 			set<T>(t);
 		}
-		
+
 		~Object();
-		
+
 		template<class T>
 		bool set(const T& t);
-		
+
 		template<class T>
-		const T get() const;
-		
+		T get() const;
+
 		template<class T>
-		const T& getRef() const
+		T& getRef() const
 		{
 			return *getPtr<T>();
 		}
-		
+
 		QByteArray getData() const;
-		
+
 		bool setData(const QByteArray &bytes);
-		
+
 		Type getType() const
 		{
 			return type;
 		}
-		
+
 	};
-	
+
 }
 
 #endif

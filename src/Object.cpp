@@ -31,7 +31,7 @@
 		case type:								\
 			delete (T*)data;					\
 			break;
-	
+
 #define generateEnumerableSetter(T)				\
 	template<>									\
 	bool Object::set<T>(const T& t)				\
@@ -72,7 +72,7 @@
 
 #define generateEnumerableGetter(T)				\
 	template<>									\
-	const T Object::get<T>() const				\
+	T Object::get<T>() const					\
 	{											\
 		switch(type)							\
 		{										\
@@ -121,7 +121,7 @@
 
 #define generateGenericGetter(_type, T)			\
 	template<>									\
-	const T Object::get<T>() const				\
+	T Object::get<T>() const					\
 	{											\
 		if(type == _type)						\
 		{										\
@@ -147,7 +147,7 @@
 
 namespace SphereSim
 {
-	Object::Object(const Type _type):type(_type)
+	Object::Object(const Type type):type(type), data(nullptr)
 	{
 		switch(type)
 		{
@@ -165,8 +165,8 @@ namespace SphereSim
 			break;
 		}
 	}
-	
-	Object::Object(const Object& o):type(o.type)
+
+	Object::Object(const Object& o):type(o.type), data(nullptr)
 	{
 		switch(type)
 		{
@@ -184,7 +184,7 @@ namespace SphereSim
 			break;
 		}
 	}
-	
+
 	Object::~Object()
 	{
 		switch(type)
@@ -203,27 +203,27 @@ namespace SphereSim
 			break;
 		}
 	}
-	
+
 	generateEnumerableSetter(bool);
 	generateEnumerableSetter(int);
 	generateEnumerableSetter(long);
 	generateEnumerableSetter(double);
 	generateEnumerableSetter(float);
 	generateEnumerableSetter(char);
-	
+
 	generateGenericSetter(VECTOR3, Vector3);
 	generateGenericSetter(STRING, std::string);
-	
+
 	generateEnumerableGetter(bool);
 	generateEnumerableGetter(int);
 	generateEnumerableGetter(long);
 	generateEnumerableGetter(double);
 	generateEnumerableGetter(float);
 	generateEnumerableGetter(char);
-	
+
 	generateGenericGetter(VECTOR3, Vector3);
 	generateGenericGetter(STRING, std::string);
-	
+
 	Object& Object::operator=(const Object& o)
 	{
 		switch(type)
@@ -243,13 +243,13 @@ namespace SphereSim
 		}
 		return *this;
 	}
-	
+
 	template<>
 	bool Object::getTypeFromBytes<bool>(const QByteArray &bytes)
 	{
 		return bytes[0]==0?false:true;
 	}
-	
+
 	template<>
 	int Object::getTypeFromBytes<int>(const QByteArray &bytes)
 	{
@@ -259,7 +259,7 @@ namespace SphereSim
 			chars[i] = bytes.at(i);
 		return l;
 	}
-	
+
 	template<>
 	long Object::getTypeFromBytes<long>(const QByteArray &bytes)
 	{
@@ -269,27 +269,27 @@ namespace SphereSim
 			chars[i] = bytes.at(i);
 		return l;
 	}
-	
+
 	template<>
 	double Object::getTypeFromBytes<double>(const QByteArray &bytes)
 	{
 		long l = getTypeFromBytes<long>(bytes);
 		return *((double*)&l);
 	}
-	
+
 	template<>
 	float Object::getTypeFromBytes<float>(const QByteArray &bytes)
 	{
 		int i = getTypeFromBytes<int>(bytes);
 		return *((float*)&i);
 	}
-	
+
 	template<>
 	char Object::getTypeFromBytes<char>(const QByteArray &bytes)
 	{
 		return bytes[0];
 	}
-	
+
 	template<>
 	Vector3 Object::getTypeFromBytes<Vector3>(const QByteArray &bytes)
 	{
@@ -299,20 +299,20 @@ namespace SphereSim
 		v(2) = getTypeFromBytes<double>(bytes.mid(16,8));
 		return v;
 	}
-	
+
 	template<>
 	std::string Object::getTypeFromBytes<std::string>(const QByteArray &bytes)
 	{
 		std::string str(bytes.constData(), bytes.length());
 		return str;
 	}
-	
+
 	template<>
 	QByteArray Object::getBytesFromType<bool>(const bool &t)
 	{
 		return QByteArray(1, t?255:0);
 	}
-	
+
 	template<>
 	QByteArray Object::getBytesFromType<int>(const int &t)
 	{
@@ -323,7 +323,7 @@ namespace SphereSim
 			bytes[i] = chars[i];
 		return bytes;
 	}
-	
+
 	template<>
 	QByteArray Object::getBytesFromType<long>(const long &t)
 	{
@@ -334,27 +334,27 @@ namespace SphereSim
 			bytes[i] = chars[i];
 		return bytes;
 	}
-	
+
 	template<>
 	QByteArray Object::getBytesFromType<double>(const double &t)
 	{
 		long l = *((long*)&t);
 		return getBytesFromType<long>(l);
 	}
-	
+
 	template<>
 	QByteArray Object::getBytesFromType<float>(const float &t)
 	{
 		int i = *((int*)&t);
 		return getBytesFromType<int>(i);
 	}
-	
+
 	template<>
 	QByteArray Object::getBytesFromType<char>(const char &t)
 	{
 		return QByteArray(1, t);
 	}
-	
+
 	template<>
 	QByteArray Object::getBytesFromType<Vector3>(const Vector3 &t)
 	{
@@ -368,13 +368,13 @@ namespace SphereSim
 		bytes += tmp;
 		return bytes;
 	}
-	
+
 	template<>
 	QByteArray Object::getBytesFromType<std::string>(const std::string &t)
 	{
 		return QByteArray(t.c_str(), t.length());
 	}
-	
+
 	QByteArray Object::getData() const
 	{
 		switch(type)
@@ -393,7 +393,7 @@ namespace SphereSim
 			break;
 		}
 	}
-	
+
 	bool Object::setData(const QByteArray &bytes_)
 	{
 		Type t = (Type)bytes_[0];
@@ -415,5 +415,5 @@ namespace SphereSim
 		}
 		return false;
 	}
-	
+
 }
