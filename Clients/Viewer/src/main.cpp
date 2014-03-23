@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 	app.setStyle("fusion");
 	QStringList args = app.arguments();
 
-	quint16 sphereCount = StartDialog(&app).getSphereCount();
+	quint16 sphereCount = StartDialog().getSphereCount();
 
 	if(sphereCount>0)
 	{

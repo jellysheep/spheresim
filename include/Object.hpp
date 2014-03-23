@@ -15,6 +15,9 @@
 namespace SphereSim
 {
 
+	template <typename T>
+	class Visitor;
+
 	class Object
 	{
 	public:
@@ -22,7 +25,6 @@ namespace SphereSim
 		{
 			BOOL	= 'b',
 			INT		= 'i',
-			LONG	= 'l',
 		#if USE_DOUBLE
 			SCALAR	= 'd',
 		#else
@@ -30,7 +32,6 @@ namespace SphereSim
 		#endif
 			DOUBLE	= 'd',
 			FLOAT	= 'f',
-			CHAR	= 'c',
 			VECTOR3	= 'v',
 			STRING	= 's'
 		};
@@ -45,42 +46,38 @@ namespace SphereSim
 		const Type type;
 		void* data;
 
-		template<class T>
+		template <typename T>
 		T* getPtr() const
 		{
 			return (T*)data;
 		}
 
-		template<class T>
-		static T getTypeFromBytes(const QByteArray &bytes);
-
-		template<class T>
-		static QByteArray getBytesFromType(const T &t);
+		template <typename T>
+		T applyVisitor(Visitor<T>&& visitor) const;
 
 	public:
 		Object() = delete;
+		Object(const Object& o) = delete;
+		Object& operator=(const Object&) = delete;
 
-		Object(const Type _type);
+		Object(const Type type);
+		Object(Object&& o);
 
-		Object(const Object& o);
-
-		Object& operator=(const Object& o);
-
-		template<class T>
-		Object(const Type _type, const T& t):Object(_type)
+		template <typename T>
+		Object(const Type type, const T& t):Object(type)
 		{
 			set<T>(t);
 		}
 
 		~Object();
 
-		template<class T>
+		template <typename T>
 		bool set(const T& t);
 
-		template<class T>
+		template <typename T>
 		T get() const;
 
-		template<class T>
+		template <typename T>
 		T& getRef() const
 		{
 			return *getPtr<T>();

@@ -1,3 +1,4 @@
+SphereSim 3.0.2:
 * Fixed Viewer linking.
 * Fixed Eigen package name in PKGBUILDs.
 * Updated build script and added .travis.yml file.
@@ -11,6 +12,7 @@
 * Added build type switch and improved warning output.
 * Improved build time by reusing globally built files.
 * Improved code style and fixed compiler warnings.
+* Improved Object class by using Visitors instead of preprocessor macros.
 
 SphereSim 3.0.1:
 * Corrected version number.

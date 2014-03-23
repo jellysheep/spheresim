@@ -49,7 +49,7 @@ SimulatedSystem::SimulatedSystem()
 	addVariable(allVariablesReceived, Object::BOOL, false);
 }
 
-template <class T>
+template <typename T>
 void SimulatedSystem::addVariable(SimulationVariables::Variable var, Object::Type type, const T& t)
 {
 	if(var != vars.size())

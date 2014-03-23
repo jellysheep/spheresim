@@ -10,248 +10,295 @@
 #include <Vector.hpp>
 
 #include <iostream>
-
-#define generateConstructorCase(type, T)		\
-		case type:								\
-			data = new T();						\
-			break;
-
-#define generateCopyConstructorCase(type, T)	\
-		case type:								\
-			data = new T();						\
-			*((T*)data) = *((T*)o.data);		\
-			break;
-
-#define generateCopyCase(type, T)				\
-		case type:								\
-			*((T*)data) = o.get<T>();			\
-			break;
-
-#define generateDestructorCase(type, T)			\
-		case type:								\
-			delete (T*)data;					\
-			break;
-
-#define generateEnumerableSetter(T)				\
-	template<>									\
-	bool Object::set<T>(const T& t)				\
-	{											\
-		bool changed = false;					\
-		switch(type)							\
-		{										\
-		case BOOL:								\
-			changed = *((bool*)data) != (bool)t;\
-			*((bool*)data) = (bool)t;			\
-			break;								\
-		case INT:								\
-			changed = *((int*)data) != (int)t;	\
-			*((int*)data) = (int)t;				\
-			break;								\
-		case LONG:								\
-			changed = *((long*)data) != (long)t;\
-			*((long*)data) = (long)t;			\
-			break;								\
-		case DOUBLE:							\
-			changed = *((double*)data) != (double)t;\
-			*((double*)data) = (double)t;		\
-			break;								\
-		case FLOAT:								\
-			changed = *((float*)data) != (float)t;\
-			*((float*)data) = (float)t;			\
-			break;								\
-		case CHAR:								\
-			changed = *((char*)data) != (char)t;\
-			*((char*)data) = (char)t;			\
-			break;								\
-		default:								\
-			std::cerr<<(char)type<<type<<"\n";	\
-			throw std::exception();				\
-		}										\
-		return changed;							\
-	}
-
-#define generateEnumerableGetter(T)				\
-	template<>									\
-	T Object::get<T>() const					\
-	{											\
-		switch(type)							\
-		{										\
-		case BOOL:								\
-			return (T)*((bool*)data);			\
-			break;								\
-		case INT:								\
-			return (T)*((int*)data);			\
-			break;								\
-		case LONG:								\
-			return (T)*((long*)data);			\
-			break;								\
-		case DOUBLE:							\
-			return (T)*((double*)data);			\
-			break;								\
-		case FLOAT:								\
-			return (T)*((float*)data);			\
-			break;								\
-		case CHAR:								\
-			return (T)*((char*)data);			\
-			break;								\
-		default:								\
-			std::cerr<<(char)type<<type<<"\n";	\
-			throw std::exception();				\
-		}										\
-	}
-
-#define generateGenericSetter(_type, T)			\
-	template<>									\
-	bool Object::set<T>(const T& t)				\
-	{											\
-		bool changed = false;					\
-		if(type == _type)						\
-		{										\
-			changed = *((T*)data) != (T)t;		\
-			*((T*)data) = (T)t;					\
-		}										\
-		else									\
-		{										\
-			std::cerr<<(char)type<<"!="			\
-				<<(char)_type<<"\n";			\
-			throw std::exception();				\
-		}										\
-		return changed;							\
-	}
-
-#define generateGenericGetter(_type, T)			\
-	template<>									\
-	T Object::get<T>() const					\
-	{											\
-		if(type == _type)						\
-		{										\
-			return *((T*)data);					\
-		}										\
-		else									\
-		{										\
-			std::cerr<<(char)type<<"!="			\
-				<<(char)_type<<"\n";			\
-			throw std::exception();				\
-		}										\
-		return T();								\
-	}
-
-#define generateDataGetterCase(type, T)			\
-		case type:								\
-			return getBytesFromType(*((T*)data))\
-				.prepend((char)type);
-
-#define generateDataSetterCase(type, T)			\
-		case type:								\
-			return set(getTypeFromBytes<T>(bytes));
+#include <type_traits>
 
 namespace SphereSim
 {
+	struct ObjectException : public std::exception
+	{
+		virtual const char* what() const throw()
+		{
+			return "Wrong type specified.";
+		}
+	};
+
+	template <typename T>
+	struct Visitor
+	{
+		virtual T operator()(bool*)
+		{
+			throw ObjectException();
+		}
+		virtual T operator()(int*)
+		{
+			throw ObjectException();
+		}
+		virtual T operator()(double*)
+		{
+			throw ObjectException();
+		}
+		virtual T operator()(float*)
+		{
+			throw ObjectException();
+		}
+		virtual T operator()(Vector3*)
+		{
+			throw ObjectException();
+		}
+		virtual T operator()(std::string*)
+		{
+			throw ObjectException();
+		}
+	};
+
+	struct ConstructorVisitor : public Visitor<void*>
+	{
+		void* operator()(bool*)
+		{
+			return new bool;
+		}
+		void* operator()(int*)
+		{
+			return new int;
+		}
+		void* operator()(double*)
+		{
+			return new double;
+		}
+		void* operator()(float*)
+		{
+			return new float;
+		}
+		void* operator()(Vector3*)
+		{
+			return new Vector3;
+		}
+		void* operator()(std::string*)
+		{
+			return new std::string;
+		}
+	};
+
+	struct DestructorVisitor : public Visitor<void>
+	{
+		void operator()(bool* b)
+		{
+			delete b;
+		}
+		void operator()(int* i)
+		{
+			delete i;
+		}
+		void operator()(double* d)
+		{
+			delete d;
+		}
+		void operator()(float* f)
+		{
+			delete f;
+		}
+		void operator()(Vector3* v)
+		{
+			delete v;
+		}
+		void operator()(std::string* s)
+		{
+			delete s;
+		}
+	};
+
+	/// setter:
+
+	template <typename T, bool arithmeticType>
+	struct SetterVisitorImpl;
+
+	template <typename T>
+	struct SetterVisitorImpl<T, false> : public Visitor<bool>
+	{
+		T data;
+
+		SetterVisitorImpl() = delete;
+		SetterVisitorImpl(T data):data(data){}
+
+		bool operator()(T* t)
+		{
+			if(*t == data)
+			{
+				return false;
+			}
+			*t = data;
+			return true;
+		}
+	};
+
+	template <typename T>
+	struct SetterVisitorImpl<T, true> : public Visitor<bool>
+	{
+		T data;
+
+		SetterVisitorImpl() = delete;
+		SetterVisitorImpl(T data):data(data){}
+
+		bool operator()(bool* b)
+		{
+			if(*b == data)
+			{
+				return false;
+			}
+			*b = data;
+			return true;
+		}
+		bool operator()(int* i)
+		{
+			if(*i == data)
+			{
+				return false;
+			}
+			*i = data;
+			return true;
+		}
+		bool operator()(float* f)
+		{
+			if(*f == data)
+			{
+				return false;
+			}
+			*f = data;
+			return true;
+		}
+		bool operator()(double* d)
+		{
+			if(*d == data)
+			{
+				return false;
+			}
+			*d = data;
+			return true;
+		}
+	};
+
+	template <typename T>
+	using SetterVisitor = SetterVisitorImpl<T, std::is_arithmetic<T>::value>;
+
+	/// getter:
+
+	template <typename T, bool arithmetic>
+	struct GetterVisitorImpl;
+
+	template <typename T>
+	struct GetterVisitorImpl<T, false> : public Visitor<T>
+	{
+		T operator()(T* t)
+		{
+			return *t;
+		}
+	};
+
+	template <typename T>
+	struct GetterVisitorImpl<T, true> : public Visitor<T>
+	{
+		T operator()(bool* b)
+		{
+			return *b;
+		}
+		T operator()(int* i)
+		{
+			return *i;
+		}
+		T operator()(float* f)
+		{
+			return *f;
+		}
+		T operator()(double* d)
+		{
+			return *d;
+		}
+	};
+
+	template <typename T>
+	using GetterVisitor = GetterVisitorImpl<T, std::is_arithmetic<T>::value>;
+
+	/// constructors:
+
 	Object::Object(const Type type):type(type), data(nullptr)
 	{
-		switch(type)
-		{
-			generateConstructorCase(BOOL, bool);
-			generateConstructorCase(INT, int);
-			generateConstructorCase(LONG, long);
-			generateConstructorCase(DOUBLE, double);
-			generateConstructorCase(FLOAT, float);
-			generateConstructorCase(CHAR, char);
-			generateConstructorCase(VECTOR3, Vector3);
-			generateConstructorCase(STRING, std::string);
-		default:
-			std::cerr<<"No known type specified.\n";
-			throw std::exception();
-			break;
-		}
+		data = applyVisitor(ConstructorVisitor());
 	}
 
-	Object::Object(const Object& o):type(o.type), data(nullptr)
+	Object::Object(Object&& o):type(o.type), data(o.data)
 	{
-		switch(type)
-		{
-			generateCopyConstructorCase(BOOL, bool);
-			generateCopyConstructorCase(INT, int);
-			generateCopyConstructorCase(LONG, long);
-			generateCopyConstructorCase(DOUBLE, double);
-			generateCopyConstructorCase(FLOAT, float);
-			generateCopyConstructorCase(CHAR, char);
-			generateCopyConstructorCase(VECTOR3, Vector3);
-			generateCopyConstructorCase(STRING, std::string);
-		default:
-			std::cerr<<"No known type specified.\n";
-			throw std::exception();
-			break;
-		}
+		o.data = nullptr;
 	}
 
 	Object::~Object()
 	{
-		switch(type)
-		{
-			generateDestructorCase(BOOL, bool);
-			generateDestructorCase(INT, int);
-			generateDestructorCase(LONG, long);
-			generateDestructorCase(DOUBLE, double);
-			generateDestructorCase(FLOAT, float);
-			generateDestructorCase(CHAR, char);
-			generateDestructorCase(VECTOR3, Vector3);
-			generateDestructorCase(STRING, std::string);
-		default:
-			std::cerr<<"No known type specified.\n";
-			throw std::exception();
-			break;
-		}
+		if(data != nullptr)
+			applyVisitor(DestructorVisitor());
 	}
 
-	generateEnumerableSetter(bool);
-	generateEnumerableSetter(int);
-	generateEnumerableSetter(long);
-	generateEnumerableSetter(double);
-	generateEnumerableSetter(float);
-	generateEnumerableSetter(char);
+	/// methods:
 
-	generateGenericSetter(VECTOR3, Vector3);
-	generateGenericSetter(STRING, std::string);
-
-	generateEnumerableGetter(bool);
-	generateEnumerableGetter(int);
-	generateEnumerableGetter(long);
-	generateEnumerableGetter(double);
-	generateEnumerableGetter(float);
-	generateEnumerableGetter(char);
-
-	generateGenericGetter(VECTOR3, Vector3);
-	generateGenericGetter(STRING, std::string);
-
-	Object& Object::operator=(const Object& o)
+	template <typename T>
+	T Object::applyVisitor(Visitor<T>&& visitor) const
 	{
 		switch(type)
 		{
-			generateCopyCase(BOOL, bool);
-			generateCopyCase(INT, int);
-			generateCopyCase(LONG, long);
-			generateCopyCase(DOUBLE, double);
-			generateCopyCase(FLOAT, float);
-			generateCopyCase(CHAR, char);
-			generateCopyCase(VECTOR3, Vector3);
-			generateCopyCase(STRING, std::string);
+		case BOOL:
+			return visitor((bool*)data);
+		case INT:
+			return visitor((int*)data);
+		case DOUBLE:
+			return visitor((double*)data);
+		case FLOAT:
+			return visitor((float*)data);
+		case VECTOR3:
+			return visitor((Vector3*)data);
+		case STRING:
+			return visitor((std::string*)data);
 		default:
-			std::cerr<<"No known type specified.\n";
-			throw std::exception();
-			break;
+			throw ObjectException();
 		}
-		return *this;
 	}
 
-	template<>
-	bool Object::getTypeFromBytes<bool>(const QByteArray &bytes)
+	template <typename T>
+	bool Object::set(const T& data)
+	{
+		return applyVisitor(SetterVisitor<T>(data));
+	}
+
+	template bool Object::set<bool>(const bool&);
+	template bool Object::set<int>(const int&);
+	template bool Object::set<double>(const double&);
+	template bool Object::set<float>(const float&);
+	template bool Object::set<Vector3>(const Vector3&);
+	template bool Object::set<std::string>(const std::string&);
+
+	template <typename T>
+	T Object::get() const
+	{
+		return applyVisitor(GetterVisitor<T>());
+	}
+
+	template bool Object::get<bool>() const;
+	template int Object::get<int>() const;
+	template double Object::get<double>() const;
+	template float Object::get<float>() const;
+	template Vector3 Object::get<Vector3>() const;
+	template std::string Object::get<std::string>() const;
+
+	/// serialization:
+
+	template <typename T>
+	T getTypeFromBytes(const QByteArray &bytes);
+
+	template <>
+	bool getTypeFromBytes<bool>(const QByteArray &bytes)
 	{
 		return bytes[0]==0?false:true;
 	}
 
-	template<>
-	int Object::getTypeFromBytes<int>(const QByteArray &bytes)
+	template <>
+	int getTypeFromBytes<int>(const QByteArray &bytes)
 	{
 		int l = 0;
 		char* chars = (char*)&l;
@@ -260,8 +307,8 @@ namespace SphereSim
 		return l;
 	}
 
-	template<>
-	long Object::getTypeFromBytes<long>(const QByteArray &bytes)
+	template <>
+	long getTypeFromBytes<long>(const QByteArray &bytes)
 	{
 		long l = 0;
 		char* chars = (char*)&l;
@@ -270,28 +317,22 @@ namespace SphereSim
 		return l;
 	}
 
-	template<>
-	double Object::getTypeFromBytes<double>(const QByteArray &bytes)
+	template <>
+	double getTypeFromBytes<double>(const QByteArray &bytes)
 	{
 		long l = getTypeFromBytes<long>(bytes);
 		return *((double*)&l);
 	}
 
-	template<>
-	float Object::getTypeFromBytes<float>(const QByteArray &bytes)
+	template <>
+	float getTypeFromBytes<float>(const QByteArray &bytes)
 	{
 		int i = getTypeFromBytes<int>(bytes);
 		return *((float*)&i);
 	}
 
-	template<>
-	char Object::getTypeFromBytes<char>(const QByteArray &bytes)
-	{
-		return bytes[0];
-	}
-
-	template<>
-	Vector3 Object::getTypeFromBytes<Vector3>(const QByteArray &bytes)
+	template <>
+	Vector3 getTypeFromBytes<Vector3>(const QByteArray &bytes)
 	{
 		Vector3 v;
 		v(0) = getTypeFromBytes<double>(bytes.mid(0,8));
@@ -300,21 +341,24 @@ namespace SphereSim
 		return v;
 	}
 
-	template<>
-	std::string Object::getTypeFromBytes<std::string>(const QByteArray &bytes)
+	template <>
+	std::string getTypeFromBytes<std::string>(const QByteArray &bytes)
 	{
 		std::string str(bytes.constData(), bytes.length());
 		return str;
 	}
 
-	template<>
-	QByteArray Object::getBytesFromType<bool>(const bool &t)
+	template <typename T>
+	QByteArray getBytesFromType(const T &t);
+
+	template <>
+	QByteArray getBytesFromType<bool>(const bool &t)
 	{
 		return QByteArray(1, t?255:0);
 	}
 
-	template<>
-	QByteArray Object::getBytesFromType<int>(const int &t)
+	template <>
+	QByteArray getBytesFromType<int>(const int &t)
 	{
 		QByteArray bytes(4, 0);
 		int l = t;
@@ -324,8 +368,8 @@ namespace SphereSim
 		return bytes;
 	}
 
-	template<>
-	QByteArray Object::getBytesFromType<long>(const long &t)
+	template <>
+	QByteArray getBytesFromType<long>(const long &t)
 	{
 		QByteArray bytes(8, 0);
 		long l = t;
@@ -335,28 +379,22 @@ namespace SphereSim
 		return bytes;
 	}
 
-	template<>
-	QByteArray Object::getBytesFromType<double>(const double &t)
+	template <>
+	QByteArray getBytesFromType<double>(const double &t)
 	{
 		long l = *((long*)&t);
 		return getBytesFromType<long>(l);
 	}
 
-	template<>
-	QByteArray Object::getBytesFromType<float>(const float &t)
+	template <>
+	QByteArray getBytesFromType<float>(const float &t)
 	{
 		int i = *((int*)&t);
 		return getBytesFromType<int>(i);
 	}
 
-	template<>
-	QByteArray Object::getBytesFromType<char>(const char &t)
-	{
-		return QByteArray(1, t);
-	}
-
-	template<>
-	QByteArray Object::getBytesFromType<Vector3>(const Vector3 &t)
+	template <>
+	QByteArray getBytesFromType<Vector3>(const Vector3 &t)
 	{
 		QByteArray bytes, tmp;
 		double d0 = t(0), d1 = t(1), d2 = t(2);
@@ -369,29 +407,40 @@ namespace SphereSim
 		return bytes;
 	}
 
-	template<>
-	QByteArray Object::getBytesFromType<std::string>(const std::string &t)
+	template <>
+	QByteArray getBytesFromType<std::string>(const std::string &t)
 	{
 		return QByteArray(t.c_str(), t.length());
 	}
 
 	QByteArray Object::getData() const
 	{
+		QByteArray bytes;
+		bytes.append((char)type);
 		switch(type)
 		{
-			generateDataGetterCase(BOOL, bool);
-			generateDataGetterCase(INT, int);
-			generateDataGetterCase(LONG, long);
-			generateDataGetterCase(DOUBLE, double);
-			generateDataGetterCase(FLOAT, float);
-			generateDataGetterCase(CHAR, char);
-			generateDataGetterCase(VECTOR3, Vector3);
-			generateDataGetterCase(STRING, std::string);
-		default:
-			std::cerr<<"No known type specified.\n";
-			throw std::exception();
+		case BOOL:
+			bytes.append(getBytesFromType(*(bool*)data));
 			break;
+		case INT:
+			bytes.append(getBytesFromType(*(int*)data));
+			break;
+		case DOUBLE:
+			bytes.append(getBytesFromType(*(double*)data));
+			break;
+		case FLOAT:
+			bytes.append(getBytesFromType(*(float*)data));
+			break;
+		case VECTOR3:
+			bytes.append(getBytesFromType(*(Vector3*)data));
+			break;
+		case STRING:
+			bytes.append(getBytesFromType(*(std::string*)data));
+			break;
+		default:
+			throw ObjectException();
 		}
+		return bytes;
 	}
 
 	bool Object::setData(const QByteArray &bytes_)
@@ -400,20 +449,21 @@ namespace SphereSim
 		QByteArray bytes = bytes_.mid(1);
 		switch(t)
 		{
-			generateDataSetterCase(BOOL, bool);
-			generateDataSetterCase(INT, int);
-			generateDataSetterCase(LONG, long);
-			generateDataSetterCase(DOUBLE, double);
-			generateDataSetterCase(FLOAT, float);
-			generateDataSetterCase(CHAR, char);
-			generateDataSetterCase(VECTOR3, Vector3);
-			generateDataSetterCase(STRING, std::string);
+		case BOOL:
+			return set(getTypeFromBytes<bool>(bytes));
+		case INT:
+			return set(getTypeFromBytes<int>(bytes));
+		case DOUBLE:
+			return set(getTypeFromBytes<double>(bytes));
+		case FLOAT:
+			return set(getTypeFromBytes<float>(bytes));
+		case VECTOR3:
+			return set(getTypeFromBytes<Vector3>(bytes));
+		case STRING:
+			return set(getTypeFromBytes<std::string>(bytes));
 		default:
-			std::cerr<<"No known type specified.\n";
-			throw std::exception();
-			break;
+			throw ObjectException();
 		}
-		return false;
 	}
 
 }

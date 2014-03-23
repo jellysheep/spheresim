@@ -27,7 +27,7 @@ namespace SphereSim
 	private:
 		std::vector<Object> vars;
 
-		template <class T>
+		template <typename T>
 		void addVariable(SimulationVariables::Variable var, Object::Type type, const T& t);
 
 		void sendVariable(SimulationVariables::Variable var);
@@ -38,19 +38,19 @@ namespace SphereSim
 		SimulatedSystem(const SimulatedSystem&) = delete;
 		SimulatedSystem& operator=(const SimulatedSystem&) = delete;
 
-		template<class T>
+		template <typename T>
 		const T get(SimulationVariables::Variable var) const
 		{
 			return vars[var].get<T>();
 		}
 
-		template<class T>
+		template <typename T>
 		const T& getRef(SimulationVariables::Variable var) const
 		{
 			return vars[var].getRef<T>();
 		}
 
-		template<class T>
+		template <typename T>
 		void set(SimulationVariables::Variable var, const T& t)
 		{
 			if(vars[var].set<T>(t))

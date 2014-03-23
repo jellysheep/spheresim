@@ -78,7 +78,7 @@ namespace SphereSim
 
 		/** \brief Output formatted string.
 		 * \param t Object to be printed to console. */
-		template<typename T>
+		template <typename T>
 		InternalConsole& operator<<(T t)
 		{
 			if(color>=0 && color<=Color::white)

@@ -34,7 +34,6 @@ namespace SphereSim
 	public:
 		StartDialog();
 
-		StartDialog() = delete;
 		StartDialog(const StartDialog&) = delete;
 		StartDialog& operator=(const StartDialog&) = delete;
 

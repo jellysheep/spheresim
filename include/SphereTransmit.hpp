@@ -20,13 +20,13 @@ namespace SphereSim
 		/** \brief Write basic data (radius and position) of a sphere to a stream.
 		 * \param stream Stream to write to.
 		 * \param s Sphere to send. */
-		template<typename streamtype>
+		template <typename streamtype>
 		void writeBasicSphereData(streamtype& stream, Sphere& s)
 		{
 			stream<<s.radius<<"\t"<<s.pos(0)<<"\t"<<s.pos(1)<<"\t"<<s.pos(2)<<"\n";
 		}
 		/** \copydoc writeBasicSphereData */
-		template<>
+		template <>
 		void writeBasicSphereData(QDataStream& stream, Sphere& s)
 		{
 			stream<<s.radius<<s.pos(0)<<s.pos(1)<<s.pos(2);
@@ -35,7 +35,7 @@ namespace SphereSim
 		/** \brief Read and update basic data (radius and position) of a sphere from a stream.
 		 * \param stream Stream to read from.
 		 * \param s Sphere to update. */
-		template<typename streamtype>
+		template <typename streamtype>
 		void readBasicSphereData(streamtype& stream, Sphere& s)
 		{
 			stream>>s.radius>>s.pos(0)>>s.pos(1)>>s.pos(2);
@@ -44,7 +44,7 @@ namespace SphereSim
 		/** \brief Write all data (size, mass, position, speed and acceleration) of a sphere to a stream.
 		 * \param stream Stream to write to.
 		 * \param s Sphere to send. */
-		template<typename streamtype>
+		template <typename streamtype>
 		void writeAllSphereData(streamtype& stream, Sphere& s)
 		{
 			stream<<s.radius<<"\t"<<s.mass<<"\n";
@@ -53,7 +53,7 @@ namespace SphereSim
 			stream<<s.pos(2)<<"\t"<<s.speed(2)<<"\t"<<s.acc(2)<<"\n";
 		}
 		/** \copydoc writeAllSphereData */
-		template<>
+		template <>
 		void writeAllSphereData(QDataStream& stream, Sphere& s)
 		{
 			stream<<s.radius<<s.mass;
@@ -65,7 +65,7 @@ namespace SphereSim
 		/** \brief Read and update all data (size, mass, position, speed and acceleration) of a sphere from a stream.
 		 * \param stream Stream to read from.
 		 * \param s Sphere to update. */
-		template<typename streamtype>
+		template <typename streamtype>
 		void readAllSphereData(streamtype& stream, Sphere& s)
 		{
 			stream>>s.radius>>s.mass;

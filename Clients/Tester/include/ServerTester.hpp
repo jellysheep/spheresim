@@ -91,7 +91,7 @@ namespace SphereSim
 			verify##op(t1,t2,__LINE__,TOSTR(t1),TOSTR(t2));
 		/** \brief Declaration of different verification methods. */
 		#define verifyFunc(name,op,invOp)					\
-		template<typename T1, typename T2>					\
+		template <typename T1, typename T2>					\
 		void verify##name(T1 t1, T2 t2, quint16 line,		\
 				const char* nameT1, const char* nameT2)		\
 		{													\
