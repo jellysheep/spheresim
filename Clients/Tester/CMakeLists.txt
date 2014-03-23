@@ -8,7 +8,6 @@ include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
 
 add_definitions("-DQT_NO_DEBUG_OUTPUT")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)

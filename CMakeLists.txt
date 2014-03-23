@@ -10,7 +10,7 @@ add_definitions("-DQT_DEBUG_OUTPUT")
 set(USE_EIGEN_LIBRARY 1)
 if(USE_EIGEN_LIBRARY GREATER 0)
 	find_package(Eigen3 REQUIRED)
-	include_directories("${EIGEN3_INCLUDE_DIR}")
+	include_directories(SYSTEM "${EIGEN3_INCLUDE_DIR}")
 endif(USE_EIGEN_LIBRARY GREATER 0)
 add_definitions("-DUSE_EIGEN_LIBRARY=${USE_EIGEN_LIBRARY}")
 
@@ -21,15 +21,27 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set(COMMON_SOURCE_DIR ${PROJECT_SOURCE_DIR}/src)
 
+include_directories(SYSTEM "/usr/include/qt")
+include_directories(SYSTEM "/usr/include/qt/QtCore")
 include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${COMMON_SOURCE_DIR}")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -std=gnu++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 if(DEFINED COMPATIBLE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 	set(_COMPATIBLE ${COMPATIBLE})
 endif()
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release")
+endif()
+message(STATUS "'${CMAKE_BUILD_TYPE}' built type was selected.")
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0 --coverage")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Weffc++")
+
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 
 set(CMAKE_AUTOMOC ON)
 
