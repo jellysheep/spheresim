@@ -40,7 +40,7 @@ set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/TwoDimArray.hpp
 )
 
-add_executable(SphereSim_Server ${SOURCES} ${HEADERS})
+add_executable(SphereSim_Server ${SOURCES} ${GLOBAL_SOURCES} ${HEADERS})
 if(NO_OPENMP EQUAL 0)
 	target_link_libraries(SphereSim_Server gomp)
 else()

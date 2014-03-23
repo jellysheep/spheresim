@@ -63,7 +63,7 @@ set(HEADERS
 	${PROJECT_INCLUDE_DIR}/Object.hpp
 	${PROJECT_INCLUDE_DIR}/SimulatedSystem.hpp
 )
-set(SOURCES
+set(GLOBAL_SOURCES
 	${COMMON_SOURCE_DIR}/Connection.cpp
 	${COMMON_SOURCE_DIR}/Console.cpp
 	${COMMON_SOURCE_DIR}/SimulatedSystem.cpp
