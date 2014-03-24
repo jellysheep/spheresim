@@ -10,6 +10,7 @@
 #include <ActionSender.hpp>
 #include <Connection.hpp>
 #include <MainWindow.hpp>
+#include <Console.hpp>
 
 #include <QApplication>
 #include <QHostAddress>
@@ -33,11 +34,19 @@ int main(int argc, char** argv)
 
     if (sphereCount>0)
     {
-        MainWindow mainWindow(args, QHostAddress(Connection::address),
-            Connection::port, sphereCount);
-        mainWindow.show();
+        try
+        {
+            MainWindow mainWindow(args, QHostAddress(Connection::address),
+                Connection::port, sphereCount);
+            mainWindow.show();
 
-        return app.exec();
+            return app.exec();
+        }
+        catch (std::exception ex)
+        {
+            Console::red<<"Exception caught: "<<ex.what()<<"\n";
+            return 1;
+        }
     }
     return 0;
 }

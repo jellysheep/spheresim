@@ -8,6 +8,7 @@
 
 #include <ServerTester.hpp>
 #include <Connection.hpp>
+#include <Console.hpp>
 
 #include <QCoreApplication>
 #include <QHostAddress>
@@ -26,7 +27,15 @@ int main(int argc, char** argv)
 {
     QCoreApplication app(argc, argv);
     QStringList args = app.arguments();
-    ServerTester svrTester(args, QHostAddress(Connection::address),
-        Connection::port);
-    return app.exec();
+    try
+    {
+        ServerTester svrTester(args, QHostAddress(Connection::address),
+            Connection::port);
+        return app.exec();
+    }
+    catch (std::exception ex)
+    {
+        Console::red<<"Exception caught: "<<ex.what()<<"\n";
+        return 1;
+    }
 }

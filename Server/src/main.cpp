@@ -8,6 +8,7 @@
 
 #include <ActionServer.hpp>
 #include <Connection.hpp>
+#include <Console.hpp>
 
 #include <QCoreApplication>
 #include <QStringList>
@@ -25,9 +26,15 @@ int main(int argc, char** argv)
 {
     QCoreApplication app(argc, argv);
     QStringList args = app.arguments();
-    ActionServer actSvr(args, QHostAddress(Connection::listeningAddress),
-        Connection::port);
-    app.exec();
-
-    return 0;
+    try
+    {
+        ActionServer actSvr(args, QHostAddress(Connection::listeningAddress),
+            Connection::port);
+        return app.exec();
+    }
+    catch (std::exception ex)
+    {
+        Console::red<<"Exception caught: "<<ex.what()<<"\n";
+        return 1;
+    }
 }

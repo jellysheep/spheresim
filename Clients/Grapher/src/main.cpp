@@ -8,6 +8,7 @@
 
 #include <SimulationGrapher.hpp>
 #include <Connection.hpp>
+#include <Console.hpp>
 
 #include <QCoreApplication>
 #include <QHostAddress>
@@ -34,6 +35,7 @@ int main(int argc, char** argv)
     }
     catch (std::exception ex)
     {
-        return 0;
+        Console::red<<"Exception caught: "<<ex.what()<<"\n";
+        return 1;
     }
 }
