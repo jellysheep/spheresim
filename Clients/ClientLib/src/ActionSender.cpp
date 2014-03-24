@@ -340,7 +340,7 @@ void ActionSender::updateKineticEnergy(Scalar factor)
 	QByteArray arr;
 	QDataStream stream(&arr, QIODevice::WriteOnly);
 	stream<<factor;
-	sendAction(ActionGroups::simulatedSystem,
+	sendAction(ActionGroups::spheresUpdating,
 		SpheresUpdatingActions::updateKineticEnergy, arr);
 }
 
