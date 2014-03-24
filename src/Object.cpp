@@ -350,7 +350,7 @@ namespace SphereSim
     template <>
     std::string getTypeFromBytes<std::string>(const QByteArray &bytes)
     {
-        std::string str(bytes.constData(), bytes.length());
+        std::string str(bytes.constData(), bytes.size());
         return str;
     }
 
@@ -420,7 +420,7 @@ namespace SphereSim
     template <>
     QByteArray getBytesFromType<std::string>(const std::string &t)
     {
-        return QByteArray(t.c_str(), t.length());
+        return QByteArray(t.c_str(), t.size());
     }
 
     QByteArray Object::getData() const

@@ -128,7 +128,7 @@ void SimulationGrapher::timerUpdate()
             }
             Scalar temperature = 2.0/3.0*kineticEnergy/(sphereCount*1.3806504e-23);
             qDebug()<<"temperature:"<<temperature;
-            temperatures.append(temperature);
+            temperatures.push_back(temperature);
 
             Sphere s;
             Scalar speed;
@@ -138,22 +138,22 @@ void SimulationGrapher::timerUpdate()
                 speed = s.speed.norm();
                 if (counter > stepsToEquilibrium)
                 {
-                    data.append(speed);
+                    data.push_back(speed);
                 }
             }
             if (counter >= stepsToEquilibrium + dataPoints/sphereCount)
             {
                 dataUpdateTimer->stop();
 
-                qSort(data);
-                data.prepend(0);
+                std::sort(data.begin(), data.end());
                 Scalar factor = 1.0/dataPoints;
                 QFile file("./graphdata.txt");
                 QTextStream stream(&file);
                 file.open(QIODevice::WriteOnly);
-                for (quint16 i = 0; i<data.count(); i++)
+                stream<<0<<"\t"<<0<<"\n";
+                for (quint16 i = 0; i<data.size(); i++)
                 {
-                    stream<<data[i]<<"\t"<<(i*factor)<<"\n";
+                    stream<<data[i]<<"\t"<<((i+1)*factor)<<"\n";
                 }
                 stream.flush();
                 file.close();
@@ -161,7 +161,7 @@ void SimulationGrapher::timerUpdate()
                 QFile file3("./temperatures.txt");
                 QTextStream stream3(&file3);
                 file3.open(QIODevice::WriteOnly);
-                for (quint16 i = 0; i<temperatures.count(); i++)
+                for (quint16 i = 0; i<temperatures.size(); i++)
                 {
                     stream3<<(i*time/timeStep)<<"\t"<<temperatures[i]<<"\n";
                 }

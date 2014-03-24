@@ -13,7 +13,7 @@
 
 #include <QMutex>
 #include <QWaitCondition>
-#include <QList>
+#include <list>
 #include <QObject>
 
 class QElapsedTimer;
@@ -55,7 +55,7 @@ namespace SphereSim
 
     private:
         /** \brief Items of the queue. */
-        QList<WorkQueueItem> items;
+        std::list<WorkQueueItem> items;
 
         /** \brief Mutex used to lock the work status. */
         QMutex* mutex;

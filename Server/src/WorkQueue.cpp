@@ -32,7 +32,7 @@ WorkQueue::~WorkQueue()
 void WorkQueue::pushItem(WorkQueueItem& item)
 {
     mutex->lock();
-        items.append(item);
+        items.push_back(item);
         queueEmpty = false;
         updateStatus();
         if (canWork)
@@ -111,9 +111,10 @@ WorkQueueItem* WorkQueue::popItem()
         }
 
         WorkQueueItem* item;
-        if (items.count()>0)
+        if (items.size()>0)
         {
-            item = new WorkQueueItem(items.takeFirst());
+            item = new WorkQueueItem(items.front());
+            items.pop_front();
         }
         else
         {
@@ -136,10 +137,10 @@ WorkQueueItem* WorkQueue::popItem()
                 animationTimer->restart();
                 WorkQueueItem item2(ActionGroups::workQueue,
                     WorkQueueActions::prepareFrameData);
-                items.prepend(item2);
+                items.push_front(item2);
             }
         }
-        if (items.count()<=0)
+        if (items.size()<=0)
         {
             queueEmpty = true;
             updateStatus();

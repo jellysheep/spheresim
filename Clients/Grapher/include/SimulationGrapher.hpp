@@ -15,7 +15,7 @@
 #include <QObject>
 #include <QFile>
 #include <QTextStream>
-#include <QList>
+#include <vector>
 
 class QHostAddress;
 class QTimer;
@@ -48,9 +48,9 @@ namespace SphereSim
 
         quint16 dataPoints;
 
-        QList<Scalar> data;
+        std::vector<Scalar> data;
 
-        QList<Scalar> temperatures;
+        std::vector<Scalar> temperatures;
 
         quint16 stepsToEquilibrium;
 

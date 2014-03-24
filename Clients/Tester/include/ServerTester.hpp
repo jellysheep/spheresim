@@ -111,7 +111,7 @@ namespace SphereSim
                 Console::out<<" [\""<<t2<<"\"]";            \
                 Console::out<<"\n              ";           \
                 Console::out<<"(line "<<line;               \
-                if (testActionName.length()>0)              \
+                if (testActionName.size()>0)                \
                 {                                           \
                     Console::out<<", "<<testActionName;     \
                 }                                           \
