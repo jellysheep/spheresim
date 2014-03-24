@@ -36,7 +36,6 @@ set(HEADERS ${HEADERS}
 	${PROJECT_INCLUDE_DIR}/ButcherTableau.hpp
 	${PROJECT_INCLUDE_DIR}/SimulationWorker.hpp
 	${PROJECT_INCLUDE_DIR}/WorkQueue.hpp
-	${PROJECT_INCLUDE_DIR}/Array.hpp
 	${PROJECT_INCLUDE_DIR}/TwoDimArray.hpp
 )
 

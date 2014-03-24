@@ -9,17 +9,24 @@
 #ifndef _TWODIMARRAY_HPP_
 #define _TWODIMARRAY_HPP_
 
-#include <Array.hpp>
+#include <vector>
 
 namespace SphereSim
 {
-	class ArrayException;
+	class ArrayException : public std::exception
+	{
+		const char* what() const noexcept
+		{
+			return "Array exception.";
+		}
+	};
+
 
 	template <typename T, bool extremeSpeed=true, bool throwExceptions=true>
 	class TwoDimArray
 	{
 	private:
-		Array<T> values;
+		std::vector<T> values;
 
 		T** subArrays;
 

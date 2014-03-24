@@ -14,7 +14,6 @@ HEADERS		+=	ActionServer.hpp		\
 				ButcherTableau.hpp		\
 				SimulationWorker.hpp	\
 				WorkQueue.hpp			\
-				Array.hpp				\
 				TwoDimArray.hpp
 
 SOURCES		+=	main.cpp				\

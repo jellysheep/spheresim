@@ -1,3 +1,5 @@
+* Removed custom Array class, replaced by std::vector.
+
 SphereSim 3.0.2:
 * Fixed Viewer linking.
 * Fixed Eigen package name in PKGBUILDs.

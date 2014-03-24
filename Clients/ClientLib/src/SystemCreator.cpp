@@ -14,9 +14,8 @@
 #include <random>
 #include <chrono>
 
-Scalar getMaxwellBoltzmannDistribution(Scalar random)
+Scalar getMaxwellBoltzmannDistribution(double s)
 {
-	double s = random;
 	double x;
 	if (s < 0.346691)
 	{

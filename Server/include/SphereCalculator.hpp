@@ -36,10 +36,10 @@ namespace SphereSim
 
 	private:
 		/** \brief Spheres managed by the server. */
-		Array<Sphere> spheres;
+		std::vector<Sphere> spheres;
 
 		/** \brief New calculated positions of the spheres. */
-		Array<Vector3> newSpherePos;
+		std::vector<Vector3> newSpherePos;
 
 		/** \brief Butcher tableau used in the integrator. */
 		ButcherTableau butcherTableau;
