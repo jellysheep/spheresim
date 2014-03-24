@@ -5,6 +5,7 @@
 * Switched to spaces indentation.
 * Added exception handling to main functions.
 * Updated readme file.
+* Updated git repo link in PKGBUILDs and fixed version.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

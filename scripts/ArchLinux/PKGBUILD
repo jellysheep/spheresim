@@ -4,7 +4,7 @@
 pkgname=spheresim-git
 _gitname=spheresim
 pkgver=latest
-pkgrel=2
+pkgrel=1
 pkgdesc="Physical simulation of particle movements (server and clients)."
 arch=('i686' 'x86_64' 'armv7h')
 url="http://sourceforge.net/projects/spheresim/"
@@ -15,7 +15,7 @@ options=()
 conflicts=('spheresim')
 provides=('spheresim')
 
-source=("${_gitname}::git+https://jellysheep@bitbucket.org/jellysheep/spheresim.git")
+source=("${_gitname}::git+https://github.com/jellysheep/spheresim.git")
 
 md5sums=('SKIP')
 

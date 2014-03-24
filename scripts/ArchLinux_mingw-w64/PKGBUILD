@@ -4,7 +4,7 @@
 pkgname=mingw-w64-spheresim-git
 _gitname=spheresim
 pkgver=latest
-pkgrel=2
+pkgrel=1
 pkgdesc="Physical simulation of particle movements (server and clients). (mingw-w64)"
 arch=('any')
 url="http://sourceforge.net/projects/spheresim/"
@@ -15,7 +15,7 @@ options=('!strip' '!buildflags' 'staticlibs')
 conflicts=('mingw-w64-spheresim')
 provides=('mingw-w64-spheresim')
 
-source=("${_gitname}::git+https://jellysheep@bitbucket.org/jellysheep/spheresim.git")
+source=("${_gitname}::git+https://github.com/jellysheep/spheresim.git")
 
 md5sums=('SKIP')
 

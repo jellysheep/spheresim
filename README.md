@@ -2,7 +2,7 @@
 SphereSim
 =========
 
-Copyright (c) 2014, Max Mertens
+Copyright (c) 2014, Max Mertens.
 All rights reserved.
 
 Description
