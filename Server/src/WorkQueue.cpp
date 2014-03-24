@@ -35,18 +35,21 @@ void WorkQueue::pushItem(WorkQueueItem& item)
 		items.append(item);
 		queueEmpty = false;
 		updateStatus();
-		if(canWork) workCondition.wakeOne();
+		if (canWork)
+		{
+			workCondition.wakeOne();
+		}
 	mutex->unlock();
 }
 
 void WorkQueue::pushItem(quint8 actionGroup, quint8 action, QByteArray data)
 {
-	if(actionGroup == ActionGroups::calculation)
+	if (actionGroup == ActionGroups::calculation)
 	{
 		QDataStream stream(&data, QIODevice::ReadOnly);
 		quint32 steps;
 		bool actionDone = false;
-		switch(action)
+		switch (action)
 		{
 		case CalculationActions::calculateStep:
 			pushSimulationSteps(1);
@@ -66,8 +69,10 @@ void WorkQueue::pushItem(quint8 actionGroup, quint8 action, QByteArray data)
 			actionDone = true;
 			break;
 		}
-		if(actionDone)
+		if (actionDone)
+		{
 			return;
+		}
 	}
 	WorkQueueItem item(actionGroup, action, data);
 	pushItem(item);
@@ -76,7 +81,7 @@ void WorkQueue::pushItem(quint8 actionGroup, quint8 action, QByteArray data)
 void WorkQueue::pushSimulationSteps(quint32 steps)
 {
 	mutex->lock();
-		if(steps == 0)
+		if (steps == 0)
 		{
 			simulationSteps = 0;
 			continuousSimulationRunning = true;
@@ -95,44 +100,46 @@ void WorkQueue::pushSimulationSteps(quint32 steps)
 WorkQueueItem* WorkQueue::popItem()
 {
 	mutex->lock();
-		if(!((simulationSteps>0) || continuousSimulationRunning))
+		if (((simulationSteps>0) || continuousSimulationRunning) == false)
 		{
 			isSimulating = false;
 			emit simulating(isSimulating);
 		}
-		if(!canWork)
+		if (canWork == false)
 		{
 			workCondition.wait(mutex);
 		}
 
 		WorkQueueItem* item;
-		if(items.count()>0)
+		if (items.count()>0)
 		{
 			item = new WorkQueueItem(items.takeFirst());
 		}
 		else
 		{
-			item = new WorkQueueItem(ActionGroups::workQueue, WorkQueueActions::calculateStep);
-			if(simulationSteps>0)
+			item = new WorkQueueItem(ActionGroups::workQueue,
+				WorkQueueActions::calculateStep);
+			if (simulationSteps>0)
 			{
 				simulationSteps--;
 			}
-			else if(!continuousSimulationRunning)
+			else if (continuousSimulationRunning == false)
 			{
 				qDebug()<<"error!";
 			}
 		}
-		if(item->actionGroup == ActionGroups::workQueue &&
+		if (item->actionGroup == ActionGroups::workQueue &&
 			item->action == WorkQueueActions::calculateStep)
 		{
-			if(sendFramesRegularly && animationTimer->elapsed()>(1000/60))
+			if (sendFramesRegularly && animationTimer->elapsed()>(1000/60))
 			{
 				animationTimer->restart();
-				WorkQueueItem item2(ActionGroups::workQueue, WorkQueueActions::prepareFrameData);
+				WorkQueueItem item2(ActionGroups::workQueue,
+					WorkQueueActions::prepareFrameData);
 				items.prepend(item2);
 			}
 		}
-		if(items.count()<=0)
+		if (items.count()<=0)
 		{
 			queueEmpty = true;
 			updateStatus();
@@ -143,7 +150,8 @@ WorkQueueItem* WorkQueue::popItem()
 
 void WorkQueue::updateStatus()
 {
-	canWork = (!queueEmpty) || (simulationSteps>0) || continuousSimulationRunning;
+	canWork = (queueEmpty == false) || (simulationSteps>0)
+		|| continuousSimulationRunning;
 }
 
 void WorkQueue::stopSimulation()
@@ -163,7 +171,10 @@ void WorkQueue::stop()
 
 void WorkQueue::sendFrameData()
 {
-	if(!sendFramesRegularly) return;
+	if (sendFramesRegularly == false)
+	{
+		return;
+	}
 	WorkQueueItem item(ActionGroups::workQueue, WorkQueueActions::prepareFrameData);
 	pushItem(item);
 }

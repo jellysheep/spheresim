@@ -21,7 +21,8 @@
 
 using namespace SphereSim;
 
-SimulationGrapher::SimulationGrapher(QStringList args, QHostAddress addr, quint16 port)
+SimulationGrapher::SimulationGrapher(QStringList args, QHostAddress addr,
+	quint16 port)
 	:actionSender(new ActionSender(args, addr, port, this)),
 	dataUpdateTimer(new QTimer(this)), counter(0), timeStep(1.0), time(1.0),
 	sphereCountSqrt(1), sphereCount(1), dataPoints(2048), data(), temperatures(),
@@ -83,22 +84,26 @@ void SimulationGrapher::runSimulation2()
 
 void SimulationGrapher::timerUpdate()
 {
-	if(!actionSender->simulatedSystem->get<bool>(SimulationVariables::simulating))
+	if (actionSender->simulatedSystem->get<bool>(
+		SimulationVariables::simulating) == false)
 	{
 		++counter;
-		if(graphNumber == 1)
+		if (graphNumber == 1)
 		{
-			if(counter > 1)
+			if (counter > 1)
 			{
-				quint32 lastStepCalculationTime = actionSender->getLastStepCalculationTime();
+				quint32 lastStepCalculationTime =
+					actionSender->getLastStepCalculationTime();
 				//qDebug()<<"sphere count:"<<sphereCount;
 				//qDebug()<<"last step calculation time:"<<lastStepCalculationTime;
 				Console::out<<sphereCount<<" "<<lastStepCalculationTime<<"\n";
 			}
-			if(counter > 100)
+			if (counter > 100)
 			{
-				for(quint16 i = 0; i<sphereCount; i++)
+				for (quint16 i = 0; i<sphereCount; i++)
+				{
 					actionSender->removeLastSphere();
+				}
 				//QTimer::singleShot(0, this, SLOT(runSimulation2()));
 				qApp->exit(0);
 			}
@@ -110,13 +115,14 @@ void SimulationGrapher::timerUpdate()
 				actionSender->calculateStep();
 			}
 		}
-		else if(graphNumber == 2)
+		else if (graphNumber == 2)
 		{
 			Scalar kineticEnergy = actionSender->getKineticEnergy();
 			qDebug()<<"kin. energy:"<<kineticEnergy;
-			if(counter<10 || counter%10 == 0)
+			if (counter<10 || counter%10 == 0)
 			{
-				actionSender->simulatedSystem->set(SimulationVariables::targetTemperature, 473.15);
+				actionSender->simulatedSystem->set(
+					SimulationVariables::targetTemperature, 473.15);
 				kineticEnergy = actionSender->getKineticEnergy();
 				qDebug()<<"updated kin. energy:"<<kineticEnergy;
 			}
@@ -126,14 +132,16 @@ void SimulationGrapher::timerUpdate()
 
 			Sphere s;
 			Scalar speed;
-			for(quint16 i = 0; i<sphereCount; i++)
+			for (quint16 i = 0; i<sphereCount; i++)
 			{
 				actionSender->getAllSphereData(i, s);
 				speed = s.speed.norm();
-				if(counter > stepsToEquilibrium)
+				if (counter > stepsToEquilibrium)
+				{
 					data.append(speed);
+				}
 			}
-			if(counter >= stepsToEquilibrium + dataPoints/sphereCount)
+			if (counter >= stepsToEquilibrium + dataPoints/sphereCount)
 			{
 				dataUpdateTimer->stop();
 
@@ -143,7 +151,7 @@ void SimulationGrapher::timerUpdate()
 				QFile file("./graphdata.txt");
 				QTextStream stream(&file);
 				file.open(QIODevice::WriteOnly);
-				for(quint16 i = 0; i<data.count(); i++)
+				for (quint16 i = 0; i<data.count(); i++)
 				{
 					stream<<data[i]<<"\t"<<(i*factor)<<"\n";
 				}
@@ -153,7 +161,7 @@ void SimulationGrapher::timerUpdate()
 				QFile file3("./temperatures.txt");
 				QTextStream stream3(&file3);
 				file3.open(QIODevice::WriteOnly);
-				for(quint16 i = 0; i<temperatures.count(); i++)
+				for (quint16 i = 0; i<temperatures.count(); i++)
 				{
 					stream3<<(i*time/timeStep)<<"\t"<<temperatures[i]<<"\n";
 				}

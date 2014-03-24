@@ -22,7 +22,8 @@ namespace SphereSim
 {
 
 	/** \brief Info about a work to be done by the worker. */
-	class WorkQueueItem{
+	class WorkQueueItem
+	{
 	public:
 		/** \see ActionGroups */
 		quint8 actionGroup;
@@ -35,7 +36,8 @@ namespace SphereSim
 		QByteArray data;
 
 		/** \brief Initialize WorkQueueItem. */
-		WorkQueueItem(const quint8 actGrp, const quint8 act, const QByteArray d = QByteArray())
+		WorkQueueItem(const quint8 actGrp, const quint8 act,
+			const QByteArray d = QByteArray())
 			:actionGroup(actGrp), action(act), data(d)
 		{
 		}
@@ -47,7 +49,8 @@ namespace SphereSim
 	};
 
 	/** \brief Storage for work to be done by the worker. */
-	class WorkQueue : public QObject{
+	class WorkQueue : public QObject
+	{
 		Q_OBJECT
 
 	private:
@@ -101,7 +104,7 @@ namespace SphereSim
 		/** \copybrief pushItem */
 		void pushItem(quint8 actionGroup, quint8 action, QByteArray data);
 
-		/** \brief Increase the number of steps to simulate (0 = start continuous simulation). */
+		/** \brief Increase simulation steps (0 = start continuous simulation). */
 		void pushSimulationSteps(quint32 steps);
 
 		/** \brief Return the next work to do and remove it from the queue. */

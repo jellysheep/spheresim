@@ -17,8 +17,10 @@ StartDialog::StartDialog()
 {
 	startDialog->setupUi(this);
 	setWindowTitle("SphereSim " VERSION_STR);
-	QObject::connect(this, SIGNAL(accepted()), this, SLOT(accepted_()), Qt::AutoConnection);
-	QObject::connect(this, SIGNAL(rejected()), this, SLOT(rejected_()), Qt::AutoConnection);
+	QObject::connect(this, SIGNAL(accepted()), this, SLOT(accepted_()),
+		Qt::AutoConnection);
+	QObject::connect(this, SIGNAL(rejected()), this, SLOT(rejected_()),
+		Qt::AutoConnection);
 	exec();
 }
 
@@ -36,6 +38,8 @@ void StartDialog::rejected_()
 
 quint16 StartDialog::getSphereCount()
 {
-	while(!selected);
+	while (selected == false)
+	{
+	}
 	return sphCount;
 }

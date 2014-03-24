@@ -20,7 +20,8 @@ namespace SphereSim
 		/** \see Format */
 		enum Format
 		{
-			/** \brief Print console output in bold. Bold text is usually brighter than normal. */
+			/** \brief Print console output in bold.
+			 * Bold text is usually brighter than normal. */
 			bold
 		};
 	}
@@ -81,11 +82,11 @@ namespace SphereSim
 		template <typename T>
 		InternalConsole& operator<<(T t)
 		{
-			if(color>=0 && color<=Color::white)
+			if (color>=0 && color<=Color::white)
 			{
 				console<<"\x1b[3";
 				console<<color;
-				if((font & 1<<Format::bold)>0)
+				if ((font & 1<<Format::bold)>0)
 				{
 					console<<";1";
 				}

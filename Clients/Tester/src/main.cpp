@@ -26,6 +26,7 @@ int main(int argc, char** argv)
 {
 	QCoreApplication app(argc, argv);
 	QStringList args = app.arguments();
-	ServerTester svrTester(args, QHostAddress(Connection::address), Connection::port);
+	ServerTester svrTester(args, QHostAddress(Connection::address),
+		Connection::port);
 	return app.exec();
 }

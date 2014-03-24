@@ -10,11 +10,11 @@
 
 using namespace SphereSim;
 
-InternalConsole::InternalConsole():color(Color::white),font(0)
+InternalConsole::InternalConsole():color(Color::white), font(0)
 {
 }
 
-InternalConsole::InternalConsole(quint16 c, quint16 f):color(c),font(f)
+InternalConsole::InternalConsole(quint16 c, quint16 f):color(c), font(f)
 {
 }
 

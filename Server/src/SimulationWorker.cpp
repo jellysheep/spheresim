@@ -36,7 +36,7 @@ SimulationWorker::~SimulationWorker()
 void SimulationWorker::work()
 {
 	WorkQueueItem* workQueueItem;
-	while(running)
+	while (running)
 	{
 		workQueueItem = queue->popItem();
 		handleAction(workQueueItem);
@@ -60,7 +60,7 @@ bool SimulationWorker::getHasFinished()
 
 void SimulationWorker::handleAction(WorkQueueItem* workQueueItem)
 {
-	switch(workQueueItem->actionGroup)
+	switch (workQueueItem->actionGroup)
 	{
 	case ActionGroups::basic:
 		handleBasicAction(workQueueItem);
@@ -91,14 +91,15 @@ void SimulationWorker::handleBasicAction(WorkQueueItem* workQueueItem)
 	QByteArray data;
 	SimulationVariables::Variable var;
 	int _var;
-	switch(workQueueItem->action)
+	switch (workQueueItem->action)
 	{
 	case BasicActions::terminateServer:
 		emit sendReply(ServerStatusReplies::terminating, "Server terminating...");
 		actRcv->terminateServer();
 		break;
 	case BasicActions::updateVariable:
-		_var = ((char)workQueueItem->data.at(0))*256 + (char)workQueueItem->data.at(1);
+		_var = ((char)workQueueItem->data.at(0))*256
+			+ (char)workQueueItem->data.at(1);
 		var = (SimulationVariables::Variable)_var;
 		data = workQueueItem->data.mid(2);
 		sphCalc->simulatedSystem->receiveVariable(var, data);
@@ -117,13 +118,15 @@ void SimulationWorker::handleSpheresUpdatingAction(WorkQueueItem* workQueueItem)
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
 	Scalar s1, s2;
-	switch(workQueueItem->action)
+	switch (workQueueItem->action)
 	{
 	case SpheresUpdatingActions::addSphere:
-		emit sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc->addSphere()).toUtf8());
+		emit sendReply(ServerStatusReplies::acknowledge,
+			QString::number(sphCalc->addSphere()).toUtf8());
 		break;
 	case SpheresUpdatingActions::removeLastSphere:
-		emit sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc->removeLastSphere()).toUtf8());
+		emit sendReply(ServerStatusReplies::acknowledge,
+			QString::number(sphCalc->removeLastSphere()).toUtf8());
 		break;
 	case SpheresUpdatingActions::updateSphere:
 		stream>>i;
@@ -144,11 +147,13 @@ void SimulationWorker::handleSpheresUpdatingAction(WorkQueueItem* workQueueItem)
 		break;
 	case SpheresUpdatingActions::addSomeSpheres:
 		stream>>i;
-		emit sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc->addSomeSpheres(i)).toUtf8());
+		emit sendReply(ServerStatusReplies::acknowledge,
+			QString::number(sphCalc->addSomeSpheres(i)).toUtf8());
 		break;
 	case SpheresUpdatingActions::removeSomeLastSpheres:
 		stream>>i;
-		emit sendReply(ServerStatusReplies::acknowledge, QString::number(sphCalc->removeSomeLastSpheres(i)).toUtf8());
+		emit sendReply(ServerStatusReplies::acknowledge,
+			QString::number(sphCalc->removeSomeLastSpheres(i)).toUtf8());
 		break;
 	case SpheresUpdatingActions::updateSpherePositionsInBox:
 		stream>>s1;
@@ -174,7 +179,7 @@ void SimulationWorker::handleCalculationAction(WorkQueueItem* workQueueItem)
 	QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
-	switch(workQueueItem->action)
+	switch (workQueueItem->action)
 	{
 	case CalculationActions::popCalculationCounter:
 		retStream<<sphCalc->popCalculationCounter();
@@ -199,7 +204,7 @@ void SimulationWorker::handleInformationAction(WorkQueueItem* workQueueItem)
 	QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
-	switch(workQueueItem->action)
+	switch (workQueueItem->action)
 	{
 	case InformationActions::getTotalEnergy:
 		retStream<<sphCalc->getTotalEnergy();
@@ -220,7 +225,7 @@ void SimulationWorker::handleSimulatedSystemAction(WorkQueueItem* workQueueItem)
 	QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
 	QByteArray retData;
 	QDataStream retStream(&retData, QIODevice::WriteOnly);
-	switch(workQueueItem->action)
+	switch (workQueueItem->action)
 	{
 	default:
 		handleUnknownAction(workQueueItem);
@@ -230,7 +235,7 @@ void SimulationWorker::handleSimulatedSystemAction(WorkQueueItem* workQueueItem)
 
 void SimulationWorker::handleWorkQueueAction(WorkQueueItem* workQueueItem)
 {
-	switch(workQueueItem->action)
+	switch (workQueueItem->action)
 	{
 	case WorkQueueActions::stopWorker:
 		stop();
@@ -250,13 +255,15 @@ void SimulationWorker::handleWorkQueueAction(WorkQueueItem* workQueueItem)
 void SimulationWorker::handleUnknownActionGroup(WorkQueueItem* workQueueItem)
 {
 	qWarning()<<"SimulationWorker: Warning: received unknown action group"
-		<<Connection::startByte<<(int)workQueueItem->actionGroup<<(int)workQueueItem->action<<Connection::endByte;
+		<<Connection::startByte<<(int)workQueueItem->actionGroup
+			<<(int)workQueueItem->action<<Connection::endByte;
 	emit sendReply(ServerStatusReplies::unknownActionGroup, "unknown action group");
 }
 
 void SimulationWorker::handleUnknownAction(WorkQueueItem* workQueueItem)
 {
 	qWarning()<<"SimulationWorker: Warning: received unknown action"
-		<<Connection::startByte<<(int)workQueueItem->actionGroup<<(int)workQueueItem->action<<Connection::endByte;
+		<<Connection::startByte<<(int)workQueueItem->actionGroup
+			<<(int)workQueueItem->action<<Connection::endByte;
 	emit sendReply(ServerStatusReplies::unknownAction, "unknown action");
 }

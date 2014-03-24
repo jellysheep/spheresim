@@ -57,16 +57,24 @@ void GLWidget::initializeGL()
 	qglClearColor(Qt::black);
     glEnable(GL_DEPTH_TEST);
 
-	if (!program.addShaderFromSourceFile(QGLShader::Vertex, ":/VertexShader.glsl"))
+	if (program.addShaderFromSourceFile(QGLShader::Vertex,
+		":/VertexShader.glsl") == false)
+	{
 		shaderLoadError();
-	if (!program.addShaderFromSourceFile(QGLShader::Fragment, ":/FragmentShader.glsl"))
+	}
+	if (program.addShaderFromSourceFile(QGLShader::Fragment,
+		":/FragmentShader.glsl") == false)
+	{
 		shaderLoadError();
-	if (!program.link())
+	}
+	if (program.link() == false)
+	{
 		shaderLoadError();
-	if (!program.bind())
+	}
+	if (program.bind() == false)
+	{
 		shaderLoadError();
-
-	program.bind();
+	}
 
 	verticesAttr = program.attributeLocation("verticesAttr");
 	colorsAttr = program.attributeLocation("colorsAttr");
@@ -81,7 +89,7 @@ void GLWidget::initializeGL()
 	circleColors[1] = 1;
 	circleColors[2] = 1;
 	float angle;
-	for(quint16 i = 1; i<circleEdges+2; i++)
+	for (quint16 i = 1; i<circleEdges+2; i++)
 	{
 		angle = 2*M_PI*(i-1)/circleEdges;
 		circleVertices[2*i] = cos(angle);
@@ -117,8 +125,10 @@ void GLWidget::resizeGL(int width, int height)
 
 void GLWidget::paintGL()
 {
-	if(frameBuffer == nullptr)
+	if (frameBuffer == nullptr)
+	{
 		return;
+	}
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -173,7 +183,7 @@ void GLWidget::paintGL()
 
 	Sphere s;
 
-	while(frameBuffer->hasElements())
+	while (frameBuffer->hasElements())
 	{
 		s = frameBuffer->popElement();
 
@@ -195,8 +205,10 @@ void GLWidget::paintBackground()
 
 void GLWidget::timerUpdate()
 {
-	if(animating)
+	if (animating)
+	{
 		animationTimer->start(sleepTime);
+	}
 	updateGL();
 }
 
@@ -204,16 +216,18 @@ void GLWidget::updateTimerFrequency(int frameBufferPercentageLevel)
 {
 	frameBufferPercentageLevelSum += frameBufferPercentageLevel;
 	frameBufferPercentageLevelCounter++;
-	if(controlTimer->elapsed()>500)
+	if (controlTimer->elapsed()>500)
 	{
 		controlTimer->restart();
-		Scalar frameBufferPercentageLevelAverage = frameBufferPercentageLevelSum*1.f/frameBufferPercentageLevelCounter;
+		Scalar frameBufferPercentageLevelAverage =
+			frameBufferPercentageLevelSum*1.f/frameBufferPercentageLevelCounter;
 		Scalar factor = (frameBufferPercentageLevelAverage-50)/50.0;
 		factor = pow(factor, 5);
 		Scalar amplitude = 20;
 		Scalar fps = 60+(factor*amplitude);
-		sleepTime = (quint16)std::max(0, (int)round(1000.0/fps));
-		qDebug()<<"GLWidget: level:"<<frameBufferPercentageLevelAverage<<"\tfps:"<<fps<<"\tms:"<<sleepTime;
+		sleepTime = (quint16)(std::max)(0, (int)std::round(1000.0/fps));
+		qDebug()<<"GLWidget: level:"<<frameBufferPercentageLevelAverage
+			<<"\tfps:"<<fps<<"\tms:"<<sleepTime;
 		frameBufferPercentageLevelSum = 0;
 		frameBufferPercentageLevelCounter = 0;
 	}
@@ -221,7 +235,7 @@ void GLWidget::updateTimerFrequency(int frameBufferPercentageLevel)
 
 void GLWidget::startAnimation()
 {
-	if(!animating)
+	if (animating == false)
 	{
 		animating = true;
 		animationTimer->start(sleepTime);

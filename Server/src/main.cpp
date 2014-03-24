@@ -25,7 +25,8 @@ int main(int argc, char** argv)
 {
 	QCoreApplication app(argc, argv);
 	QStringList args = app.arguments();
-	ActionServer actSvr(args, QHostAddress(Connection::listeningAddress), Connection::port);
+	ActionServer actSvr(args, QHostAddress(Connection::listeningAddress),
+		Connection::port);
 	app.exec();
 
 	return 0;

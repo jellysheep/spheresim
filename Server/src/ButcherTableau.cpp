@@ -19,7 +19,7 @@ ButcherTableau::ButcherTableau()
 }
 
 ButcherTableau::ButcherTableau(quint8 _order)
-	:order(_order),a(),b(),b_(),c()
+	:order(_order), a(), b(), b_(), c()
 {
 }
 
@@ -29,10 +29,10 @@ ButcherTableau::ButcherTableau(quint8 _order, const Scalar* _a, const Scalar* _b
 {
 	quint16 counter = 0;
 	Scalar checksum;
-	for(quint8 x = 0; x<order; x++)
+	for (quint8 x = 0; x<order; x++)
 	{
 		checksum = 0.0;
-		for(quint8 y = 0; y<order; y++)
+		for (quint8 y = 0; y<order; y++)
 		{
 			a[x][y] = _a[counter++];
 			checksum += a[x][y];
@@ -40,7 +40,7 @@ ButcherTableau::ButcherTableau(quint8 _order, const Scalar* _a, const Scalar* _b
 		b[x] = _b[x];
 		b_[x] = _b_[x];
 		c[x] = _c[x];
-		if(fabs(checksum-c[x])>0.0001*(checksum+c[x]))
+		if (fabs(checksum-c[x])>0.0001*(checksum+c[x]))
 		{
 			Console::redBold<<"Error: Butcher tableau checksum is wrong!\n";
 		}

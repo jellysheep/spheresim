@@ -38,12 +38,12 @@ namespace SphereSim
 
 		void deleteAll()
 		{
-			if(counter != nullptr)
+			if (counter != nullptr)
 			{
 				delete[] counter;
 				counter = nullptr;
 			}
-			if(subArrays != nullptr)
+			if (subArrays != nullptr)
 			{
 				delete[] subArrays;
 				subArrays = nullptr;
@@ -56,7 +56,7 @@ namespace SphereSim
 			values.resize(totalSize);
 			subArrays = new T*[outerSize];
 			counter = new unsigned int[outerSize];
-			for(unsigned int i = 0; i<outerSize; i++)
+			for (unsigned int i = 0; i<outerSize; i++)
 			{
 				counter[i] = 0;
 				subArrays[i] = &values[constInnerSize*i];
@@ -74,8 +74,10 @@ namespace SphereSim
 			:values(0), subArrays(nullptr), counter(nullptr),
 			constInnerSize(size), outerSize(size2)
 		{
-			if(size2 > 0)
+			if (size2 > 0)
+			{
 				initArrays();
+			}
 		}
 
 		~TwoDimArray()
@@ -89,7 +91,7 @@ namespace SphereSim
 
 		void resize(const unsigned int size)
 		{
-			if(size != outerSize && size > 0)
+			if (size != outerSize && size > 0)
 			{
 				deleteAll();
 				outerSize = size;
@@ -100,13 +102,16 @@ namespace SphereSim
 
 		inline T* operator[](const unsigned int index)
 		{
-			if(!extremeSpeed)
+			if (extremeSpeed == false)
 			{
-				if(index >= outerSize || subArrays == nullptr || subArrays[index] == nullptr)
+				if (index >= outerSize || subArrays == nullptr
+					|| subArrays[index] == nullptr)
 				{
 					qDebug()<<"TwoDimArray::operator[] error.";
-					if(throwExceptions)
+					if (throwExceptions)
+					{
 						throw ArrayException();
+					}
 					return nullptr;
 				}
 			}
@@ -115,13 +120,16 @@ namespace SphereSim
 
 		inline const T* operator[](const unsigned int index) const
 		{
-			if(!extremeSpeed)
+			if (extremeSpeed == false)
 			{
-				if(index >= outerSize || subArrays == nullptr || subArrays[index] == nullptr)
+				if (index >= outerSize || subArrays == nullptr
+					|| subArrays[index] == nullptr)
 				{
 					qDebug()<<"TwoDimArray::operator[] const error.";
-					if(throwExceptions)
+					if (throwExceptions)
+					{
 						throw ArrayException();
+					}
 					return nullptr;
 				}
 			}
@@ -130,52 +138,67 @@ namespace SphereSim
 
 		inline void addElement(const unsigned int index, T& element)
 		{
-			if(!extremeSpeed)
+			if (extremeSpeed == false)
 			{
-				if(counter == nullptr || index >= outerSize || subArrays == nullptr || subArrays[index] == nullptr)
+				if (counter == nullptr || index >= outerSize || subArrays == nullptr
+					|| subArrays[index] == nullptr)
 				{
 					qDebug()<<"TwoDimArray::addElement error.";
-					if(throwExceptions)
+					if (throwExceptions)
+					{
 						throw ArrayException();
+					}
 					return;
 				}
 			}
-			if(counter[index] < constInnerSize)
+			if (counter[index] < constInnerSize)
+			{
 				subArrays[index][counter[index]++] = element;
+			}
 			else
 			{
-				qDebug()<<"TwoDimArray::addElement error: full."<<counter[index]<<constInnerSize;
-				if(throwExceptions)
+				qDebug()<<"TwoDimArray::addElement error: full."<<counter[index]
+					<<constInnerSize;
+				if (throwExceptions)
+				{
 					throw ArrayException();
+				}
 			}
 		}
 
 		inline bool addElementIfNotContained(const unsigned int index, T& element)
 		{
-			if(!extremeSpeed)
+			if (extremeSpeed == false)
 			{
-				if(counter == nullptr || index >= outerSize || subArrays == nullptr || subArrays[index] == nullptr)
+				if (counter == nullptr || index >= outerSize || subArrays == nullptr
+					|| subArrays[index] == nullptr)
 				{
 					qDebug()<<"TwoDimArray::addElementIfNotContained error.";
-					if(throwExceptions)
+					if (throwExceptions)
+					{
 						throw ArrayException();
+					}
 					return false;
 				}
 			}
-			if(counter[index] < constInnerSize)
+			if (counter[index] < constInnerSize)
 			{
 				T* subArray = subArrays[index];
-				for(unsigned int i = 0; i<counter[index]; ++i)
+				for (unsigned int i = 0; i<counter[index]; ++i)
 				{
-					if(subArray[i] == element)
+					if (subArray[i] == element)
+					{
 						return false;
+					}
 				}
 				subArray[counter[index]++] = element;
 				return true;
 			}
 			qDebug()<<"TwoDimArray::addElementIfNotContained error: full.";
-			if(throwExceptions)
+			if (throwExceptions)
+			{
 				throw ArrayException();
+			}
 			return false;
 		}
 
@@ -186,13 +209,15 @@ namespace SphereSim
 
 		inline unsigned int getCounter(const unsigned int index)
 		{
-			if(!extremeSpeed)
+			if (extremeSpeed == false)
 			{
-				if(counter == nullptr || index >= outerSize)
+				if (counter == nullptr || index >= outerSize)
 				{
 					qDebug()<<"TwoDimArray::getCount error.";
-					if(throwExceptions)
+					if (throwExceptions)
+					{
 						throw ArrayException();
+					}
 					return 0;
 				}
 			}
@@ -201,13 +226,15 @@ namespace SphereSim
 
 		inline void resetCounter(const unsigned int index)
 		{
-			if(!extremeSpeed)
+			if (extremeSpeed == false)
 			{
-				if(counter == nullptr || index >= outerSize)
+				if (counter == nullptr || index >= outerSize)
 				{
 					qDebug()<<"TwoDimArray::resetCounter error.";
-					if(throwExceptions)
+					if (throwExceptions)
+					{
 						throw ArrayException();
+					}
 					return;
 				}
 			}

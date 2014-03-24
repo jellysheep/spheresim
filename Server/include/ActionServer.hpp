@@ -43,7 +43,7 @@ namespace SphereSim
 		ActionServer& operator=(const ActionServer&) = delete;
 
 	public slots:
-		/** \brief Get connection from client and create a new ActionReceiver for it. */
+		/** \brief Get connection from client and create a new ActionReceiver. */
 		void newConnection();
 
 	};

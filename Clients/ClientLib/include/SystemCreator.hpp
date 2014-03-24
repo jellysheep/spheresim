@@ -29,7 +29,8 @@ namespace SphereSim
 		SystemCreator(const SystemCreator&) = delete;
 		SystemCreator& operator=(const SystemCreator&) = delete;
 
-		Scalar createArgonGasSystem(quint16 sphereCount, Scalar targetTemperature=473.15);
+		Scalar createArgonGasSystem(quint16 sphereCount,
+			Scalar targetTemperature=473.15);
 
 		Scalar createMacroscopicGravitationSystem(quint16 sphereCount);
 

@@ -79,7 +79,8 @@ namespace SphereSim
 
 	public:
 		/** \brief Initialize member variables. */
-		SimulationWorker(SphereCalculator* sphCalc, WorkQueue* queue, ActionReceiver* actRcv);
+		SimulationWorker(SphereCalculator* sphCalc, WorkQueue* queue,
+			ActionReceiver* actRcv);
 
 		/** \brief Clean up member variables. */
 		~SimulationWorker();

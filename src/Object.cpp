@@ -122,7 +122,7 @@ namespace SphereSim
 
 		bool operator()(T* t)
 		{
-			if(*t == data)
+			if (*t == data)
 			{
 				return false;
 			}
@@ -141,7 +141,7 @@ namespace SphereSim
 
 		bool operator()(bool* b)
 		{
-			if(*b == data)
+			if (*b == data)
 			{
 				return false;
 			}
@@ -150,7 +150,7 @@ namespace SphereSim
 		}
 		bool operator()(int* i)
 		{
-			if(*i == data)
+			if (*i == data)
 			{
 				return false;
 			}
@@ -159,7 +159,7 @@ namespace SphereSim
 		}
 		bool operator()(float* f)
 		{
-			if(*f == data)
+			if (*f == data)
 			{
 				return false;
 			}
@@ -168,7 +168,7 @@ namespace SphereSim
 		}
 		bool operator()(double* d)
 		{
-			if(*d == data)
+			if (*d == data)
 			{
 				return false;
 			}
@@ -232,8 +232,10 @@ namespace SphereSim
 
 	Object::~Object()
 	{
-		if(data != nullptr)
+		if (data != nullptr)
+		{
 			applyVisitor(DestructorVisitor());
+		}
 	}
 
 	/// methods:
@@ -241,7 +243,7 @@ namespace SphereSim
 	template <typename T>
 	T Object::applyVisitor(Visitor<T>&& visitor) const
 	{
-		switch(type)
+		switch (type)
 		{
 		case BOOL:
 			return visitor((bool*)data);
@@ -302,8 +304,10 @@ namespace SphereSim
 	{
 		int l = 0;
 		char* chars = (char*)&l;
-		for(int i = 0; i<4; i++)
+		for (int i = 0; i<4; i++)
+		{
 			chars[i] = bytes.at(i);
+		}
 		return l;
 	}
 
@@ -312,8 +316,10 @@ namespace SphereSim
 	{
 		long l = 0;
 		char* chars = (char*)&l;
-		for(int i = 0; i<8; i++)
+		for (int i = 0; i<8; i++)
+		{
 			chars[i] = bytes.at(i);
+		}
 		return l;
 	}
 
@@ -335,9 +341,9 @@ namespace SphereSim
 	Vector3 getTypeFromBytes<Vector3>(const QByteArray &bytes)
 	{
 		Vector3 v;
-		v(0) = getTypeFromBytes<double>(bytes.mid(0,8));
-		v(1) = getTypeFromBytes<double>(bytes.mid(8,8));
-		v(2) = getTypeFromBytes<double>(bytes.mid(16,8));
+		v(0) = getTypeFromBytes<double>(bytes.mid(0, 8));
+		v(1) = getTypeFromBytes<double>(bytes.mid(8, 8));
+		v(2) = getTypeFromBytes<double>(bytes.mid(16, 8));
 		return v;
 	}
 
@@ -363,8 +369,10 @@ namespace SphereSim
 		QByteArray bytes(4, 0);
 		int l = t;
 		char* chars = (char*)&l;
-		for(int i = 0; i<4; i++)
+		for (int i = 0; i<4; i++)
+		{
 			bytes[i] = chars[i];
+		}
 		return bytes;
 	}
 
@@ -374,8 +382,10 @@ namespace SphereSim
 		QByteArray bytes(8, 0);
 		long l = t;
 		char* chars = (char*)&l;
-		for(int i = 0; i<8; i++)
+		for (int i = 0; i<8; i++)
+		{
 			bytes[i] = chars[i];
+		}
 		return bytes;
 	}
 
@@ -417,7 +427,7 @@ namespace SphereSim
 	{
 		QByteArray bytes;
 		bytes.append((char)type);
-		switch(type)
+		switch (type)
 		{
 		case BOOL:
 			bytes.append(getBytesFromType(*(bool*)data));
@@ -447,7 +457,7 @@ namespace SphereSim
 	{
 		Type t = (Type)bytes_[0];
 		QByteArray bytes = bytes_.mid(1);
-		switch(t)
+		switch (t)
 		{
 		case BOOL:
 			return set(getTypeFromBytes<bool>(bytes));

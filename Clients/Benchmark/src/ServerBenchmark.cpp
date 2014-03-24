@@ -34,7 +34,8 @@ void ServerBenchmark::run()
 	sender->simulatedSystem->set(SimulationVariables::spherePoissonRatio, 0.5);
 	sender->simulatedSystem->set(SimulationVariables::wallE, 5000);
 	sender->simulatedSystem->set(SimulationVariables::wallPoissonRatio, 0.5);
-	sender->simulatedSystem->set(SimulationVariables::earthGravity, Vector3(0, -9.81, 0));
+	sender->simulatedSystem->set(SimulationVariables::earthGravity,
+		Vector3(0, -9.81, 0));
 
 	//runBenchmark_internal2();
 
@@ -46,11 +47,16 @@ void ServerBenchmark::run()
 	qApp->exit(0);
 }
 
-void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculateGravity, bool calculateLennardJonesPotential)
+void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
+	bool calculateGravity, bool calculateLennardJonesPotential)
 {
-	Console::out<<"\nServerBenchmark: simulating with collision detection "<<(detectCollisions?"on":"off")<<".\n";
-	Console::out<<"ServerBenchmark: simulating with gravity calculation "<<(calculateGravity?"on":"off")<<".\n";
-	Console::out<<"ServerBenchmark: simulating with Lennard-Jones potential calculation "<<(calculateLennardJonesPotential?"on":"off")<<".\n";
+	Console::out<<"\nServerBenchmark: simulating with collision detection "
+		<<(detectCollisions?"on":"off")<<".\n";
+	Console::out<<"ServerBenchmark: simulating with gravity calculation "
+		<<(calculateGravity?"on":"off")<<".\n";
+	Console::out<<"ServerBenchmark: simulating with "
+		<<"Lennard-Jones potential calculation "
+		<<(calculateLennardJonesPotential?"on":"off")<<".\n";
 
 	sender->addSphere();
 	sender->addSphere();
@@ -70,14 +76,22 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculat
 	sender->updateSphere(0, s);
 	s.pos(1) = 0.4;
 	sender->updateSphere(1, s);
-	sender->simulatedSystem->set(SimulationVariables::collisionDetection, detectCollisions);
-	sender->simulatedSystem->set(SimulationVariables::gravityCalculation, calculateGravity);
-	sender->simulatedSystem->set(SimulationVariables::gravitationalConstant, 1.3e-3);
-	sender->simulatedSystem->set(SimulationVariables::lennardJonesPotential, calculateLennardJonesPotential);
-	if(calculateGravity)
+	sender->simulatedSystem->set(SimulationVariables::collisionDetection,
+		detectCollisions);
+	sender->simulatedSystem->set(SimulationVariables::gravityCalculation,
+		calculateGravity);
+	sender->simulatedSystem->set(SimulationVariables::gravitationalConstant,
+		1.3e-3);
+	sender->simulatedSystem->set(SimulationVariables::lennardJonesPotential,
+		calculateLennardJonesPotential);
+	if (calculateGravity)
+	{
 		sender->simulatedSystem->set(SimulationVariables::wallE, 0);
+	}
 	else
+	{
 		sender->simulatedSystem->set(SimulationVariables::wallE, 5000);
+	}
 
 	Scalar timeStep = 0.00001;
 	Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
@@ -90,24 +104,26 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions, bool calculat
 	sender->startSimulation();
 	timer.start();
 	quint16 numParts = 100;
-	for(quint16 i = 0; i<numParts; i++)
+	for (quint16 i = 0; i<numParts; i++)
 	{
 		QTest::qWait(10*1000/numParts);
 		stepCounter += sender->popStepCounter();
 		Console::out<<"\rServerBenchmark: progress: "<<(((i+1)*100)/numParts)<<" % ";
 	}
 	sender->stopSimulation();
-	while(sender->simulatedSystem->get<bool>(SimulationVariables::simulating))
+	while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating))
 	{
 		QCoreApplication::processEvents();
 	}
 	quint64 elapsedTime = timer.elapsed();
 	Scalar stepsPerSecond = stepCounter/(elapsedTime*0.001);
-	Console::out<<"\rServerBenchmark: simulated steps per second: "<<stepsPerSecond<<"\t\t\n";
+	Console::out<<"\rServerBenchmark: simulated steps per second: "
+		<<stepsPerSecond<<"\t\t\n";
 
 	Scalar simulatedSeconds = stepCounter*timeStep;
 	Scalar simulatedSecondsPerSecond = simulatedSeconds/(elapsedTime*0.001);
-	Console::out<<"ServerBenchmark: simulated seconds per second: "<<simulatedSecondsPerSecond<<"\n";
+	Console::out<<"ServerBenchmark: simulated seconds per second: "
+		<<simulatedSecondsPerSecond<<"\n";
 
 	endEnergy = sender->getTotalEnergy();
 	Scalar relError = 1.0-(beginEnergy/endEnergy);
@@ -133,32 +149,37 @@ void ServerBenchmark::runBenchmark_internal2()
 	QElapsedTimer timer = QElapsedTimer();
 	sender->startSimulation();
 	timer.start();
-	for(quint16 i = 0; i<100; i++)
+	for (quint16 i = 0; i<100; i++)
 	{
 		QTest::qWait(10*1000/100);
 		Console::out<<"\rServerBenchmark: progress: "<<(i+1)<<" % ";
 	}
 	sender->stopSimulation();
-	while(sender->simulatedSystem->get<bool>(SimulationVariables::simulating))
+	while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating))
 	{
 		QCoreApplication::processEvents();
 	}
 	quint64 elapsedTime = timer.elapsed();
 	quint32 stepCounter = sender->popStepCounter();
 	Scalar stepsPerSecond = stepCounter/(elapsedTime*0.001);
-	Console::out<<"\rServerBenchmark: simulated steps per second: "<<stepsPerSecond<<"\t\t\n";
+	Console::out<<"\rServerBenchmark: simulated steps per second: "
+		<<stepsPerSecond<<"\t\t\n";
 	quint32 calculationCounter = sender->popCalculationCounter();
 	Scalar calculationsPerSecond = calculationCounter/(elapsedTime*0.001);
-	Console::out<<"\rServerBenchmark: calculations per second: "<<calculationsPerSecond<<"\t\t\n";
+	Console::out<<"\rServerBenchmark: calculations per second: "
+		<<calculationsPerSecond<<"\t\t\n";
 
 	Scalar simulatedSeconds = stepCounter*timeStep;
 	Scalar simulatedSecondsPerSecond = simulatedSeconds/(elapsedTime*0.001);
-	Console::out<<"ServerBenchmark: simulated seconds per second: "<<simulatedSecondsPerSecond<<"\n";
+	Console::out<<"ServerBenchmark: simulated seconds per second: "
+		<<simulatedSecondsPerSecond<<"\n";
 
 	endEnergy = sender->getTotalEnergy();
 	Scalar relError = 1.0-(beginEnergy/endEnergy);
 	Console::out<<"ServerBenchmark: rel. error: "<<relError<<"\n";
 
-	for(quint16 sphCounter = 0; sphCounter<sphCount; sphCounter++)
+	for (quint16 sphCounter = 0; sphCounter<sphCount; sphCounter++)
+	{
 		sender->removeLastSphere();
+	}
 }

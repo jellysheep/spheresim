@@ -59,7 +59,8 @@ namespace SphereSim
 
 	public:
 		/** \brief Initialize member variables. */
-		MainWindow(QStringList args, QHostAddress addr, quint16 port, quint16 sphCount, QWidget* parent = nullptr);
+		MainWindow(QStringList args, QHostAddress addr, quint16 port,
+			quint16 sphCount, QWidget* parent = nullptr);
 
 		/** \brief Clean up member variables. */
 		~MainWindow();

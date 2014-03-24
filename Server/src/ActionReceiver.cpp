@@ -23,7 +23,8 @@ ActionReceiver::ActionReceiver(QTcpSocket* socket)
 	connect(socket, SIGNAL(disconnected()), SLOT(deleteLater()));
 	connect(socket, SIGNAL(readyRead()), SLOT(readData()));
 	connect(&sphCalc, SIGNAL(frameToSend(QByteArray)), SLOT(sendFrame(QByteArray)));
-	connect(&simulatedSystem, SIGNAL(variableToSend(QByteArray)), SLOT(sendVariable(QByteArray)));
+	connect(&simulatedSystem, SIGNAL(variableToSend(QByteArray)),
+		SLOT(sendVariable(QByteArray)));
 	connect(workQueue, SIGNAL(simulating(bool)), SLOT(simulating(bool)));
 	simulatedSystem.sendAllVariables();
 }
@@ -56,12 +57,12 @@ void ActionReceiver::processData(QByteArray byteArray)
 	endIndex = byteArray.indexOf(Connection::endByte);
 	startIndex = byteArray.indexOf(Connection::startByte);
 
-	if(endIndex<0)
+	if (endIndex<0)
 	{
-		if(startIndex<0)
+		if (startIndex<0)
 		{
 			///no endByte or startByte
-			if(collectingRequestData)
+			if (collectingRequestData)
 			{
 				requestData.append(byteArray);
 			}
@@ -69,9 +70,10 @@ void ActionReceiver::processData(QByteArray byteArray)
 		else
 		{
 			///only startByte
-			if(!collectingRequestData)
+			if (collectingRequestData == false)
 			{
-				//what if last request did not end correctly? next request would be skipped (waiting for endByte)...
+				//what if last request did not end correctly? next request
+				//would be skipped (waiting for endByte)...
 				collectingRequestData = true;
 				requestData = byteArray.right(byteArray.size()-startIndex-1);
 			}
@@ -79,10 +81,10 @@ void ActionReceiver::processData(QByteArray byteArray)
 	}
 	else
 	{
-		if(startIndex<0)
+		if (startIndex<0)
 		{
 			///only endByte
-			if(collectingRequestData)
+			if (collectingRequestData)
 			{
 				requestData.append(byteArray.left(endIndex));
 				collectingRequestData = false;
@@ -92,7 +94,7 @@ void ActionReceiver::processData(QByteArray byteArray)
 		else
 		{
 			///startByte and endByte
-			if(startIndex<endIndex)
+			if (startIndex<endIndex)
 			{
 				///startByte before endByte
 				requestData = byteArray.mid(startIndex+1, endIndex-startIndex-1);
@@ -103,7 +105,7 @@ void ActionReceiver::processData(QByteArray byteArray)
 			else
 			{
 				///endByte before startByte
-				if(collectingRequestData)
+				if (collectingRequestData)
 				{
 					requestData.append(byteArray.left(endIndex));
 					collectingRequestData = false;
@@ -120,7 +122,7 @@ void ActionReceiver::processRequest()
 	QByteArray data = QByteArray::fromBase64(requestData);
 	quint8 actionGroup = data[0];
 	quint8 action = data[1];
-	if(data.size()>2)
+	if (data.size()>2)
 	{
 		data = data.mid(2);
 	}

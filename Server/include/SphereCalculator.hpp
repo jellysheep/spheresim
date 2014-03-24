@@ -153,25 +153,30 @@ namespace SphereSim
 		/** \brief Calculate the current sphere acceleration.
 		 * \param sphereIndex Index of the sphere to be calculated.
 		 * \param sphere Sphere to be calculated.
-		 * \param timeDiff Time difference (in s) used for the movements of other spheres.
+		 * \param timeDiff Time difference (in s) for movements of other spheres.
 		 * \return Calculated current acceleration of the sphere. */
-		template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
-		Vector3 sphereAcceleration(quint16 sphereIndex, Sphere sphere, Scalar timeDiff);
+		template <bool detectCollisions, bool gravity, bool lennardJonesPotential,
+			bool periodicBoundaries>
+		Vector3 sphereAcceleration(quint16 sphereIndex, Sphere sphere,
+			Scalar timeDiff);
 
-		/** \brief Integrate one step using the Runge Kutta method defined by the Butcher tableau. */
+		/** \brief Integrate one step using specified Runge Kutta method. */
 		void integrateRungeKuttaStep();
 
 		/** \copydoc integrateRungeKuttaStep */
-		template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
+		template <bool detectCollisions, bool gravity, bool lennardJonesPotential,
+			bool periodicBoundaries>
 		void integrateRungeKuttaStep_internal();
 
 		/** \brief Integrates one step of one sphere.
 		 * \param sphereIndex Index of the sphere to be integrated.
 		 * \param stepLength Current step length (time in s).
-		 * \param timeDiff Time difference (in s) used for the movements of other spheres.
+		 * \param timeDiff Time difference (in s) for movements of other spheres.
 		 * \return Number of steps used to integrate. */
-		template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
-		quint32 integrateRungeKuttaStep_internal(quint16 sphereIndex, Scalar stepLength, Scalar timeDiff, quint16 stepDivisionCounter);
+		template <bool detectCollisions, bool gravity, bool lennardJonesPotential,
+			bool periodicBoundaries>
+		quint32 integrateRungeKuttaStep_internal(quint16 sphereIndex,
+			Scalar stepLength, Scalar timeDiff, quint16 stepDivisionCounter);
 
 		/** \brief Stop the worker. */
 		void stopWorker();
@@ -188,14 +193,16 @@ namespace SphereSim
 
 		void updateSphereCellLists();
 
-		template <bool detectCollisions, bool gravity, bool lennardJonesPotential, bool periodicBoundaries>
+		template <bool detectCollisions, bool gravity, bool lennardJonesPotential,
+			bool periodicBoundaries>
 		Scalar getTotalEnergy_internal();
 
 		void buildGravityCells();
 
 		void rebuildGravityCellPairs();
 
-		void rebuildGravityCellPairs(quint32 currentCellIndex, quint32 testCellIndex);
+		void rebuildGravityCellPairs(quint32 currentCellIndex,
+			quint32 testCellIndex);
 
 		void updateGravityCellIndexOfSpheresArray();
 
@@ -265,7 +272,8 @@ namespace SphereSim
 		quint16 removeSomeLastSpheres(quint16 sphCount);
 
 		/** \copydoc SpheresUpdatingActions::updateSpherePositionsInBox */
-		void updateSpherePositionsInBox(Scalar randomDisplacement, Scalar randomSpeed);
+		void updateSpherePositionsInBox(Scalar randomDisplacement,
+			Scalar randomSpeed);
 
 		/** \copydoc SpheresUpdatingActions::updateAllSpheres
 		 * \param s Sphere data to update.

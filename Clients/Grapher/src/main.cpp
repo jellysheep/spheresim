@@ -28,10 +28,11 @@ int main(int argc, char** argv)
 	QStringList args = app.arguments();
 	try
 	{
-		SimulationGrapher simGrapher(args, QHostAddress(Connection::address), Connection::port);
+		SimulationGrapher simGrapher(args, QHostAddress(Connection::address),
+			Connection::port);
 		return app.exec();
 	}
-	catch(std::exception ex)
+	catch (std::exception ex)
 	{
 		return 0;
 	}

@@ -104,7 +104,8 @@ namespace SphereSim
 
 		/** \copydoc sendReplyAction
 		 * \param data Data that will be sent with the action request. */
-		QByteArray sendReplyAction(quint8 actionGroup, quint8 action, QByteArray& data);
+		QByteArray sendReplyAction(quint8 actionGroup, quint8 action,
+			QByteArray& data);
 
 		/** \brief Update sphere number and resize frame buffer.
 		 * \param sphereCount Number of spheres. */
@@ -117,7 +118,8 @@ namespace SphereSim
 		 * \param args The arguments that the program was invoked with.
 		 * \param addr The address that the socket will be connecting to.
 		 * \param port The port that the socket will be connecting to. */
-		ActionSender(QStringList args, QHostAddress addr, quint16 port, QObject* client);
+		ActionSender(QStringList args, QHostAddress addr, quint16 port,
+			QObject* client);
 
 		~ActionSender();
 
@@ -157,7 +159,8 @@ namespace SphereSim
 		quint16 removeSomeLastSpheres(quint16 sphCount);
 
 		/** \copydoc SpheresUpdatingActions::updateSpherePositionsInBox */
-		void updateSpherePositionsInBox(Scalar randomDisplacement, Scalar randomSpeed);
+		void updateSpherePositionsInBox(Scalar randomDisplacement,
+			Scalar randomSpeed);
 
 		/** \copydoc SpheresUpdatingActions::updateAllSpheres
 		 * \param s Sphere data. */

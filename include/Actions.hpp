@@ -42,13 +42,13 @@ namespace SphereSim
 			maximumStepDivision,
 			/** \brief Maximum allowed relative error for simulation steps. */
 			maximumStepError,
-			/** \brief Elastic modulus of the sphere material used for sphere-sphere or sphere-wall collisions. */
+			/** \brief Elastic modulus of spheres used for collisions. */
 			sphereE,
-			/** \brief Poisson ratio of the sphere material used for sphere-sphere or sphere-wall collisions. */
+			/** \brief Poisson ratio of spheres used for collisions. */
 			spherePoissonRatio,
-			/** \brief Elastic modulus of the wall material used for sphere-wall collisions. */
+			/** \brief Elastic modulus of walls used for collisions. */
 			wallE,
-			/** \brief Poisson ratio of the wall material used for sphere-wall collisions. */
+			/** \brief Poisson ratio of walls used for collisions. */
 			wallPoissonRatio,
 			/** \brief 3D vector of the earth gravity used for the simulation. */
 			earthGravity,
@@ -56,7 +56,7 @@ namespace SphereSim
 			gravitationalConstant,
 			/** \brief Size of the simulated system box. */
 			boxSize,
-			/** \brief Kinetic energy of each sphere to reach a target temperature. */
+			/** \brief Target temperature achieved by adjusting kinetic energy. */
 			targetTemperature,
 			/** \brief Flag if periodic boundary conditions are enabled. */
 			periodicBoundaryConditions,
@@ -68,7 +68,7 @@ namespace SphereSim
 			lenJonPotEpsilon,
 			/** \brief Sigma used for Lennard-Jones potential. */
 			lenJonPotSigma,
-			/** \brief Next-to-last enum value indicating if all variables have been received. */
+			/** \brief Enum value indicating if all variables have been received. */
 			allVariablesReceived,
 			/** \brief Last enum value equals number of variables. */
 			numberOfVariables
@@ -137,8 +137,8 @@ namespace SphereSim
 			addSomeSpheres,
 			/** \brief Remove some last spheres of the simulation. */
 			removeSomeLastSpheres,
-			/** \brief Update the sphere positions to be well distributed in simulated box.
-			 * Spheres will have a random displacement and speed relative to their radius. */
+			/** \brief Update sphere positions to be distributed in simulated box.
+			 * Spheres get random displacement and speed relative to their radius. */
 			updateSpherePositionsInBox,
 			/** \brief Update the data of all spheres. */
 			updateAllSpheres,
@@ -165,7 +165,7 @@ namespace SphereSim
 			stopSimulation,
 			/** \brief Get and reset the number of simulated time steps. */
 			popStepCounter,
-			/** \brief Get the time (in ms) that was needed to calculate the last step. */
+			/** \brief Get time (in ms) needed to calculate the last step. */
 			getLastStepCalculationTime
 		};
 	}
@@ -176,14 +176,14 @@ namespace SphereSim
 		/** \see InformationActions */
 		enum Action
 		{
-			/** \brief Calculate and get the total energy of the simulated system. */
+			/** \brief Calculate and get the total energy. */
 			getTotalEnergy,
-			/** \brief Calculate and get the kinetic energy of the simulated system. */
+			/** \brief Calculate and get the total kinetic energy. */
 			getKineticEnergy
 		};
 	}
 
-	/** \brief Update or get physical constants, wall properties and other parameters of the simulated system. */
+	/** \brief Update or get physical constants and other parameters. */
 	namespace SimulatedSystemActions
 	{
 		/** \see SimulatedSystemActions */
@@ -200,9 +200,9 @@ namespace SphereSim
 		{
 			/** \brief The server status is ok. */
 			acknowledge,
-			/** \brief The action group requested by the client is unknown to the server. */
+			/** \brief The action group requested by client is unknown to server. */
 			unknownActionGroup,
-			/** \brief The action requested by the client is unknown to the server. */
+			/** \brief The action requested by client is unknown to server. */
 			unknownAction,
 			/** \brief The server is sending sphere data. */
 			sendFrame,

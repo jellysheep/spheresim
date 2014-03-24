@@ -8,9 +8,11 @@
 
 #include <Connection.hpp>
 
-namespace SphereSim{
+namespace SphereSim
+{
 
-	namespace Connection{
+	namespace Connection
+	{
 		QString listeningAddress = "127.0.0.1";
 		QString address = "127.0.0.1";
 		quint16 port = 8765;

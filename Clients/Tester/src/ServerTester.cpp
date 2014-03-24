@@ -23,12 +23,13 @@
 #define startNewTest_(x) \
 	startNewTest(TOSTR(x));
 
-#define runCalculationActionTests_internal_(order, integrMethod)								\
-{																								\
-	startTest_(integratorMethod);																\
-		sender->simulatedSystem->set(SimulationVariables::integratorMethod, (int)integrMethod);	\
-		runCalculationActionTests_internal(order, TOSTR(integrMethod));							\
-	endTest();																					\
+#define runCalculationActionTests_internal_(order, integrMethod)			\
+{																			\
+	startTest_(integratorMethod);											\
+		sender->simulatedSystem->set(SimulationVariables::integratorMethod,	\
+			(int)integrMethod);												\
+		runCalculationActionTests_internal(order, TOSTR(integrMethod));		\
+	endTest();																\
 }
 
 using namespace SphereSim;
@@ -66,7 +67,7 @@ void ServerTester::runTests(quint8 actionGroup, const char* groupName)
 
 	Console::out<<"ServerTester: ";
 	Console::bold<<"Testing "<<groupName<<". \n";
-	switch(actionGroup)
+	switch (actionGroup)
 	{
 	case ActionGroups::basic:
 		runBasicActionTests();
@@ -87,13 +88,14 @@ void ServerTester::runTests(quint8 actionGroup, const char* groupName)
 	}
 
 	Console::out<<"ServerTester: ";
-	if(testCounter == successCounter)
+	if (testCounter == successCounter)
 	{
 		Console::greenBold<<"all "<<testCounter<<" tests passed.\n";
 	}
 	else
 	{
-		Console::redBold<<(testCounter-successCounter)<<" out of "<<testCounter<<" tests failed.\n";
+		Console::redBold<<(testCounter-successCounter)<<" out of "<<testCounter
+			<<" tests failed.\n";
 	}
 	Console::out<<"\n";
 }
@@ -103,15 +105,18 @@ void ServerTester::runBasicActionTests()
 	startTest_(Connection);
 		verify(sender->isConnected(), Equal, true);
 	endTest();
-	if(sender->isConnected())
+	if (sender->isConnected())
 	{
 		Console::out<<"ServerTester: ";
 		Console::bold<<"SphereSim Tester v" VERSION_STR;
 		Console::out<<" (using floating type '"<<TOSTR(FLOATING_TYPE)<<"')\n";
 		Console::out<<"ServerTester: ";
 		Console::bold<<"SphereSim Server v";
-		Console::bold<<sender->simulatedSystem->get<std::string>(SimulationVariables::serverVersion).c_str();
-		Console::out<<" (using floating type '"<<sender->simulatedSystem->get<std::string>(SimulationVariables::serverFloatingType).c_str()<<"')\n";
+		Console::bold<<sender->simulatedSystem->get<std::string>(
+			SimulationVariables::serverVersion).c_str();
+		Console::out<<" (using floating type '"
+			<<sender->simulatedSystem->get<std::string>(
+			SimulationVariables::serverFloatingType).c_str()<<"')\n";
 	}
 	sender->simulatedSystem->set(SimulationVariables::frameSending, false);
 }
@@ -119,12 +124,14 @@ void ServerTester::runBasicActionTests()
 void ServerTester::runSpheresUpdatingActionTests()
 {
 	startTest_(SpheresUpdatingActions::getSphereCount);
-		verify(sender->simulatedSystem->get<int>(SimulationVariables::sphereCount), Equal, 0);
+		verify(sender->simulatedSystem->get<int>(
+			SimulationVariables::sphereCount), Equal, 0);
 	startNewTest_(SpheresUpdatingActions::addSphere);
 		verify(sender->addSphere(), Equal, 1);
 		verify(sender->addSphere(), Equal, 2);
 	startNewTest_(SpheresUpdatingActions::getSphereCount);
-		verify(sender->simulatedSystem->get<int>(SimulationVariables::sphereCount), Equal, 2);
+		verify(sender->simulatedSystem->get<int>(
+			SimulationVariables::sphereCount), Equal, 2);
 	startNewTest_(SpheresUpdatingActions::removeLast);
 		verify(sender->removeLastSphere(), Equal, 1);
 		verify(sender->addSphere(), Equal, 2);
@@ -132,7 +139,8 @@ void ServerTester::runSpheresUpdatingActionTests()
 		verify(sender->removeLastSphere(), Equal, 0);
 		verify(sender->removeLastSphere(), Equal, 0);
 	startNewTest_(SpheresUpdatingActions::getSphereCount);
-		verify(sender->simulatedSystem->get<int>(SimulationVariables::sphereCount), Equal, 0);
+		verify(sender->simulatedSystem->get<int>(
+			SimulationVariables::sphereCount), Equal, 0);
 	endTest();
 
 	sender->addSphere();
@@ -228,7 +236,8 @@ void ServerTester::runCalculationActionTests()
 	Scalar timeStep = 0.01;
 	startTest_(CalculationActions::updateTimeStep);
 		sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
-		verify(timeStep, ApproxEqual, sender->simulatedSystem->get<Scalar>(SimulationVariables::timeStep));
+		verify(timeStep, ApproxEqual, sender->simulatedSystem->get<Scalar>(
+			SimulationVariables::timeStep));
 	endTest();
 
 	//runCalculationActionTests_internal_(2, IntegratorMethods::HeunEuler21);
@@ -238,7 +247,8 @@ void ServerTester::runCalculationActionTests()
 	runCalculationActionTests_internal_(4, IntegratorMethods::BogackiShampine32);
 
 	systemCreator->createSimpleWallCollisionSystem();
-	sender->simulatedSystem->set(SimulationVariables::integratorMethod, (int)IntegratorMethods::CashKarp54);
+	sender->simulatedSystem->set(SimulationVariables::integratorMethod,
+		(int)IntegratorMethods::CashKarp54);
 	startTest_(CalculationActions::startSimulation);
 		sender->startSimulation();
 		QTest::qWait(10);
@@ -247,18 +257,20 @@ void ServerTester::runCalculationActionTests()
 		{
 			QTest::qWait(10);
 		}
-		while(sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
+		while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
 		quint32 steps = sender->popCalculationCounter();
 		Console::out<<"real steps: "<<steps<<" \t";
 		verify(steps, Greater, 0);
 	endTest();
 }
 
-void ServerTester::runCalculationActionTests_internal(quint8 order, const char* integratorMethod)
+void ServerTester::runCalculationActionTests_internal(quint8 order,
+	const char* integratorMethod)
 {
 	systemCreator->createSimpleWallCollisionSystem();
 
-	quint16 sphereCount = sender->simulatedSystem->get<int>(SimulationVariables::sphereCount);
+	quint16 sphereCount = sender->simulatedSystem->get<int>(
+		SimulationVariables::sphereCount);
 	verify(sphereCount, Equal, 1);
 
 	sender->simulatedSystem->set(SimulationVariables::maximumStepDivision, 16);
@@ -274,7 +286,7 @@ void ServerTester::runCalculationActionTests_internal(quint8 order, const char* 
 	{
 		QTest::qWait(10);
 	}
-	while(sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
+	while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
 	endEnergy = sender->getTotalEnergy();
 	Console::out<<"total energy: "<<beginEnergy<<" \t"<<endEnergy<<" \t";
 	Scalar relError = 1.0-(beginEnergy/endEnergy);
@@ -299,13 +311,14 @@ void ServerTester::runCalculationActionTests_internal(quint8 order, const char* 
 	{
 		QTest::qWait(10);
 	}
-	while(sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
+	while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
 	realSteps = sender->popCalculationCounter();
 	endEnergy = sender->getTotalEnergy();
 	relError = 1.0-(beginEnergy/endEnergy);
 	Console::out<<"rel. error: "<<relError<<" \t";
 	integratorWorth = 20-0.1*log(fabs(relError))-log(realSteps);
-	Console::out<<"integrator worth: "<<integratorWorth<<" ("<<integratorMethod<<"). \t";
+	Console::out<<"integrator worth: "<<integratorWorth
+		<<" ("<<integratorMethod<<"). \t";
 	sender->removeLastSphere();
 }
 
@@ -316,17 +329,17 @@ void ServerTester::runFrameBufferTests()
 	FrameBuffer<quint8> buffer(bufferSize, elementsPerFrame);
 	quint8 element;
 	startTest_(framebuffer);
-		for(quint8 i = 0; i<bufferSize; i++)
+		for (quint8 i = 0; i<bufferSize; i++)
 		{
-			for(quint8 j = 0; j<elementsPerFrame; j++)
+			for (quint8 j = 0; j<elementsPerFrame; j++)
 			{
 				buffer.pushElement((quint8)(j+i*elementsPerFrame));
 			}
 			buffer.pushFrame();
 		}
-		for(quint8 i = 0; i<bufferSize-1; i++)
+		for (quint8 i = 0; i<bufferSize-1; i++)
 		{
-			for(quint8 j = 0; j<elementsPerFrame; j++)
+			for (quint8 j = 0; j<elementsPerFrame; j++)
 			{
 				element = j+(i+1)*elementsPerFrame;
 				verify(buffer.popElement(), Equal, element);
@@ -337,17 +350,17 @@ void ServerTester::runFrameBufferTests()
 	startTest_(framebuffer);
 		elementsPerFrame = 5;
 		buffer.updateElementsPerFrame(elementsPerFrame);
-		for(quint8 i = 0; i<bufferSize; i++)
+		for (quint8 i = 0; i<bufferSize; i++)
 		{
-			for(quint8 j = 0; j<elementsPerFrame; j++)
+			for (quint8 j = 0; j<elementsPerFrame; j++)
 			{
 				buffer.pushElement((quint8)(j+i*elementsPerFrame));
 			}
 			buffer.pushFrame();
 		}
-		for(quint8 i = 0; i<bufferSize-1; i++)
+		for (quint8 i = 0; i<bufferSize-1; i++)
 		{
-			for(quint8 j = 0; j<elementsPerFrame; j++)
+			for (quint8 j = 0; j<elementsPerFrame; j++)
 			{
 				element = j+(i+1)*elementsPerFrame;
 				verify(buffer.popElement(), Equal, element);
@@ -366,7 +379,7 @@ void ServerTester::startTest(const char* actionName)
 }
 void ServerTester::endTest()
 {
-	if(testSuccess)
+	if (testSuccess)
 	{
 		successCounter++;
 		Console::greenBold<<"test passed. \n";

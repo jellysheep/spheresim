@@ -22,7 +22,8 @@ SimulatedSystem::SimulatedSystem()
 	vars.reserve(numberOfVariables);
 
 	addVariable(serverVersion, Object::STRING, std::string(VERSION_STR));
-	addVariable(serverFloatingType, Object::STRING, std::string(TOSTR(FLOATING_TYPE)));
+	addVariable(serverFloatingType, Object::STRING,
+		std::string(TOSTR(FLOATING_TYPE)));
 	addVariable(sphereCount, Object::INT, 0);
 	addVariable(timeStep, Object::DOUBLE, 0.002);
 	addVariable(integratorMethod, Object::INT, (int)IntegratorMethods::CashKarp54);
@@ -50,18 +51,23 @@ SimulatedSystem::SimulatedSystem()
 }
 
 template <typename T>
-void SimulatedSystem::addVariable(SimulationVariables::Variable var, Object::Type type, const T& t)
+void SimulatedSystem::addVariable(SimulationVariables::Variable var,
+	Object::Type type, const T& t)
 {
-	if(var != vars.size())
+	if (var != vars.size())
+	{
 		throw new std::exception();
+	}
 	vars.push_back(Object(type, t));
 }
 
 void SimulatedSystem::sendVariable(SimulationVariables::Variable var)
 {
 	QByteArray bytes;
-	if(var == allVariablesReceived)
+	if (var == allVariablesReceived)
+	{
 		bytes = QByteArray(2, Object::BOOL);
+	}
 	else
 	{
 		Object &o = vars[var];
@@ -77,20 +83,28 @@ void SimulatedSystem::sendVariable(SimulationVariables::Variable var)
 
 void SimulatedSystem::sendAllVariables()
 {
-	for(int var = 0; var < numberOfVariables; var++)
+	for (int var = 0; var < numberOfVariables; var++)
+	{
 		sendVariable((SimulationVariables::Variable) var);
+	}
 }
 
-void SimulatedSystem::receiveVariable(SimulationVariables::Variable var, QByteArray data)
+void SimulatedSystem::receiveVariable(SimulationVariables::Variable var,
+	QByteArray data)
 {
-	if(var >= numberOfVariables) return;
+	if (var >= numberOfVariables)
+	{
+		return;
+	}
 
 	Object &o = vars[var];
-	if(o.setData(data))
+	if (o.setData(data))
 	{
 		emit variableUpdated((int)var);
-		if(var == allVariablesReceived)
+		if (var == allVariablesReceived)
+		{
 			emit receivedAllVariables();
+		}
 	}
 }
 

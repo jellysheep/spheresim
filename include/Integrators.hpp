@@ -20,15 +20,15 @@ namespace SphereSim
 		/** \copydoc IntegratorMethods */
 		enum Method
 		{
-			/** \brief Heun-Euler method of order 2 and 1 using 2 force evaluations. */
+			/** \brief Heun-Euler of order 2+1 using 2 evaluations. */
 			HeunEuler21,
-			/** \brief Bogacki-Shampine method of order 3 and 2 using 4 force evaluations. */
+			/** \brief Bogacki-Shampine of order 3+2 using 4 evaluations. */
 			BogackiShampine32,
-			/** \brief Runge-Kutta-Fehlberg method of order 5 and 4 using 6 force evaluations. */
+			/** \brief Runge-Kutta-Fehlberg of order 5+4 using 6 evaluations. */
 			RungeKuttaFehlberg54,
-			/** \brief Cash-Karp method of order 5 and 4 using 6 force evaluations. */
+			/** \brief Cash-Karp of order 5+4 using 6 evaluations. */
 			CashKarp54,
-			/** \brief Dormand-Prince method of order 5 and 4 using 7 force evaluations. */
+			/** \brief Dormand-Prince of order 5+4 using 7 evaluations. */
 			DormandPrince54
 		};
 	}

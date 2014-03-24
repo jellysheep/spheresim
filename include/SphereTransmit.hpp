@@ -17,7 +17,7 @@ namespace SphereSim
 {
 	namespace
 	{
-		/** \brief Write basic data (radius and position) of a sphere to a stream.
+		/** \brief Write basic data of a sphere to a stream.
 		 * \param stream Stream to write to.
 		 * \param s Sphere to send. */
 		template <typename streamtype>
@@ -32,7 +32,7 @@ namespace SphereSim
 			stream<<s.radius<<s.pos(0)<<s.pos(1)<<s.pos(2);
 		}
 
-		/** \brief Read and update basic data (radius and position) of a sphere from a stream.
+		/** \brief Read and update basic data of a sphere from a stream.
 		 * \param stream Stream to read from.
 		 * \param s Sphere to update. */
 		template <typename streamtype>
@@ -41,7 +41,7 @@ namespace SphereSim
 			stream>>s.radius>>s.pos(0)>>s.pos(1)>>s.pos(2);
 		}
 
-		/** \brief Write all data (size, mass, position, speed and acceleration) of a sphere to a stream.
+		/** \brief Write all data of a sphere to a stream.
 		 * \param stream Stream to write to.
 		 * \param s Sphere to send. */
 		template <typename streamtype>
@@ -62,7 +62,7 @@ namespace SphereSim
 			stream<<s.pos(2)<<s.speed(2)<<s.acc(2);
 		}
 
-		/** \brief Read and update all data (size, mass, position, speed and acceleration) of a sphere from a stream.
+		/** \brief Read and update all data of a sphere from a stream.
 		 * \param stream Stream to read from.
 		 * \param s Sphere to update. */
 		template <typename streamtype>

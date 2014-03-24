@@ -30,7 +30,7 @@ namespace SphereSim
 		Scalar mass;
 
 		Sphere()
-			:pos(Vector3(0,0,0)), speed(Vector3(0,0,0)), acc(Vector3(0,0,0)),
+			:pos(Vector3(0, 0, 0)), speed(Vector3(0, 0, 0)), acc(Vector3(0, 0, 0)),
 			radius(0), mass(0)
 		{
 		}

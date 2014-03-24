@@ -21,7 +21,7 @@ ActionServer::ActionServer(QStringList args, QHostAddress addr, quint16 port)
 	qDebug()<<"ActionServer: constructor called";
 	connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
 	bool succeeded = server->listen(addr, port);
-	if(succeeded)
+	if (succeeded)
 	{
 		qDebug()<<"ActionServer: listening did succeed.";
 	}

@@ -47,7 +47,7 @@ namespace SphereSim
 		/** \brief Dummy variable to name the framebuffer test. */
 		static const int framebuffer;
 
-		/** \brief Test result value (0 = all tests passed, 1 = at least one test failed). */
+		/** \brief Test result (0: all tests passed, 1 = at least one failed). */
 		quint16 testResult;
 
 		SystemCreator* systemCreator;
@@ -65,9 +65,10 @@ namespace SphereSim
 		ServerTester(const ServerTester&) = delete;
 		ServerTester& operator=(const ServerTester&) = delete;
 
-		/** \brief Run all tests of a specific action group on the server and verify the replies.
+		/** \brief Run all tests of a specific action group on the server and
+		 * verify the replies.
 		 * \param actionGroup Group of the actions that will be tested.
-		 * \param groupName Name of the specified action group. Used for console outputs. */
+		 * \param groupName Action group name. Used for console outputs. */
 		void runTests(quint8 actionGroup, const char* groupName);
 
 		/** \brief Verification of all BasicActions. */
@@ -81,22 +82,26 @@ namespace SphereSim
 
 		/** \brief Simulation of a bouncing sphere.
 		 * \param integratorMethod Name of the used integrator method. */
-		void runCalculationActionTests_internal(quint8 order, const char* integratorMethod);
+		void runCalculationActionTests_internal(quint8 order,
+			const char* integratorMethod);
 
 		/** \brief Verification of the FrameBuffer. */
 		void runFrameBufferTests();
 
 		/** \brief Verification of a comparison and result printing on console. */
-		#define verify(t1,op,t2)							\
-			verify##op(t1,t2,__LINE__,TOSTR(t1),TOSTR(t2));
+		#define verify(t1, op, t2)							\
+			verify##op(t1, t2, __LINE__, TOSTR(t1), TOSTR(t2));
 		/** \brief Declaration of different verification methods. */
-		#define verifyFunc(name,op,invOp)					\
+		#define verifyFunc(name, op, invOp)					\
 		template <typename T1, typename T2>					\
 		void verify##name(T1 t1, T2 t2, quint16 line,		\
 				const char* nameT1, const char* nameT2)		\
 		{													\
-			if(!testSuccess) return;						\
-			if(!(t1 op t2))									\
+			if (testSuccess == false)						\
+			{												\
+				return;										\
+			}												\
+			if ((t1 op t2) == false)						\
 			{												\
 				Console::redBold<<"test failed: ";			\
 				Console::out<<"\n              ";			\
@@ -106,7 +111,7 @@ namespace SphereSim
 				Console::out<<" [\""<<t2<<"\"]";			\
 				Console::out<<"\n              ";			\
 				Console::out<<"(line "<<line;				\
-				if(testActionName.length()>0)				\
+				if (testActionName.length()>0)				\
 				{											\
 					Console::out<<", "<<testActionName;		\
 				}											\
@@ -115,17 +120,17 @@ namespace SphereSim
 				testResult = 1;								\
 			}												\
 		}
-		verifyFunc(Equal,==,!=);
-		verifyFunc(Greater,>,<=);
-		verifyFunc(Smaller,<,>=);
-		verifyFunc(GreaterOrEqual,>=,<);
-		verifyFunc(SmallerOrEqual,<=,>);
+		verifyFunc(Equal, ==, !=);
+		verifyFunc(Greater, >, <=);
+		verifyFunc(Smaller, <, >=);
+		verifyFunc(GreaterOrEqual, >=, <);
+		verifyFunc(SmallerOrEqual, <=, >);
 
 		/** \brief Declaration of an approximately-equal verification method. */
-		#define verifyApproxEqual(t1,t2,line,str1,str2)		\
+		#define verifyApproxEqual(t1, t2, line, str1, str2)	\
 			verifySmallerOrEqual(fabs(t1-t2),				\
 			0.0001*(fabs(t1)+fabs(t2)),						\
-			line,"|" str1 " - " str2 "|",					\
+			line, "|" str1 " - " str2 "|",					\
 			"0.0001*(|" str1 "| + |" str2 "|)");
 
 		/** \brief Introduction of a new test.

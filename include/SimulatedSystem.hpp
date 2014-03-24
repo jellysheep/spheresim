@@ -19,7 +19,7 @@
 
 namespace SphereSim
 {
-	/** \brief Storage for physical constants, wall properties and other parameters of the simulated system. */
+	/** \brief Storage for physical constants and other parameters. */
 	class SimulatedSystem : public QObject
 	{
 		Q_OBJECT
@@ -28,7 +28,8 @@ namespace SphereSim
 		std::vector<Object> vars;
 
 		template <typename T>
-		void addVariable(SimulationVariables::Variable var, Object::Type type, const T& t);
+		void addVariable(SimulationVariables::Variable var, Object::Type type,
+			const T& t);
 
 		void sendVariable(SimulationVariables::Variable var);
 
@@ -53,7 +54,7 @@ namespace SphereSim
 		template <typename T>
 		void set(SimulationVariables::Variable var, const T& t)
 		{
-			if(vars[var].set<T>(t))
+			if (vars[var].set<T>(t))
 			{
 				sendVariable(var);
 				emit variableUpdated((int)var);

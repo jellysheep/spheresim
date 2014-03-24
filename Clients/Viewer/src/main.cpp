@@ -31,9 +31,10 @@ int main(int argc, char** argv)
 
 	quint16 sphereCount = StartDialog().getSphereCount();
 
-	if(sphereCount>0)
+	if (sphereCount>0)
 	{
-		MainWindow mainWindow(args, QHostAddress(Connection::address), Connection::port, sphereCount);
+		MainWindow mainWindow(args, QHostAddress(Connection::address),
+			Connection::port, sphereCount);
 		mainWindow.show();
 
 		return app.exec();
