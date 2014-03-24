@@ -1,5 +1,6 @@
 * Removed custom Array class, replaced by std::vector.
 * Improved coding style.
+* Removed empty SimulatedSystemActions.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

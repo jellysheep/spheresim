@@ -95,9 +95,6 @@ namespace SphereSim
 			/** \copydoc InformationActions
 			 * \see InformationActions */
 			information,
-			/** \copydoc SimulatedSystemActions
-			 * \see SimulatedSystemActions */
-			simulatedSystem,
 			/** \copydoc WorkQueueActions
 			 * \see WorkQueueActions */
 			workQueue
@@ -180,15 +177,6 @@ namespace SphereSim
 			getTotalEnergy,
 			/** \brief Calculate and get the total kinetic energy. */
 			getKineticEnergy
-		};
-	}
-
-	/** \brief Update or get physical constants and other parameters. */
-	namespace SimulatedSystemActions
-	{
-		/** \see SimulatedSystemActions */
-		enum Action
-		{
 		};
 	}
 

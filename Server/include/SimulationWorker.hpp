@@ -61,10 +61,6 @@ namespace SphereSim
 		 * \copydetails handleAction */
 		void handleInformationAction(WorkQueueItem* workQueueItem);
 
-		/** \brief Handle SimulatedSystemActions requests.
-		 * \copydetails handleAction */
-		void handleSimulatedSystemAction(WorkQueueItem* workQueueItem);
-
 		/** \brief Handle WorkQueueActions requests.
 		 * \copydetails handleAction */
 		void handleWorkQueueAction(WorkQueueItem* workQueueItem);

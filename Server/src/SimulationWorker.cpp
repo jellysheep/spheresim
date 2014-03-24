@@ -74,9 +74,6 @@ void SimulationWorker::handleAction(WorkQueueItem* workQueueItem)
 	case ActionGroups::information:
 		handleInformationAction(workQueueItem);
 		break;
-	case ActionGroups::simulatedSystem:
-		handleSimulatedSystemAction(workQueueItem);
-		break;
 	case ActionGroups::workQueue:
 		handleWorkQueueAction(workQueueItem);
 		break;
@@ -214,19 +211,6 @@ void SimulationWorker::handleInformationAction(WorkQueueItem* workQueueItem)
 		retStream<<sphCalc->getKineticEnergy();
 		emit sendReply(ServerStatusReplies::acknowledge, retData);
 		break;
-	default:
-		handleUnknownAction(workQueueItem);
-		break;
-	}
-}
-
-void SimulationWorker::handleSimulatedSystemAction(WorkQueueItem* workQueueItem)
-{
-	QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
-	QByteArray retData;
-	QDataStream retStream(&retData, QIODevice::WriteOnly);
-	switch (workQueueItem->action)
-	{
 	default:
 		handleUnknownAction(workQueueItem);
 		break;
