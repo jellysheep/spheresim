@@ -14,35 +14,35 @@
 
 namespace Ui
 {
-	class StartDialog;
+    class StartDialog;
 }
 
 namespace SphereSim
 {
 
-	class StartDialog : public QDialog
-	{
-		Q_OBJECT
+    class StartDialog : public QDialog
+    {
+        Q_OBJECT
 
-	protected:
-		Ui::StartDialog* startDialog;
+    protected:
+        Ui::StartDialog* startDialog;
 
-		bool selected;
+        bool selected;
 
-		quint16 sphCount;
+        quint16 sphCount;
 
-	public:
-		StartDialog();
+    public:
+        StartDialog();
 
-		StartDialog(const StartDialog&) = delete;
-		StartDialog& operator=(const StartDialog&) = delete;
+        StartDialog(const StartDialog&) = delete;
+        StartDialog& operator=(const StartDialog&) = delete;
 
-		quint16 getSphereCount();
+        quint16 getSphereCount();
 
-	public slots:
-		void accepted_();
-		void rejected_();
-	};
+    public slots:
+        void accepted_();
+        void rejected_();
+    };
 
 }
 

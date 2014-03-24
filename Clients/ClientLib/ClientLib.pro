@@ -1,23 +1,23 @@
 
-LIBS_SAVE	=	$$LIBS
+LIBS_SAVE   =   $$LIBS
 
 ! include(../Clients.pri){
-	error(Clients.pri not found.)
+    error(Clients.pri not found.)
 }
 
-LIBS		=	$$LIBS_SAVE
+LIBS        =   $$LIBS_SAVE
 
-TEMPLATE	=	lib
+TEMPLATE    =   lib
 
-CONFIG		+=	static
+CONFIG      +=  static
 
-VPATH		+=	include/ src/
-INCLUDEPATH	+=	include/
+VPATH       +=  include/ src/
+INCLUDEPATH +=  include/
 
-HEADERS		+=	ActionSender.hpp	\
-				FrameBuffer.hpp		\
-				SystemCreator.hpp
+HEADERS     +=  ActionSender.hpp    \
+                FrameBuffer.hpp     \
+                SystemCreator.hpp
 
-SOURCES		+=	ActionSender.cpp	\
-				FrameBuffer.cpp		\
-				SystemCreator.cpp
+SOURCES     +=  ActionSender.cpp    \
+                FrameBuffer.cpp     \
+                SystemCreator.cpp

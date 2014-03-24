@@ -17,68 +17,68 @@
 
 namespace Ui
 {
-	class MainWindow;
+    class MainWindow;
 }
 
 namespace SphereSim
 {
-	class ActionSender;
-	class SystemCreator;
+    class ActionSender;
+    class SystemCreator;
 
-	/** \brief Custom main window handling the widgets. */
-	class MainWindow : public QMainWindow
-	{
-		Q_OBJECT
+    /** \brief Custom main window handling the widgets. */
+    class MainWindow : public QMainWindow
+    {
+        Q_OBJECT
 
-	private:
-		/** \brief Qt UI object containing all widgets. */
-		Ui::MainWindow* ui;
+    private:
+        /** \brief Qt UI object containing all widgets. */
+        Ui::MainWindow* ui;
 
-		/** \brief ActionSender used to send signals. */
-		ActionSender* actionSender;
+        /** \brief ActionSender used to send signals. */
+        ActionSender* actionSender;
 
-		QElapsedTimer timer;
+        QElapsedTimer timer;
 
-		Scalar boxLength;
+        Scalar boxLength;
 
-		quint8 systemToPrepare;
+        quint8 systemToPrepare;
 
-		SystemCreator* systemCreator;
+        SystemCreator* systemCreator;
 
-		void prepareSystem1();
+        void prepareSystem1();
 
-		void prepareSystem2();
+        void prepareSystem2();
 
-		void prepareSystem3(quint16 sphCount);
+        void prepareSystem3(quint16 sphCount);
 
-		void prepareSystem4();
+        void prepareSystem4();
 
-		void prepareSystem5();
+        void prepareSystem5();
 
-		void updateBoxLength(Scalar length);
+        void updateBoxLength(Scalar length);
 
-	public:
-		/** \brief Initialize member variables. */
-		MainWindow(QStringList args, QHostAddress addr, quint16 port,
-			quint16 sphCount, QWidget* parent = nullptr);
+    public:
+        /** \brief Initialize member variables. */
+        MainWindow(QStringList args, QHostAddress addr, quint16 port,
+            quint16 sphCount, QWidget* parent = nullptr);
 
-		/** \brief Clean up member variables. */
-		~MainWindow();
+        /** \brief Clean up member variables. */
+        ~MainWindow();
 
-		MainWindow() = delete;
-		MainWindow(const MainWindow&) = delete;
-		MainWindow& operator=(const MainWindow&) = delete;
+        MainWindow() = delete;
+        MainWindow(const MainWindow&) = delete;
+        MainWindow& operator=(const MainWindow&) = delete;
 
-	public slots:
-		void increaseEnergy();
+    public slots:
+        void increaseEnergy();
 
-		void decreaseEnergy();
+        void decreaseEnergy();
 
-		void updateTargetTemperature();
+        void updateTargetTemperature();
 
-		void run();
+        void run();
 
-	};
+    };
 }
 
 /** \brief Make MainWindow known to Qt GUI classes. */

@@ -25,7 +25,7 @@ set xtics 50
 set grid
 set out "Temperaturverteilung.pdf"
 plot "temperatures.txt" lw 2 with linespoints title "Temperatur des simulierten Systems", \
-	t(x) lw 3 title "Zieltemperatur (473,15 K)"
+    t(x) lw 3 title "Zieltemperatur (473,15 K)"
 
 set xlabel "Geschwindigkeit v (m/s)"
 set ylabel "Wahrscheinlichkeit p(v)"
@@ -33,15 +33,15 @@ set xtics 100
 set xrange [1:1300]
 set out "GeschwindigkeitVerteilungsfunktion.pdf"
 plot "graphdata.txt" with linespoints title "Geschwindigkeiten der Atome am Ende der Simulation" ls 1 lc rgb "red" ps 0.5, \
-	f1(x) lw 2 title "Angenäherte Geschwindigkeitsverteilung", \
-	q(x,40,T0) lw 2 title "Zu erwartende Geschwindigkeitsverteilung bei T=473,15 K"
+    f1(x) lw 2 title "Angenäherte Geschwindigkeitsverteilung", \
+    q(x,40,T0) lw 2 title "Zu erwartende Geschwindigkeitsverteilung bei T=473,15 K"
 
 set xlabel "Geschwindigkeit v (m/s)"
 set ylabel "Wahrscheinlichkeitsdichte f(v) (s/m)"
 set out "GeschwindigkeitDichtefunktion.pdf"
 set xrange [1:900]
 plot g1(x) lw 3 title "Annäherung an die Geschwindigkeiten der Atome am Ende der Simulation", \
-	100*p(x,40,T0) lw 3 title "Zu erwartende Wahrscheinlichkeitsdichte der Geschwindigkeiten bei T=473,15 K"
+    100*p(x,40,T0) lw 3 title "Zu erwartende Wahrscheinlichkeitsdichte der Geschwindigkeiten bei T=473,15 K"
 
 l1(x) = t1*x*log(x)
 l2(x) = t2*x*x
@@ -58,5 +58,5 @@ set xtics 2000
 set xrange [0:16000]
 set yrange [0:8500]
 plot "times.txt" with linespoints title "Simulationsergebnis" ls 1 lc rgb "red" ps 1 lw 3, \
-	l1(x) lw 3 title "O(n*ln(n))", \
-	l2(x) lw 3 title "O(n²)"
+    l1(x) lw 3 title "O(n*ln(n))", \
+    l2(x) lw 3 title "O(n²)"

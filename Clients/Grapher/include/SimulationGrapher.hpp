@@ -22,67 +22,67 @@ class QTimer;
 
 namespace SphereSim
 {
-	class ActionSender;
-	class SystemCreator;
+    class ActionSender;
+    class SystemCreator;
 
-	/** \brief Grapher for server simulations. */
-	class SimulationGrapher : public QObject
-	{
-		Q_OBJECT
+    /** \brief Grapher for server simulations. */
+    class SimulationGrapher : public QObject
+    {
+        Q_OBJECT
 
-	private:
-		/** \brief Client object to communicate with server. */
-		ActionSender* actionSender;
+    private:
+        /** \brief Client object to communicate with server. */
+        ActionSender* actionSender;
 
-		QTimer* dataUpdateTimer;
+        QTimer* dataUpdateTimer;
 
-		quint32 counter;
+        quint32 counter;
 
-		Scalar timeStep;
+        Scalar timeStep;
 
-		Scalar time;
+        Scalar time;
 
-		quint16 sphereCountSqrt;
+        quint16 sphereCountSqrt;
 
-		quint16 sphereCount;
+        quint16 sphereCount;
 
-		quint16 dataPoints;
+        quint16 dataPoints;
 
-		QList<Scalar> data;
+        QList<Scalar> data;
 
-		QList<Scalar> temperatures;
+        QList<Scalar> temperatures;
 
-		quint16 stepsToEquilibrium;
+        quint16 stepsToEquilibrium;
 
-		quint16 stepsBeforeMeasuring;
+        quint16 stepsBeforeMeasuring;
 
-		quint8 graphNumber;
+        quint8 graphNumber;
 
-		SystemCreator* systemCreator;
+        SystemCreator* systemCreator;
 
-	public:
-		/** \brief Start a SimulationGrapher with the specified address and port.
-		 * \param args The arguments that the program was invoked with.
-		 * \param addr The address that the socket will be connecting to.
-		 * \param port The port that the socket will be connecting to. */
-		SimulationGrapher(QStringList args, QHostAddress addr, quint16 port);
+    public:
+        /** \brief Start a SimulationGrapher with the specified address and port.
+         * \param args The arguments that the program was invoked with.
+         * \param addr The address that the socket will be connecting to.
+         * \param port The port that the socket will be connecting to. */
+        SimulationGrapher(QStringList args, QHostAddress addr, quint16 port);
 
-		~SimulationGrapher();
+        ~SimulationGrapher();
 
-		SimulationGrapher() = delete;
-		SimulationGrapher(const SimulationGrapher&) = delete;
-		SimulationGrapher& operator=(const SimulationGrapher&) = delete;
+        SimulationGrapher() = delete;
+        SimulationGrapher(const SimulationGrapher&) = delete;
+        SimulationGrapher& operator=(const SimulationGrapher&) = delete;
 
-	public slots:
-		/** \brief Run the first simulation and output results. */
-		void run();
+    public slots:
+        /** \brief Run the first simulation and output results. */
+        void run();
 
-		/** \brief Run the second simulation and output results. */
-		void runSimulation2();
+        /** \brief Run the second simulation and output results. */
+        void runSimulation2();
 
-		void timerUpdate();
+        void timerUpdate();
 
-	};
+    };
 
 }
 

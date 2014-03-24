@@ -1,12 +1,12 @@
 
 ! include(../Clients.pri){
-	error(Clients.pri not found.)
+    error(Clients.pri not found.)
 }
 
-VPATH		+=	include/ src/
-INCLUDEPATH	+=	include/
+VPATH       +=  include/ src/
+INCLUDEPATH +=  include/
 
-HEADERS		+=	SimulationGrapher.hpp
+HEADERS     +=  SimulationGrapher.hpp
 
-SOURCES		+=	SimulationGrapher.cpp	\
-				main.cpp
+SOURCES     +=  SimulationGrapher.cpp   \
+                main.cpp

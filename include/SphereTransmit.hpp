@@ -15,65 +15,65 @@
 
 namespace SphereSim
 {
-	namespace
-	{
-		/** \brief Write basic data of a sphere to a stream.
-		 * \param stream Stream to write to.
-		 * \param s Sphere to send. */
-		template <typename streamtype>
-		void writeBasicSphereData(streamtype& stream, Sphere& s)
-		{
-			stream<<s.radius<<"\t"<<s.pos(0)<<"\t"<<s.pos(1)<<"\t"<<s.pos(2)<<"\n";
-		}
-		/** \copydoc writeBasicSphereData */
-		template <>
-		void writeBasicSphereData(QDataStream& stream, Sphere& s)
-		{
-			stream<<s.radius<<s.pos(0)<<s.pos(1)<<s.pos(2);
-		}
+    namespace
+    {
+        /** \brief Write basic data of a sphere to a stream.
+         * \param stream Stream to write to.
+         * \param s Sphere to send. */
+        template <typename streamtype>
+        void writeBasicSphereData(streamtype& stream, Sphere& s)
+        {
+            stream<<s.radius<<"\t"<<s.pos(0)<<"\t"<<s.pos(1)<<"\t"<<s.pos(2)<<"\n";
+        }
+        /** \copydoc writeBasicSphereData */
+        template <>
+        void writeBasicSphereData(QDataStream& stream, Sphere& s)
+        {
+            stream<<s.radius<<s.pos(0)<<s.pos(1)<<s.pos(2);
+        }
 
-		/** \brief Read and update basic data of a sphere from a stream.
-		 * \param stream Stream to read from.
-		 * \param s Sphere to update. */
-		template <typename streamtype>
-		void readBasicSphereData(streamtype& stream, Sphere& s)
-		{
-			stream>>s.radius>>s.pos(0)>>s.pos(1)>>s.pos(2);
-		}
+        /** \brief Read and update basic data of a sphere from a stream.
+         * \param stream Stream to read from.
+         * \param s Sphere to update. */
+        template <typename streamtype>
+        void readBasicSphereData(streamtype& stream, Sphere& s)
+        {
+            stream>>s.radius>>s.pos(0)>>s.pos(1)>>s.pos(2);
+        }
 
-		/** \brief Write all data of a sphere to a stream.
-		 * \param stream Stream to write to.
-		 * \param s Sphere to send. */
-		template <typename streamtype>
-		void writeAllSphereData(streamtype& stream, Sphere& s)
-		{
-			stream<<s.radius<<"\t"<<s.mass<<"\n";
-			stream<<s.pos(0)<<"\t"<<s.speed(0)<<"\t"<<s.acc(0)<<"\n";
-			stream<<s.pos(1)<<"\t"<<s.speed(1)<<"\t"<<s.acc(1)<<"\n";
-			stream<<s.pos(2)<<"\t"<<s.speed(2)<<"\t"<<s.acc(2)<<"\n";
-		}
-		/** \copydoc writeAllSphereData */
-		template <>
-		void writeAllSphereData(QDataStream& stream, Sphere& s)
-		{
-			stream<<s.radius<<s.mass;
-			stream<<s.pos(0)<<s.speed(0)<<s.acc(0);
-			stream<<s.pos(1)<<s.speed(1)<<s.acc(1);
-			stream<<s.pos(2)<<s.speed(2)<<s.acc(2);
-		}
+        /** \brief Write all data of a sphere to a stream.
+         * \param stream Stream to write to.
+         * \param s Sphere to send. */
+        template <typename streamtype>
+        void writeAllSphereData(streamtype& stream, Sphere& s)
+        {
+            stream<<s.radius<<"\t"<<s.mass<<"\n";
+            stream<<s.pos(0)<<"\t"<<s.speed(0)<<"\t"<<s.acc(0)<<"\n";
+            stream<<s.pos(1)<<"\t"<<s.speed(1)<<"\t"<<s.acc(1)<<"\n";
+            stream<<s.pos(2)<<"\t"<<s.speed(2)<<"\t"<<s.acc(2)<<"\n";
+        }
+        /** \copydoc writeAllSphereData */
+        template <>
+        void writeAllSphereData(QDataStream& stream, Sphere& s)
+        {
+            stream<<s.radius<<s.mass;
+            stream<<s.pos(0)<<s.speed(0)<<s.acc(0);
+            stream<<s.pos(1)<<s.speed(1)<<s.acc(1);
+            stream<<s.pos(2)<<s.speed(2)<<s.acc(2);
+        }
 
-		/** \brief Read and update all data of a sphere from a stream.
-		 * \param stream Stream to read from.
-		 * \param s Sphere to update. */
-		template <typename streamtype>
-		void readAllSphereData(streamtype& stream, Sphere& s)
-		{
-			stream>>s.radius>>s.mass;
-			stream>>s.pos(0)>>s.speed(0)>>s.acc(0);
-			stream>>s.pos(1)>>s.speed(1)>>s.acc(1);
-			stream>>s.pos(2)>>s.speed(2)>>s.acc(2);
-		}
-	};
+        /** \brief Read and update all data of a sphere from a stream.
+         * \param stream Stream to read from.
+         * \param s Sphere to update. */
+        template <typename streamtype>
+        void readAllSphereData(streamtype& stream, Sphere& s)
+        {
+            stream>>s.radius>>s.mass;
+            stream>>s.pos(0)>>s.speed(0)>>s.acc(0);
+            stream>>s.pos(1)>>s.speed(1)>>s.acc(1);
+            stream>>s.pos(2)>>s.speed(2)>>s.acc(2);
+        }
+    };
 }
 
 #endif

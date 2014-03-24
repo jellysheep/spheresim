@@ -11,10 +11,10 @@ error() {
 }
 
 if [ "$0" != "./scripts/release_source_packages.sh" ]; then
-	if [ "$0" != "scripts/release_source_packages.sh" ]; then
-		error "Run this script from project root directory using command './scripts/release_source_packages.sh'"
-		exit
-	fi
+    if [ "$0" != "scripts/release_source_packages.sh" ]; then
+        error "Run this script from project root directory using command './scripts/release_source_packages.sh'"
+        exit
+    fi
 fi
 
 DIR=$PWD
@@ -26,15 +26,15 @@ mkdir -p $RELEASE_DIR
 rm -rf $BUILDDIR
 
 for buildscript_dir in "${BUILDSCRIPT_DIRS[@]}"; do
-	msg "Building $buildscript_dir/PKGBUILD source package ..."
-	mkdir -p $BUILD_DIR
-	cd $BUILD_DIR
+    msg "Building $buildscript_dir/PKGBUILD source package ..."
+    mkdir -p $BUILD_DIR
+    cd $BUILD_DIR
 
-	cp $buildscript_dir/* ./
-	sed -i -e "s|pkgver=.*$|pkgver=$(cat ${DIR}/VERSION)|" PKGBUILD
-	makepkg -S
-	cp *.src.tar.gz $RELEASE_DIR/
-	rm -rf $BUILD_DIR
+    cp $buildscript_dir/* ./
+    sed -i -e "s|pkgver=.*$|pkgver=$(cat ${DIR}/VERSION)|" PKGBUILD
+    makepkg -S
+    cp *.src.tar.gz $RELEASE_DIR/
+    rm -rf $BUILD_DIR
 done
 
 msg "Built all source packages."

@@ -6,7 +6,7 @@ set(CLIENTLIB_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/ClientLib/include)
 include_directories("${CLIENTLIB_INCLUDE_DIR}")
 
 set(HEADERS ${HEADERS}
-	${CLIENTLIB_INCLUDE_DIR}/ActionSender.hpp
+    ${CLIENTLIB_INCLUDE_DIR}/ActionSender.hpp
 )
 
 add_subdirectory(ClientLib)

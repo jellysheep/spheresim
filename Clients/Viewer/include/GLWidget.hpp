@@ -21,107 +21,107 @@ class QElapsedTimer;
 
 namespace SphereSim
 {
-	/** \brief Custom OpenGL widget of the main window. */
-	class GLWidget : public QGLWidget, protected QGLFunctions
-	{
-		Q_OBJECT
+    /** \brief Custom OpenGL widget of the main window. */
+    class GLWidget : public QGLWidget, protected QGLFunctions
+    {
+        Q_OBJECT
 
-	private:
-		/** \brief FrameBuffer for smooth animation. */
-		FrameBuffer<Sphere>* frameBuffer;
+    private:
+        /** \brief FrameBuffer for smooth animation. */
+        FrameBuffer<Sphere>* frameBuffer;
 
-		/** \brief GLSL program used to render the spheres. */
-		QGLShaderProgram program;
+        /** \brief GLSL program used to render the spheres. */
+        QGLShaderProgram program;
 
-		/** \brief Vertex attribute for circle vertices. */
-		GLuint verticesAttr;
+        /** \brief Vertex attribute for circle vertices. */
+        GLuint verticesAttr;
 
-		/** \brief Vertex attribute for circle colors. */
-		GLuint colorsAttr;
+        /** \brief Vertex attribute for circle colors. */
+        GLuint colorsAttr;
 
-		/** \brief Matrix uniform for world transformations. */
-		GLuint worldMatrixUniform;
+        /** \brief Matrix uniform for world transformations. */
+        GLuint worldMatrixUniform;
 
-		/** \brief Matrix uniform for sphere transformations. */
-		GLuint sphereMatrixUniform;
+        /** \brief Matrix uniform for sphere transformations. */
+        GLuint sphereMatrixUniform;
 
-		/** \brief Matrix to set the scene perspective. */
-		QMatrix4x4 perspectiveMatrix;
+        /** \brief Matrix to set the scene perspective. */
+        QMatrix4x4 perspectiveMatrix;
 
-		/** \brief Timer used to animate the scene. */
-		QTimer* animationTimer;
+        /** \brief Timer used to animate the scene. */
+        QTimer* animationTimer;
 
-		/** \brief Timer used to periodically update framerate. */
-		QElapsedTimer* controlTimer;
+        /** \brief Timer used to periodically update framerate. */
+        QElapsedTimer* controlTimer;
 
-		/** \brief Delay (in milliseconds) used for the animation timer. */
-		quint16 sleepTime;
+        /** \brief Delay (in milliseconds) used for the animation timer. */
+        quint16 sleepTime;
 
-		/** \brief Sum of last FrameBuffer percentage levels. */
-		int frameBufferPercentageLevelSum;
+        /** \brief Sum of last FrameBuffer percentage levels. */
+        int frameBufferPercentageLevelSum;
 
-		/** \brief Number of last FrameBuffer percentage levels. */
-		int frameBufferPercentageLevelCounter;
+        /** \brief Number of last FrameBuffer percentage levels. */
+        int frameBufferPercentageLevelCounter;
 
-		/** \brief Flag for running animation. */
-		bool animating;
+        /** \brief Flag for running animation. */
+        bool animating;
 
-		/** \brief Number of edges used to render a circle. */
-		const quint16 circleEdges;
+        /** \brief Number of edges used to render a circle. */
+        const quint16 circleEdges;
 
-		/** \brief Vertices used to render a circle. */
-		float* circleVertices;
+        /** \brief Vertices used to render a circle. */
+        float* circleVertices;
 
-		/** \brief Colors used to render a circle. */
-		float* circleColors;
+        /** \brief Colors used to render a circle. */
+        float* circleColors;
 
-		Scalar boxLength;
+        Scalar boxLength;
 
-		/** \brief Initialize the OpenGL scene. */
-		void initializeGL();
+        /** \brief Initialize the OpenGL scene. */
+        void initializeGL();
 
-		void initShaders();
+        void initShaders();
 
-		/** \brief Resize the OpenGL widget. */
-		void resizeGL(int width, int height);
+        /** \brief Resize the OpenGL widget. */
+        void resizeGL(int width, int height);
 
-		/** \brief Paint the OpenGL scene. */
-		void paintGL();
+        /** \brief Paint the OpenGL scene. */
+        void paintGL();
 
-		/** \brief Paint the background. */
-		void paintBackground();
+        /** \brief Paint the background. */
+        void paintBackground();
 
-		/** \brief Error handler for shader loading. */
-		void shaderLoadError();
+        /** \brief Error handler for shader loading. */
+        void shaderLoadError();
 
-	public:
-		/** \brief Initialize member variables. */
-		GLWidget(QWidget* parent);
+    public:
+        /** \brief Initialize member variables. */
+        GLWidget(QWidget* parent);
 
-		/** \brief Clean up member variables. */
-		~GLWidget();
+        /** \brief Clean up member variables. */
+        ~GLWidget();
 
-		GLWidget() = delete;
-		GLWidget(const GLWidget&) = delete;
-		GLWidget& operator=(const GLWidget&) = delete;
+        GLWidget() = delete;
+        GLWidget(const GLWidget&) = delete;
+        GLWidget& operator=(const GLWidget&) = delete;
 
-		void setFrameBuffer(FrameBuffer<Sphere>* frameBuffer);
+        void setFrameBuffer(FrameBuffer<Sphere>* frameBuffer);
 
-		void setBoxLength(Scalar boxLength);
+        void setBoxLength(Scalar boxLength);
 
-	public slots:
-		/** \brief Animation timer update. */
-		void timerUpdate();
+    public slots:
+        /** \brief Animation timer update. */
+        void timerUpdate();
 
-		/** \brief Update the animation framerate. */
-		void updateTimerFrequency(int frameBufferPercentageLevel);
+        /** \brief Update the animation framerate. */
+        void updateTimerFrequency(int frameBufferPercentageLevel);
 
-		/** \brief Start the animation. */
-		void startAnimation();
+        /** \brief Start the animation. */
+        void startAnimation();
 
-		/** \brief Stop the animation. */
-		void stopAnimation();
-	};
+        /** \brief Stop the animation. */
+        void stopAnimation();
+    };
 }
 
 /** \brief Make GLWidget known to Qt GUI classes. */

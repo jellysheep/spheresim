@@ -10,7 +10,7 @@
 #define _VERSION_HPP_
 
 #ifndef VERSION
-	#define VERSION unknown
+    #define VERSION unknown
 #endif
 
 #define TOSTR2(x) #x

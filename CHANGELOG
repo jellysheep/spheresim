@@ -2,6 +2,7 @@
 * Improved coding style.
 * Removed empty SimulatedSystemActions.
 * Fixed small error.
+* Switched to spaces indentation.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

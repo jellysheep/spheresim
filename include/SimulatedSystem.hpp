@@ -19,63 +19,63 @@
 
 namespace SphereSim
 {
-	/** \brief Storage for physical constants and other parameters. */
-	class SimulatedSystem : public QObject
-	{
-		Q_OBJECT
+    /** \brief Storage for physical constants and other parameters. */
+    class SimulatedSystem : public QObject
+    {
+        Q_OBJECT
 
-	private:
-		std::vector<Object> vars;
+    private:
+        std::vector<Object> vars;
 
-		template <typename T>
-		void addVariable(SimulationVariables::Variable var, Object::Type type,
-			const T& t);
+        template <typename T>
+        void addVariable(SimulationVariables::Variable var, Object::Type type,
+            const T& t);
 
-		void sendVariable(SimulationVariables::Variable var);
+        void sendVariable(SimulationVariables::Variable var);
 
-	public:
-		SimulatedSystem();
+    public:
+        SimulatedSystem();
 
-		SimulatedSystem(const SimulatedSystem&) = delete;
-		SimulatedSystem& operator=(const SimulatedSystem&) = delete;
+        SimulatedSystem(const SimulatedSystem&) = delete;
+        SimulatedSystem& operator=(const SimulatedSystem&) = delete;
 
-		template <typename T>
-		const T get(SimulationVariables::Variable var) const
-		{
-			return vars[var].get<T>();
-		}
+        template <typename T>
+        const T get(SimulationVariables::Variable var) const
+        {
+            return vars[var].get<T>();
+        }
 
-		template <typename T>
-		const T& getRef(SimulationVariables::Variable var) const
-		{
-			return vars[var].getRef<T>();
-		}
+        template <typename T>
+        const T& getRef(SimulationVariables::Variable var) const
+        {
+            return vars[var].getRef<T>();
+        }
 
-		template <typename T>
-		void set(SimulationVariables::Variable var, const T& t)
-		{
-			if (vars[var].set<T>(t))
-			{
-				sendVariable(var);
-				emit variableUpdated((int)var);
-			}
-		}
+        template <typename T>
+        void set(SimulationVariables::Variable var, const T& t)
+        {
+            if (vars[var].set<T>(t))
+            {
+                sendVariable(var);
+                emit variableUpdated((int)var);
+            }
+        }
 
-		void receiveVariable(SimulationVariables::Variable var, QByteArray data);
+        void receiveVariable(SimulationVariables::Variable var, QByteArray data);
 
-	signals:
-		void variableToSend(QByteArray data);
+    signals:
+        void variableToSend(QByteArray data);
 
-		void variableUpdated(int var);
+        void variableUpdated(int var);
 
-		void receivedAllVariables();
+        void receivedAllVariables();
 
-	public slots:
-		void sendAllVariables();
+    public slots:
+        void sendAllVariables();
 
-		void printUpdatedVariable(int var);
+        void printUpdatedVariable(int var);
 
-	};
+    };
 }
 
 #endif

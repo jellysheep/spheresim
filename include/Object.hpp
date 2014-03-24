@@ -15,84 +15,84 @@
 namespace SphereSim
 {
 
-	template <typename T>
-	class Visitor;
+    template <typename T>
+    class Visitor;
 
-	class Object
-	{
-	public:
-		enum Type
-		{
-			BOOL	= 'b',
-			INT		= 'i',
-		#if USE_DOUBLE
-			SCALAR	= 'd',
-		#else
-			SCALAR	= 'f',
-		#endif
-			DOUBLE	= 'd',
-			FLOAT	= 'f',
-			VECTOR3	= 'v',
-			STRING	= 's'
-		};
+    class Object
+    {
+    public:
+        enum Type
+        {
+            BOOL    = 'b',
+            INT     = 'i',
+        #if USE_DOUBLE
+            SCALAR  = 'd',
+        #else
+            SCALAR  = 'f',
+        #endif
+            DOUBLE  = 'd',
+            FLOAT   = 'f',
+            VECTOR3 = 'v',
+            STRING  = 's'
+        };
 
-		enum Flags
-		{
-			CLIENT_WRITABLE = 1<<0,
-			SERVER_WRITABLE = 1<<1
-		};
+        enum Flags
+        {
+            CLIENT_WRITABLE = 1<<0,
+            SERVER_WRITABLE = 1<<1
+        };
 
-	private:
-		const Type type;
-		void* data;
+    private:
+        const Type type;
+        void* data;
 
-		template <typename T>
-		T* getPtr() const
-		{
-			return (T*)data;
-		}
+        template <typename T>
+        T* getPtr() const
+        {
+            return (T*)data;
+        }
 
-		template <typename T>
-		T applyVisitor(Visitor<T>&& visitor) const;
+        template <typename T>
+        T applyVisitor(Visitor<T>&& visitor) const;
 
-	public:
-		Object() = delete;
-		Object(const Object& o) = delete;
-		Object& operator=(const Object&) = delete;
+    public:
+        Object() = delete;
+        Object(const Object& o) = delete;
+        Object& operator=(const Object&) = delete;
 
-		Object(const Type type);
-		Object(Object&& o);
+        Object(const Type type);
+        Object(Object&& o);
 
-		template <typename T>
-		Object(const Type type, const T& t):Object(type)
-		{
-			set<T>(t);
-		}
+        template <typename T>
+        Object(const Type type, const T& t):Object(type)
+        {
+            set<T>(t);
+        }
 
-		~Object();
+        ~Object();
 
-		template <typename T>
-		bool set(const T& t);
+        template <typename T>
+        bool set(const T& t);
 
-		template <typename T>
-		T get() const;
+        template <typename T>
+        T get() const;
 
-		template <typename T>
-		T& getRef() const
-		{
-			return *getPtr<T>();
-		}
+        template <typename T>
+        T& getRef() const
+        {
+            return *getPtr<T>();
+        }
 
-		QByteArray getData() const;
+        QByteArray getData() const;
 
-		bool setData(const QByteArray &bytes);
+        bool setData(const QByteArray &bytes);
 
-		Type getType() const
-		{
-			return type;
-		}
+        Type getType() const
+        {
+            return type;
+        }
 
-	};
+    };
 
 }
 

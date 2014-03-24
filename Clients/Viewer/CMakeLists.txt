@@ -9,15 +9,15 @@ include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${PROJECT_BINARY_DIR}")
 
 set(SOURCES ${SOURCES}
-	${PROJECT_SOURCE_DIR}/main.cpp
-	${PROJECT_SOURCE_DIR}/GLWidget.cpp
-	${PROJECT_SOURCE_DIR}/MainWindow.cpp
-	${PROJECT_SOURCE_DIR}/StartDialog.cpp
+    ${PROJECT_SOURCE_DIR}/main.cpp
+    ${PROJECT_SOURCE_DIR}/GLWidget.cpp
+    ${PROJECT_SOURCE_DIR}/MainWindow.cpp
+    ${PROJECT_SOURCE_DIR}/StartDialog.cpp
 )
 set(HEADERS ${HEADERS}
-	${PROJECT_INCLUDE_DIR}/GLWidget.hpp
-	${PROJECT_INCLUDE_DIR}/MainWindow.hpp
-	${PROJECT_INCLUDE_DIR}/StartDialog.hpp
+    ${PROJECT_INCLUDE_DIR}/GLWidget.hpp
+    ${PROJECT_INCLUDE_DIR}/MainWindow.hpp
+    ${PROJECT_INCLUDE_DIR}/StartDialog.hpp
 )
 
 find_package(Qt5Core REQUIRED)
@@ -33,11 +33,11 @@ qt5_add_resources(RESOURCES QRC/MainWindow.qrc QRC/StartDialog.qrc QRC/Shaders.q
 
 add_executable(SphereSim_Viewer ${SOURCES} ${HEADERS} ${HEADERS_UI} ${RESOURCES})
 if(WIN32)
-	target_link_libraries(SphereSim_Viewer SphereSim_ClientLib ${OPENGL_LIBRARIES} libGLESv2)
+    target_link_libraries(SphereSim_Viewer SphereSim_ClientLib ${OPENGL_LIBRARIES} libGLESv2)
 else()
-	target_link_libraries(SphereSim_Viewer SphereSim_ClientLib ${OPENGL_LIBRARIES})
+    target_link_libraries(SphereSim_Viewer SphereSim_ClientLib ${OPENGL_LIBRARIES})
 endif()
 qt5_use_modules(SphereSim_Viewer Core Network Widgets OpenGL)
 
 install(TARGETS SphereSim_Viewer
-	RUNTIME DESTINATION bin)
+    RUNTIME DESTINATION bin)

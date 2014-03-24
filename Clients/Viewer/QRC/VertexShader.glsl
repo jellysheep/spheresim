@@ -7,6 +7,6 @@ uniform highp mat4 sphereMatrix;
 
 void main()
 {
-	col = colorsAttr;
-	gl_Position = worldMatrix * (sphereMatrix * verticesAttr);
+    col = colorsAttr;
+    gl_Position = worldMatrix * (sphereMatrix * verticesAttr);
 }

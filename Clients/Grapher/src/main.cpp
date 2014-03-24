@@ -24,16 +24,16 @@ using namespace SphereSim;
 
 int main(int argc, char** argv)
 {
-	QCoreApplication app(argc, argv);
-	QStringList args = app.arguments();
-	try
-	{
-		SimulationGrapher simGrapher(args, QHostAddress(Connection::address),
-			Connection::port);
-		return app.exec();
-	}
-	catch (std::exception ex)
-	{
-		return 0;
-	}
+    QCoreApplication app(argc, argv);
+    QStringList args = app.arguments();
+    try
+    {
+        SimulationGrapher simGrapher(args, QHostAddress(Connection::address),
+            Connection::port);
+        return app.exec();
+    }
+    catch (std::exception ex)
+    {
+        return 0;
+    }
 }

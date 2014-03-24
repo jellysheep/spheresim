@@ -15,27 +15,27 @@ class QDataStream;
 
 namespace SphereSim
 {
-	/** \brief Physical data of a 2D wall. */
-	struct Wall2D
-	{
-		/** \brief Position of the wall. */
-		Vector2 pos;
-		/** \brief Wall vector. */
-		Vector2 vec;
+    /** \brief Physical data of a 2D wall. */
+    struct Wall2D
+    {
+        /** \brief Position of the wall. */
+        Vector2 pos;
+        /** \brief Wall vector. */
+        Vector2 vec;
 
-	};
+    };
 
-	/** \brief Physical data of a 3D wall. */
-	struct Wall3D
-	{
-		/** \brief Position of the wall. */
-		Vector3 pos;
-		/** \brief First wall vector. */
-		Vector3 vec1;
-		/** \brief Second wall vector. */
-		Vector3 vec2;
+    /** \brief Physical data of a 3D wall. */
+    struct Wall3D
+    {
+        /** \brief Position of the wall. */
+        Vector3 pos;
+        /** \brief First wall vector. */
+        Vector3 vec1;
+        /** \brief Second wall vector. */
+        Vector3 vec2;
 
-	};
+    };
 }
 
 #endif

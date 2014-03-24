@@ -15,14 +15,14 @@ include_directories("${PROJECT_SOURCE_DIR}")
 include_directories("${PROJECT_BINARY_DIR}")
 
 set(SOURCES ${SOURCES}
-	${PROJECT_SOURCE_DIR}/ActionSender.cpp
-	${PROJECT_SOURCE_DIR}/FrameBuffer.cpp
-	${PROJECT_SOURCE_DIR}/SystemCreator.cpp
+    ${PROJECT_SOURCE_DIR}/ActionSender.cpp
+    ${PROJECT_SOURCE_DIR}/FrameBuffer.cpp
+    ${PROJECT_SOURCE_DIR}/SystemCreator.cpp
 )
 set(HEADERS ${HEADERS}
-	${PROJECT_INCLUDE_DIR}/ActionSender.hpp
-	${PROJECT_INCLUDE_DIR}/FrameBuffer.hpp
-	${PROJECT_INCLUDE_DIR}/SystemCreator.hpp
+    ${PROJECT_INCLUDE_DIR}/ActionSender.hpp
+    ${PROJECT_INCLUDE_DIR}/FrameBuffer.hpp
+    ${PROJECT_INCLUDE_DIR}/SystemCreator.hpp
 )
 
 add_library(SphereSim_ClientLib STATIC ${SOURCES} ${GLOBAL_SOURCES} ${HEADERS})

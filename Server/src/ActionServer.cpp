@@ -16,31 +16,31 @@
 using namespace SphereSim;
 
 ActionServer::ActionServer(QStringList args, QHostAddress addr, quint16 port)
-	:server(new QTcpServer())
+    :server(new QTcpServer())
 {
-	qDebug()<<"ActionServer: constructor called";
-	connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-	bool succeeded = server->listen(addr, port);
-	if (succeeded)
-	{
-		qDebug()<<"ActionServer: listening did succeed.";
-	}
-	else
-	{
-		qDebug()<<"ActionServer: listening did not succeed. Exiting.";
-		qApp->exit(1);
-	}
+    qDebug()<<"ActionServer: constructor called";
+    connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
+    bool succeeded = server->listen(addr, port);
+    if (succeeded)
+    {
+        qDebug()<<"ActionServer: listening did succeed.";
+    }
+    else
+    {
+        qDebug()<<"ActionServer: listening did not succeed. Exiting.";
+        qApp->exit(1);
+    }
 }
 
 void ActionServer::newConnection()
 {
-	qDebug()<<"\nActionServer: got new connection";
-	QTcpSocket* socket = server->nextPendingConnection();
-	new ActionReceiver(socket);
+    qDebug()<<"\nActionServer: got new connection";
+    QTcpSocket* socket = server->nextPendingConnection();
+    new ActionReceiver(socket);
 }
 
 ActionServer::~ActionServer()
 {
-	server->close();
-	delete server;
+    server->close();
+    delete server;
 }

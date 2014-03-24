@@ -1,12 +1,12 @@
 
 ! include(../SphereSim.pri){
-	error(SphereSim.pri not found.)
+    error(SphereSim.pri not found.)
 }
 
-INCLUDEPATH	+=	$$PWD/ClientLib/include/
+INCLUDEPATH +=  $$PWD/ClientLib/include/
 
-VPATH		+=	$$PWD/ClientLib/include/
+VPATH       +=  $$PWD/ClientLib/include/
 
-HEADERS		+=	ActionSender.hpp
+HEADERS     +=  ActionSender.hpp
 
-LIBS		+=	-L../ClientLib -lClientLib
+LIBS        +=  -L../ClientLib -lClientLib

@@ -1,14 +1,14 @@
 
 ! include(../Clients.pri){
-	error(Clients.pri not found.)
+    error(Clients.pri not found.)
 }
 
-QT			+=	testlib
+QT          +=  testlib
 
-VPATH		+=	include/ src/
-INCLUDEPATH	+=	include/
+VPATH       +=  include/ src/
+INCLUDEPATH +=  include/
 
-HEADERS		+=	ServerBenchmark.hpp
+HEADERS     +=  ServerBenchmark.hpp
 
-SOURCES		+=	ServerBenchmark.cpp	\
-				main.cpp
+SOURCES     +=  ServerBenchmark.cpp \
+                main.cpp

@@ -14,24 +14,24 @@
 namespace SphereSim
 {
 
-	/** \brief Methods for numerically integrating differential equations. */
-	namespace IntegratorMethods
-	{
-		/** \copydoc IntegratorMethods */
-		enum Method
-		{
-			/** \brief Heun-Euler of order 2+1 using 2 evaluations. */
-			HeunEuler21,
-			/** \brief Bogacki-Shampine of order 3+2 using 4 evaluations. */
-			BogackiShampine32,
-			/** \brief Runge-Kutta-Fehlberg of order 5+4 using 6 evaluations. */
-			RungeKuttaFehlberg54,
-			/** \brief Cash-Karp of order 5+4 using 6 evaluations. */
-			CashKarp54,
-			/** \brief Dormand-Prince of order 5+4 using 7 evaluations. */
-			DormandPrince54
-		};
-	}
+    /** \brief Methods for numerically integrating differential equations. */
+    namespace IntegratorMethods
+    {
+        /** \copydoc IntegratorMethods */
+        enum Method
+        {
+            /** \brief Heun-Euler of order 2+1 using 2 evaluations. */
+            HeunEuler21,
+            /** \brief Bogacki-Shampine of order 3+2 using 4 evaluations. */
+            BogackiShampine32,
+            /** \brief Runge-Kutta-Fehlberg of order 5+4 using 6 evaluations. */
+            RungeKuttaFehlberg54,
+            /** \brief Cash-Karp of order 5+4 using 6 evaluations. */
+            CashKarp54,
+            /** \brief Dormand-Prince of order 5+4 using 7 evaluations. */
+            DormandPrince54
+        };
+    }
 }
 
 #endif

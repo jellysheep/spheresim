@@ -20,65 +20,65 @@ class QHostAddress;
 namespace SphereSim
 {
 
-	/** \brief Receiver of client requests. */
-	class ActionReceiver:public QObject
-	{
-		Q_OBJECT
+    /** \brief Receiver of client requests. */
+    class ActionReceiver:public QObject
+    {
+        Q_OBJECT
 
-	private:
-		/** \brief Socket to client. */
-		QTcpSocket* socket;
+    private:
+        /** \brief Socket to client. */
+        QTcpSocket* socket;
 
-		/** \brief Collected data from a client request. */
-		QByteArray requestData;
+        /** \brief Collected data from a client request. */
+        QByteArray requestData;
 
-		/** \brief Flag if currently data from a client request is being collected;
-		 * if true, no new requests are accepted. */
-		bool collectingRequestData;
+        /** \brief Flag if currently data from a client request is being collected;
+         * if true, no new requests are accepted. */
+        bool collectingRequestData;
 
-		SimulatedSystem simulatedSystem;
+        SimulatedSystem simulatedSystem;
 
-		/** \brief Storage and calculator of sphere data. */
-		SphereCalculator sphCalc;
+        /** \brief Storage and calculator of sphere data. */
+        SphereCalculator sphCalc;
 
-		WorkQueue* workQueue;
+        WorkQueue* workQueue;
 
-		/** \brief Process received request data.
-		 * \param byteArray Data from network stream to process. */
-		void processData(QByteArray byteArray);
+        /** \brief Process received request data.
+         * \param byteArray Data from network stream to process. */
+        void processData(QByteArray byteArray);
 
-		/** \brief Process and reply to received request. */
-		void processRequest();
+        /** \brief Process and reply to received request. */
+        void processRequest();
 
-	public:
-		/** \brief Start a new server handling requests from the client.
-		 * \param sock Socket of the connection to the client. */
-		ActionReceiver(QTcpSocket* sock);
+    public:
+        /** \brief Start a new server handling requests from the client.
+         * \param sock Socket of the connection to the client. */
+        ActionReceiver(QTcpSocket* sock);
 
-		/** \brief Clean up member variables. */
-		~ActionReceiver();
+        /** \brief Clean up member variables. */
+        ~ActionReceiver();
 
-		ActionReceiver() = delete;
-		ActionReceiver(const ActionReceiver&) = delete;
-		ActionReceiver& operator=(const ActionReceiver&) = delete;
+        ActionReceiver() = delete;
+        ActionReceiver(const ActionReceiver&) = delete;
+        ActionReceiver& operator=(const ActionReceiver&) = delete;
 
-	public slots:
-		/** \brief New data available: Read data from client. */
-		void readData();
+    public slots:
+        /** \brief New data available: Read data from client. */
+        void readData();
 
-		void sendFrame(QByteArray frameToSend);
+        void sendFrame(QByteArray frameToSend);
 
-		void sendVariable(QByteArray variableToSend);
+        void sendVariable(QByteArray variableToSend);
 
-		void simulating(bool isSimulating);
+        void simulating(bool isSimulating);
 
-		/** \brief Send encoded data to client.
-		 * \param serverStatus Server status to be sent.
-		 * \param data Data to be sent to client. */
-		void sendReply(quint8 serverStatus, QByteArray dataToSend);
+        /** \brief Send encoded data to client.
+         * \param serverStatus Server status to be sent.
+         * \param data Data to be sent to client. */
+        void sendReply(quint8 serverStatus, QByteArray dataToSend);
 
-		void terminateServer();
-	};
+        void terminateServer();
+    };
 
 }
 

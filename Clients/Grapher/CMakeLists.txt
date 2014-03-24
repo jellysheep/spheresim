@@ -12,11 +12,11 @@ find_package(Qt5Network REQUIRED)
 find_package(Qt5Test REQUIRED)
 
 set(SOURCES ${SOURCES}
-	${PROJECT_SOURCE_DIR}/SimulationGrapher.cpp
-	${PROJECT_SOURCE_DIR}/main.cpp
+    ${PROJECT_SOURCE_DIR}/SimulationGrapher.cpp
+    ${PROJECT_SOURCE_DIR}/main.cpp
 )
 set(HEADERS ${HEADERS}
-	${PROJECT_INCLUDE_DIR}/SimulationGrapher.hpp
+    ${PROJECT_INCLUDE_DIR}/SimulationGrapher.hpp
 )
 
 add_executable(SphereSim_Grapher ${SOURCES} ${HEADERS})
@@ -24,4 +24,4 @@ target_link_libraries(SphereSim_Grapher SphereSim_ClientLib)
 qt5_use_modules(SphereSim_Grapher Core Network)
 
 install(TARGETS SphereSim_Grapher
-	RUNTIME DESTINATION bin)
+    RUNTIME DESTINATION bin)

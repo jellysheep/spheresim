@@ -10,10 +10,10 @@ error() {
 }
 
 if [ "$0" != "./scripts/coverity_build.sh" ]; then
-	if [ "$0" != "scripts/coverity_build.sh" ]; then
-		error "Run this script from project root directory using command './scripts/coverity_build.sh'"
-		exit
-	fi
+    if [ "$0" != "scripts/coverity_build.sh" ]; then
+        error "Run this script from project root directory using command './scripts/coverity_build.sh'"
+        exit
+    fi
 fi
 
 msg "Coverity build requested..."
@@ -39,8 +39,8 @@ cov-build --dir cov-int make -j2 | tee $RESULT
 if [ "$?" != "0" ]; then error "make failed! Aborting."; exit; fi
 grep -e "(100%)" $RESULT >/dev/null
 if [ "$?" != "0" ]; then
-	error "Not all units are ready for analysis. Aborting."
-	exit
+    error "Not all units are ready for analysis. Aborting."
+    exit
 fi
 
 msg "Packaging files..."
@@ -58,8 +58,8 @@ msg "Tarball is located under '$CURDIR/$TARBALL_BASE'"
 
 msg "Uploading tarball..."
 curl --noproxy '*' --form project=SphereSim --form token=TITPuELE6wnJfQAT19Hbfw --form email=max.mail@dameweb.de \
-	--form file=@"$CURDIR/$TARBALL_BASE" --form version="$(cat $CURDIR/VERSION)" \
-	--form description="$(cat $CURDIR/VERSION) build" http://scan5.coverity.com/cgi-bin/upload.py
+    --form file=@"$CURDIR/$TARBALL_BASE" --form version="$(cat $CURDIR/VERSION)" \
+    --form description="$(cat $CURDIR/VERSION) build" http://scan5.coverity.com/cgi-bin/upload.py
 if [ "$?" != "0" ]; then error "curl failed! Aborting."; exit; fi
 
 msg "Finished! Tarball was uploaded."
