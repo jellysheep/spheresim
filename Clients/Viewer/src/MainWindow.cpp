@@ -6,10 +6,10 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
-#include <MainWindow.hpp>
-#include <ActionSender.hpp>
-#include <SystemCreator.hpp>
-#include <Version.hpp>
+#include "MainWindow.hpp"
+#include "ActionSender.hpp"
+#include "SystemCreator.hpp"
+#include "Version.hpp"
 #include <ui_MainWindow.h>
 
 #include <random>

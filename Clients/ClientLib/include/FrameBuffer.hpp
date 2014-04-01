@@ -9,7 +9,7 @@
 #ifndef _FRAMEBUFFER_HPP_
 #define _FRAMEBUFFER_HPP_
 
-#include <Sphere.hpp>
+#include "Sphere.hpp"
 
 #include <QtGlobal>
 

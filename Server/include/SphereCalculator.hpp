@@ -9,11 +9,11 @@
 #ifndef _SPHERECALCULATOR_HPP_
 #define _SPHERECALCULATOR_HPP_
 
-#include <Sphere.hpp>
-#include <Integrators.hpp>
-#include <ButcherTableau.hpp>
-#include <SimulatedSystem.hpp>
-#include <TwoDimArray.hpp>
+#include "Sphere.hpp"
+#include "Integrators.hpp"
+#include "ButcherTableau.hpp"
+#include "SimulatedSystem.hpp"
+#include "TwoDimArray.hpp"
 
 #include <QMutex>
 #include <QObject>

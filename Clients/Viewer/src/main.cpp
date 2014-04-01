@@ -6,11 +6,11 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
-#include <StartDialog.hpp>
-#include <ActionSender.hpp>
-#include <Connection.hpp>
-#include <MainWindow.hpp>
-#include <Console.hpp>
+#include "StartDialog.hpp"
+#include "ActionSender.hpp"
+#include "Connection.hpp"
+#include "MainWindow.hpp"
+#include "Console.hpp"
 
 #include <QApplication>
 #include <QString>

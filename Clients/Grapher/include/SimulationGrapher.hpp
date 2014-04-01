@@ -9,7 +9,7 @@
 #ifndef _SIMULATIONGRAPHER_HPP_
 #define _SIMULATIONGRAPHER_HPP_
 
-#include <Sphere.hpp>
+#include "Sphere.hpp"
 
 #include <QtGlobal>
 #include <QObject>

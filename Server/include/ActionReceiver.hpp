@@ -9,8 +9,8 @@
 #ifndef _ACTIONRECEIVER_HPP_
 #define _ACTIONRECEIVER_HPP_
 
-#include <Actions.hpp>
-#include <SphereCalculator.hpp>
+#include "Actions.hpp"
+#include "SphereCalculator.hpp"
 
 #include <QObject>
 

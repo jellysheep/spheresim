@@ -6,7 +6,7 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
-#include <Connection.hpp>
+#include "Connection.hpp"
 
 namespace SphereSim
 {

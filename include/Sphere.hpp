@@ -9,7 +9,7 @@
 #ifndef _SPHERE_HPP_
 #define _SPHERE_HPP_
 
-#include <Vector.hpp>
+#include "Vector.hpp"
 
 class QDataStream;
 

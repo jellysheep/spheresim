@@ -6,10 +6,10 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
-#include <ActionSender.hpp>
-#include <ServerBenchmark.hpp>
-#include <Integrators.hpp>
-#include <SystemCreator.hpp>
+#include "ActionSender.hpp"
+#include "ServerBenchmark.hpp"
+#include "Integrators.hpp"
+#include "SystemCreator.hpp"
 
 #include <QtTest/QTest>
 #include <QCoreApplication>

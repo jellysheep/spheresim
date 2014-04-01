@@ -9,7 +9,7 @@
 #ifndef _WALL_HPP_
 #define _WALL_HPP_
 
-#include <Vector.hpp>
+#include "Vector.hpp"
 
 class QDataStream;
 

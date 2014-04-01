@@ -9,7 +9,7 @@
 #ifndef _SPHERETRANSMIT_HPP_
 #define _SPHERETRANSMIT_HPP_
 
-#include <Sphere.hpp>
+#include "Sphere.hpp"
 
 #include <QDataStream>
 

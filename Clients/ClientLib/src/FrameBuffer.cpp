@@ -6,9 +6,9 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
-#include <FrameBuffer.hpp>
-#include <Console.hpp>
-#include <ActionSender.hpp>
+#include "FrameBuffer.hpp"
+#include "Console.hpp"
+#include "ActionSender.hpp"
 
 using namespace SphereSim;
 

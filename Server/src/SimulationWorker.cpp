@@ -6,14 +6,14 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
-#include <SimulationWorker.hpp>
-#include <SphereCalculator.hpp>
-#include <WorkQueue.hpp>
-#include <Console.hpp>
-#include <ActionReceiver.hpp>
-#include <Version.hpp>
-#include <Connection.hpp>
-#include <SphereTransmit.hpp>
+#include "SimulationWorker.hpp"
+#include "SphereCalculator.hpp"
+#include "WorkQueue.hpp"
+#include "Console.hpp"
+#include "ActionReceiver.hpp"
+#include "Version.hpp"
+#include "Connection.hpp"
+#include "SphereTransmit.hpp"
 
 #include <QDebug>
 #include <QCoreApplication>

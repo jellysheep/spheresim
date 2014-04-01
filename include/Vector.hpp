@@ -24,7 +24,7 @@ typedef FLOATING_TYPE Scalar;
     typedef Eigen::Matrix<Scalar, 3, 1> Vector3;
     typedef Eigen::Matrix<Scalar, 4, 1> Vector4;
 #else
-    #include <VectorLib.hpp>
+    #include "VectorLib.hpp"
     typedef LibVector<Scalar, 1> Vector1;
     typedef LibVector<Scalar, 2> Vector2;
     typedef LibVector<Scalar, 3> Vector3;

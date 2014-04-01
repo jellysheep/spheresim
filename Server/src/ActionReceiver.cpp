@@ -6,9 +6,9 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
-#include <ActionReceiver.hpp>
-#include <Connection.hpp>
-#include <WorkQueue.hpp>
+#include "ActionReceiver.hpp"
+#include "Connection.hpp"
+#include "WorkQueue.hpp"
 
 #include <QTcpSocket>
 #include <QCoreApplication>

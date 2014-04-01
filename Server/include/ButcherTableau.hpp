@@ -9,8 +9,8 @@
 #ifndef _BUTCHERTABLEAU_HPP_
 #define _BUTCHERTABLEAU_HPP_
 
-#include <Vector.hpp>
-#include <Console.hpp>
+#include "Vector.hpp"
+#include "Console.hpp"
 
 #include <QtGlobal>
 

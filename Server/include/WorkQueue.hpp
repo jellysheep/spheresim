@@ -9,7 +9,7 @@
 #ifndef _WORKQUEUE_HPP_
 #define _WORKQUEUE_HPP_
 
-#include <Actions.hpp>
+#include "Actions.hpp"
 
 #include <QMutex>
 #include <QWaitCondition>

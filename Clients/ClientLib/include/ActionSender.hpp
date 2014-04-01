@@ -9,10 +9,10 @@
 #ifndef _ACTIONSENDER_HPP_
 #define _ACTIONSENDER_HPP_
 
-#include <Actions.hpp>
-#include <Sphere.hpp>
-#include <FrameBuffer.hpp>
-#include <SimulatedSystem.hpp>
+#include "Actions.hpp"
+#include "Sphere.hpp"
+#include "FrameBuffer.hpp"
+#include "SimulatedSystem.hpp"
 
 #include <QtGlobal>
 #include <QObject>

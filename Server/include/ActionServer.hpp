@@ -9,7 +9,7 @@
 #ifndef _ACTIONSERVER_HPP_
 #define _ACTIONSERVER_HPP_
 
-#include <Actions.hpp>
+#include "Actions.hpp"
 
 #include <QtGlobal>
 #include <QObject>

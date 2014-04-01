@@ -9,8 +9,8 @@
 #ifndef _SIMULATEDSYSTEM_HPP_
 #define _SIMULATEDSYSTEM_HPP_
 
-#include <Object.hpp>
-#include <Actions.hpp>
+#include "Object.hpp"
+#include "Actions.hpp"
 
 #include <QObject>
 #include <QByteArray>

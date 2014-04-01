@@ -9,7 +9,7 @@
 #ifndef _GLWIDGET_HPP_
 #define _GLWIDGET_HPP_
 
-#include <FrameBuffer.hpp>
+#include "FrameBuffer.hpp"
 
 #include <QGLWidget>
 #include <QGLFunctions>

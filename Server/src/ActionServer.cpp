@@ -6,8 +6,8 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
-#include <ActionServer.hpp>
-#include <ActionReceiver.hpp>
+#include "ActionServer.hpp"
+#include "ActionReceiver.hpp"
 
 #include <QHostAddress>
 #include <QTcpServer>

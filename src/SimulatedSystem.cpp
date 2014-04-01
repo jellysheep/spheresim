@@ -6,12 +6,12 @@
  * This file is licensed under the "BSD 3-Clause License".
  * Full license text is under the file "LICENSE" provided with this code. */
 
-#include <SimulatedSystem.hpp>
-#include <Vector.hpp>
-#include <Version.hpp>
-#include <Integrators.hpp>
-#include <Connection.hpp>
-#include <Console.hpp>
+#include "SimulatedSystem.hpp"
+#include "Vector.hpp"
+#include "Version.hpp"
+#include "Integrators.hpp"
+#include "Connection.hpp"
+#include "Console.hpp"
 
 using namespace SphereSim;
 using namespace SphereSim::SimulationVariables;

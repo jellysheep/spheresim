@@ -9,7 +9,7 @@
 #ifndef _MAINWINDOW_HPP_
 #define _MAINWINDOW_HPP_
 
-#include <Vector.hpp>
+#include "Vector.hpp"
 
 #include <QMainWindow>
 #include <QElapsedTimer>
