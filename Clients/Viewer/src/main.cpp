@@ -13,7 +13,6 @@
 #include <Console.hpp>
 
 #include <QApplication>
-#include <QHostAddress>
 #include <QString>
 #include <QDialog>
 
@@ -36,7 +35,7 @@ int main(int argc, char** argv)
     {
         try
         {
-            MainWindow mainWindow(args, QHostAddress(Connection::address),
+            MainWindow mainWindow(args, Connection::address,
                 Connection::port, sphereCount);
             mainWindow.show();
 

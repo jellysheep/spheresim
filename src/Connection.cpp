@@ -13,8 +13,8 @@ namespace SphereSim
 
     namespace Connection
     {
-        QString listeningAddress = "127.0.0.1";
-        QString address = "127.0.0.1";
+        const char* listeningAddress = "127.0.0.1";
+        const char* address = "127.0.0.1";
         quint16 port = 8765;
         char startByte = '<', endByte = '>';
     }

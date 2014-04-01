@@ -13,7 +13,6 @@
 #include <Object.hpp>
 
 #include <QtTest/QTest>
-#include <QHostAddress>
 #include <iostream>
 
 #define runTests_(x) \
@@ -36,7 +35,7 @@ using namespace SphereSim;
 
 const int ServerTester::framebuffer = 255;
 
-ServerTester::ServerTester(QStringList args, QHostAddress addr, quint16 port)
+ServerTester::ServerTester(QStringList args, const char* addr, quint16 port)
     :sender(new ActionSender(args, addr, port, this)), testCounter(0),
     successCounter(0), testSuccess(true), testActionName(), testResult(0),
     systemCreator(new SystemCreator(sender))

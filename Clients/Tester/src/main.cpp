@@ -11,7 +11,6 @@
 #include <Console.hpp>
 
 #include <QCoreApplication>
-#include <QHostAddress>
 #include <QStringList>
 #include <QTimer>
 
@@ -29,8 +28,7 @@ int main(int argc, char** argv)
     QStringList args = app.arguments();
     try
     {
-        ServerTester svrTester(args, QHostAddress(Connection::address),
-            Connection::port);
+        ServerTester svrTester(args, Connection::address, Connection::port);
         return app.exec();
     }
     catch (std::exception ex)

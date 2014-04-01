@@ -18,9 +18,9 @@
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(QStringList args, QHostAddress addr, quint16 port,
+ActionSender::ActionSender(QStringList args, const char* addr, quint16 port,
     QObject* client)
-    :addr(new QHostAddress(addr)), port(port), socket(new QTcpSocket()),
+    :socket(new QTcpSocket()),
     connectedFlag(false), connectionTryCount(0), serverProcess(),
     createdOwnServer(false), frameBuffer(10),
     lastServerStatus(ServerStatusReplies::acknowledge),
@@ -37,7 +37,7 @@ ActionSender::ActionSender(QStringList args, QHostAddress addr, quint16 port,
     connect(this, SIGNAL(newFrameReceived()), SLOT(framerateEvent()));
     while (connectionTryCount<1000 && (connectedFlag == false))
     {
-        socket->connectToHost(*this->addr, this->port);
+        socket->connectToHost(QHostAddress(addr), port);
         connectionTryCount++;
         socket->waitForConnected(100);
         if (connectedFlag == false)
@@ -73,7 +73,6 @@ ActionSender::~ActionSender()
         serverProcess.kill();
     }
     socket->close();
-    delete addr;
     delete socket;
 }
 

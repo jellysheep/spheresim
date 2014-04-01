@@ -9,18 +9,19 @@
 #include <ActionServer.hpp>
 #include <ActionReceiver.hpp>
 
+#include <QHostAddress>
 #include <QTcpServer>
 #include <QStringList>
 #include <QCoreApplication>
 
 using namespace SphereSim;
 
-ActionServer::ActionServer(QStringList args, QHostAddress addr, quint16 port)
+ActionServer::ActionServer(QStringList args, const char* addr, quint16 port)
     :server(new QTcpServer())
 {
     qDebug()<<"ActionServer: constructor called";
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-    bool succeeded = server->listen(addr, port);
+    bool succeeded = server->listen(QHostAddress(addr), port);
     if (succeeded)
     {
         qDebug()<<"ActionServer: listening did succeed.";

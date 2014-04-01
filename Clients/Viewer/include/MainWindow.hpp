@@ -13,7 +13,6 @@
 
 #include <QMainWindow>
 #include <QElapsedTimer>
-#include <QHostAddress>
 
 namespace Ui
 {
@@ -59,7 +58,7 @@ namespace SphereSim
 
     public:
         /** \brief Initialize member variables. */
-        MainWindow(QStringList args, QHostAddress addr, quint16 port,
+        MainWindow(QStringList args, const char* addr, quint16 port,
             quint16 sphCount, QWidget* parent = nullptr);
 
         /** \brief Clean up member variables. */

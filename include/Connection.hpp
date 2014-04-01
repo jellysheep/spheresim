@@ -19,9 +19,9 @@ namespace SphereSim
     namespace Connection
     {
         /** \brief The address the server is listening to. */
-        extern QString listeningAddress;
+        extern const char* listeningAddress;
         /** \brief The address the client is connecting to. */
-        extern QString address;
+        extern const char* address;
         /** \brief The port that client and server use. */
         extern quint16 port;
         /** \brief The byte used to start an encoded request. */

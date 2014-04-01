@@ -17,7 +17,7 @@
 
 using namespace SphereSim;
 
-MainWindow::MainWindow(QStringList args, QHostAddress addr, quint16 port,
+MainWindow::MainWindow(QStringList args, const char* addr, quint16 port,
     quint16 sphCount, QWidget* parent)
     :QMainWindow(parent), ui(new Ui::MainWindow()),
     actionSender(new ActionSender(args, addr, port, this)),

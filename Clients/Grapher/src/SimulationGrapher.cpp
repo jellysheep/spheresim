@@ -13,7 +13,6 @@
 #include <Console.hpp>
 
 #include <QDebug>
-#include <QHostAddress>
 #include <QCoreApplication>
 #include <QTimer>
 #include <random>
@@ -21,8 +20,7 @@
 
 using namespace SphereSim;
 
-SimulationGrapher::SimulationGrapher(QStringList args, QHostAddress addr,
-    quint16 port)
+SimulationGrapher::SimulationGrapher(QStringList args, const char* addr, quint16 port)
     :actionSender(new ActionSender(args, addr, port, this)),
     dataUpdateTimer(new QTimer(this)), counter(0), timeStep(1.0), time(1.0),
     sphereCountSqrt(1), sphereCount(1), dataPoints(2048), data(), temperatures(),

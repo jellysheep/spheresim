@@ -12,7 +12,6 @@
 
 #include <QCoreApplication>
 #include <QStringList>
-#include <QHostAddress>
 
 using namespace SphereSim;
 
@@ -28,8 +27,7 @@ int main(int argc, char** argv)
     QStringList args = app.arguments();
     try
     {
-        ActionServer actSvr(args, QHostAddress(Connection::listeningAddress),
-            Connection::port);
+        ActionServer actSvr(args, Connection::listeningAddress, Connection::port);
         return app.exec();
     }
     catch (std::exception ex)

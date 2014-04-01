@@ -12,12 +12,11 @@
 #include <SystemCreator.hpp>
 
 #include <QtTest/QTest>
-#include <QHostAddress>
 #include <QCoreApplication>
 
 using namespace SphereSim;
 
-ServerBenchmark::ServerBenchmark(QStringList args, QHostAddress addr, quint16 port)
+ServerBenchmark::ServerBenchmark(QStringList args, const char* addr, quint16 port)
     :sender(new ActionSender(args, addr, port, this))
 {
     sender->failureExitWhenDisconnected = true;

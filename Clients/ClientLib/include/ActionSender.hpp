@@ -21,7 +21,6 @@
 #include <QElapsedTimer>
 
 class QTcpSocket;
-class QHostAddress;
 
 namespace SphereSim
 {
@@ -31,12 +30,6 @@ namespace SphereSim
         Q_OBJECT
 
     private:
-        /** \brief Server address. */
-        QHostAddress* addr;
-
-        /** \brief Server port. */
-        quint16 port;
-
         /** \brief Server connection socket. */
         QTcpSocket* socket;
 
@@ -118,7 +111,7 @@ namespace SphereSim
          * \param args The arguments that the program was invoked with.
          * \param addr The address that the socket will be connecting to.
          * \param port The port that the socket will be connecting to. */
-        ActionSender(QStringList args, QHostAddress addr, quint16 port,
+        ActionSender(QStringList args, const char* addr, quint16 port,
             QObject* client);
 
         ~ActionSender();

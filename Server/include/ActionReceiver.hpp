@@ -15,7 +15,6 @@
 #include <QObject>
 
 class QTcpSocket;
-class QHostAddress;
 
 namespace SphereSim
 {

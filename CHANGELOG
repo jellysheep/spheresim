@@ -7,6 +7,7 @@
 * Updated readme file.
 * Updated git repo link in PKGBUILDs and fixed version.
 * Replaced QList by std::vector and std::list.
+* Updated ActionServer and ActionSender to use C string address parameter.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

@@ -15,7 +15,6 @@
 #include <QObject>
 
 class QTcpServer;
-class QHostAddress;
 
 namespace SphereSim
 {
@@ -34,7 +33,7 @@ namespace SphereSim
          * \param args The arguments that the program was invoked with.
          * \param addr The address that the server will be listening to.
          * \param port The port that the server will be listening to. */
-        ActionServer(QStringList args, QHostAddress addr, quint16 port);
+        ActionServer(QStringList args, const char* addr, quint16 port);
 
         ~ActionServer();
 
