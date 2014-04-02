@@ -16,7 +16,7 @@
 
 using namespace SphereSim;
 
-ActionServer::ActionServer(QStringList args, const char* addr, quint16 port)
+ActionServer::ActionServer(QStringList args, const char* addr, unsigned short port)
     :server(new QTcpServer())
 {
     qDebug()<<"ActionServer: constructor called";

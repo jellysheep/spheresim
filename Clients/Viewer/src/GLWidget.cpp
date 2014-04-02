@@ -89,7 +89,7 @@ void GLWidget::initializeGL()
     circleColors[1] = 1;
     circleColors[2] = 1;
     float angle;
-    for (quint16 i = 1; i<circleEdges+2; i++)
+    for (unsigned short i = 1; i<circleEdges+2; i++)
     {
         angle = 2*M_PI*(i-1)/circleEdges;
         circleVertices[2*i] = cos(angle);
@@ -225,7 +225,7 @@ void GLWidget::updateTimerFrequency(int frameBufferPercentageLevel)
         factor = pow(factor, 5);
         Scalar amplitude = 20;
         Scalar fps = 60+(factor*amplitude);
-        sleepTime = (quint16)(std::max)(0, (int)std::round(1000.0/fps));
+        sleepTime = (unsigned short)(std::max)(0, (int)std::round(1000.0/fps));
         qDebug()<<"GLWidget: level:"<<frameBufferPercentageLevelAverage
             <<"\tfps:"<<fps<<"\tms:"<<sleepTime;
         frameBufferPercentageLevelSum = 0;

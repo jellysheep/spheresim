@@ -20,7 +20,7 @@
 
 using namespace SphereSim;
 
-SimulationGrapher::SimulationGrapher(QStringList args, const char* addr, quint16 port)
+SimulationGrapher::SimulationGrapher(QStringList args, const char* addr, unsigned short port)
     :actionSender(new ActionSender(args, addr, port, this)),
     dataUpdateTimer(new QTimer(this)), counter(0), timeStep(1.0), time(1.0),
     sphereCountSqrt(1), sphereCount(1), dataPoints(2048), data(), temperatures(),
@@ -90,7 +90,7 @@ void SimulationGrapher::timerUpdate()
         {
             if (counter > 1)
             {
-                quint32 lastStepCalculationTime =
+                unsigned int lastStepCalculationTime =
                     actionSender->getLastStepCalculationTime();
                 //qDebug()<<"sphere count:"<<sphereCount;
                 //qDebug()<<"last step calculation time:"<<lastStepCalculationTime;
@@ -98,7 +98,7 @@ void SimulationGrapher::timerUpdate()
             }
             if (counter > 100)
             {
-                for (quint16 i = 0; i<sphereCount; i++)
+                for (unsigned short i = 0; i<sphereCount; i++)
                 {
                     actionSender->removeLastSphere();
                 }
@@ -108,7 +108,7 @@ void SimulationGrapher::timerUpdate()
             else
             {
                 actionSender->removeSomeLastSpheres(sphereCount);
-                sphereCount = (quint16)pow(1.2, counter);
+                sphereCount = (unsigned short)pow(1.2, counter);
                 systemCreator->createMacroscopic2DCollisionSystem(sphereCount);
                 actionSender->calculateStep();
             }
@@ -130,7 +130,7 @@ void SimulationGrapher::timerUpdate()
 
             Sphere s;
             Scalar speed;
-            for (quint16 i = 0; i<sphereCount; i++)
+            for (unsigned short i = 0; i<sphereCount; i++)
             {
                 actionSender->getAllSphereData(i, s);
                 speed = s.speed.norm();
@@ -149,7 +149,7 @@ void SimulationGrapher::timerUpdate()
                 QTextStream stream(&file);
                 file.open(QIODevice::WriteOnly);
                 stream<<0<<"\t"<<0<<"\n";
-                for (quint16 i = 0; i<data.size(); i++)
+                for (unsigned short i = 0; i<data.size(); i++)
                 {
                     stream<<data[i]<<"\t"<<((i+1)*factor)<<"\n";
                 }
@@ -159,7 +159,7 @@ void SimulationGrapher::timerUpdate()
                 QFile file3("./temperatures.txt");
                 QTextStream stream3(&file3);
                 file3.open(QIODevice::WriteOnly);
-                for (quint16 i = 0; i<temperatures.size(); i++)
+                for (unsigned short i = 0; i<temperatures.size(); i++)
                 {
                     stream3<<(i*time/timeStep)<<"\t"<<temperatures[i]<<"\n";
                 }
@@ -170,7 +170,7 @@ void SimulationGrapher::timerUpdate()
             }
             else
             {
-                actionSender->calculateSomeSteps((quint32)(time/timeStep));
+                actionSender->calculateSomeSteps((unsigned int)(time/timeStep));
             }
         }
     }

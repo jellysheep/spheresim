@@ -45,10 +45,10 @@ namespace SphereSim
         ButcherTableau butcherTableau;
 
         /** \brief Number of calculation steps needed for simulation. */
-        quint32 calculationCounter;
+        unsigned int calculationCounter;
 
         /** \brief Number of calculated steps. */
-        quint32 stepCounter;
+        unsigned int stepCounter;
 
         /** \brief Storage for physical constants and other variables. */
         SimulatedSystem* simulatedSystem;
@@ -69,31 +69,31 @@ namespace SphereSim
 
         Vector3 sphereBoxPosition;
 
-        const quint16 cellCount;
+        const unsigned short cellCount;
 
-        const quint32 cellCount3;
+        const unsigned int cellCount3;
 
-        const quint16 maxSpheresPerCell;
+        const unsigned short maxSpheresPerCell;
 
-        const quint16 maxCellsPerSphere;
+        const unsigned short maxCellsPerSphere;
 
-        TwoDimArray<quint16, true> sphereIndicesInCells;
+        TwoDimArray<unsigned short, true> sphereIndicesInCells;
 
-        TwoDimArray<quint32, true> cellIndicesOfSpheres;
+        TwoDimArray<unsigned int, true> cellIndicesOfSpheres;
 
-        const quint16 maxCollidingSpheresPerSphere;
+        const unsigned short maxCollidingSpheresPerSphere;
 
-        TwoDimArray<quint16, true> collidingSpheresPerSphere;
+        TwoDimArray<unsigned short, true> collidingSpheresPerSphere;
 
-        const quint16 gravityCellCount;
+        const unsigned short gravityCellCount;
 
-        const quint32 gravityCellCount3;
+        const unsigned int gravityCellCount3;
 
-        const quint32 gravityAllCellCount;
+        const unsigned int gravityAllCellCount;
 
-        const quint16 maxSpheresPerGravityCell;
+        const unsigned short maxSpheresPerGravityCell;
 
-        TwoDimArray<quint16, true> sphereIndicesInGravityCells;
+        TwoDimArray<unsigned short, true> sphereIndicesInGravityCells;
 
         Vector3 *massVectorSumPerCell;
 
@@ -107,21 +107,21 @@ namespace SphereSim
 
         Vector3 *gravityCellPositions;
 
-        const quint16 maxApproximatingCellsPerGravityCell;
+        const unsigned short maxApproximatingCellsPerGravityCell;
 
-        TwoDimArray<quint32, true> approximatingCellsPerGravityCell;
+        TwoDimArray<unsigned int, true> approximatingCellsPerGravityCell;
 
         TwoDimArray<Vector3, true> approximatingCellsOffsetPerGravityCell;
 
-        const quint16 maxPairwiseCellsPerGravityCell;
+        const unsigned short maxPairwiseCellsPerGravityCell;
 
-        TwoDimArray<quint32, true> pairwiseCellsPerGravityCell;
+        TwoDimArray<unsigned int, true> pairwiseCellsPerGravityCell;
 
-        quint32 *gravityCellIndexOfSpheres;
+        unsigned int *gravityCellIndexOfSpheres;
 
-        quint16 *sphereCountPerGravityCell;
+        unsigned short *sphereCountPerGravityCell;
 
-        quint32 lastStepCalculationTime;
+        unsigned int lastStepCalculationTime;
 
         QElapsedTimer* elapsedTimer;
 
@@ -157,7 +157,7 @@ namespace SphereSim
          * \return Calculated current acceleration of the sphere. */
         template <bool detectCollisions, bool gravity, bool lennardJonesPotential,
             bool periodicBoundaries>
-        Vector3 sphereAcceleration(quint16 sphereIndex, Sphere sphere,
+        Vector3 sphereAcceleration(unsigned short sphereIndex, Sphere sphere,
             Scalar timeDiff);
 
         /** \brief Integrate one step using specified Runge Kutta method. */
@@ -175,8 +175,8 @@ namespace SphereSim
          * \return Number of steps used to integrate. */
         template <bool detectCollisions, bool gravity, bool lennardJonesPotential,
             bool periodicBoundaries>
-        quint32 integrateRungeKuttaStep_internal(quint16 sphereIndex,
-            Scalar stepLength, Scalar timeDiff, quint16 stepDivisionCounter);
+        unsigned int integrateRungeKuttaStep_internal(unsigned short sphereIndex,
+            Scalar stepLength, Scalar timeDiff, unsigned short stepDivisionCounter);
 
         /** \brief Stop the worker. */
         void stopWorker();
@@ -184,7 +184,7 @@ namespace SphereSim
         /** \brief Remove a specific sphere.
          * \param i Index of the sphere to remove.
          * \return Current sphere count. */
-        quint16 removeSphere(quint16 i);
+        unsigned short removeSphere(unsigned short i);
 
         /** \brief Prepare sphere data for a frame. */
         void prepareFrameData();
@@ -201,8 +201,8 @@ namespace SphereSim
 
         void rebuildGravityCellPairs();
 
-        void rebuildGravityCellPairs(quint32 currentCellIndex,
-            quint32 testCellIndex);
+        void rebuildGravityCellPairs(unsigned int currentCellIndex,
+            unsigned int testCellIndex);
 
         void updateGravityCellIndexOfSpheresArray();
 
@@ -218,7 +218,7 @@ namespace SphereSim
 
         void updateSphereWallE();
 
-        quint16 getAndUpdateSphereCount();
+        unsigned short getAndUpdateSphereCount();
 
     public:
         SphereCalculator(ActionReceiver* actRcv, SimulatedSystem* simulatedSystem);
@@ -245,31 +245,31 @@ namespace SphereSim
     public slots:
         /** \copydoc SpheresUpdatingActions::addSphere
          * \return New sphere count. */
-        quint16 addSphere();
+        unsigned short addSphere();
 
         /** \copydoc SpheresUpdatingActions::removeLastSphere
          * \return Current sphere count. */
-        quint16 removeLastSphere();
+        unsigned short removeLastSphere();
 
         /** \copydoc SpheresUpdatingActions::updateSphere
          * \param i Index of the sphere to update.
          * \param s Sphere data to update.
          * \return Current sphere count.
          */
-        quint16 updateSphere(quint16 i, Sphere s);
+        unsigned short updateSphere(unsigned short i, Sphere s);
 
         /** \copydoc SpheresUpdatingActions::getAllSphereData
          * \param i Index of the sphere to get.
          * \return Copy of the requested sphere. */
-        Sphere getAllSphereData(quint16 i);
+        Sphere getAllSphereData(unsigned short i);
 
         /** \copydoc SpheresUpdatingActions::addSomeSpheres
          * \copydetails getSphereCount */
-        quint16 addSomeSpheres(quint16 sphCount);
+        unsigned short addSomeSpheres(unsigned short sphCount);
 
         /** \copydoc SpheresUpdatingActions::removeSomeLastSpheres
          * \copydetails getSphereCount */
-        quint16 removeSomeLastSpheres(quint16 sphCount);
+        unsigned short removeSomeLastSpheres(unsigned short sphCount);
 
         /** \copydoc SpheresUpdatingActions::updateSpherePositionsInBox */
         void updateSpherePositionsInBox(Scalar randomDisplacement,
@@ -279,7 +279,7 @@ namespace SphereSim
          * \param s Sphere data to update.
          * \return Current sphere count.
          */
-        quint16 updateAllSpheres(Sphere s);
+        unsigned short updateAllSpheres(Sphere s);
 
         /** \copydoc SpheresUpdatingActions::updateKineticEnergy
          * \param factor Kinetic energy scale factor. */
@@ -290,11 +290,11 @@ namespace SphereSim
 
         /** \copydoc CalculationActions::popCalculationCounter
          * \return Requested number of force calculations per sphere. */
-        quint32 popCalculationCounter();
+        unsigned int popCalculationCounter();
 
         /** \copydoc CalculationActions::calculateSomeSteps
          * \param steps Number of steps to calculate (0 = unlimited). */
-        void calculateSomeSteps(quint32 steps);
+        void calculateSomeSteps(unsigned int steps);
 
         /** \copydoc CalculationActions::startSimulation */
         void startSimulation();
@@ -304,10 +304,10 @@ namespace SphereSim
 
         /** \copydoc CalculationActions::popStepCounter
          * \return Requested number of calculated steps. */
-        quint32 popStepCounter();
+        unsigned int popStepCounter();
 
         /** \copydoc CalculationActions::getLastStepCalculationTime */
-        quint32 getLastStepCalculationTime();
+        unsigned int getLastStepCalculationTime();
 
         /** \copydoc InformationActions::getTotalEnergy
          * \return Requested total energy. */

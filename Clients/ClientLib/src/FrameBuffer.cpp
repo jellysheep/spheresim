@@ -13,7 +13,7 @@
 using namespace SphereSim;
 
 template <typename T>
-FrameBuffer<T>::FrameBuffer(quint16 bufferSize)
+FrameBuffer<T>::FrameBuffer(unsigned short bufferSize)
     :frames(nullptr), currentReadFrame(nullptr), currentWriteFrame(nullptr),
     bufferSize(bufferSize), elementsPerFrame(0), readIndex(0), writeIndex(0),
     elementReadIndex(0), elementWriteIndex(0), percentageLevel(0),
@@ -23,14 +23,14 @@ FrameBuffer<T>::FrameBuffer(quint16 bufferSize)
 }
 
 template <typename T>
-FrameBuffer<T>::FrameBuffer(quint16 bufferSize_, quint16 elementsPerFrame_)
+FrameBuffer<T>::FrameBuffer(unsigned short bufferSize_, unsigned short elementsPerFrame_)
     :FrameBuffer(bufferSize_)
 {
     elementsPerFrame = elementsPerFrame_;
-    quint32 totalElements = bufferSize*elementsPerFrame;
+    unsigned int totalElements = bufferSize*elementsPerFrame;
     frames = new T[totalElements];
-    currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
-    currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
+    currentReadFrame = &frames[readIndex*(unsigned int)elementsPerFrame];
+    currentWriteFrame = &frames[writeIndex*(unsigned int)elementsPerFrame];
 }
 
 template <typename T>
@@ -43,7 +43,7 @@ FrameBuffer<T>::~FrameBuffer()
 }
 
 template <typename T>
-void FrameBuffer<T>::updateElementsPerFrame(quint16 elementsPerFrame_)
+void FrameBuffer<T>::updateElementsPerFrame(unsigned short elementsPerFrame_)
 {
     if (elementsPerFrame_ != elementsPerFrame)
     {
@@ -52,12 +52,12 @@ void FrameBuffer<T>::updateElementsPerFrame(quint16 elementsPerFrame_)
             delete[] frames;
         }
         elementsPerFrame = elementsPerFrame_;
-        quint32 totalElements = bufferSize*elementsPerFrame;
+        unsigned int totalElements = bufferSize*elementsPerFrame;
         frames = new T[totalElements];
         readIndex = 0;
         writeIndex = 0;
-        currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
-        currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
+        currentReadFrame = &frames[readIndex*(unsigned int)elementsPerFrame];
+        currentWriteFrame = &frames[writeIndex*(unsigned int)elementsPerFrame];
     }
 }
 
@@ -77,10 +77,10 @@ void FrameBuffer<T>::pushFrame()
     if (readIndex == ((writeIndex+1)%bufferSize))
     {
         readIndex = (readIndex+1)%bufferSize;
-        currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
+        currentReadFrame = &frames[readIndex*(unsigned int)elementsPerFrame];
     }
     writeIndex = (writeIndex+1)%bufferSize;
-    currentWriteFrame = &frames[writeIndex*(quint32)elementsPerFrame];
+    currentWriteFrame = &frames[writeIndex*(unsigned int)elementsPerFrame];
     updatePercentageLevel(lastFrameBufferAction == push);
     lastFrameBufferAction = push;
 }
@@ -104,7 +104,7 @@ void FrameBuffer<T>::popFrame()
     if (writeIndex != ((readIndex+1)%bufferSize) && writeIndex != readIndex)
     {
         readIndex = (readIndex+1)%bufferSize;
-        currentReadFrame = &frames[readIndex*(quint32)elementsPerFrame];
+        currentReadFrame = &frames[readIndex*(unsigned int)elementsPerFrame];
         updatePercentageLevel(lastFrameBufferAction == pop);
         lastFrameBufferAction = pop;
     }
@@ -125,14 +125,14 @@ bool FrameBuffer<T>::hasElements()
 }
 
 template <typename T>
-quint16 FrameBuffer<T>::getFrameCount()
+unsigned short FrameBuffer<T>::getFrameCount()
 {
     int frameCount = writeIndex-readIndex;
     if (frameCount<0)
     {
         frameCount += bufferSize;
     }
-    return (quint16) frameCount;
+    return (unsigned short) frameCount;
 }
 
 template <typename T>
@@ -149,7 +149,7 @@ void FrameBuffer<T>::updatePercentageLevel(bool greaterThanHysteresis)
     }
     else
     {
-        percentageLevel = (quint8)((getFrameCount()-1)*100/(bufferSize-2));
+        percentageLevel = (unsigned char)((getFrameCount()-1)*100/(bufferSize-2));
     }
     if (greaterThanHysteresis)
     {
@@ -167,13 +167,13 @@ void FrameBuffer<T>::setActionSender(ActionSender* actSend)
 namespace SphereSim
 {
     template <>
-    void FrameBuffer<quint8>::print()
+    void FrameBuffer<unsigned char>::print()
     {
         Console::out<<"[Framebuffer ("<<bufferSize<<" frames x "
             <<elementsPerFrame<<" elements): \n";
-        for (quint16 i = 0; i<bufferSize; i++)
+        for (unsigned short i = 0; i<bufferSize; i++)
         {
-            for (quint16 j = 0; j<elementsPerFrame; j++)
+            for (unsigned short j = 0; j<elementsPerFrame; j++)
             {
                 Console::out<<frames[i*elementsPerFrame + j]<<"\t";
             }
@@ -184,5 +184,5 @@ namespace SphereSim
 
     template class FrameBuffer<Sphere>;
     template class FrameBuffer<Vector3>;
-    template class FrameBuffer<quint8>;
+    template class FrameBuffer<unsigned char>;
 }

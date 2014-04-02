@@ -36,7 +36,7 @@ void StartDialog::rejected_()
     selected = true;
 }
 
-quint16 StartDialog::getSphereCount()
+unsigned short StartDialog::getSphereCount()
 {
     while (selected == false)
     {

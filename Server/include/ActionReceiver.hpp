@@ -74,7 +74,7 @@ namespace SphereSim
         /** \brief Send encoded data to client.
          * \param serverStatus Server status to be sent.
          * \param data Data to be sent to client. */
-        void sendReply(quint8 serverStatus, QByteArray dataToSend);
+        void sendReply(unsigned char serverStatus, QByteArray dataToSend);
 
         void terminateServer();
     };

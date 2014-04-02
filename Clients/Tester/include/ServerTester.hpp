@@ -32,10 +32,10 @@ namespace SphereSim
         ActionSender* sender;
 
         /** \brief Number of already done tests. */
-        quint16 testCounter;
+        unsigned short testCounter;
 
         /** \brief Number of succeeded tests. */
-        quint16 successCounter;
+        unsigned short successCounter;
 
         /** \brief Success flag of the current test. */
         bool testSuccess;
@@ -47,7 +47,7 @@ namespace SphereSim
         static const int framebuffer;
 
         /** \brief Test result (0: all tests passed, 1 = at least one failed). */
-        quint16 testResult;
+        unsigned short testResult;
 
         SystemCreator* systemCreator;
 
@@ -56,7 +56,7 @@ namespace SphereSim
          * \param args The arguments that the program was invoked with.
          * \param addr The address that the socket will be connecting to.
          * \param port The port that the socket will be connecting to. */
-        ServerTester(QStringList args, const char* addr, quint16 port);
+        ServerTester(QStringList args, const char* addr, unsigned short port);
 
         ~ServerTester();
 
@@ -68,7 +68,7 @@ namespace SphereSim
          * verify the replies.
          * \param actionGroup Group of the actions that will be tested.
          * \param groupName Action group name. Used for console outputs. */
-        void runTests(quint8 actionGroup, const char* groupName);
+        void runTests(unsigned char actionGroup, const char* groupName);
 
         /** \brief Verification of all BasicActions. */
         void runBasicActionTests();
@@ -81,7 +81,7 @@ namespace SphereSim
 
         /** \brief Simulation of a bouncing sphere.
          * \param integratorMethod Name of the used integrator method. */
-        void runCalculationActionTests_internal(quint8 order,
+        void runCalculationActionTests_internal(unsigned char order,
             const char* integratorMethod);
 
         /** \brief Verification of the FrameBuffer. */
@@ -93,7 +93,7 @@ namespace SphereSim
         /** \brief Declaration of different verification methods. */
         #define verifyFunc(name, op, invOp)                 \
         template <typename T1, typename T2>                 \
-        void verify##name(T1 t1, T2 t2, quint16 line,       \
+        void verify##name(T1 t1, T2 t2, unsigned short line,       \
                 const char* nameT1, const char* nameT2)     \
         {                                                   \
             if (testSuccess == false)                       \
@@ -145,7 +145,7 @@ namespace SphereSim
 
         /** \copydoc testResult
          * \return Test result value. */
-        quint16 result();
+        unsigned short result();
 
     public slots:
         /** \brief Verification of all actions. */

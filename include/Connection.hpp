@@ -23,7 +23,7 @@ namespace SphereSim
         /** \brief The address the client is connecting to. */
         extern const char* address;
         /** \brief The port that client and server use. */
-        extern quint16 port;
+        extern unsigned short port;
         /** \brief The byte used to start an encoded request. */
         extern char startByte;
         /** \brief The byte used to end an encoded request. */

@@ -32,25 +32,25 @@ namespace SphereSim
         T *currentWriteFrame;
 
         /** \brief Number of frames in the buffer. */
-        quint16 bufferSize;
+        unsigned short bufferSize;
 
         /** \brief Number of elements per frame. */
-        quint16 elementsPerFrame;
+        unsigned short elementsPerFrame;
 
         /** \brief Index of the currently read frame. */
-        quint16 readIndex;
+        unsigned short readIndex;
 
         /** \brief Index of the currently written frame. */
-        quint16 writeIndex;
+        unsigned short writeIndex;
 
         /** \brief Index of the currently read element. */
-        quint16 elementReadIndex;
+        unsigned short elementReadIndex;
 
         /** \brief Index of the currently written element. */
-        quint16 elementWriteIndex;
+        unsigned short elementWriteIndex;
 
         /** \brief Percentage level of the buffer. */
-        quint8 percentageLevel;
+        unsigned char percentageLevel;
 
         /** \brief Storage of the last push or pop action. */
         enum FrameBufferAction { push, pop } lastFrameBufferAction;
@@ -69,11 +69,11 @@ namespace SphereSim
     public:
         /** \brief Initialize frame buffer.
          * \param bufferSize Number of frames in the buffer. */
-        FrameBuffer(quint16 bufferSize);
+        FrameBuffer(unsigned short bufferSize);
 
         /** \copydoc FrameBuffer
          * \copydetails updateElementsPerFrame */
-        FrameBuffer(quint16 bufferSize, quint16 elementsPerFrame);
+        FrameBuffer(unsigned short bufferSize, unsigned short elementsPerFrame);
 
         /** \brief Clear up member variables. */
         ~FrameBuffer();
@@ -84,7 +84,7 @@ namespace SphereSim
 
         /** \brief Update the number of elements per frame.
          * \param elementsPerFrame Number of elements per frame. */
-        void updateElementsPerFrame(quint16 elementsPerFrame);
+        void updateElementsPerFrame(unsigned short elementsPerFrame);
 
         /** \brief Add a new element to the current frame.
          * \param element Element to add. */
@@ -108,7 +108,7 @@ namespace SphereSim
         void setActionSender(ActionSender* actionSender);
 
         /** \brief Get number of frames in the buffer. */
-        quint16 getFrameCount();
+        unsigned short getFrameCount();
     };
 }
 

@@ -109,7 +109,7 @@ void SimulationWorker::handleBasicAction(WorkQueueItem* workQueueItem)
 
 void SimulationWorker::handleSpheresUpdatingAction(WorkQueueItem* workQueueItem)
 {
-    quint16 i;
+    unsigned short i;
     Sphere s;
     QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
     QByteArray retData;

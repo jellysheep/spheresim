@@ -55,7 +55,7 @@ namespace SphereSim
         QElapsedTimer* controlTimer;
 
         /** \brief Delay (in milliseconds) used for the animation timer. */
-        quint16 sleepTime;
+        unsigned short sleepTime;
 
         /** \brief Sum of last FrameBuffer percentage levels. */
         int frameBufferPercentageLevelSum;
@@ -67,7 +67,7 @@ namespace SphereSim
         bool animating;
 
         /** \brief Number of edges used to render a circle. */
-        const quint16 circleEdges;
+        const unsigned short circleEdges;
 
         /** \brief Vertices used to render a circle. */
         float* circleVertices;

@@ -9,6 +9,7 @@
 * Replaced QList by std::vector and std::list.
 * Updated ActionServer and ActionSender to use C string address parameter.
 * Updated local includes to use double quotes.
+* Replaced Qt integral types by standard types.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

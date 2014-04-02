@@ -44,7 +44,7 @@ namespace SphereSim
          * \param args The arguments that the program was invoked with.
          * \param addr The address that the socket will be connecting to.
          * \param port The port that the socket will be connecting to. */
-        ServerBenchmark(QStringList args, const char* addr, quint16 port);
+        ServerBenchmark(QStringList args, const char* addr, unsigned short port);
 
         ~ServerBenchmark();
 

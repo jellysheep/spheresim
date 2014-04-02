@@ -22,7 +22,7 @@ namespace SphereSim
     {
     public:
         /** \brief Runge-Kutta method order and array size. */
-        quint8 order;
+        unsigned char order;
         /** \brief Central matrix. */
         Scalar a[10][10];
         /** \brief First bottom vector. */
@@ -37,7 +37,7 @@ namespace SphereSim
 
         /** \copydoc ButcherTableau
          * \param order Runge-Kutta method order. */
-        ButcherTableau(quint8 order);
+        ButcherTableau(unsigned char order);
 
         /** \brief Initialization of the Butcher tableau.
          * \param order Runge-Kutta method order and array size.
@@ -45,7 +45,7 @@ namespace SphereSim
          * \param b First bottom vector.
          * \param b_ Second bottom vector.
          * \param c Left vector. */
-        ButcherTableau(quint8 order, const Scalar* a, const Scalar* b,
+        ButcherTableau(unsigned char order, const Scalar* a, const Scalar* b,
             const Scalar* b_, const Scalar* c);
 
         ButcherTableau(const ButcherTableau&) = default;

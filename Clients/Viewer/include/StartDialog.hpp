@@ -29,7 +29,7 @@ namespace SphereSim
 
         bool selected;
 
-        quint16 sphCount;
+        unsigned short sphCount;
 
     public:
         StartDialog();
@@ -37,7 +37,7 @@ namespace SphereSim
         StartDialog(const StartDialog&) = delete;
         StartDialog& operator=(const StartDialog&) = delete;
 
-        quint16 getSphereCount();
+        unsigned short getSphereCount();
 
     public slots:
         void accepted_();

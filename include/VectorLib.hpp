@@ -135,7 +135,7 @@
 
 //floating type and dimension (1 to 4)
 /** \brief Vector calculations. */
-template <typename T, quint8 dim>
+template <typename T, unsigned char dim>
 class LibVector
 {
 public:
@@ -174,7 +174,7 @@ public:
         return w;
     }
 
-    inline T operator()(quint8 index)
+    inline T operator()(unsigned char index)
     {
         switch (index)
         {
@@ -190,7 +190,7 @@ public:
             return x;
         }
     }
-    inline T operator[](quint8 index)
+    inline T operator[](unsigned char index)
     {
         return operator()(index);
     }
@@ -248,13 +248,11 @@ public:
     genType(float, f)
     genType(double, d)
     genType(long double, ld)
-    genType(qint8, c)
-    genType(quint8, uc)
-    genType(qint16, s)
-    genType(quint16, us)
-    genType(qint32, i)
-    genType(quint32, ui)
-    genType(qint64, l)
-    genType(quint64, ul)
+    genType(signed char, c)
+    genType(unsigned char, uc)
+    genType(short, s)
+    genType(unsigned short, us)
+    genType(int, i)
+    genType(unsigned int, ui)
 
 #endif

@@ -35,7 +35,7 @@ using namespace SphereSim;
 
 const int ServerTester::framebuffer = 255;
 
-ServerTester::ServerTester(QStringList args, const char* addr, quint16 port)
+ServerTester::ServerTester(QStringList args, const char* addr, unsigned short port)
     :sender(new ActionSender(args, addr, port, this)), testCounter(0),
     successCounter(0), testSuccess(true), testActionName(), testResult(0),
     systemCreator(new SystemCreator(sender))
@@ -59,7 +59,7 @@ void ServerTester::run()
     qApp->exit(result());
 }
 
-void ServerTester::runTests(quint8 actionGroup, const char* groupName)
+void ServerTester::runTests(unsigned char actionGroup, const char* groupName)
 {
     testCounter = 0;
     successCounter = 0;
@@ -257,18 +257,18 @@ void ServerTester::runCalculationActionTests()
             QTest::qWait(10);
         }
         while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
-        quint32 steps = sender->popCalculationCounter();
+        unsigned int steps = sender->popCalculationCounter();
         Console::out<<"real steps: "<<steps<<" \t";
         verify(steps, Greater, 0);
     endTest();
 }
 
-void ServerTester::runCalculationActionTests_internal(quint8 order,
+void ServerTester::runCalculationActionTests_internal(unsigned char order,
     const char* integratorMethod)
 {
     systemCreator->createSimpleWallCollisionSystem();
 
-    quint16 sphereCount = sender->simulatedSystem->get<int>(
+    unsigned short sphereCount = sender->simulatedSystem->get<int>(
         SimulationVariables::sphereCount);
     verify(sphereCount, Equal, 1);
 
@@ -277,7 +277,7 @@ void ServerTester::runCalculationActionTests_internal(quint8 order,
     Scalar timeStep = 0.02;
     sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
     Scalar simulationTime = 1;
-    quint32 steps = (quint32)(simulationTime/timeStep);
+    unsigned int steps = (unsigned int)(simulationTime/timeStep);
     Scalar beginEnergy, endEnergy;
     beginEnergy = sender->getTotalEnergy();
     sender->calculateSomeSteps(steps);
@@ -291,7 +291,7 @@ void ServerTester::runCalculationActionTests_internal(quint8 order,
     Scalar relError = 1.0-(beginEnergy/endEnergy);
     Console::out<<"rel. error: "<<relError<<" \t";
     Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/steps);
-    quint32 realSteps = sender->popCalculationCounter();
+    unsigned int realSteps = sender->popCalculationCounter();
     Console::out<<"real steps: "<<realSteps<<" \t";
     Scalar integratorWorth = 20-0.1*log(fabs(relError))-log(realSteps);
     Console::out<<"integrator worth: "<<integratorWorth<<" \t";
@@ -323,22 +323,22 @@ void ServerTester::runCalculationActionTests_internal(quint8 order,
 
 void ServerTester::runFrameBufferTests()
 {
-    quint16 bufferSize = 4;
-    quint16 elementsPerFrame = 4;
-    FrameBuffer<quint8> buffer(bufferSize, elementsPerFrame);
-    quint8 element;
+    unsigned short bufferSize = 4;
+    unsigned short elementsPerFrame = 4;
+    FrameBuffer<unsigned char> buffer(bufferSize, elementsPerFrame);
+    unsigned char element;
     startTest_(framebuffer);
-        for (quint8 i = 0; i<bufferSize; i++)
+        for (unsigned char i = 0; i<bufferSize; i++)
         {
-            for (quint8 j = 0; j<elementsPerFrame; j++)
+            for (unsigned char j = 0; j<elementsPerFrame; j++)
             {
-                buffer.pushElement((quint8)(j+i*elementsPerFrame));
+                buffer.pushElement((unsigned char)(j+i*elementsPerFrame));
             }
             buffer.pushFrame();
         }
-        for (quint8 i = 0; i<bufferSize-1; i++)
+        for (unsigned char i = 0; i<bufferSize-1; i++)
         {
-            for (quint8 j = 0; j<elementsPerFrame; j++)
+            for (unsigned char j = 0; j<elementsPerFrame; j++)
             {
                 element = j+(i+1)*elementsPerFrame;
                 verify(buffer.popElement(), Equal, element);
@@ -349,17 +349,17 @@ void ServerTester::runFrameBufferTests()
     startTest_(framebuffer);
         elementsPerFrame = 5;
         buffer.updateElementsPerFrame(elementsPerFrame);
-        for (quint8 i = 0; i<bufferSize; i++)
+        for (unsigned char i = 0; i<bufferSize; i++)
         {
-            for (quint8 j = 0; j<elementsPerFrame; j++)
+            for (unsigned char j = 0; j<elementsPerFrame; j++)
             {
-                buffer.pushElement((quint8)(j+i*elementsPerFrame));
+                buffer.pushElement((unsigned char)(j+i*elementsPerFrame));
             }
             buffer.pushFrame();
         }
-        for (quint8 i = 0; i<bufferSize-1; i++)
+        for (unsigned char i = 0; i<bufferSize-1; i++)
         {
-            for (quint8 j = 0; j<elementsPerFrame; j++)
+            for (unsigned char j = 0; j<elementsPerFrame; j++)
             {
                 element = j+(i+1)*elementsPerFrame;
                 verify(buffer.popElement(), Equal, element);
@@ -390,7 +390,7 @@ void ServerTester::startNewTest(const char* actionName)
     startTest(actionName);
 }
 
-quint16 ServerTester::result()
+unsigned short ServerTester::result()
 {
     return testResult;
 }

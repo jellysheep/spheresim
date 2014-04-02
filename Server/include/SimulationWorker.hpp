@@ -98,7 +98,7 @@ namespace SphereSim
         /** \brief Worker stopped working. */
         void finished();
 
-        void sendReply(quint8 serverStatus, QByteArray data);
+        void sendReply(unsigned char serverStatus, QByteArray data);
 
     };
 

@@ -42,12 +42,12 @@ void WorkQueue::pushItem(WorkQueueItem& item)
     mutex->unlock();
 }
 
-void WorkQueue::pushItem(quint8 actionGroup, quint8 action, QByteArray data)
+void WorkQueue::pushItem(unsigned char actionGroup, unsigned char action, QByteArray data)
 {
     if (actionGroup == ActionGroups::calculation)
     {
         QDataStream stream(&data, QIODevice::ReadOnly);
-        quint32 steps;
+        unsigned int steps;
         bool actionDone = false;
         switch (action)
         {
@@ -78,7 +78,7 @@ void WorkQueue::pushItem(quint8 actionGroup, quint8 action, QByteArray data)
     pushItem(item);
 }
 
-void WorkQueue::pushSimulationSteps(quint32 steps)
+void WorkQueue::pushSimulationSteps(unsigned int steps)
 {
     mutex->lock();
         if (steps == 0)

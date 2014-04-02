@@ -61,14 +61,14 @@ namespace SphereSim
         /** \copydoc InternalConsole
          * \param c Console color.
          * \param f Text formatting. */
-        InternalConsole(quint16 c, quint16 f);
+        InternalConsole(unsigned short c, unsigned short f);
 
         /** \copydoc Color
          * \see Color */
-        quint16 color;
+        unsigned short color;
         /** \copydoc Format
          * \see Format */
-        quint16 font;
+        unsigned short font;
 
         /** \brief Qt console that is used internally to output text. */
         static QTextStream console;

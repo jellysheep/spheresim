@@ -18,21 +18,21 @@ ButcherTableau::ButcherTableau()
 {
 }
 
-ButcherTableau::ButcherTableau(quint8 _order)
+ButcherTableau::ButcherTableau(unsigned char _order)
     :order(_order), a(), b(), b_(), c()
 {
 }
 
-ButcherTableau::ButcherTableau(quint8 _order, const Scalar* _a, const Scalar* _b,
+ButcherTableau::ButcherTableau(unsigned char _order, const Scalar* _a, const Scalar* _b,
     const Scalar* _b_, const Scalar* _c)
     :ButcherTableau(_order)
 {
-    quint16 counter = 0;
+    unsigned short counter = 0;
     Scalar checksum;
-    for (quint8 x = 0; x<order; x++)
+    for (unsigned char x = 0; x<order; x++)
     {
         checksum = 0.0;
-        for (quint8 y = 0; y<order; y++)
+        for (unsigned char y = 0; y<order; y++)
         {
             a[x][y] = _a[counter++];
             checksum += a[x][y];

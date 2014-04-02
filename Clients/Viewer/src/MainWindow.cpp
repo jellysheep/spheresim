@@ -17,8 +17,8 @@
 
 using namespace SphereSim;
 
-MainWindow::MainWindow(QStringList args, const char* addr, quint16 port,
-    quint16 sphCount, QWidget* parent)
+MainWindow::MainWindow(QStringList args, const char* addr, unsigned short port,
+    unsigned short sphCount, QWidget* parent)
     :QMainWindow(parent), ui(new Ui::MainWindow()),
     actionSender(new ActionSender(args, addr, port, this)),
     timer(), boxLength(0), systemToPrepare(3),
@@ -119,7 +119,7 @@ void MainWindow::prepareSystem2()
         SimulationVariables::maximumStepError, 1.0e-12);
 }
 
-void MainWindow::prepareSystem3(quint16 sphCount)
+void MainWindow::prepareSystem3(unsigned short sphCount)
 {
     Scalar length = systemCreator->createArgonGasSystem(sphCount, 473.15);
     qDebug()<<"system box length:"<<length;

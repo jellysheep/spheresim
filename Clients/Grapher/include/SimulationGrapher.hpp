@@ -35,27 +35,27 @@ namespace SphereSim
 
         QTimer* dataUpdateTimer;
 
-        quint32 counter;
+        unsigned int counter;
 
         Scalar timeStep;
 
         Scalar time;
 
-        quint16 sphereCountSqrt;
+        unsigned short sphereCountSqrt;
 
-        quint16 sphereCount;
+        unsigned short sphereCount;
 
-        quint16 dataPoints;
+        unsigned short dataPoints;
 
         std::vector<Scalar> data;
 
         std::vector<Scalar> temperatures;
 
-        quint16 stepsToEquilibrium;
+        unsigned short stepsToEquilibrium;
 
-        quint16 stepsBeforeMeasuring;
+        unsigned short stepsBeforeMeasuring;
 
-        quint8 graphNumber;
+        unsigned char graphNumber;
 
         SystemCreator* systemCreator;
 
@@ -64,7 +64,7 @@ namespace SphereSim
          * \param args The arguments that the program was invoked with.
          * \param addr The address that the socket will be connecting to.
          * \param port The port that the socket will be connecting to. */
-        SimulationGrapher(QStringList args, const char* addr, quint16 port);
+        SimulationGrapher(QStringList args, const char* addr, unsigned short port);
 
         ~SimulationGrapher();
 

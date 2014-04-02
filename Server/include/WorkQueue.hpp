@@ -26,17 +26,17 @@ namespace SphereSim
     {
     public:
         /** \see ActionGroups */
-        quint8 actionGroup;
+        unsigned char actionGroup;
 
         /** \see ActionGroups
          * \see WorkQueueAction */
-        quint8 action;
+        unsigned char action;
 
         /** \brief Any data or parameter for the work item. */
         QByteArray data;
 
         /** \brief Initialize WorkQueueItem. */
-        WorkQueueItem(const quint8 actGrp, const quint8 act,
+        WorkQueueItem(const unsigned char actGrp, const unsigned char act,
             const QByteArray d = QByteArray())
             :actionGroup(actGrp), action(act), data(d)
         {
@@ -70,7 +70,7 @@ namespace SphereSim
         QWaitCondition workCondition;
 
         /** \brief Number of steps to simulate. */
-        quint32 simulationSteps;
+        unsigned int simulationSteps;
 
         /** \brief Flag showing if a continuous simulation is running. */
         bool continuousSimulationRunning;
@@ -102,10 +102,10 @@ namespace SphereSim
         void pushItem(WorkQueueItem& item);
 
         /** \copybrief pushItem */
-        void pushItem(quint8 actionGroup, quint8 action, QByteArray data);
+        void pushItem(unsigned char actionGroup, unsigned char action, QByteArray data);
 
         /** \brief Increase simulation steps (0 = start continuous simulation). */
-        void pushSimulationSteps(quint32 steps);
+        void pushSimulationSteps(unsigned int steps);
 
         /** \brief Return the next work to do and remove it from the queue. */
         WorkQueueItem* popItem();

@@ -16,7 +16,7 @@
 
 using namespace SphereSim;
 
-ServerBenchmark::ServerBenchmark(QStringList args, const char* addr, quint16 port)
+ServerBenchmark::ServerBenchmark(QStringList args, const char* addr, unsigned short port)
     :sender(new ActionSender(args, addr, port, this))
 {
     sender->failureExitWhenDisconnected = true;
@@ -98,12 +98,12 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
     Scalar beginEnergy, endEnergy;
     beginEnergy = sender->getTotalEnergy();
 
-    quint32 stepCounter = 0;
+    unsigned int stepCounter = 0;
     QElapsedTimer timer = QElapsedTimer();
     sender->startSimulation();
     timer.start();
-    quint16 numParts = 100;
-    for (quint16 i = 0; i<numParts; i++)
+    unsigned short numParts = 100;
+    for (unsigned short i = 0; i<numParts; i++)
     {
         QTest::qWait(10*1000/numParts);
         stepCounter += sender->popStepCounter();
@@ -114,7 +114,7 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
     {
         QCoreApplication::processEvents();
     }
-    quint64 elapsedTime = timer.elapsed();
+    unsigned int elapsedTime = timer.elapsed();
     Scalar stepsPerSecond = stepCounter/(elapsedTime*0.001);
     Console::out<<"\rServerBenchmark: simulated steps per second: "
         <<stepsPerSecond<<"\t\t\n";
@@ -134,7 +134,7 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
 
 void ServerBenchmark::runBenchmark_internal2()
 {
-    quint16 sphCount = 512;
+    unsigned short sphCount = 512;
     SystemCreator systemCreator(sender);
     systemCreator.createMacroscopicGravitationSystem(sphCount);
 
@@ -148,7 +148,7 @@ void ServerBenchmark::runBenchmark_internal2()
     QElapsedTimer timer = QElapsedTimer();
     sender->startSimulation();
     timer.start();
-    for (quint16 i = 0; i<100; i++)
+    for (unsigned short i = 0; i<100; i++)
     {
         QTest::qWait(10*1000/100);
         Console::out<<"\rServerBenchmark: progress: "<<(i+1)<<" % ";
@@ -158,12 +158,12 @@ void ServerBenchmark::runBenchmark_internal2()
     {
         QCoreApplication::processEvents();
     }
-    quint64 elapsedTime = timer.elapsed();
-    quint32 stepCounter = sender->popStepCounter();
+    unsigned int elapsedTime = timer.elapsed();
+    unsigned int stepCounter = sender->popStepCounter();
     Scalar stepsPerSecond = stepCounter/(elapsedTime*0.001);
     Console::out<<"\rServerBenchmark: simulated steps per second: "
         <<stepsPerSecond<<"\t\t\n";
-    quint32 calculationCounter = sender->popCalculationCounter();
+    unsigned int calculationCounter = sender->popCalculationCounter();
     Scalar calculationsPerSecond = calculationCounter/(elapsedTime*0.001);
     Console::out<<"\rServerBenchmark: calculations per second: "
         <<calculationsPerSecond<<"\t\t\n";
@@ -177,7 +177,7 @@ void ServerBenchmark::runBenchmark_internal2()
     Scalar relError = 1.0-(beginEnergy/endEnergy);
     Console::out<<"ServerBenchmark: rel. error: "<<relError<<"\n";
 
-    for (quint16 sphCounter = 0; sphCounter<sphCount; sphCounter++)
+    for (unsigned short sphCounter = 0; sphCounter<sphCount; sphCounter++)
     {
         sender->removeLastSphere();
     }

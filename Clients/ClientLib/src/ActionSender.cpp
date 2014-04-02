@@ -18,7 +18,7 @@
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(QStringList args, const char* addr, quint16 port,
+ActionSender::ActionSender(QStringList args, const char* addr, unsigned short port,
     QObject* client)
     :socket(new QTcpSocket()),
     connectedFlag(false), connectionTryCount(0), serverProcess(),
@@ -76,7 +76,7 @@ ActionSender::~ActionSender()
     delete socket;
 }
 
-void ActionSender::sendAction(quint8 actionGroup, quint8 action, QByteArray& arr)
+void ActionSender::sendAction(unsigned char actionGroup, unsigned char action, QByteArray& arr)
 {
     QByteArray data;
     data.append(actionGroup);
@@ -87,13 +87,13 @@ void ActionSender::sendAction(quint8 actionGroup, quint8 action, QByteArray& arr
     data.append(Connection::endByte);
     socket->write(data);
 }
-void ActionSender::sendAction(quint8 actionGroup, quint8 action)
+void ActionSender::sendAction(unsigned char actionGroup, unsigned char action)
 {
     QByteArray arr;
     sendAction(actionGroup, action, arr);
 }
 
-QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action,
+QByteArray ActionSender::sendReplyAction(unsigned char actionGroup, unsigned char action,
     QByteArray& arr)
 {
     sendAction(actionGroup, action, arr);
@@ -105,7 +105,7 @@ QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action,
     return lastServerReplyData;
 }
 
-QByteArray ActionSender::sendReplyAction(quint8 actionGroup, quint8 action)
+QByteArray ActionSender::sendReplyAction(unsigned char actionGroup, unsigned char action)
 {
     QByteArray arr;
     return sendReplyAction(actionGroup, action, arr);
@@ -119,7 +119,7 @@ void ActionSender::readData()
 
 void ActionSender::processData(QByteArray byteArray)
 {
-    qint16 endIndex, startIndex;
+    short endIndex, startIndex;
     endIndex = byteArray.indexOf(Connection::endByte);
     startIndex = byteArray.indexOf(Connection::startByte);
 
@@ -192,12 +192,12 @@ void ActionSender::processReply()
     if (lastServerStatus == ServerStatusReplies::sendFrame)
     {
         QDataStream stream(&data, QIODevice::ReadOnly);
-        quint16 sphCount;
+        unsigned short sphCount;
         stream>>sphCount;
         emit sphereCountChanged(sphCount);
         emit sphereCountChangedDouble((double)sphCount);
         frameBuffer.updateElementsPerFrame(sphCount);
-        quint16 sphereIndex;
+        unsigned short sphereIndex;
         Sphere sphere;
         while (stream.atEnd() == false)
         {
@@ -223,7 +223,7 @@ void ActionSender::processReply()
     }
 }
 
-void ActionSender::updateSphereCount(quint16 sphereCount)
+void ActionSender::updateSphereCount(unsigned short sphereCount)
 {
     frameBuffer.updateElementsPerFrame(sphereCount);
 }
@@ -244,23 +244,23 @@ FrameBuffer<Sphere>* ActionSender::getFrameBuffer()
     return &frameBuffer;
 }
 
-quint16 ActionSender::addSphere()
+unsigned short ActionSender::addSphere()
 {
-    quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating,
+    unsigned short sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating,
         SpheresUpdatingActions::addSphere)).toUInt();
     updateSphereCount(sphereCount);
     return sphereCount;
 }
 
-quint16 ActionSender::removeLastSphere()
+unsigned short ActionSender::removeLastSphere()
 {
-    quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating,
+    unsigned short sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating,
         SpheresUpdatingActions::removeLastSphere)).toUInt();
     updateSphereCount(sphereCount);
     return sphereCount;
 }
 
-void ActionSender::updateSphere(quint16 i, Sphere s)
+void ActionSender::updateSphere(unsigned short i, Sphere s)
 {
     QByteArray arr;
     QDataStream stream(&arr, QIODevice::WriteOnly);
@@ -270,7 +270,7 @@ void ActionSender::updateSphere(quint16 i, Sphere s)
         SpheresUpdatingActions::updateSphere, arr);
 }
 
-void ActionSender::getBasicSphereData(quint16 i, Sphere& s)
+void ActionSender::getBasicSphereData(unsigned short i, Sphere& s)
 {
     QByteArray arr;
     QDataStream stream(&arr, QIODevice::WriteOnly);
@@ -281,7 +281,7 @@ void ActionSender::getBasicSphereData(quint16 i, Sphere& s)
     readBasicSphereData(retStream, s);
 }
 
-void ActionSender::getAllSphereData(quint16 i, Sphere& s)
+void ActionSender::getAllSphereData(unsigned short i, Sphere& s)
 {
     QByteArray arr;
     QDataStream stream(&arr, QIODevice::WriteOnly);
@@ -292,23 +292,23 @@ void ActionSender::getAllSphereData(quint16 i, Sphere& s)
     readAllSphereData(retStream, s);
 }
 
-quint16 ActionSender::addSomeSpheres(quint16 sphCount)
+unsigned short ActionSender::addSomeSpheres(unsigned short sphCount)
 {
     QByteArray arr;
     QDataStream stream(&arr, QIODevice::WriteOnly);
     stream<<sphCount;
-    quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating,
+    unsigned short sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating,
         SpheresUpdatingActions::addSomeSpheres, arr)).toUInt();
     updateSphereCount(sphereCount);
     return sphereCount;
 }
 
-quint16 ActionSender::removeSomeLastSpheres(quint16 sphCount)
+unsigned short ActionSender::removeSomeLastSpheres(unsigned short sphCount)
 {
     QByteArray arr;
     QDataStream stream(&arr, QIODevice::WriteOnly);
     stream<<sphCount;
-    quint16 sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating,
+    unsigned short sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating,
         SpheresUpdatingActions::removeSomeLastSpheres, arr)).toUInt();
     updateSphereCount(sphereCount);
     return sphereCount;
@@ -349,17 +349,17 @@ void ActionSender::calculateStep()
     willBeSimulating();
 }
 
-quint32 ActionSender::popCalculationCounter()
+unsigned int ActionSender::popCalculationCounter()
 {
     QByteArray retArr = sendReplyAction(ActionGroups::calculation,
         CalculationActions::popCalculationCounter);
     QDataStream retStream(&retArr, QIODevice::ReadOnly);
-    quint32 calculationCounter;
+    unsigned int calculationCounter;
     retStream>>calculationCounter;
     return calculationCounter;
 }
 
-void ActionSender::calculateSomeSteps(quint32 steps)
+void ActionSender::calculateSomeSteps(unsigned int steps)
 {
     if (steps <= 0)
     {
@@ -384,22 +384,22 @@ void ActionSender::stopSimulation()
     sendAction(ActionGroups::calculation, CalculationActions::stopSimulation);
 }
 
-quint32 ActionSender::popStepCounter()
+unsigned int ActionSender::popStepCounter()
 {
     QByteArray retArr = sendReplyAction(ActionGroups::calculation,
         CalculationActions::popStepCounter);
     QDataStream retStream(&retArr, QIODevice::ReadOnly);
-    quint32 stepCounter;
+    unsigned int stepCounter;
     retStream>>stepCounter;
     return stepCounter;
 }
 
-quint32 ActionSender::getLastStepCalculationTime()
+unsigned int ActionSender::getLastStepCalculationTime()
 {
     QByteArray retArr = sendReplyAction(ActionGroups::calculation,
         CalculationActions::getLastStepCalculationTime);
     QDataStream retStream(&retArr, QIODevice::ReadOnly);
-    quint32 lastStepCalculationTime;
+    unsigned int lastStepCalculationTime;
     retStream>>lastStepCalculationTime;
     return lastStepCalculationTime;
 }
@@ -457,7 +457,7 @@ void ActionSender::variableUpdated(int var)
 {
     if (var == SimulationVariables::sphereCount)
     {
-        quint16 sphCount =
+        unsigned short sphCount =
             simulatedSystem->get<int>(SimulationVariables::sphereCount);
         emit sphereCountChanged(sphCount);
         emit sphereCountChangedDouble((double)sphCount);

@@ -40,7 +40,7 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
         simulatedSystem->getRef<bool>(SimulationVariables::frameSending))),
     simulationWorker(new SimulationWorker(this, workQueue, actRcv)),
     sphereBoxSize(), sphereBoxPosition(), cellCount(8),
-    cellCount3((quint32)cellCount*cellCount*cellCount),
+    cellCount3((unsigned int)cellCount*cellCount*cellCount),
     maxSpheresPerCell(1024), maxCellsPerSphere(1024),
     sphereIndicesInCells(maxSpheresPerCell, cellCount3),
     cellIndicesOfSpheres(maxCellsPerSphere), maxCollidingSpheresPerSphere(300),
@@ -104,7 +104,7 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
 {
     qDebug()<<"SphereCalculator: constructor called";
 #if NO_OPENMP != 1
-    quint16 ompThreads = 0;
+    unsigned short ompThreads = 0;
     _Pragma("omp parallel")
     _Pragma("omp atomic")
     ompThreads++;
@@ -118,7 +118,7 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
     gravityCellSizes = new Vector3[gravityAllCellCount];
     gravityCellHalfDiagonalLength = new Scalar[gravityAllCellCount];
     gravityCellPositions = new Vector3[gravityAllCellCount];
-    sphereCountPerGravityCell = new quint16[gravityAllCellCount];
+    sphereCountPerGravityCell = new unsigned short[gravityAllCellCount];
     updateGravityCellIndexOfSpheresArray();
     buildGravityCells();
     rebuildGravityCellPairs();
@@ -143,8 +143,8 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
         simulationWorker, SLOT(stop()));
     QObject::connect(this, SIGNAL(requestingWorkerStop()),
         workQueue, SLOT(stop()));
-    QObject::connect(simulationWorker, SIGNAL(sendReply(quint8, QByteArray)),
-        actRcv, SLOT(sendReply(quint8, QByteArray)));
+    QObject::connect(simulationWorker, SIGNAL(sendReply(unsigned char, QByteArray)),
+        actRcv, SLOT(sendReply(unsigned char, QByteArray)));
     simulationThread->start();
 }
 
@@ -173,7 +173,7 @@ WorkQueue* SphereCalculator::getWorkQueue()
     return workQueue;
 }
 
-quint16 SphereCalculator::getAndUpdateSphereCount()
+unsigned short SphereCalculator::getAndUpdateSphereCount()
 {
     simulatedSystem->set<int>(SimulationVariables::sphereCount, spheres.size());
     return spheres.size();
@@ -181,16 +181,16 @@ quint16 SphereCalculator::getAndUpdateSphereCount()
 
 template <bool detectCollisions, bool gravity, bool lennardJonesPotential,
     bool periodicBoundaries>
-Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
+Vector3 SphereCalculator::sphereAcceleration(unsigned short sphereIndex, Sphere sphere,
     Scalar timeDiff)
 {
     Scalar d, forceNormalized;
     Vector3 force, acc, dVec, dNormalized;
-    quint16 sphereIndex2;
+    unsigned short sphereIndex2;
     Sphere sphere2;
 
     force = earthGravity*sphere.mass;
-    for (quint8 dim = 0; dim<3; dim++)
+    for (unsigned char dim = 0; dim<3; dim++)
     {
         if ((d = (sphere.radius - sphere.pos(dim))) > 0)
         {
@@ -205,7 +205,7 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
     }
     if (detectCollisions)
     {
-        quint32 cellIndex;
+        unsigned int cellIndex;
         Scalar bothRadii, dOverlapping, R;
         collidingSpheresPerSphere.resetCounter(sphereIndex);
         for (int i = cellIndicesOfSpheres.getCounter(sphereIndex)-1; i>=0; i--)
@@ -242,9 +242,9 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
 
     if (gravity || lennardJonesPotential)
     {
-        quint32 gravityCellIndex = gravityCellCount3
+        unsigned int gravityCellIndex = gravityCellCount3
             + gravityCellIndexOfSpheres[sphereIndex];
-        quint32 gravityCellIndex2;
+        unsigned int gravityCellIndex2;
 
         Vector3 sphereOffset;
         Vector3 sphereTestPos;
@@ -273,7 +273,7 @@ Vector3 SphereCalculator::sphereAcceleration(quint16 sphereIndex, Sphere sphere,
                     dVec = sphere2.pos-sphere.pos;
                     d = dVec.norm();
                     sphereTestPos = sphere2.pos;
-                    for (quint8 dim = 0; dim<3; dim++)
+                    for (unsigned char dim = 0; dim<3; dim++)
                     {
                         sphereTestPos2 = sphereTestPos;
                         sphereTestPos2(dim) += boxSize(dim);
@@ -374,13 +374,13 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 
     Scalar totalEnergy = 0.0, sphereEnergy, d;
     Sphere sphere;
-    for (quint16 sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
+    for (unsigned short sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
     {
         sphere = spheres[sphereIndex];
         sphereEnergy = -sphere.mass*earthGravity.dot(sphere.pos);
         sphereEnergy += 0.5*sphere.mass*sphere.speed.squaredNorm();
 
-        for (quint8 dim = 0; dim<3; dim++)
+        for (unsigned char dim = 0; dim<3; dim++)
         {
             if ((d = (sphere.radius - sphere.pos(dim))) > 0)
             {
@@ -394,8 +394,8 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 
         if (detectCollisions)
         {
-            quint32 cellIndex;
-            quint16 sphereIndex2;
+            unsigned int cellIndex;
+            unsigned short sphereIndex2;
             Sphere sphere2;
             Vector3 dVec;
             Scalar d, bothRadii, dOverlapping, R, energy;
@@ -431,10 +431,10 @@ Scalar SphereCalculator::getTotalEnergy_internal()
 
         if (gravity || lennardJonesPotential)
         {
-            quint32 gravityCellIndex = gravityCellCount3
+            unsigned int gravityCellIndex = gravityCellCount3
                 + gravityCellIndexOfSpheres[sphereIndex];
-            quint32 gravityCellIndex2;
-            quint16 sphereIndex2;
+            unsigned int gravityCellIndex2;
+            unsigned short sphereIndex2;
             Sphere sphere2;
             Vector3 dVec;
             for (int i = pairwiseCellsPerGravityCell.getCounter(gravityCellIndex)-1;
@@ -630,7 +630,7 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
         updateGravityCellData();
     }
     _Pragma("omp parallel for schedule(dynamic,1)")
-    for (quint16 sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
+    for (unsigned short sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
     {
         newSpherePos[sphereIndex] = spheres[sphereIndex].pos;
         integrateRungeKuttaStep_internal<detectCollisions, gravity,
@@ -638,12 +638,12 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
             0.0, 0);
     }
     _Pragma("omp parallel for schedule(dynamic,1)")
-    for (quint16 sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
+    for (unsigned short sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
     {
         if (periodicBoundaries)
         {
             Vector3 pos = newSpherePos[sphereIndex];
-            for (quint8 dim = 0; dim<3; dim++)
+            for (unsigned char dim = 0; dim<3; dim++)
             {
                 if (pos(dim) > boxSize(dim))
                 {
@@ -666,23 +666,23 @@ void SphereCalculator::integrateRungeKuttaStep_internal()
 
 template <bool detectCollisions, bool gravity, bool lennardJonesPotential,
     bool periodicBoundaries>
-quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex,
-    Scalar stepLength, Scalar timeDiff, quint16 stepDivisionCounter)
+unsigned int SphereCalculator::integrateRungeKuttaStep_internal(unsigned short sphereIndex,
+    Scalar stepLength, Scalar timeDiff, unsigned short stepDivisionCounter)
 {
     Sphere sphere = spheres[sphereIndex];
     sphere.pos = newSpherePos[sphereIndex];
     Sphere origSphere = sphere;
-    const quint8 integratorOrder = butcherTableau.order;
+    const unsigned char integratorOrder = butcherTableau.order;
     Vector3 k_acc[integratorOrder];
     Vector3 k_speed[integratorOrder];
 
     k_acc[0] = sphereAcceleration<detectCollisions, gravity, lennardJonesPotential,
         periodicBoundaries>(sphereIndex, sphere, timeDiff);
     k_speed[0] = sphere.speed;
-    for (quint8 n = 1; n<integratorOrder; n++)
+    for (unsigned char n = 1; n<integratorOrder; n++)
     {
         sphere.pos = origSphere.pos;
-        for (quint8 j = 0; j<n; j++)
+        for (unsigned char j = 0; j<n; j++)
         {
             sphere.pos += stepLength*butcherTableau.a[n][j]*k_speed[j];
         }
@@ -691,7 +691,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex,
             timeDiff);
 
         k_speed[n] = origSphere.speed;
-        for (quint8 j = 0; j<n; j++)
+        for (unsigned char j = 0; j<n; j++)
         {
             k_speed[n] += stepLength*butcherTableau.a[n][j]*k_acc[j];
         }
@@ -701,7 +701,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex,
     Vector3 pos_ = pos;
     Vector3 speed = origSphere.speed;
     Vector3 speed_ = speed;
-    for (quint8 j = 0; j<integratorOrder; j++)
+    for (unsigned char j = 0; j<integratorOrder; j++)
     {
         pos += stepLength*butcherTableau.b[j]*k_speed[j];
         pos_ += stepLength*butcherTableau.b_[j]*k_speed[j];
@@ -718,7 +718,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex,
         if (error_pos_ > dPos*maximumStepError
             || error_speed_ > dSpeed*maximumStepError)
         {
-            quint32 stepCount = 0;
+            unsigned int stepCount = 0;
             stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity,
                 lennardJonesPotential, periodicBoundaries>(sphereIndex, stepLength/2,
                 timeDiff, stepDivisionCounter+1);
@@ -734,7 +734,7 @@ quint32 SphereCalculator::integrateRungeKuttaStep_internal(quint16 sphereIndex,
     return 1;
 }
 
-quint16 SphereCalculator::removeSphere(quint16 i)
+unsigned short SphereCalculator::removeSphere(unsigned short i)
 {
     if (spheres.size()>i)
     {
@@ -756,8 +756,8 @@ void SphereCalculator::prepareFrameData()
 {
     QByteArray frameData;
     QDataStream dataStream(&frameData, QIODevice::WriteOnly);
-    dataStream<<(quint16)spheres.size();
-    for (quint16 i = 0; i<spheres.size(); i++)
+    dataStream<<(unsigned short)spheres.size();
+    for (unsigned short i = 0; i<spheres.size(); i++)
     {
         dataStream<<i;
         writeBasicSphereData(dataStream, spheres[i]);
@@ -772,7 +772,7 @@ void SphereCalculator::updateSphereBox()
         Vector3 pos = spheres[0].pos;
         Scalar radius;
         Vector3 maxPos = pos, minPos = pos;
-        for (quint16 i = 1; i<spheres.size(); i++)
+        for (unsigned short i = 1; i<spheres.size(); i++)
         {
             pos = spheres[i].pos;
             radius = spheres[i].radius;
@@ -813,16 +813,16 @@ void SphereCalculator::updateSphereBox()
 
 void SphereCalculator::updateSphereCellLists()
 {
-    for (quint32 i = 0; i<cellCount3; i++)
+    for (unsigned int i = 0; i<cellCount3; i++)
     {
         sphereIndicesInCells.resetCounter(i);
     }
-    quint16 indexMinX, indexMinY, indexMinZ;
-    quint16 indexMaxX, indexMaxY, indexMaxZ;
-    quint32 indexAll;
+    unsigned short indexMinX, indexMinY, indexMinZ;
+    unsigned short indexMaxX, indexMaxY, indexMaxZ;
+    unsigned int indexAll;
     Scalar value, pos;
     Sphere s;
-    for (quint16 i = 0; i<spheres.size(); i++)
+    for (unsigned short i = 0; i<spheres.size(); i++)
     {
         s = spheres[i];
         cellIndicesOfSpheres.resetCounter(i);
@@ -831,28 +831,28 @@ void SphereCalculator::updateSphereCellLists()
         pos = fmin(pos, pos + timeStep*s.speed(0));
         pos = fmin(pos, pos + 0.5*s.acc(0)*timeStep*timeStep);
         value = (pos-sphereBoxPosition(0)-s.radius)/sphereBoxSize(0);
-        indexMinX = (quint16)(value*cellCount);
+        indexMinX = (unsigned short)(value*cellCount);
         indexMinX = (indexMinX<cellCount?indexMinX:cellCount-1);
 
         pos = s.pos(1);
         pos = fmin(pos, pos + timeStep*s.speed(1));
         pos = fmin(pos, pos + 0.5*s.acc(1)*timeStep*timeStep);
         value = (pos-sphereBoxPosition(1)-s.radius)/sphereBoxSize(1);
-        indexMinY = (quint16)(value*cellCount);
+        indexMinY = (unsigned short)(value*cellCount);
         indexMinY = (indexMinY<cellCount?indexMinY:cellCount-1);
 
         pos = s.pos(2);
         pos = fmin(pos, pos + timeStep*s.speed(2));
         pos = fmin(pos, pos + 0.5*s.acc(2)*timeStep*timeStep);
         value = (pos-sphereBoxPosition(2)-s.radius)/sphereBoxSize(2);
-        indexMinZ = (quint16)(value*cellCount);
+        indexMinZ = (unsigned short)(value*cellCount);
         indexMinZ = (indexMinZ<cellCount?indexMinZ:cellCount-1);
 
         pos = s.pos(0);
         pos = fmax(pos, pos + timeStep*s.speed(0));
         pos = fmax(pos, pos + 0.5*s.acc(0)*timeStep*timeStep);
         value = (pos-sphereBoxPosition(0)+s.radius)/sphereBoxSize(0);
-        indexMaxX = (quint16)(value*cellCount);
+        indexMaxX = (unsigned short)(value*cellCount);
         indexMaxX = (indexMaxX<cellCount?indexMaxX:cellCount-1);
         indexMaxX = (indexMaxX<indexMinX?indexMinX:indexMaxX);
 
@@ -860,7 +860,7 @@ void SphereCalculator::updateSphereCellLists()
         pos = fmax(pos, pos + timeStep*s.speed(1));
         pos = fmax(pos, pos + 0.5*s.acc(1)*timeStep*timeStep);
         value = (pos-sphereBoxPosition(1)+s.radius)/sphereBoxSize(1);
-        indexMaxY = (quint16)(value*cellCount);
+        indexMaxY = (unsigned short)(value*cellCount);
         indexMaxY = (indexMaxY<cellCount?indexMaxY:cellCount-1);
         indexMaxY = (indexMaxY<indexMinY?indexMinY:indexMaxY);
 
@@ -868,15 +868,15 @@ void SphereCalculator::updateSphereCellLists()
         pos = fmax(pos, pos + timeStep*s.speed(2));
         pos = fmax(pos, pos + 0.5*s.acc(2)*timeStep*timeStep);
         value = (pos-sphereBoxPosition(2)+s.radius)/sphereBoxSize(2);
-        indexMaxZ = (quint16)(value*cellCount);
+        indexMaxZ = (unsigned short)(value*cellCount);
         indexMaxZ = (indexMaxZ<cellCount?indexMaxZ:cellCount-1);
         indexMaxZ = (indexMaxZ<indexMinZ?indexMinZ:indexMaxZ);
 
-        for (quint16 z = indexMinZ; z<=indexMaxZ; z++)
+        for (unsigned short z = indexMinZ; z<=indexMaxZ; z++)
         {
-            for (quint16 y = indexMinY; y<=indexMaxY; y++)
+            for (unsigned short y = indexMinY; y<=indexMaxY; y++)
             {
-                for (quint16 x = indexMinX; x<=indexMaxX; x++)
+                for (unsigned short x = indexMinX; x<=indexMaxX; x++)
                 {
                     indexAll = z*cellCount*cellCount + y*cellCount + x;
                     sphereIndicesInCells.addElement(indexAll, i);
@@ -889,25 +889,25 @@ void SphereCalculator::updateSphereCellLists()
 
 void SphereCalculator::updateSphereGravityCellLists()
 {
-    for (quint32 i = 0; i<gravityCellCount3; i++)
+    for (unsigned int i = 0; i<gravityCellCount3; i++)
     {
         sphereIndicesInGravityCells.resetCounter(i);
     }
-    quint16 indexX, indexY, indexZ;
-    quint32 indexAll;
+    unsigned short indexX, indexY, indexZ;
+    unsigned int indexAll;
     Vector3 pos;
     Scalar value;
-    for (quint16 i = 0; i<spheres.size(); i++)
+    for (unsigned short i = 0; i<spheres.size(); i++)
     {
         pos = spheres[i].pos;
         value = (pos(0)-sphereBoxPosition(0))/sphereBoxSize(0);
-        indexX = (quint16)(value*gravityCellCount);
+        indexX = (unsigned short)(value*gravityCellCount);
         indexX = (indexX<gravityCellCount?indexX:gravityCellCount-1);
         value = (pos(1)-sphereBoxPosition(1))/sphereBoxSize(1);
-        indexY = (quint16)(value*gravityCellCount);
+        indexY = (unsigned short)(value*gravityCellCount);
         indexY = (indexY<gravityCellCount?indexY:gravityCellCount-1);
         value = (pos(2)-sphereBoxPosition(2))/sphereBoxSize(2);
-        indexZ = (quint16)(value*gravityCellCount);
+        indexZ = (unsigned short)(value*gravityCellCount);
         indexZ = (indexZ<gravityCellCount?indexZ:gravityCellCount-1);
         indexAll = indexZ*gravityCellCount*gravityCellCount
             + indexY*gravityCellCount + indexX;
@@ -918,7 +918,7 @@ void SphereCalculator::updateSphereGravityCellLists()
 
 void SphereCalculator::buildGravityCells()
 {
-    quint32 cellIndex;
+    unsigned int cellIndex;
     Scalar cellLength = 1.0/gravityCellCount;
     for (unsigned int x = 0; x < gravityCellCount; x++)
     {
@@ -935,13 +935,13 @@ void SphereCalculator::buildGravityCells()
             }
         }
     }
-    quint8 divisionDimension;
+    unsigned char divisionDimension;
     for (cellIndex = gravityAllCellCount-1; cellIndex >= 1; cellIndex--)
     {
         if (cellIndex < gravityCellCount3)
         {
             divisionDimension = 0;
-            for (quint32 j = cellIndex; j>1; j/=2)
+            for (unsigned int j = cellIndex; j>1; j/=2)
             {
                 divisionDimension++;
             }
@@ -961,7 +961,7 @@ void SphereCalculator::buildGravityCells()
 
 void SphereCalculator::rebuildGravityCellPairs()
 {
-    for (quint32 cellIndex = gravityAllCellCount-1; cellIndex >= 1; cellIndex--)
+    for (unsigned int cellIndex = gravityAllCellCount-1; cellIndex >= 1; cellIndex--)
     {
         if (cellIndex >= gravityCellCount3)
         {
@@ -973,8 +973,8 @@ void SphereCalculator::rebuildGravityCellPairs()
     }
 }
 
-void SphereCalculator::rebuildGravityCellPairs(quint32 currentCellIndex,
-    quint32 testCellIndex)
+void SphereCalculator::rebuildGravityCellPairs(unsigned int currentCellIndex,
+    unsigned int testCellIndex)
 {
     if (periodicBoundaryConditions)
     {
@@ -997,7 +997,7 @@ void SphereCalculator::rebuildGravityCellPairs(quint32 currentCellIndex,
     }
     else
     {
-        quint32 index = currentCellIndex;
+        unsigned int index = currentCellIndex;
         while (index > testCellIndex)
         {
             index /= 2;
@@ -1017,9 +1017,9 @@ void SphereCalculator::rebuildGravityCellPairs(quint32 currentCellIndex,
     {
         Scalar cellDistance = (testCellPos-currentCellPos).norm(), newCellDistance;
         Vector3 modifiedTestCellPos;
-        for (quint8 i = 0; i<6; i++)
+        for (unsigned char i = 0; i<6; i++)
         {
-            quint8 dim = i/2;
+            unsigned char dim = i/2;
             modifiedTestCellPos = testCellPos + testCellOffset;
             modifiedTestCellPos(dim) += (dim%2==0?1:-1)*simulatedSystem
                 ->get<Vector3>(SimulationVariables::boxSize)(dim);
@@ -1066,23 +1066,23 @@ void SphereCalculator::updateGravityCellIndexOfSpheresArray()
         delete[] gravityCellIndexOfSpheres;
     }
     gravityCellIndexOfSpheres = nullptr;
-    quint16 count = spheres.size();
+    unsigned short count = spheres.size();
     if (count > 0)
     {
-        gravityCellIndexOfSpheres = new quint32[count];
+        gravityCellIndexOfSpheres = new unsigned int[count];
     }
 }
 
 void SphereCalculator::updateGravityCellData()
 {
-    quint32 cellIndex;
+    unsigned int cellIndex;
     for (cellIndex = 0; cellIndex<gravityAllCellCount; cellIndex++)
     {
         massVectorSumPerCell[cellIndex].setZero();
         massSumPerCell[cellIndex] = 0;
         sphereCountPerGravityCell[cellIndex] = 0;
     }
-    quint32 sphereIndex;
+    unsigned int sphereIndex;
     Sphere s;
     for (sphereIndex = 0; sphereIndex<spheres.size(); sphereIndex++)
     {
@@ -1092,7 +1092,7 @@ void SphereCalculator::updateGravityCellData()
         massSumPerCell[cellIndex] += s.mass;
         sphereCountPerGravityCell[cellIndex]++;
     }
-    quint32 parentCellIndex;
+    unsigned int parentCellIndex;
     for (cellIndex = gravityAllCellCount-1; cellIndex > 1; cellIndex--)
     {
         if (massSumPerCell[cellIndex] != 0)
@@ -1109,7 +1109,7 @@ void SphereCalculator::updateGravityCellData()
     }
 }
 
-quint16 SphereCalculator::addSphere()
+unsigned short SphereCalculator::addSphere()
 {
     spheres.push_back(Sphere());
     newSpherePos.push_back(Vector3());
@@ -1120,7 +1120,7 @@ quint16 SphereCalculator::addSphere()
     return getAndUpdateSphereCount();
 }
 
-quint16 SphereCalculator::removeLastSphere()
+unsigned short SphereCalculator::removeLastSphere()
 {
     if (spheres.size()>0)
     {
@@ -1132,7 +1132,7 @@ quint16 SphereCalculator::removeLastSphere()
     }
 }
 
-quint16 SphereCalculator::updateSphere(quint16 i, Sphere s)
+unsigned short SphereCalculator::updateSphere(unsigned short i, Sphere s)
 {
     if (spheres.size()>i)
     {
@@ -1142,7 +1142,7 @@ quint16 SphereCalculator::updateSphere(quint16 i, Sphere s)
     return spheres.size();
 }
 
-Sphere SphereCalculator::getAllSphereData(quint16 i)
+Sphere SphereCalculator::getAllSphereData(unsigned short i)
 {
     if (spheres.size()>i)
     {
@@ -1154,7 +1154,7 @@ Sphere SphereCalculator::getAllSphereData(quint16 i)
     }
 }
 
-quint16 SphereCalculator::addSomeSpheres(quint16 count)
+unsigned short SphereCalculator::addSomeSpheres(unsigned short count)
 {
     /*spheres.insert(spheres.size()-1, spheres.size(), Sphere());
     newSpherePos.insert(newSpherePos.size()-1, spheres.size(), Vector3());
@@ -1163,16 +1163,16 @@ quint16 SphereCalculator::addSomeSpheres(quint16 count)
     updateGravityCellIndexOfSpheresArray();
     workQueue->sendFrameData();
     return spheres.size();*/
-    for (quint16 i = 0; i<count; i++)
+    for (unsigned short i = 0; i<count; i++)
     {
         addSphere();
     }
     return spheres.size();
 }
 
-quint16 SphereCalculator::removeSomeLastSpheres(quint16 count)
+unsigned short SphereCalculator::removeSomeLastSpheres(unsigned short count)
 {
-    for (quint16 i = 0; i<count; i++)
+    for (unsigned short i = 0; i<count; i++)
     {
         removeLastSphere();
     }
@@ -1182,7 +1182,7 @@ quint16 SphereCalculator::removeSomeLastSpheres(quint16 count)
 void SphereCalculator::updateSpherePositionsInBox(Scalar randomDisplacement,
     Scalar randomSpeed)
 {
-    quint16 sphereCount1D = (quint16)ceil(pow(spheres.size(), 1/3.0));
+    unsigned short sphereCount1D = (unsigned short)ceil(pow(spheres.size(), 1/3.0));
 
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
     std::chrono::system_clock::duration timepoint = now.time_since_epoch();
@@ -1201,7 +1201,7 @@ void SphereCalculator::updateSpherePositionsInBox(Scalar randomDisplacement,
         s.pos(2) += boxSize(2)/sphereCount1D
             *((sphereCount1D-1)/2.0-((i/sphereCount1D)/sphereCount1D));
         s.speed.setZero();
-        for (quint8 dim = 0; dim<3; dim++)
+        for (unsigned char dim = 0; dim<3; dim++)
         {
             s.pos(dim) += s.radius*randomDisplacement*distribution(generator);
             s.speed(dim) += s.radius*randomSpeed*distribution(generator);
@@ -1210,9 +1210,9 @@ void SphereCalculator::updateSpherePositionsInBox(Scalar randomDisplacement,
     qDebug()<<"SphereCalculator: updateSpherePositionsInBox finished.";
 }
 
-quint16 SphereCalculator::updateAllSpheres(Sphere s)
+unsigned short SphereCalculator::updateAllSpheres(Sphere s)
 {
-    for (quint16 i = 0; i<spheres.size(); i++)
+    for (unsigned short i = 0; i<spheres.size(); i++)
     {
         spheres[i] = s;
     }
@@ -1227,7 +1227,7 @@ void SphereCalculator::calculateStep()
 
 void SphereCalculator::updateIntegratorMethod()
 {
-    quint8 integrMethod = integratorMethod;
+    unsigned char integrMethod = integratorMethod;
 
     if (integrMethod == IntegratorMethods::HeunEuler21)
     {
@@ -1368,11 +1368,11 @@ void SphereCalculator::updateIntegratorMethod()
     }
 }
 
-quint32 SphereCalculator::popCalculationCounter()
+unsigned int SphereCalculator::popCalculationCounter()
 {
     if (spheres.size()>0)
     {
-        quint32 counter = calculationCounter/spheres.size();
+        unsigned int counter = calculationCounter/spheres.size();
         calculationCounter = 0;
         return counter;
     }
@@ -1382,7 +1382,7 @@ quint32 SphereCalculator::popCalculationCounter()
     }
 }
 
-void SphereCalculator::calculateSomeSteps(quint32 steps)
+void SphereCalculator::calculateSomeSteps(unsigned int steps)
 {
     workQueue->pushSimulationSteps(steps);
 }
@@ -1397,14 +1397,14 @@ void SphereCalculator::stopSimulation()
     emit requestingSimulationStop();
 }
 
-quint32 SphereCalculator::popStepCounter()
+unsigned int SphereCalculator::popStepCounter()
 {
-    quint32 counter = stepCounter;
+    unsigned int counter = stepCounter;
     stepCounter = 0;
     return counter;
 }
 
-quint32 SphereCalculator::getLastStepCalculationTime()
+unsigned int SphereCalculator::getLastStepCalculationTime()
 {
     return lastStepCalculationTime;
 }
@@ -1523,7 +1523,7 @@ Scalar SphereCalculator::getKineticEnergy()
 {
     Scalar totalEnergy = 0.0, sphereEnergy;
     Sphere sphere;
-    for (quint16 sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
+    for (unsigned short sphereIndex = 0; sphereIndex<spheres.size(); ++sphereIndex)
     {
         sphere = spheres[sphereIndex];
         sphereEnergy = 0.5*sphere.mass*sphere.speed.squaredNorm();
@@ -1535,7 +1535,7 @@ Scalar SphereCalculator::getKineticEnergy()
 void SphereCalculator::updateKineticEnergy(Scalar factor)
 {
     factor = sqrt(factor);
-    for (quint16 sphereIndex = 0; sphereIndex<spheres.size(); sphereIndex++)
+    for (unsigned short sphereIndex = 0; sphereIndex<spheres.size(); sphereIndex++)
     {
         spheres[sphereIndex].speed *= factor;
     }

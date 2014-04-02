@@ -37,7 +37,7 @@ namespace SphereSim
         bool connectedFlag;
 
         /** \brief Number of server connection tries. */
-        quint16 connectionTryCount;
+        unsigned short connectionTryCount;
 
         /** \brief Process of the automatically started server. */
         QProcess serverProcess;
@@ -49,7 +49,7 @@ namespace SphereSim
         FrameBuffer<Sphere> frameBuffer;
 
         /** \brief Last received server status. */
-        quint8 lastServerStatus;
+        unsigned char lastServerStatus;
 
         /** \brief Flag for server replies. */
         bool receivedServerReply;
@@ -68,7 +68,7 @@ namespace SphereSim
         QElapsedTimer framerateTimer;
 
         /** \brief Number of received frames since last counter reset. */
-        quint32 frameCounter;
+        unsigned int frameCounter;
 
         /** \brief Measured rate of received frames per second. */
         Scalar receivedFramesPerSecond;
@@ -83,26 +83,26 @@ namespace SphereSim
         /** \brief Send an action request to the server.
          * \param actionGroup Group of the requested action.
          * \param action Requested action. */
-        void sendAction(quint8 actionGroup, quint8 action);
+        void sendAction(unsigned char actionGroup, unsigned char action);
 
         /** \copydoc sendAction
          * \param data Data that will be sent with the action request. */
-        void sendAction(quint8 actionGroup, quint8 action, QByteArray& data);
+        void sendAction(unsigned char actionGroup, unsigned char action, QByteArray& data);
 
         /** \brief Send an action request to the server and return server reply.
          * \return Reply data from the server.
          * \param actionGroup Group of the requested action.
          * \param action Requested action. */
-        QByteArray sendReplyAction(quint8 actionGroup, quint8 action);
+        QByteArray sendReplyAction(unsigned char actionGroup, unsigned char action);
 
         /** \copydoc sendReplyAction
          * \param data Data that will be sent with the action request. */
-        QByteArray sendReplyAction(quint8 actionGroup, quint8 action,
+        QByteArray sendReplyAction(unsigned char actionGroup, unsigned char action,
             QByteArray& data);
 
         /** \brief Update sphere number and resize frame buffer.
          * \param sphereCount Number of spheres. */
-        void updateSphereCount(quint16 sphereCount);
+        void updateSphereCount(unsigned short sphereCount);
 
         void willBeSimulating();
 
@@ -111,7 +111,7 @@ namespace SphereSim
          * \param args The arguments that the program was invoked with.
          * \param addr The address that the socket will be connecting to.
          * \param port The port that the socket will be connecting to. */
-        ActionSender(QStringList args, const char* addr, quint16 port,
+        ActionSender(QStringList args, const char* addr, unsigned short port,
             QObject* client);
 
         ~ActionSender();
@@ -133,23 +133,23 @@ namespace SphereSim
         /** \copydoc SpheresUpdatingActions::updateSphere
          * \param i Sphere index.
          * \param s Sphere data. */
-        void updateSphere(quint16 i, Sphere s);
+        void updateSphere(unsigned short i, Sphere s);
 
         /** \copydoc SpheresUpdatingActions::getBasicSphereData
          * \copydetails updateSphere */
-        void getBasicSphereData(quint16 i, Sphere& s);
+        void getBasicSphereData(unsigned short i, Sphere& s);
 
         /** \copydoc SpheresUpdatingActions::getAllSphereData
          * \copydetails updateSphere */
-        void getAllSphereData(quint16 i, Sphere& s);
+        void getAllSphereData(unsigned short i, Sphere& s);
 
         /** \copydoc SpheresUpdatingActions::addSomeSpheres
          * \copydetails getSphereCount */
-        quint16 addSomeSpheres(quint16 sphCount);
+        unsigned short addSomeSpheres(unsigned short sphCount);
 
         /** \copydoc SpheresUpdatingActions::removeSomeLastSpheres
          * \copydetails getSphereCount */
-        quint16 removeSomeLastSpheres(quint16 sphCount);
+        unsigned short removeSomeLastSpheres(unsigned short sphCount);
 
         /** \copydoc SpheresUpdatingActions::updateSpherePositionsInBox */
         void updateSpherePositionsInBox(Scalar randomDisplacement,
@@ -168,18 +168,18 @@ namespace SphereSim
 
         /** \copydoc CalculationActions::popCalculationCounter
          * \return Numer of force calculations per step. */
-        quint32 popCalculationCounter();
+        unsigned int popCalculationCounter();
 
         /** \copydoc CalculationActions::calculateSomeSteps
          * \param steps Number of steps to calculate (0 = unlimited). */
-        void calculateSomeSteps(quint32 steps);
+        void calculateSomeSteps(unsigned int steps);
 
         /** \copydoc CalculationActions::popStepCounter
          * \return Number of simulatied time steps. */
-        quint32 popStepCounter();
+        unsigned int popStepCounter();
 
         /** \copydoc CalculationActions::getLastStepCalculationTime */
-        quint32 getLastStepCalculationTime();
+        unsigned int getLastStepCalculationTime();
 
         /** \copydoc InformationActions::getTotalEnergy
          * \return Total energy (in joules). */
@@ -208,11 +208,11 @@ namespace SphereSim
 
         /** \copydoc SpheresUpdatingActions::addSphere
          * \copydetails getSphereCount */
-        quint16 addSphere();
+        unsigned short addSphere();
 
         /** \copydoc SpheresUpdatingActions::removeLastSphere
          * \copydetails getSphereCount */
-        quint16 removeLastSphere();
+        unsigned short removeLastSphere();
 
         /** \copydoc CalculationActions::startSimulation */
         void startSimulation();
@@ -241,7 +241,7 @@ namespace SphereSim
         void greatFrameBufferPercentageLevelUpdate(int percentageLevel);
 
         /** \brief Number of spheres changed. */
-        void sphereCountChanged(quint16 sphereCount);
+        void sphereCountChanged(unsigned short sphereCount);
 
         /** \brief Number of spheres changed. */
         void sphereCountChangedDouble(double sphereCount);

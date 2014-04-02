@@ -29,12 +29,12 @@ namespace SphereSim
         SystemCreator(const SystemCreator&) = delete;
         SystemCreator& operator=(const SystemCreator&) = delete;
 
-        Scalar createArgonGasSystem(quint16 sphereCount,
+        Scalar createArgonGasSystem(unsigned short sphereCount,
             Scalar targetTemperature=473.15);
 
-        Scalar createMacroscopicGravitationSystem(quint16 sphereCount);
+        Scalar createMacroscopicGravitationSystem(unsigned short sphereCount);
 
-        Scalar createMacroscopic2DCollisionSystem(quint16 sphereCount);
+        Scalar createMacroscopic2DCollisionSystem(unsigned short sphereCount);
 
         Scalar createSimpleWallCollisionSystem();
     };

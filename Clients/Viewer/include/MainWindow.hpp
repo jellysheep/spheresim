@@ -40,7 +40,7 @@ namespace SphereSim
 
         Scalar boxLength;
 
-        quint8 systemToPrepare;
+        unsigned char systemToPrepare;
 
         SystemCreator* systemCreator;
 
@@ -48,7 +48,7 @@ namespace SphereSim
 
         void prepareSystem2();
 
-        void prepareSystem3(quint16 sphCount);
+        void prepareSystem3(unsigned short sphCount);
 
         void prepareSystem4();
 
@@ -58,8 +58,8 @@ namespace SphereSim
 
     public:
         /** \brief Initialize member variables. */
-        MainWindow(QStringList args, const char* addr, quint16 port,
-            quint16 sphCount, QWidget* parent = nullptr);
+        MainWindow(QStringList args, const char* addr, unsigned short port,
+            unsigned short sphCount, QWidget* parent = nullptr);
 
         /** \brief Clean up member variables. */
         ~MainWindow();

@@ -53,7 +53,7 @@ void ActionReceiver::readData()
 
 void ActionReceiver::processData(QByteArray byteArray)
 {
-    qint16 endIndex, startIndex;
+    short endIndex, startIndex;
     endIndex = byteArray.indexOf(Connection::endByte);
     startIndex = byteArray.indexOf(Connection::startByte);
 
@@ -120,8 +120,8 @@ void ActionReceiver::processData(QByteArray byteArray)
 void ActionReceiver::processRequest()
 {
     QByteArray data = QByteArray::fromBase64(requestData);
-    quint8 actionGroup = data[0];
-    quint8 action = data[1];
+    unsigned char actionGroup = data[0];
+    unsigned char action = data[1];
     if (data.size()>2)
     {
         data = data.mid(2);
@@ -133,7 +133,7 @@ void ActionReceiver::processRequest()
     workQueue->pushItem(actionGroup, action, data);
 }
 
-void ActionReceiver::sendReply(quint8 serverStatus, QByteArray dataToSend)
+void ActionReceiver::sendReply(unsigned char serverStatus, QByteArray dataToSend)
 {
     QByteArray data = dataToSend;
     data.prepend(serverStatus);

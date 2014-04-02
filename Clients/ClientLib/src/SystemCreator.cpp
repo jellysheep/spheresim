@@ -54,10 +54,10 @@ SystemCreator::SystemCreator(ActionSender* actionSender)
 {
 }
 
-Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount,
+Scalar SystemCreator::createArgonGasSystem(unsigned short sphereCount,
     Scalar targetTemperature)
 {
-    quint16 sphereCountSqrt = (quint16)sqrt(sphereCount);
+    unsigned short sphereCountSqrt = (unsigned short)sqrt(sphereCount);
     sphereCount = sphereCountSqrt*sphereCountSqrt;
 
     Scalar boxLength = sphereCountSqrt/8.0*2.5e-9;
@@ -118,7 +118,7 @@ Scalar SystemCreator::createArgonGasSystem(quint16 sphereCount,
     return boxLength;
 }
 
-Scalar SystemCreator::createMacroscopicGravitationSystem(quint16 sphereCount)
+Scalar SystemCreator::createMacroscopicGravitationSystem(unsigned short sphereCount)
 {
     Scalar boxLength = 1;
     actionSender->simulatedSystem->set(SimulationVariables::boxSize,
@@ -147,7 +147,7 @@ Scalar SystemCreator::createMacroscopicGravitationSystem(quint16 sphereCount)
     return boxLength;
 }
 
-Scalar SystemCreator::createMacroscopic2DCollisionSystem(quint16 sphereCount)
+Scalar SystemCreator::createMacroscopic2DCollisionSystem(unsigned short sphereCount)
 {
     Scalar boxLength = 1;
     actionSender->simulatedSystem->set(SimulationVariables::boxSize,
