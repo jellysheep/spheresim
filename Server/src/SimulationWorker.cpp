@@ -238,8 +238,7 @@ void SimulationWorker::handleUnknownActionGroup(WorkQueueItem* workQueueItem)
 {
     qWarning()<<"SimulationWorker: Warning: received unknown action group"
         <<Connection::startByte<<(int)workQueueItem->actionGroup
-            <<(int)workQueueItem->action<<Connection::endByte;
-    throw std::exception();
+        <<(int)workQueueItem->action<<Connection::endByte;
     emit sendReply(ServerStatusReplies::unknownActionGroup, "unknown action group");
 }
 
@@ -247,6 +246,6 @@ void SimulationWorker::handleUnknownAction(WorkQueueItem* workQueueItem)
 {
     qWarning()<<"SimulationWorker: Warning: received unknown action"
         <<Connection::startByte<<(int)workQueueItem->actionGroup
-            <<(int)workQueueItem->action<<Connection::endByte;
+        <<(int)workQueueItem->action<<Connection::endByte;
     emit sendReply(ServerStatusReplies::unknownAction, "unknown action");
 }

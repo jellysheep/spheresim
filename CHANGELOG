@@ -15,6 +15,7 @@
 * Updated Object class to use SphereTransmit functions.
 * Renamed SphereTransmit to DataTransmit.
 * Moved message encapsulation and encoding to MessageTransmitter class.
+* Improved exception handling.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

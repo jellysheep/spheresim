@@ -12,43 +12,39 @@
 
 #include <iostream>
 #include <type_traits>
+#include <stdexcept>
+
+const char* errorMessage = "Wrong Object type specified.";
 
 namespace SphereSim
 {
-    struct ObjectException : public std::exception
-    {
-        virtual const char* what() const throw()
-        {
-            return "Wrong type specified.";
-        }
-    };
 
     template <typename T>
     struct Visitor
     {
         virtual T operator()(bool*)
         {
-            throw ObjectException();
+            throw std::runtime_error(errorMessage);
         }
         virtual T operator()(unsigned int*)
         {
-            throw ObjectException();
+            throw std::runtime_error(errorMessage);
         }
         virtual T operator()(double*)
         {
-            throw ObjectException();
+            throw std::runtime_error(errorMessage);
         }
         virtual T operator()(float*)
         {
-            throw ObjectException();
+            throw std::runtime_error(errorMessage);
         }
         virtual T operator()(Vector3*)
         {
-            throw ObjectException();
+            throw std::runtime_error(errorMessage);
         }
         virtual T operator()(std::string*)
         {
-            throw ObjectException();
+            throw std::runtime_error(errorMessage);
         }
     };
 
@@ -259,7 +255,7 @@ namespace SphereSim
         case STRING:
             return visitor((std::string*)data);
         default:
-            throw ObjectException();
+            throw std::runtime_error(errorMessage);
         }
     }
 
@@ -322,7 +318,7 @@ namespace SphereSim
             writeString(stream, *(std::string*)data);
             break;
         default:
-            throw ObjectException();
+            throw std::runtime_error(errorMessage);
         }
         return stream.str();
     }
@@ -347,7 +343,7 @@ namespace SphereSim
         case STRING:
             return set(readString(stream));
         default:
-            throw ObjectException();
+            throw std::runtime_error(errorMessage);
         }
     }
 
