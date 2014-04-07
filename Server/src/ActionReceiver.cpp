@@ -9,7 +9,7 @@
 #include "ActionReceiver.hpp"
 #include "Connection.hpp"
 #include "WorkQueue.hpp"
-#include "SphereTransmit.hpp"
+#include "DataTransmit.hpp"
 
 #include <QTcpSocket>
 #include <QCoreApplication>

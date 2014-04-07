@@ -9,7 +9,7 @@
 #include "ActionSender.hpp"
 #include "Connection.hpp"
 #include "Console.hpp"
-#include "SphereTransmit.hpp"
+#include "DataTransmit.hpp"
 
 #include <QTcpSocket>
 #include <QHostAddress>

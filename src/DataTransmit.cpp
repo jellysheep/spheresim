@@ -7,7 +7,7 @@
  * Full license text is under the file "LICENSE" provided with this code. */
 
 #include "Sphere.hpp"
-#include "SphereTransmit.hpp"
+#include "DataTransmit.hpp"
 
 using namespace SphereSim;
 

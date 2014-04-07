@@ -12,7 +12,7 @@
 #include "Integrators.hpp"
 #include "Connection.hpp"
 #include "Console.hpp"
-#include "SphereTransmit.hpp"
+#include "DataTransmit.hpp"
 
 using namespace SphereSim;
 using namespace SphereSim::SimulationVariables;

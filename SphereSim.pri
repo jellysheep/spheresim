@@ -17,7 +17,7 @@ HEADERS     =   Actions.hpp         \
                 VectorLib.hpp       \
                 Vector.hpp          \
                 Sphere.hpp          \
-                SphereTransmit.hpp  \
+                DataTransmit.hpp    \
                 Console.hpp         \
                 Dimension.hpp       \
                 Wall.hpp            \
@@ -29,7 +29,7 @@ SOURCES     =   Connection.cpp      \
                 Console.cpp         \
                 Object.cpp          \
                 SimulatedSystem.cpp \
-                SphereTransmit.cpp
+                DataTransmit.cpp
 
 QMAKE_CXXFLAGS_RELEASE  +=  -O3 -Wno-unused-local-typedefs -Wno-enum-compare \
                             -Wno-unused-parameter -Wno-unused-variable \

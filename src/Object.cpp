@@ -8,7 +8,7 @@
 
 #include "Object.hpp"
 #include "Vector.hpp"
-#include "SphereTransmit.hpp"
+#include "DataTransmit.hpp"
 
 #include <iostream>
 #include <type_traits>

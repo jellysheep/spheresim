@@ -55,7 +55,7 @@ set(HEADERS
     ${PROJECT_INCLUDE_DIR}/VectorLib.hpp
     ${PROJECT_INCLUDE_DIR}/Vector.hpp
     ${PROJECT_INCLUDE_DIR}/Sphere.hpp
-    ${PROJECT_INCLUDE_DIR}/SphereTransmit.hpp
+    ${PROJECT_INCLUDE_DIR}/DataTransmit.hpp
     ${PROJECT_INCLUDE_DIR}/Console.hpp
     ${PROJECT_INCLUDE_DIR}/Dimension.hpp
     ${PROJECT_INCLUDE_DIR}/Wall.hpp
@@ -68,7 +68,7 @@ set(GLOBAL_SOURCES
     ${COMMON_SOURCE_DIR}/Console.cpp
     ${COMMON_SOURCE_DIR}/SimulatedSystem.cpp
     ${COMMON_SOURCE_DIR}/Object.cpp
-    ${COMMON_SOURCE_DIR}/SphereTransmit.cpp
+    ${COMMON_SOURCE_DIR}/DataTransmit.cpp
 )
 
 #documentation:

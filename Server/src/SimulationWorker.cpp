@@ -13,7 +13,7 @@
 #include "ActionReceiver.hpp"
 #include "Version.hpp"
 #include "Connection.hpp"
-#include "SphereTransmit.hpp"
+#include "DataTransmit.hpp"
 
 #include <QDebug>
 #include <QCoreApplication>

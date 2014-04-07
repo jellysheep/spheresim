@@ -7,7 +7,7 @@
  * Full license text is under the file "LICENSE" provided with this code. */
 
 #include "WorkQueue.hpp"
-#include "SphereTransmit.hpp"
+#include "DataTransmit.hpp"
 
 #include <QDebug>
 #include <QElapsedTimer>

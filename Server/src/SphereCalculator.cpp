@@ -10,7 +10,7 @@
 #include "SimulationWorker.hpp"
 #include "WorkQueue.hpp"
 #include "Console.hpp"
-#include "SphereTransmit.hpp"
+#include "DataTransmit.hpp"
 #include "ActionReceiver.hpp"
 
 #include <QDebug>
