@@ -4,9 +4,6 @@ cmake_minimum_required(VERSION 2.8)
 set (PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set (PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-set(USE_DOUBLE 0)
-add_definitions("-DUSE_DOUBLE=${USE_DOUBLE}")
-
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Network REQUIRED)
 

@@ -291,16 +291,16 @@ namespace SphereSim
     /// serialization:
 
     template <typename T>
-    T getTypeFromBytes(const QByteArray &bytes);
+    T getTypeFromBytes(const std::string &bytes);
 
     template <>
-    bool getTypeFromBytes<bool>(const QByteArray &bytes)
+    bool getTypeFromBytes<bool>(const std::string &bytes)
     {
         return bytes[0]==0?false:true;
     }
 
     template <>
-    int getTypeFromBytes<int>(const QByteArray &bytes)
+    int getTypeFromBytes<int>(const std::string &bytes)
     {
         int l = 0;
         char* chars = (char*)&l;
@@ -312,7 +312,7 @@ namespace SphereSim
     }
 
     template <>
-    long getTypeFromBytes<long>(const QByteArray &bytes)
+    long getTypeFromBytes<long>(const std::string &bytes)
     {
         long l = 0;
         char* chars = (char*)&l;
@@ -324,49 +324,48 @@ namespace SphereSim
     }
 
     template <>
-    double getTypeFromBytes<double>(const QByteArray &bytes)
+    double getTypeFromBytes<double>(const std::string &bytes)
     {
         long l = getTypeFromBytes<long>(bytes);
         return *((double*)&l);
     }
 
     template <>
-    float getTypeFromBytes<float>(const QByteArray &bytes)
+    float getTypeFromBytes<float>(const std::string &bytes)
     {
         int i = getTypeFromBytes<int>(bytes);
         return *((float*)&i);
     }
 
     template <>
-    Vector3 getTypeFromBytes<Vector3>(const QByteArray &bytes)
+    Vector3 getTypeFromBytes<Vector3>(const std::string &bytes)
     {
         Vector3 v;
-        v(0) = getTypeFromBytes<double>(bytes.mid(0, 8));
-        v(1) = getTypeFromBytes<double>(bytes.mid(8, 8));
-        v(2) = getTypeFromBytes<double>(bytes.mid(16, 8));
+        v(0) = getTypeFromBytes<double>(bytes.substr(0, 8));
+        v(1) = getTypeFromBytes<double>(bytes.substr(8, 8));
+        v(2) = getTypeFromBytes<double>(bytes.substr(16, 8));
         return v;
     }
 
     template <>
-    std::string getTypeFromBytes<std::string>(const QByteArray &bytes)
+    std::string getTypeFromBytes<std::string>(const std::string &bytes)
     {
-        std::string str(bytes.constData(), bytes.size());
-        return str;
+        return bytes;
     }
 
     template <typename T>
-    QByteArray getBytesFromType(const T &t);
+    std::string getBytesFromType(const T &t);
 
     template <>
-    QByteArray getBytesFromType<bool>(const bool &t)
+    std::string getBytesFromType<bool>(const bool &t)
     {
-        return QByteArray(1, t?255:0);
+        return std::string(1, t?255:0);
     }
 
     template <>
-    QByteArray getBytesFromType<int>(const int &t)
+    std::string getBytesFromType<int>(const int &t)
     {
-        QByteArray bytes(4, 0);
+        std::string bytes(4, 0);
         int l = t;
         char* chars = (char*)&l;
         for (int i = 0; i<4; i++)
@@ -377,9 +376,9 @@ namespace SphereSim
     }
 
     template <>
-    QByteArray getBytesFromType<long>(const long &t)
+    std::string getBytesFromType<long>(const long &t)
     {
-        QByteArray bytes(8, 0);
+        std::string bytes(8, 0);
         long l = t;
         char* chars = (char*)&l;
         for (int i = 0; i<8; i++)
@@ -390,23 +389,23 @@ namespace SphereSim
     }
 
     template <>
-    QByteArray getBytesFromType<double>(const double &t)
+    std::string getBytesFromType<double>(const double &t)
     {
         long l = *((long*)&t);
         return getBytesFromType<long>(l);
     }
 
     template <>
-    QByteArray getBytesFromType<float>(const float &t)
+    std::string getBytesFromType<float>(const float &t)
     {
         int i = *((int*)&t);
         return getBytesFromType<int>(i);
     }
 
     template <>
-    QByteArray getBytesFromType<Vector3>(const Vector3 &t)
+    std::string getBytesFromType<Vector3>(const Vector3 &t)
     {
-        QByteArray bytes, tmp;
+        std::string bytes, tmp;
         double d0 = t(0), d1 = t(1), d2 = t(2);
         tmp = getBytesFromType<double>(d0);
         bytes += tmp;
@@ -418,15 +417,15 @@ namespace SphereSim
     }
 
     template <>
-    QByteArray getBytesFromType<std::string>(const std::string &t)
+    std::string getBytesFromType<std::string>(const std::string &t)
     {
-        return QByteArray(t.c_str(), t.size());
+        return std::string(t.c_str(), t.size());
     }
 
-    QByteArray Object::getData() const
+    std::string Object::getData() const
     {
-        QByteArray bytes;
-        bytes.append((char)type);
+        std::string bytes;
+        bytes += (char)type;
         switch (type)
         {
         case BOOL:
@@ -453,10 +452,10 @@ namespace SphereSim
         return bytes;
     }
 
-    bool Object::setData(const QByteArray &bytes_)
+    bool Object::setData(const std::string &bytes_)
     {
         Type t = (Type)bytes_[0];
-        QByteArray bytes = bytes_.mid(1);
+        std::string bytes = bytes_.substr(1);
         switch (t)
         {
         case BOOL:

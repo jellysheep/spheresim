@@ -12,6 +12,9 @@
 
 #include <QCoreApplication>
 #include <QStringList>
+#include <string>
+
+Q_DECLARE_METATYPE(std::string);
 
 using namespace SphereSim;
 
@@ -23,6 +26,8 @@ using namespace SphereSim;
 
 int main(int argc, char** argv)
 {
+    qRegisterMetaType<std::string>();
+
     QCoreApplication app(argc, argv);
     QStringList args = app.arguments();
     try

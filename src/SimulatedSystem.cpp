@@ -12,6 +12,7 @@
 #include "Integrators.hpp"
 #include "Connection.hpp"
 #include "Console.hpp"
+#include "SphereTransmit.hpp"
 
 using namespace SphereSim;
 using namespace SphereSim::SimulationVariables;
@@ -63,10 +64,10 @@ void SimulatedSystem::addVariable(SimulationVariables::Variable var,
 
 void SimulatedSystem::sendVariable(SimulationVariables::Variable var)
 {
-    QByteArray bytes;
+    std::string bytes;
     if (var == allVariablesReceived)
     {
-        bytes = QByteArray(2, Object::BOOL);
+        bytes = std::string(2, Object::BOOL);
     }
     else
     {
@@ -74,11 +75,10 @@ void SimulatedSystem::sendVariable(SimulationVariables::Variable var)
         bytes = o.getData();
     }
 
-    QByteArray data;
-    data.append(var/256);
-    data.append(var%256);
-    data.append(bytes);
-    emit variableToSend(data);
+    std::ostringstream data;
+    writeShort(data, (unsigned short)var);
+    data<<bytes;
+    emit variableToSend(data.str());
 }
 
 void SimulatedSystem::sendAllVariables()
@@ -90,7 +90,7 @@ void SimulatedSystem::sendAllVariables()
 }
 
 void SimulatedSystem::receiveVariable(SimulationVariables::Variable var,
-    QByteArray data)
+    std::string data)
 {
     if (var >= numberOfVariables)
     {

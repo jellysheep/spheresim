@@ -10,6 +10,7 @@
 #define _SIMULATIONWORKER_HPP_
 
 #include <QObject>
+#include <string>
 
 namespace SphereSim
 {
@@ -98,7 +99,7 @@ namespace SphereSim
         /** \brief Worker stopped working. */
         void finished();
 
-        void sendReply(unsigned char serverStatus, QByteArray data);
+        void sendReply(unsigned char serverStatus, std::string data);
 
     };
 

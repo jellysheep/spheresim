@@ -9,6 +9,7 @@
 #include "ActionReceiver.hpp"
 #include "Connection.hpp"
 #include "WorkQueue.hpp"
+#include "SphereTransmit.hpp"
 
 #include <QTcpSocket>
 #include <QCoreApplication>
@@ -22,16 +23,21 @@ ActionReceiver::ActionReceiver(QTcpSocket* socket)
 {
     connect(socket, SIGNAL(disconnected()), SLOT(deleteLater()));
     connect(socket, SIGNAL(readyRead()), SLOT(readData()));
-    connect(&sphCalc, SIGNAL(frameToSend(QByteArray)), SLOT(sendFrame(QByteArray)));
-    connect(&simulatedSystem, SIGNAL(variableToSend(QByteArray)),
-        SLOT(sendVariable(QByteArray)));
+    connect(&sphCalc, SIGNAL(frameToSend(std::string)), SLOT(sendFrame(std::string)));
+    connect(&simulatedSystem, SIGNAL(variableToSend(std::string)),
+        SLOT(sendVariable(std::string)));
     connect(workQueue, SIGNAL(simulating(bool)), SLOT(simulating(bool)));
     simulatedSystem.sendAllVariables();
 }
 
 ActionReceiver::~ActionReceiver()
 {
-    socket->close();
+    if(socket != NULL)
+    {
+        socket->close();
+        delete socket;
+        socket = NULL;
+    }
     qDebug()<<"ActionReceiver: disconnected";
     delete socket;
 }
@@ -39,27 +45,31 @@ ActionReceiver::~ActionReceiver()
 void ActionReceiver::terminateServer()
 {
     qDebug()<<"Server terminating...";
-    socket->close();
-    delete socket;
+    if(socket != NULL)
+    {
+        socket->close();
+        delete socket;
+        socket = NULL;
+    }
     emit QCoreApplication::instance()->quit();
     deleteLater();
 }
 
 void ActionReceiver::readData()
 {
-    QByteArray arr = socket->readAll();
+    std::string arr(socket->readAll().constData());
     processData(arr);
 }
 
-void ActionReceiver::processData(QByteArray byteArray)
+void ActionReceiver::processData(std::string byteArray)
 {
-    short endIndex, startIndex;
-    endIndex = byteArray.indexOf(Connection::endByte);
-    startIndex = byteArray.indexOf(Connection::startByte);
+    std::string::size_type endIndex, startIndex;
+    endIndex = byteArray.find(Connection::endByte);
+    startIndex = byteArray.find(Connection::startByte);
 
-    if (endIndex<0)
+    if (endIndex == std::string::npos)
     {
-        if (startIndex<0)
+        if (startIndex == std::string::npos)
         {
             ///no endByte or startByte
             if (collectingRequestData)
@@ -75,18 +85,18 @@ void ActionReceiver::processData(QByteArray byteArray)
                 //what if last request did not end correctly? next request
                 //would be skipped (waiting for endByte)...
                 collectingRequestData = true;
-                requestData = byteArray.right(byteArray.size()-startIndex-1);
+                requestData = byteArray.substr(startIndex-1);
             }
         }
     }
     else
     {
-        if (startIndex<0)
+        if (startIndex == std::string::npos)
         {
             ///only endByte
             if (collectingRequestData)
             {
-                requestData.append(byteArray.left(endIndex));
+                requestData.append(byteArray.substr(0, endIndex));
                 collectingRequestData = false;
                 processRequest();
             }
@@ -97,20 +107,20 @@ void ActionReceiver::processData(QByteArray byteArray)
             if (startIndex<endIndex)
             {
                 ///startByte before endByte
-                requestData = byteArray.mid(startIndex+1, endIndex-startIndex-1);
+                requestData = byteArray.substr(startIndex+1, endIndex-startIndex-1);
                 collectingRequestData = false;
                 processRequest();
-                processData(byteArray.right(byteArray.size()-endIndex-1));
+                processData(byteArray.substr(endIndex+1));
             }
             else
             {
                 ///endByte before startByte
                 if (collectingRequestData)
                 {
-                    requestData.append(byteArray.left(endIndex));
+                    requestData.append(byteArray.substr(0, endIndex));
                     collectingRequestData = false;
                     processRequest();
-                    processData(byteArray.right(byteArray.size()-endIndex-1));
+                    processData(byteArray.substr(endIndex+1));
                 }
             }
         }
@@ -119,12 +129,14 @@ void ActionReceiver::processData(QByteArray byteArray)
 
 void ActionReceiver::processRequest()
 {
-    QByteArray data = QByteArray::fromBase64(requestData);
+    QByteArray byteArray(requestData.c_str(), requestData.size());
+    byteArray = QByteArray::fromBase64(byteArray);
+    std::string data(byteArray.constData(), byteArray.size());
     unsigned char actionGroup = data[0];
     unsigned char action = data[1];
     if (data.size()>2)
     {
-        data = data.mid(2);
+        data = data.substr(2);
     }
     else
     {
@@ -133,22 +145,28 @@ void ActionReceiver::processRequest()
     workQueue->pushItem(actionGroup, action, data);
 }
 
-void ActionReceiver::sendReply(unsigned char serverStatus, QByteArray dataToSend)
+void ActionReceiver::sendReply(unsigned char serverStatus, std::string dataToSend)
 {
-    QByteArray data = dataToSend;
-    data.prepend(serverStatus);
-    data = data.toBase64();
-    data.prepend(Connection::startByte);
-    data.append(Connection::endByte);
-    socket->write(data);
+    std::ostringstream data;
+    writeChar(data, serverStatus);
+    data<<dataToSend;
+    std::ostringstream finalData;
+    finalData<<Connection::startByte;
+    std::string dataStr = data.str();
+    QByteArray byteArray(dataStr.c_str(), dataStr.size());
+    byteArray = byteArray.toBase64();
+    dataStr = std::string(byteArray.constData(), byteArray.size());
+    finalData<<dataStr;
+    finalData<<Connection::endByte;
+    socket->write(finalData.str().c_str());
 }
 
-void ActionReceiver::sendFrame(QByteArray frameToSend)
+void ActionReceiver::sendFrame(std::string frameToSend)
 {
     sendReply(ServerStatusReplies::sendFrame, frameToSend);
 }
 
-void ActionReceiver::sendVariable(QByteArray variableToSend)
+void ActionReceiver::sendVariable(std::string variableToSend)
 {
     sendReply(ServerStatusReplies::sendVariable, variableToSend);
 }

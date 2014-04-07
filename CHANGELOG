@@ -10,6 +10,7 @@
 * Updated ActionServer and ActionSender to use C string address parameter.
 * Updated local includes to use double quotes.
 * Replaced Qt integral types by standard types.
+* Replaced QByteArray by std::string.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

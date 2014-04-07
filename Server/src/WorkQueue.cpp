@@ -7,10 +7,12 @@
  * Full license text is under the file "LICENSE" provided with this code. */
 
 #include "WorkQueue.hpp"
+#include "SphereTransmit.hpp"
 
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QDataStream>
+#include <sstream>
 
 using namespace SphereSim;
 
@@ -42,11 +44,12 @@ void WorkQueue::pushItem(WorkQueueItem& item)
     mutex->unlock();
 }
 
-void WorkQueue::pushItem(unsigned char actionGroup, unsigned char action, QByteArray data)
+void WorkQueue::pushItem(unsigned char actionGroup, unsigned char action,
+    std::string data)
 {
     if (actionGroup == ActionGroups::calculation)
     {
-        QDataStream stream(&data, QIODevice::ReadOnly);
+        std::istringstream stream(data);
         unsigned int steps;
         bool actionDone = false;
         switch (action)
@@ -56,7 +59,7 @@ void WorkQueue::pushItem(unsigned char actionGroup, unsigned char action, QByteA
             actionDone = true;
             break;
         case CalculationActions::calculateSomeSteps:
-            stream>>steps;
+            steps = readInt(stream);
             pushSimulationSteps(steps);
             actionDone = true;
             break;

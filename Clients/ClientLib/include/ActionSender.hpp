@@ -19,6 +19,7 @@
 #include <QAbstractSocket>
 #include <QProcess>
 #include <QElapsedTimer>
+#include <string>
 
 class QTcpSocket;
 
@@ -55,10 +56,10 @@ namespace SphereSim
         bool receivedServerReply;
 
         /** \brief Last server reply data. */
-        QByteArray lastServerReplyData;
+        std::string lastServerReplyData;
 
         /** \brief Partial server reply data. */
-        QByteArray replyData;
+        std::string replyData;
 
         /** \brief Flag for currently collecting server data.
          * If true, no new replies are accepted. */
@@ -75,7 +76,7 @@ namespace SphereSim
 
         /** \brief Process received reply data.
          * \param byteArray Received data to process. */
-        void processData(QByteArray byteArray);
+        void processData(std::string byteArray);
 
         /** \brief Process and answer to received reply. */
         void processReply();
@@ -87,18 +88,19 @@ namespace SphereSim
 
         /** \copydoc sendAction
          * \param data Data that will be sent with the action request. */
-        void sendAction(unsigned char actionGroup, unsigned char action, QByteArray& data);
+        void sendAction(unsigned char actionGroup, unsigned char action,
+            const std::string& data);
 
         /** \brief Send an action request to the server and return server reply.
          * \return Reply data from the server.
          * \param actionGroup Group of the requested action.
          * \param action Requested action. */
-        QByteArray sendReplyAction(unsigned char actionGroup, unsigned char action);
+        std::string sendReplyAction(unsigned char actionGroup, unsigned char action);
 
         /** \copydoc sendReplyAction
          * \param data Data that will be sent with the action request. */
-        QByteArray sendReplyAction(unsigned char actionGroup, unsigned char action,
-            QByteArray& data);
+        std::string sendReplyAction(unsigned char actionGroup, unsigned char action,
+            const std::string& data);
 
         /** \brief Update sphere number and resize frame buffer.
          * \param sphereCount Number of spheres. */
@@ -220,7 +222,7 @@ namespace SphereSim
         /** \copydoc CalculationActions::stopSimulation */
         void stopSimulation();
 
-        void sendVariable(QByteArray variableToSend);
+        void sendVariable(std::string variableToSend);
 
         void variableUpdated(int var);
 

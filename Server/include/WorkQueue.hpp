@@ -13,8 +13,9 @@
 
 #include <QMutex>
 #include <QWaitCondition>
-#include <list>
 #include <QObject>
+#include <list>
+#include <string>
 
 class QElapsedTimer;
 
@@ -33,11 +34,11 @@ namespace SphereSim
         unsigned char action;
 
         /** \brief Any data or parameter for the work item. */
-        QByteArray data;
+        std::string data;
 
         /** \brief Initialize WorkQueueItem. */
         WorkQueueItem(const unsigned char actGrp, const unsigned char act,
-            const QByteArray d = QByteArray())
+            const std::string d = std::string())
             :actionGroup(actGrp), action(act), data(d)
         {
         }
@@ -102,7 +103,7 @@ namespace SphereSim
         void pushItem(WorkQueueItem& item);
 
         /** \copybrief pushItem */
-        void pushItem(unsigned char actionGroup, unsigned char action, QByteArray data);
+        void pushItem(unsigned char actionGroup, unsigned char action, std::string data);
 
         /** \brief Increase simulation steps (0 = start continuous simulation). */
         void pushSimulationSteps(unsigned int steps);

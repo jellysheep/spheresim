@@ -18,6 +18,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <QDataStream>
+#include <sstream>
 
 using namespace SphereSim;
 
@@ -85,9 +86,10 @@ void SimulationWorker::handleAction(WorkQueueItem* workQueueItem)
 
 void SimulationWorker::handleBasicAction(WorkQueueItem* workQueueItem)
 {
-    QByteArray data;
+    std::istringstream stream(workQueueItem->data);
+    std::string varData;
     SimulationVariables::Variable var;
-    int _var;
+    unsigned short _var;
     switch (workQueueItem->action)
     {
     case BasicActions::terminateServer:
@@ -95,11 +97,10 @@ void SimulationWorker::handleBasicAction(WorkQueueItem* workQueueItem)
         actRcv->terminateServer();
         break;
     case BasicActions::updateVariable:
-        _var = ((char)workQueueItem->data.at(0))*256
-            + (char)workQueueItem->data.at(1);
+        _var = readShort(stream);
         var = (SimulationVariables::Variable)_var;
-        data = workQueueItem->data.mid(2);
-        sphCalc->simulatedSystem->receiveVariable(var, data);
+        varData = workQueueItem->data.substr(2);
+        sphCalc->simulatedSystem->receiveVariable(var, varData);
         break;
     default:
         handleUnknownAction(workQueueItem);
@@ -111,50 +112,49 @@ void SimulationWorker::handleSpheresUpdatingAction(WorkQueueItem* workQueueItem)
 {
     unsigned short i;
     Sphere s;
-    QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
-    QByteArray retData;
-    QDataStream retStream(&retData, QIODevice::WriteOnly);
+    std::istringstream stream(workQueueItem->data);
+    std::ostringstream retStream;
     Scalar s1, s2;
     switch (workQueueItem->action)
     {
     case SpheresUpdatingActions::addSphere:
-        emit sendReply(ServerStatusReplies::acknowledge,
-            QString::number(sphCalc->addSphere()).toUtf8());
+        writeShort(retStream, sphCalc->addSphere());
+        emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     case SpheresUpdatingActions::removeLastSphere:
-        emit sendReply(ServerStatusReplies::acknowledge,
-            QString::number(sphCalc->removeLastSphere()).toUtf8());
+        writeShort(retStream, sphCalc->removeLastSphere());
+        emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     case SpheresUpdatingActions::updateSphere:
-        stream>>i;
+        i = readShort(stream);
         readAllSphereData(stream, s);
         sphCalc->updateSphere(i, s);
         break;
     case SpheresUpdatingActions::getBasicSphereData:
-        stream>>i;
+        i = readShort(stream);
         s = sphCalc->getAllSphereData(i);
         writeBasicSphereData(retStream, s);
-        emit sendReply(ServerStatusReplies::acknowledge, retData);
+        emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     case SpheresUpdatingActions::getAllSphereData:
-        stream>>i;
+        i = readShort(stream);
         s = sphCalc->getAllSphereData(i);
         writeAllSphereData(retStream, s);
-        emit sendReply(ServerStatusReplies::acknowledge, retData);
+        emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     case SpheresUpdatingActions::addSomeSpheres:
-        stream>>i;
-        emit sendReply(ServerStatusReplies::acknowledge,
-            QString::number(sphCalc->addSomeSpheres(i)).toUtf8());
+        i = readShort(stream);
+        writeShort(retStream, sphCalc->addSomeSpheres(i));
+        emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     case SpheresUpdatingActions::removeSomeLastSpheres:
-        stream>>i;
-        emit sendReply(ServerStatusReplies::acknowledge,
-            QString::number(sphCalc->removeSomeLastSpheres(i)).toUtf8());
+        i = readShort(stream);
+        writeShort(retStream, sphCalc->removeSomeLastSpheres(i));
+        emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     case SpheresUpdatingActions::updateSpherePositionsInBox:
-        stream>>s1;
-        stream>>s2;
+        s1 = readScalar(stream);
+        s2 = readScalar(stream);
         sphCalc->updateSpherePositionsInBox(s1, s2);
         break;
     case SpheresUpdatingActions::updateAllSpheres:
@@ -162,7 +162,7 @@ void SimulationWorker::handleSpheresUpdatingAction(WorkQueueItem* workQueueItem)
         sphCalc->updateAllSpheres(s);
         break;
     case SpheresUpdatingActions::updateKineticEnergy:
-        stream>>s1;
+        s1 = readScalar(stream);
         sphCalc->updateKineticEnergy(s1);
         break;
     default:
@@ -173,22 +173,21 @@ void SimulationWorker::handleSpheresUpdatingAction(WorkQueueItem* workQueueItem)
 
 void SimulationWorker::handleCalculationAction(WorkQueueItem* workQueueItem)
 {
-    QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
-    QByteArray retData;
-    QDataStream retStream(&retData, QIODevice::WriteOnly);
+    std::istringstream stream(workQueueItem->data);
+    std::ostringstream retStream;
     switch (workQueueItem->action)
     {
     case CalculationActions::popCalculationCounter:
-        retStream<<sphCalc->popCalculationCounter();
-        emit sendReply(ServerStatusReplies::acknowledge, retData);
+        writeInt(retStream, sphCalc->popCalculationCounter());
+        emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     case CalculationActions::popStepCounter:
-        retStream<<sphCalc->popStepCounter();
-        emit sendReply(ServerStatusReplies::acknowledge, retData);
+        writeInt(retStream, sphCalc->popStepCounter());
+        emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     case CalculationActions::getLastStepCalculationTime:
-        retStream<<sphCalc->getLastStepCalculationTime();
-        emit sendReply(ServerStatusReplies::acknowledge, retData);
+        writeInt(retStream, sphCalc->getLastStepCalculationTime());
+        emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     default:
         handleUnknownAction(workQueueItem);
@@ -198,18 +197,17 @@ void SimulationWorker::handleCalculationAction(WorkQueueItem* workQueueItem)
 
 void SimulationWorker::handleInformationAction(WorkQueueItem* workQueueItem)
 {
-    QDataStream stream(&workQueueItem->data, QIODevice::ReadOnly);
-    QByteArray retData;
-    QDataStream retStream(&retData, QIODevice::WriteOnly);
+    std::istringstream stream(workQueueItem->data);
+    std::ostringstream retStream;
     switch (workQueueItem->action)
     {
     case InformationActions::getTotalEnergy:
-        retStream<<sphCalc->getTotalEnergy();
-        emit sendReply(ServerStatusReplies::acknowledge, retData);
+        writeScalar(retStream, sphCalc->getTotalEnergy());
+        emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     case InformationActions::getKineticEnergy:
-        retStream<<sphCalc->getKineticEnergy();
-        emit sendReply(ServerStatusReplies::acknowledge, retData);
+        writeScalar(retStream, sphCalc->getKineticEnergy());
+        emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     default:
         handleUnknownAction(workQueueItem);
@@ -241,6 +239,7 @@ void SimulationWorker::handleUnknownActionGroup(WorkQueueItem* workQueueItem)
     qWarning()<<"SimulationWorker: Warning: received unknown action group"
         <<Connection::startByte<<(int)workQueueItem->actionGroup
             <<(int)workQueueItem->action<<Connection::endByte;
+    throw std::exception();
     emit sendReply(ServerStatusReplies::unknownActionGroup, "unknown action group");
 }
 

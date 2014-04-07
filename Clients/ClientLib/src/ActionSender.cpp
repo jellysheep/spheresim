@@ -15,6 +15,9 @@
 #include <QHostAddress>
 #include <QDataStream>
 #include <QCoreApplication>
+#include <string>
+
+Q_DECLARE_METATYPE(std::string);
 
 using namespace SphereSim;
 
@@ -29,6 +32,7 @@ ActionSender::ActionSender(QStringList args, const char* addr, unsigned short po
     receivedFramesPerSecond(0), failureExitWhenDisconnected(false),
     simulatedSystem(nullptr)
 {
+    qRegisterMetaType<std::string>();
     connect(socket, SIGNAL(connected()), SLOT(connected()));
     connect(socket, SIGNAL(disconnected()), SLOT(disconnected()));
     connect(socket, SIGNAL(readyRead()), SLOT(readData()));
@@ -52,8 +56,8 @@ ActionSender::ActionSender(QStringList args, const char* addr, unsigned short po
         }
     }
     simulatedSystem = new SimulatedSystem();
-    connect(simulatedSystem, SIGNAL(variableToSend(QByteArray)),
-        SLOT(sendVariable(QByteArray)));
+    connect(simulatedSystem, SIGNAL(variableToSend(std::string)),
+        SLOT(sendVariable(std::string)));
     connect(simulatedSystem, SIGNAL(variableUpdated(int)),
         SLOT(variableUpdated(int)));
     connect(simulatedSystem, SIGNAL(receivedAllVariables()), client, SLOT(run()),
@@ -76,25 +80,34 @@ ActionSender::~ActionSender()
     delete socket;
 }
 
-void ActionSender::sendAction(unsigned char actionGroup, unsigned char action, QByteArray& arr)
+void ActionSender::sendAction(unsigned char actionGroup, unsigned char action,
+    const std::string& arr)
 {
-    QByteArray data;
-    data.append(actionGroup);
-    data.append(action);
-    data.append(arr);
-    data = data.toBase64();
-    data.prepend(Connection::startByte);
-    data.append(Connection::endByte);
-    socket->write(data);
+    //Console::white<<"ActionGroup: "<<(int)actionGroup<<"\n";
+    //Console::white<<"Action: "<<(int)action<<"\n";
+    std::ostringstream data;
+    writeChar(data, actionGroup);
+    writeChar(data, action);
+    data<<arr;
+    std::ostringstream finalData;
+    finalData<<Connection::startByte;
+    std::string dataStr = data.str();
+    QByteArray byteArray(dataStr.c_str(), dataStr.size());
+    //Console::white<<"Data: "<<byteArray<<"\n";
+    byteArray = byteArray.toBase64();
+    dataStr = std::string(byteArray.constData(), byteArray.size());
+    finalData<<dataStr;
+    finalData<<Connection::endByte;
+    //Console::white<<"Final data: "<<finalData.str().c_str()<<"\n";
+    socket->write(finalData.str().c_str());
 }
 void ActionSender::sendAction(unsigned char actionGroup, unsigned char action)
 {
-    QByteArray arr;
-    sendAction(actionGroup, action, arr);
+    sendAction(actionGroup, action, std::string());
 }
 
-QByteArray ActionSender::sendReplyAction(unsigned char actionGroup, unsigned char action,
-    QByteArray& arr)
+std::string ActionSender::sendReplyAction(unsigned char actionGroup,
+    unsigned char action, const std::string& arr)
 {
     sendAction(actionGroup, action, arr);
     while (receivedServerReply == false)
@@ -105,27 +118,28 @@ QByteArray ActionSender::sendReplyAction(unsigned char actionGroup, unsigned cha
     return lastServerReplyData;
 }
 
-QByteArray ActionSender::sendReplyAction(unsigned char actionGroup, unsigned char action)
+std::string ActionSender::sendReplyAction(unsigned char actionGroup,
+    unsigned char action)
 {
-    QByteArray arr;
-    return sendReplyAction(actionGroup, action, arr);
+    return sendReplyAction(actionGroup, action, std::string());
 }
 
 void ActionSender::readData()
 {
-    QByteArray arr = socket->readAll();
+    std::string arr(socket->readAll().constData());
     processData(arr);
 }
 
-void ActionSender::processData(QByteArray byteArray)
+void ActionSender::processData(std::string byteArray)
 {
-    short endIndex, startIndex;
-    endIndex = byteArray.indexOf(Connection::endByte);
-    startIndex = byteArray.indexOf(Connection::startByte);
+    //Console::white<<"Received data: "<<byteArray.c_str()<<"\n";
+    std::string::size_type endIndex, startIndex;
+    endIndex = byteArray.find(Connection::endByte);
+    startIndex = byteArray.find(Connection::startByte);
 
-    if (endIndex<0)
+    if (endIndex == std::string::npos)
     {
-        if (startIndex<0)
+        if (startIndex == std::string::npos)
         {
             ///no endByte or startByte
             if (collectingReplyData)
@@ -141,18 +155,18 @@ void ActionSender::processData(QByteArray byteArray)
                 //what if last reply did not end correctly? next reply would be
                 //skipped (waiting for endByte)...
                 collectingReplyData = true;
-                replyData = byteArray.right(byteArray.size()-startIndex-1);
+                replyData = byteArray.substr(startIndex-1);
             }
         }
     }
     else
     {
-        if (startIndex<0)
+        if (startIndex == std::string::npos)
         {
             ///only endByte
             if (collectingReplyData)
             {
-                replyData.append(byteArray.left(endIndex));
+                replyData.append(byteArray.substr(0, endIndex));
                 collectingReplyData = false;
                 processReply();
             }
@@ -163,20 +177,20 @@ void ActionSender::processData(QByteArray byteArray)
             if (startIndex<endIndex)
             {
                 ///startByte before endByte
-                replyData = byteArray.mid(startIndex+1, endIndex-startIndex-1);
+                replyData = byteArray.substr(startIndex+1, endIndex-startIndex-1);
                 collectingReplyData = false;
                 processReply();
-                processData(byteArray.right(byteArray.size()-endIndex-1));
+                processData(byteArray.substr(endIndex+1));
             }
             else
             {
                 ///endByte before startByte
                 if (collectingReplyData)
                 {
-                    replyData.append(byteArray.left(endIndex));
+                    replyData.append(byteArray.substr(0, endIndex));
                     collectingReplyData = false;
                     processReply();
-                    processData(byteArray.right(byteArray.size()-endIndex-1));
+                    processData(byteArray.substr(endIndex+1));
                 }
             }
         }
@@ -185,23 +199,22 @@ void ActionSender::processData(QByteArray byteArray)
 
 void ActionSender::processReply()
 {
-    QByteArray data = QByteArray::fromBase64(replyData);
-    lastServerStatus = data[0];
-    data = data.mid(1);
+    //Console::white<<"Process data: "<<replyData.c_str()<<"\n";
+    QByteArray byteArray(replyData.c_str(), replyData.size());
+    byteArray = QByteArray::fromBase64(byteArray);
+    std::string data(byteArray.constData(), byteArray.size());
+    std::istringstream stream(data);
+    lastServerStatus = readChar(stream);
 
     if (lastServerStatus == ServerStatusReplies::sendFrame)
     {
-        QDataStream stream(&data, QIODevice::ReadOnly);
-        unsigned short sphCount;
-        stream>>sphCount;
+        unsigned short sphCount = readShort(stream);
         emit sphereCountChanged(sphCount);
         emit sphereCountChangedDouble((double)sphCount);
         frameBuffer.updateElementsPerFrame(sphCount);
-        unsigned short sphereIndex;
         Sphere sphere;
-        while (stream.atEnd() == false)
+        while (stream.good())
         {
-            stream>>sphereIndex;
             readBasicSphereData(stream, sphere);
             frameBuffer.pushElement(sphere);
         }
@@ -211,14 +224,15 @@ void ActionSender::processReply()
     }
     else if (lastServerStatus == ServerStatusReplies::sendVariable)
     {
-        int _var = ((char)data.at(0))*256 + (char)data.at(1);
+        unsigned short _var = readShort(stream);
         SimulationVariables::Variable var = (SimulationVariables::Variable)_var;
-        data = data.mid(2);
-        simulatedSystem->receiveVariable(var, data);
+        std::string varData = data.substr(3);
+        simulatedSystem->receiveVariable(var, varData);
     }
     else
     {
-        lastServerReplyData = data;
+        std::string replyData = data.substr(1);
+        lastServerReplyData = replyData;
         receivedServerReply = true;
     }
 }
@@ -246,70 +260,73 @@ FrameBuffer<Sphere>* ActionSender::getFrameBuffer()
 
 unsigned short ActionSender::addSphere()
 {
-    unsigned short sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating,
-        SpheresUpdatingActions::addSphere)).toUInt();
+    std::string retData = sendReplyAction(ActionGroups::spheresUpdating,
+        SpheresUpdatingActions::addSphere);
+    std::istringstream retStream(retData);
+    unsigned short sphereCount = readShort(retStream);
     updateSphereCount(sphereCount);
     return sphereCount;
 }
 
 unsigned short ActionSender::removeLastSphere()
 {
-    unsigned short sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating,
-        SpheresUpdatingActions::removeLastSphere)).toUInt();
+    std::string retData = sendReplyAction(ActionGroups::spheresUpdating,
+        SpheresUpdatingActions::removeLastSphere);
+    std::istringstream retStream(retData);
+    unsigned short sphereCount = readShort(retStream);
     updateSphereCount(sphereCount);
     return sphereCount;
 }
 
 void ActionSender::updateSphere(unsigned short i, Sphere s)
 {
-    QByteArray arr;
-    QDataStream stream(&arr, QIODevice::WriteOnly);
-    stream<<i;
+    std::ostringstream stream;
+    writeShort(stream, i);
     writeAllSphereData(stream, s);
     sendAction(ActionGroups::spheresUpdating,
-        SpheresUpdatingActions::updateSphere, arr);
+        SpheresUpdatingActions::updateSphere, stream.str());
 }
 
 void ActionSender::getBasicSphereData(unsigned short i, Sphere& s)
 {
-    QByteArray arr;
-    QDataStream stream(&arr, QIODevice::WriteOnly);
-    stream<<i;
-    QByteArray retArr = sendReplyAction(ActionGroups::spheresUpdating,
-        SpheresUpdatingActions::getBasicSphereData, arr);
-    QDataStream retStream(&retArr, QIODevice::ReadOnly);
+    std::ostringstream stream;
+    writeShort(stream, i);
+    std::string retData = sendReplyAction(ActionGroups::spheresUpdating,
+        SpheresUpdatingActions::getBasicSphereData, stream.str());
+    std::istringstream retStream(retData);
     readBasicSphereData(retStream, s);
 }
 
 void ActionSender::getAllSphereData(unsigned short i, Sphere& s)
 {
-    QByteArray arr;
-    QDataStream stream(&arr, QIODevice::WriteOnly);
-    stream<<i;
-    QByteArray retArr = sendReplyAction(ActionGroups::spheresUpdating,
-        SpheresUpdatingActions::getAllSphereData, arr);
-    QDataStream retStream(&retArr, QIODevice::ReadOnly);
+    std::ostringstream stream;
+    writeShort(stream, i);
+    std::string retData = sendReplyAction(ActionGroups::spheresUpdating,
+        SpheresUpdatingActions::getAllSphereData, stream.str());
+    std::istringstream retStream(retData);
     readAllSphereData(retStream, s);
 }
 
 unsigned short ActionSender::addSomeSpheres(unsigned short sphCount)
 {
-    QByteArray arr;
-    QDataStream stream(&arr, QIODevice::WriteOnly);
-    stream<<sphCount;
-    unsigned short sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating,
-        SpheresUpdatingActions::addSomeSpheres, arr)).toUInt();
+    std::ostringstream stream;
+    writeShort(stream, sphCount);
+    std::string retData = sendReplyAction(ActionGroups::spheresUpdating,
+        SpheresUpdatingActions::addSomeSpheres, stream.str());
+    std::istringstream retStream(retData);
+    unsigned short sphereCount = readShort(retStream);
     updateSphereCount(sphereCount);
     return sphereCount;
 }
 
 unsigned short ActionSender::removeSomeLastSpheres(unsigned short sphCount)
 {
-    QByteArray arr;
-    QDataStream stream(&arr, QIODevice::WriteOnly);
-    stream<<sphCount;
-    unsigned short sphereCount = QString(sendReplyAction(ActionGroups::spheresUpdating,
-        SpheresUpdatingActions::removeSomeLastSpheres, arr)).toUInt();
+    std::ostringstream stream;
+    writeShort(stream, sphCount);
+    std::string retData = sendReplyAction(ActionGroups::spheresUpdating,
+        SpheresUpdatingActions::removeSomeLastSpheres, stream.str());
+    std::istringstream retStream(retData);
+    unsigned short sphereCount = readShort(retStream);
     updateSphereCount(sphereCount);
     return sphereCount;
 }
@@ -317,30 +334,27 @@ unsigned short ActionSender::removeSomeLastSpheres(unsigned short sphCount)
 void ActionSender::updateSpherePositionsInBox(Scalar randomDisplacement,
     Scalar randomSpeed)
 {
-    QByteArray arr;
-    QDataStream stream(&arr, QIODevice::WriteOnly);
-    stream<<randomDisplacement;
-    stream<<randomSpeed;
+    std::ostringstream stream;
+    writeScalar(stream, randomDisplacement);
+    writeScalar(stream, randomSpeed);
     sendAction(ActionGroups::spheresUpdating,
-        SpheresUpdatingActions::updateSpherePositionsInBox, arr);
+        SpheresUpdatingActions::updateSpherePositionsInBox, stream.str());
 }
 
 void ActionSender::updateAllSpheres(Sphere s)
 {
-    QByteArray arr;
-    QDataStream stream(&arr, QIODevice::WriteOnly);
+    std::ostringstream stream;
     writeAllSphereData(stream, s);
     sendAction(ActionGroups::spheresUpdating,
-        SpheresUpdatingActions::updateAllSpheres, arr);
+        SpheresUpdatingActions::updateAllSpheres, stream.str());
 }
 
 void ActionSender::updateKineticEnergy(Scalar factor)
 {
-    QByteArray arr;
-    QDataStream stream(&arr, QIODevice::WriteOnly);
-    stream<<factor;
+    std::ostringstream stream;
+    writeScalar(stream, factor);
     sendAction(ActionGroups::spheresUpdating,
-        SpheresUpdatingActions::updateKineticEnergy, arr);
+        SpheresUpdatingActions::updateKineticEnergy, stream.str());
 }
 
 void ActionSender::calculateStep()
@@ -351,11 +365,10 @@ void ActionSender::calculateStep()
 
 unsigned int ActionSender::popCalculationCounter()
 {
-    QByteArray retArr = sendReplyAction(ActionGroups::calculation,
+    std::string retData = sendReplyAction(ActionGroups::calculation,
         CalculationActions::popCalculationCounter);
-    QDataStream retStream(&retArr, QIODevice::ReadOnly);
-    unsigned int calculationCounter;
-    retStream>>calculationCounter;
+    std::istringstream retStream(retData);
+    unsigned int calculationCounter = readInt(retStream);
     return calculationCounter;
 }
 
@@ -365,11 +378,10 @@ void ActionSender::calculateSomeSteps(unsigned int steps)
     {
         return;
     }
-    QByteArray arr;
-    QDataStream stream(&arr, QIODevice::WriteOnly);
-    stream<<steps;
+    std::ostringstream stream;
+    writeInt(stream, steps);
     sendAction(ActionGroups::calculation,
-        CalculationActions::calculateSomeSteps, arr);
+        CalculationActions::calculateSomeSteps, stream.str());
     willBeSimulating();
 }
 
@@ -386,41 +398,37 @@ void ActionSender::stopSimulation()
 
 unsigned int ActionSender::popStepCounter()
 {
-    QByteArray retArr = sendReplyAction(ActionGroups::calculation,
+    std::string retData = sendReplyAction(ActionGroups::calculation,
         CalculationActions::popStepCounter);
-    QDataStream retStream(&retArr, QIODevice::ReadOnly);
-    unsigned int stepCounter;
-    retStream>>stepCounter;
+    std::istringstream retStream(retData);
+    unsigned int stepCounter = readInt(retStream);
     return stepCounter;
 }
 
 unsigned int ActionSender::getLastStepCalculationTime()
 {
-    QByteArray retArr = sendReplyAction(ActionGroups::calculation,
+    std::string retData = sendReplyAction(ActionGroups::calculation,
         CalculationActions::getLastStepCalculationTime);
-    QDataStream retStream(&retArr, QIODevice::ReadOnly);
-    unsigned int lastStepCalculationTime;
-    retStream>>lastStepCalculationTime;
+    std::istringstream retStream(retData);
+    unsigned int lastStepCalculationTime = readInt(retStream);
     return lastStepCalculationTime;
 }
 
 Scalar ActionSender::getTotalEnergy()
 {
-    QByteArray retArr = sendReplyAction(ActionGroups::information,
+    std::string retData = sendReplyAction(ActionGroups::information,
         InformationActions::getTotalEnergy);
-    QDataStream retStream(&retArr, QIODevice::ReadOnly);
-    Scalar totalEnergy;
-    retStream>>totalEnergy;
+    std::istringstream retStream(retData);
+    Scalar totalEnergy = readScalar(retStream);
     return totalEnergy;
 }
 
 Scalar ActionSender::getKineticEnergy()
 {
-    QByteArray retArr = sendReplyAction(ActionGroups::information,
+    std::string retData = sendReplyAction(ActionGroups::information,
         InformationActions::getKineticEnergy);
-    QDataStream retStream(&retArr, QIODevice::ReadOnly);
-    Scalar kineticEnergy;
-    retStream>>kineticEnergy;
+    std::istringstream retStream(retData);
+    Scalar kineticEnergy = readScalar(retStream);
     return kineticEnergy;
 }
 
@@ -448,7 +456,7 @@ void ActionSender::disconnected()
     }
 }
 
-void ActionSender::sendVariable(QByteArray variableToSend)
+void ActionSender::sendVariable(std::string variableToSend)
 {
     sendAction(ActionGroups::basic, BasicActions::updateVariable, variableToSend);
 }

@@ -17,6 +17,7 @@
 
 #include <QMutex>
 #include <QObject>
+#include <string>
 
 class QTimer;
 class QElapsedTimer;
@@ -240,7 +241,7 @@ namespace SphereSim
         void requestingWorkerStop();
 
         /** \brief Send frame to client. */
-        void frameToSend(QByteArray frameData);
+        void frameToSend(std::string frameData);
 
     public slots:
         /** \copydoc SpheresUpdatingActions::addSphere

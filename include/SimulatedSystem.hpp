@@ -13,9 +13,9 @@
 #include "Actions.hpp"
 
 #include <QObject>
-#include <QByteArray>
 #include <vector>
 #include <set>
+#include <string>
 
 namespace SphereSim
 {
@@ -61,10 +61,10 @@ namespace SphereSim
             }
         }
 
-        void receiveVariable(SimulationVariables::Variable var, QByteArray data);
+        void receiveVariable(SimulationVariables::Variable var, std::string data);
 
     signals:
-        void variableToSend(QByteArray data);
+        void variableToSend(std::string data);
 
         void variableUpdated(int var);
 

@@ -21,6 +21,7 @@
 #include <cmath>
 #include <random>
 #include <chrono>
+#include <sstream>
 
 #ifndef NO_OPENMP
     #define NO_OPENMP 0
@@ -143,8 +144,8 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
         simulationWorker, SLOT(stop()));
     QObject::connect(this, SIGNAL(requestingWorkerStop()),
         workQueue, SLOT(stop()));
-    QObject::connect(simulationWorker, SIGNAL(sendReply(unsigned char, QByteArray)),
-        actRcv, SLOT(sendReply(unsigned char, QByteArray)));
+    QObject::connect(simulationWorker, SIGNAL(sendReply(unsigned char, std::string)),
+        actRcv, SLOT(sendReply(unsigned char, std::string)));
     simulationThread->start();
 }
 
@@ -754,15 +755,13 @@ void SphereCalculator::stopWorker()
 
 void SphereCalculator::prepareFrameData()
 {
-    QByteArray frameData;
-    QDataStream dataStream(&frameData, QIODevice::WriteOnly);
-    dataStream<<(unsigned short)spheres.size();
+    std::stringstream dataStream;
+    writeShort(dataStream, spheres.size());
     for (unsigned short i = 0; i<spheres.size(); i++)
     {
-        dataStream<<i;
         writeBasicSphereData(dataStream, spheres[i]);
     }
-    emit frameToSend(frameData);
+    emit frameToSend(dataStream.str());
 }
 
 void SphereCalculator::updateSphereBox()

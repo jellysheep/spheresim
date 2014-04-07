@@ -13,6 +13,7 @@
 #include "SphereCalculator.hpp"
 
 #include <QObject>
+#include <string>
 
 class QTcpSocket;
 
@@ -29,7 +30,7 @@ namespace SphereSim
         QTcpSocket* socket;
 
         /** \brief Collected data from a client request. */
-        QByteArray requestData;
+        std::string requestData;
 
         /** \brief Flag if currently data from a client request is being collected;
          * if true, no new requests are accepted. */
@@ -44,7 +45,7 @@ namespace SphereSim
 
         /** \brief Process received request data.
          * \param byteArray Data from network stream to process. */
-        void processData(QByteArray byteArray);
+        void processData(std::string byteArray);
 
         /** \brief Process and reply to received request. */
         void processRequest();
@@ -65,16 +66,16 @@ namespace SphereSim
         /** \brief New data available: Read data from client. */
         void readData();
 
-        void sendFrame(QByteArray frameToSend);
+        void sendFrame(std::string frameToSend);
 
-        void sendVariable(QByteArray variableToSend);
+        void sendVariable(std::string variableToSend);
 
         void simulating(bool isSimulating);
 
         /** \brief Send encoded data to client.
          * \param serverStatus Server status to be sent.
          * \param data Data to be sent to client. */
-        void sendReply(unsigned char serverStatus, QByteArray dataToSend);
+        void sendReply(unsigned char serverStatus, std::string dataToSend);
 
         void terminateServer();
     };

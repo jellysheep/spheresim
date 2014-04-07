@@ -9,7 +9,6 @@
 #ifndef _OBJECT_HPP_
 #define _OBJECT_HPP_
 
-#include <QByteArray>
 #include <string>
 
 namespace SphereSim
@@ -83,9 +82,9 @@ namespace SphereSim
             return *getPtr<T>();
         }
 
-        QByteArray getData() const;
+        std::string getData() const;
 
-        bool setData(const QByteArray &bytes);
+        bool setData(const std::string &bytes);
 
         Type getType() const
         {
