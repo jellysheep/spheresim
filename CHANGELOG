@@ -12,6 +12,7 @@
 * Replaced Qt integral types by standard types.
 * Replaced QByteArray by std::string.
 * Moved SphereTransmit functions to its own source file.
+* Updated Object class to use SphereTransmit functions.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

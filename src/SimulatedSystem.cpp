@@ -25,24 +25,25 @@ SimulatedSystem::SimulatedSystem()
     addVariable(serverVersion, Object::STRING, std::string(VERSION_STR));
     addVariable(serverFloatingType, Object::STRING,
         std::string(TOSTR(FLOATING_TYPE)));
-    addVariable(sphereCount, Object::INT, 0);
+    addVariable(sphereCount, Object::INT, 0u);
     addVariable(timeStep, Object::DOUBLE, 0.002);
-    addVariable(integratorMethod, Object::INT, (int)IntegratorMethods::CashKarp54);
+    addVariable(integratorMethod, Object::INT,
+        (unsigned int)IntegratorMethods::CashKarp54);
     addVariable(simulating, Object::BOOL, false);
     addVariable(frameSending, Object::BOOL, false);
     addVariable(collisionDetection, Object::BOOL, true);
     addVariable(gravityCalculation, Object::BOOL, false);
     addVariable(lennardJonesPotential, Object::BOOL, false);
-    addVariable(maximumStepDivision, Object::INT, 16);
+    addVariable(maximumStepDivision, Object::INT, 16u);
     addVariable(maximumStepError, Object::SCALAR, 1.0e-4);
-    addVariable(sphereE, Object::SCALAR, 5000);
+    addVariable(sphereE, Object::SCALAR, 5000.0);
     addVariable(spherePoissonRatio, Object::SCALAR, 0.5);
-    addVariable(wallE, Object::SCALAR, 5000);
+    addVariable(wallE, Object::SCALAR, 5000.0);
     addVariable(wallPoissonRatio, Object::SCALAR, 0.5);
     addVariable(earthGravity, Object::VECTOR3, Vector3(0, -9.81, 0));
     addVariable(gravitationalConstant, Object::SCALAR, 6.67384e-11);
     addVariable(boxSize, Object::VECTOR3, Vector3(1, 1, 1));
-    addVariable(targetTemperature, Object::SCALAR, 0);
+    addVariable(targetTemperature, Object::SCALAR, 0.0);
     addVariable(periodicBoundaryConditions, Object::BOOL, false);
     addVariable(maximumTheta, Object::SCALAR, 0.5);
     addVariable(kBoltzmann, Object::SCALAR, 1.3806504e-23);

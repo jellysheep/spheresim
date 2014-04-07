@@ -9,11 +9,17 @@
 #ifndef _SPHERETRANSMIT_HPP_
 #define _SPHERETRANSMIT_HPP_
 
+#include "Vector.hpp"
+
 #include <iostream>
+#include <string>
 
 namespace SphereSim
 {
     class Sphere;
+
+    void writeBool(std::ostream& stream, bool b);
+    bool readBool(std::istream& stream);
 
     void writeChar(std::ostream& stream, unsigned char c);
     char readChar(std::istream& stream);
@@ -24,8 +30,17 @@ namespace SphereSim
     void writeInt(std::ostream& stream, unsigned int i);
     unsigned int readInt(std::istream& stream);
 
-    void writeScalar(std::ostream& stream, double d);
-    double readScalar(std::istream& stream);
+    void writeFloat(std::ostream& stream, float f);
+    float readFloat(std::istream& stream);
+
+    void writeDouble(std::ostream& stream, double d);
+    double readDouble(std::istream& stream);
+
+    void writeVector3(std::ostream& stream, Vector3 v);
+    Vector3 readVector3(std::istream& stream);
+
+    void writeString(std::ostream& stream, std::string s);
+    std::string readString(std::istream& stream);
 
     /** \brief Write basic data of a sphere to a stream.
      * \param stream Stream to write to.

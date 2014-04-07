@@ -49,9 +49,9 @@ MainWindow::MainWindow(QStringList args, const char* addr, unsigned short port,
     actionSender->simulatedSystem->set(
         SimulationVariables::earthGravity, Vector3(0, -0.81, 0));
     actionSender->simulatedSystem->set(
-        SimulationVariables::sphereE, 20000);
+        SimulationVariables::sphereE, 20000.0);
     actionSender->simulatedSystem->set(
-        SimulationVariables::wallE, 20000);
+        SimulationVariables::wallE, 20000.0);
     actionSender->simulatedSystem->set(
         SimulationVariables::frameSending, true);
 

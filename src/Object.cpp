@@ -8,6 +8,7 @@
 
 #include "Object.hpp"
 #include "Vector.hpp"
+#include "SphereTransmit.hpp"
 
 #include <iostream>
 #include <type_traits>
@@ -29,7 +30,7 @@ namespace SphereSim
         {
             throw ObjectException();
         }
-        virtual T operator()(int*)
+        virtual T operator()(unsigned int*)
         {
             throw ObjectException();
         }
@@ -57,9 +58,9 @@ namespace SphereSim
         {
             return new bool;
         }
-        void* operator()(int*)
+        void* operator()(unsigned int*)
         {
-            return new int;
+            return new unsigned int;
         }
         void* operator()(double*)
         {
@@ -85,7 +86,7 @@ namespace SphereSim
         {
             delete b;
         }
-        void operator()(int* i)
+        void operator()(unsigned int* i)
         {
             delete i;
         }
@@ -148,7 +149,7 @@ namespace SphereSim
             *b = data;
             return true;
         }
-        bool operator()(int* i)
+        bool operator()(unsigned int* i)
         {
             if (*i == data)
             {
@@ -201,7 +202,7 @@ namespace SphereSim
         {
             return *b;
         }
-        T operator()(int* i)
+        T operator()(unsigned int* i)
         {
             return *i;
         }
@@ -248,7 +249,7 @@ namespace SphereSim
         case BOOL:
             return visitor((bool*)data);
         case INT:
-            return visitor((int*)data);
+            return visitor((unsigned int*)data);
         case DOUBLE:
             return visitor((double*)data);
         case FLOAT:
@@ -269,11 +270,17 @@ namespace SphereSim
     }
 
     template bool Object::set<bool>(const bool&);
-    template bool Object::set<int>(const int&);
+    template bool Object::set<unsigned int>(const unsigned int&);
     template bool Object::set<double>(const double&);
     template bool Object::set<float>(const float&);
     template bool Object::set<Vector3>(const Vector3&);
     template bool Object::set<std::string>(const std::string&);
+
+    template <>
+    bool Object::set<int>(const int& data)
+    {
+        return applyVisitor(SetterVisitor<unsigned int>(data));
+    }
 
     template <typename T>
     T Object::get() const
@@ -282,7 +289,7 @@ namespace SphereSim
     }
 
     template bool Object::get<bool>() const;
-    template int Object::get<int>() const;
+    template unsigned int Object::get<unsigned int>() const;
     template double Object::get<double>() const;
     template float Object::get<float>() const;
     template Vector3 Object::get<Vector3>() const;
@@ -290,186 +297,55 @@ namespace SphereSim
 
     /// serialization:
 
-    template <typename T>
-    T getTypeFromBytes(const std::string &bytes);
-
-    template <>
-    bool getTypeFromBytes<bool>(const std::string &bytes)
-    {
-        return bytes[0]==0?false:true;
-    }
-
-    template <>
-    int getTypeFromBytes<int>(const std::string &bytes)
-    {
-        int l = 0;
-        char* chars = (char*)&l;
-        for (int i = 0; i<4; i++)
-        {
-            chars[i] = bytes.at(i);
-        }
-        return l;
-    }
-
-    template <>
-    long getTypeFromBytes<long>(const std::string &bytes)
-    {
-        long l = 0;
-        char* chars = (char*)&l;
-        for (int i = 0; i<8; i++)
-        {
-            chars[i] = bytes.at(i);
-        }
-        return l;
-    }
-
-    template <>
-    double getTypeFromBytes<double>(const std::string &bytes)
-    {
-        long l = getTypeFromBytes<long>(bytes);
-        return *((double*)&l);
-    }
-
-    template <>
-    float getTypeFromBytes<float>(const std::string &bytes)
-    {
-        int i = getTypeFromBytes<int>(bytes);
-        return *((float*)&i);
-    }
-
-    template <>
-    Vector3 getTypeFromBytes<Vector3>(const std::string &bytes)
-    {
-        Vector3 v;
-        v(0) = getTypeFromBytes<double>(bytes.substr(0, 8));
-        v(1) = getTypeFromBytes<double>(bytes.substr(8, 8));
-        v(2) = getTypeFromBytes<double>(bytes.substr(16, 8));
-        return v;
-    }
-
-    template <>
-    std::string getTypeFromBytes<std::string>(const std::string &bytes)
-    {
-        return bytes;
-    }
-
-    template <typename T>
-    std::string getBytesFromType(const T &t);
-
-    template <>
-    std::string getBytesFromType<bool>(const bool &t)
-    {
-        return std::string(1, t?255:0);
-    }
-
-    template <>
-    std::string getBytesFromType<int>(const int &t)
-    {
-        std::string bytes(4, 0);
-        int l = t;
-        char* chars = (char*)&l;
-        for (int i = 0; i<4; i++)
-        {
-            bytes[i] = chars[i];
-        }
-        return bytes;
-    }
-
-    template <>
-    std::string getBytesFromType<long>(const long &t)
-    {
-        std::string bytes(8, 0);
-        long l = t;
-        char* chars = (char*)&l;
-        for (int i = 0; i<8; i++)
-        {
-            bytes[i] = chars[i];
-        }
-        return bytes;
-    }
-
-    template <>
-    std::string getBytesFromType<double>(const double &t)
-    {
-        long l = *((long*)&t);
-        return getBytesFromType<long>(l);
-    }
-
-    template <>
-    std::string getBytesFromType<float>(const float &t)
-    {
-        int i = *((int*)&t);
-        return getBytesFromType<int>(i);
-    }
-
-    template <>
-    std::string getBytesFromType<Vector3>(const Vector3 &t)
-    {
-        std::string bytes, tmp;
-        double d0 = t(0), d1 = t(1), d2 = t(2);
-        tmp = getBytesFromType<double>(d0);
-        bytes += tmp;
-        tmp = getBytesFromType<double>(d1);
-        bytes += tmp;
-        tmp = getBytesFromType<double>(d2);
-        bytes += tmp;
-        return bytes;
-    }
-
-    template <>
-    std::string getBytesFromType<std::string>(const std::string &t)
-    {
-        return std::string(t.c_str(), t.size());
-    }
-
     std::string Object::getData() const
     {
-        std::string bytes;
-        bytes += (char)type;
+        std::ostringstream stream;
+        stream<<(char)type;
         switch (type)
         {
         case BOOL:
-            bytes.append(getBytesFromType(*(bool*)data));
+            writeBool(stream, *(bool*)data);
             break;
         case INT:
-            bytes.append(getBytesFromType(*(int*)data));
+            writeInt(stream, *(unsigned int*)data);
             break;
         case DOUBLE:
-            bytes.append(getBytesFromType(*(double*)data));
+            writeDouble(stream, *(double*)data);
             break;
         case FLOAT:
-            bytes.append(getBytesFromType(*(float*)data));
+            writeFloat(stream, *(float*)data);
             break;
         case VECTOR3:
-            bytes.append(getBytesFromType(*(Vector3*)data));
+            writeVector3(stream, *(Vector3*)data);
             break;
         case STRING:
-            bytes.append(getBytesFromType(*(std::string*)data));
+            writeString(stream, *(std::string*)data);
             break;
         default:
             throw ObjectException();
         }
-        return bytes;
+        return stream.str();
     }
 
-    bool Object::setData(const std::string &bytes_)
+    bool Object::setData(const std::string &bytes)
     {
-        Type t = (Type)bytes_[0];
-        std::string bytes = bytes_.substr(1);
-        switch (t)
+        std::istringstream stream(bytes);
+        char type;
+        stream>>type;
+        switch (type)
         {
         case BOOL:
-            return set(getTypeFromBytes<bool>(bytes));
+            return set(readBool(stream));
         case INT:
-            return set(getTypeFromBytes<int>(bytes));
+            return set(readInt(stream));
         case DOUBLE:
-            return set(getTypeFromBytes<double>(bytes));
+            return set(readDouble(stream));
         case FLOAT:
-            return set(getTypeFromBytes<float>(bytes));
+            return set(readFloat(stream));
         case VECTOR3:
-            return set(getTypeFromBytes<Vector3>(bytes));
+            return set(readVector3(stream));
         case STRING:
-            return set(getTypeFromBytes<std::string>(bytes));
+            return set(readString(stream));
         default:
             throw ObjectException();
         }

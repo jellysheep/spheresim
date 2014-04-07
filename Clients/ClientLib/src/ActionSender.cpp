@@ -335,8 +335,8 @@ void ActionSender::updateSpherePositionsInBox(Scalar randomDisplacement,
     Scalar randomSpeed)
 {
     std::ostringstream stream;
-    writeScalar(stream, randomDisplacement);
-    writeScalar(stream, randomSpeed);
+    writeDouble(stream, randomDisplacement);
+    writeDouble(stream, randomSpeed);
     sendAction(ActionGroups::spheresUpdating,
         SpheresUpdatingActions::updateSpherePositionsInBox, stream.str());
 }
@@ -352,7 +352,7 @@ void ActionSender::updateAllSpheres(Sphere s)
 void ActionSender::updateKineticEnergy(Scalar factor)
 {
     std::ostringstream stream;
-    writeScalar(stream, factor);
+    writeDouble(stream, factor);
     sendAction(ActionGroups::spheresUpdating,
         SpheresUpdatingActions::updateKineticEnergy, stream.str());
 }
@@ -419,7 +419,7 @@ Scalar ActionSender::getTotalEnergy()
     std::string retData = sendReplyAction(ActionGroups::information,
         InformationActions::getTotalEnergy);
     std::istringstream retStream(retData);
-    Scalar totalEnergy = readScalar(retStream);
+    Scalar totalEnergy = readDouble(retStream);
     return totalEnergy;
 }
 
@@ -428,7 +428,7 @@ Scalar ActionSender::getKineticEnergy()
     std::string retData = sendReplyAction(ActionGroups::information,
         InformationActions::getKineticEnergy);
     std::istringstream retStream(retData);
-    Scalar kineticEnergy = readScalar(retStream);
+    Scalar kineticEnergy = readDouble(retStream);
     return kineticEnergy;
 }
 
@@ -466,7 +466,7 @@ void ActionSender::variableUpdated(int var)
     if (var == SimulationVariables::sphereCount)
     {
         unsigned short sphCount =
-            simulatedSystem->get<int>(SimulationVariables::sphereCount);
+            simulatedSystem->get<unsigned int>(SimulationVariables::sphereCount);
         emit sphereCountChanged(sphCount);
         emit sphereCountChangedDouble((double)sphCount);
     }

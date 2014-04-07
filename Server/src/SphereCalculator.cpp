@@ -61,9 +61,9 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
         maxPairwiseCellsPerGravityCell, gravityAllCellCount),
     gravityCellIndexOfSpheres(nullptr), sphereCountPerGravityCell(nullptr),
     lastStepCalculationTime(0), elapsedTimer(new QElapsedTimer()),
-    sphereCount(simulatedSystem->getRef<int>(SimulationVariables::sphereCount)),
+    sphereCount(simulatedSystem->getRef<unsigned int>(SimulationVariables::sphereCount)),
     timeStep(simulatedSystem->getRef<Scalar>(SimulationVariables::timeStep)),
-    integratorMethod(simulatedSystem->getRef<int>(
+    integratorMethod(simulatedSystem->getRef<unsigned int>(
         SimulationVariables::integratorMethod)),
     collisionDetection(simulatedSystem->getRef<bool>(
         SimulationVariables::collisionDetection)),
@@ -71,7 +71,7 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
         SimulationVariables::gravityCalculation)),
     lennardJonesPotential(simulatedSystem->getRef<bool>(
         SimulationVariables::lennardJonesPotential)),
-    maximumStepDivision(simulatedSystem->getRef<int>(
+    maximumStepDivision(simulatedSystem->getRef<unsigned int>(
         SimulationVariables::maximumStepDivision)),
     maximumStepError(simulatedSystem->getRef<Scalar>(
         SimulationVariables::maximumStepError)),
@@ -176,7 +176,7 @@ WorkQueue* SphereCalculator::getWorkQueue()
 
 unsigned short SphereCalculator::getAndUpdateSphereCount()
 {
-    simulatedSystem->set<int>(SimulationVariables::sphereCount, spheres.size());
+    simulatedSystem->set<unsigned int>(SimulationVariables::sphereCount, spheres.size());
     return spheres.size();
 }
 
@@ -1332,7 +1332,7 @@ void SphereCalculator::updateIntegratorMethod()
     {
         qDebug()<<"SphereCalculator: activated RungeKuttaFehlberg54 integrator.";
         simulatedSystem->set(SimulationVariables::integratorMethod,
-            (int)IntegratorMethods::RungeKuttaFehlberg54);
+            (unsigned int)IntegratorMethods::RungeKuttaFehlberg54);
         const Scalar a[36] =
             {
                 0.0,            0.0,            0.0,

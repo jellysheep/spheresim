@@ -111,7 +111,7 @@ Scalar SystemCreator::createArgonGasSystem(unsigned short sphereCount,
     actionSender->simulatedSystem->set(
         SimulationVariables::earthGravity, Vector3(0, 0, 0));
     actionSender->simulatedSystem->set(
-        SimulationVariables::wallE, 0);
+        SimulationVariables::wallE, 0.0);
     actionSender->simulatedSystem->set(
         SimulationVariables::periodicBoundaryConditions, true);
 
@@ -163,11 +163,11 @@ Scalar SystemCreator::createMacroscopic2DCollisionSystem(unsigned short sphereCo
     actionSender->updateSpherePositionsInBox(0.01, 0.01);
 
     actionSender->simulatedSystem->set(
-        SimulationVariables::sphereE, 5000);
+        SimulationVariables::sphereE, 5000.0);
     actionSender->simulatedSystem->set(
         SimulationVariables::spherePoissonRatio, 0.5);
     actionSender->simulatedSystem->set(
-        SimulationVariables::wallE, 5000);
+        SimulationVariables::wallE, 5000.0);
     actionSender->simulatedSystem->set(
         SimulationVariables::wallPoissonRatio, 0.5);
     actionSender->simulatedSystem->set(
@@ -203,11 +203,11 @@ Scalar SystemCreator::createSimpleWallCollisionSystem()
     actionSender->updateSphere(0, s);
 
     actionSender->simulatedSystem->set(
-        SimulationVariables::sphereE, 5000);
+        SimulationVariables::sphereE, 5000.0);
     actionSender->simulatedSystem->set(
         SimulationVariables::spherePoissonRatio, 0.5);
     actionSender->simulatedSystem->set(
-        SimulationVariables::wallE, 5000);
+        SimulationVariables::wallE, 5000.0);
     actionSender->simulatedSystem->set(
         SimulationVariables::wallPoissonRatio, 0.5);
     actionSender->simulatedSystem->set(

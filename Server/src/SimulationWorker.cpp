@@ -153,8 +153,8 @@ void SimulationWorker::handleSpheresUpdatingAction(WorkQueueItem* workQueueItem)
         emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     case SpheresUpdatingActions::updateSpherePositionsInBox:
-        s1 = readScalar(stream);
-        s2 = readScalar(stream);
+        s1 = readDouble(stream);
+        s2 = readDouble(stream);
         sphCalc->updateSpherePositionsInBox(s1, s2);
         break;
     case SpheresUpdatingActions::updateAllSpheres:
@@ -162,7 +162,7 @@ void SimulationWorker::handleSpheresUpdatingAction(WorkQueueItem* workQueueItem)
         sphCalc->updateAllSpheres(s);
         break;
     case SpheresUpdatingActions::updateKineticEnergy:
-        s1 = readScalar(stream);
+        s1 = readDouble(stream);
         sphCalc->updateKineticEnergy(s1);
         break;
     default:
@@ -202,11 +202,11 @@ void SimulationWorker::handleInformationAction(WorkQueueItem* workQueueItem)
     switch (workQueueItem->action)
     {
     case InformationActions::getTotalEnergy:
-        writeScalar(retStream, sphCalc->getTotalEnergy());
+        writeDouble(retStream, sphCalc->getTotalEnergy());
         emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     case InformationActions::getKineticEnergy:
-        writeScalar(retStream, sphCalc->getKineticEnergy());
+        writeDouble(retStream, sphCalc->getKineticEnergy());
         emit sendReply(ServerStatusReplies::acknowledge, retStream.str());
         break;
     default:

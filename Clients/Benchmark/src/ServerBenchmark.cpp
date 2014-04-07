@@ -29,9 +29,9 @@ ServerBenchmark::~ServerBenchmark()
 
 void ServerBenchmark::run()
 {
-    sender->simulatedSystem->set(SimulationVariables::sphereE, 5000);
+    sender->simulatedSystem->set(SimulationVariables::sphereE, 5000.0);
     sender->simulatedSystem->set(SimulationVariables::spherePoissonRatio, 0.5);
-    sender->simulatedSystem->set(SimulationVariables::wallE, 5000);
+    sender->simulatedSystem->set(SimulationVariables::wallE, 5000.0);
     sender->simulatedSystem->set(SimulationVariables::wallPoissonRatio, 0.5);
     sender->simulatedSystem->set(SimulationVariables::earthGravity,
         Vector3(0, -9.81, 0));
@@ -85,11 +85,11 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
         calculateLennardJonesPotential);
     if (calculateGravity)
     {
-        sender->simulatedSystem->set(SimulationVariables::wallE, 0);
+        sender->simulatedSystem->set(SimulationVariables::wallE, 0.0);
     }
     else
     {
-        sender->simulatedSystem->set(SimulationVariables::wallE, 5000);
+        sender->simulatedSystem->set(SimulationVariables::wallE, 5000.0);
     }
 
     Scalar timeStep = 0.00001;

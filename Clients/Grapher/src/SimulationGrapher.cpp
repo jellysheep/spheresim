@@ -54,7 +54,7 @@ void SimulationGrapher::run()
     systemCreator->createMacroscopicGravitationSystem(sphereCount);
     actionSender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
     actionSender->simulatedSystem->set(SimulationVariables::frameSending, false);
-    actionSender->simulatedSystem->set(SimulationVariables::maximumStepDivision, 0);
+    actionSender->simulatedSystem->set(SimulationVariables::maximumStepDivision, 0u);
 
     dataUpdateTimer->start();
 }

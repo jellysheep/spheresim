@@ -126,13 +126,13 @@ namespace SphereSim
 
         QElapsedTimer* elapsedTimer;
 
-        const int &sphereCount;
+        const unsigned int &sphereCount;
         const Scalar &timeStep;
-        const int &integratorMethod;
+        const unsigned int &integratorMethod;
         const bool &collisionDetection;
         const bool &gravityCalculation;
         const bool &lennardJonesPotential;
-        const int &maximumStepDivision;
+        const unsigned int &maximumStepDivision;
         const Scalar &maximumStepError;
         const Scalar &sphereE;
         const Scalar &spherePoissonRatio;
