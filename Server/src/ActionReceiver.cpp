@@ -10,6 +10,7 @@
 #include "Connection.hpp"
 #include "WorkQueue.hpp"
 #include "DataTransmit.hpp"
+#include "MessageTransmitter.hpp"
 
 #include <QTcpSocket>
 #include <QCoreApplication>
@@ -18,11 +19,14 @@
 using namespace SphereSim;
 
 ActionReceiver::ActionReceiver(QTcpSocket* socket)
-    :socket(socket), requestData(), collectingRequestData(false), simulatedSystem(),
-    sphCalc(this, &simulatedSystem), workQueue(sphCalc.getWorkQueue())
+    :socket(socket), messageTransmitter(new MessageTransmitter(socket)),
+    simulatedSystem(), sphCalc(this, &simulatedSystem),
+    workQueue(sphCalc.getWorkQueue())
 {
     connect(socket, SIGNAL(disconnected()), SLOT(deleteLater()));
-    connect(socket, SIGNAL(readyRead()), SLOT(readData()));
+    connect(socket, SIGNAL(readyRead()), messageTransmitter, SLOT(readData()));
+    connect(messageTransmitter, SIGNAL(processData(std::string)),
+        SLOT(processRequest(std::string)));
     connect(&sphCalc, SIGNAL(frameToSend(std::string)), SLOT(sendFrame(std::string)));
     connect(&simulatedSystem, SIGNAL(variableToSend(std::string)),
         SLOT(sendVariable(std::string)));
@@ -32,6 +36,7 @@ ActionReceiver::ActionReceiver(QTcpSocket* socket)
 
 ActionReceiver::~ActionReceiver()
 {
+    delete messageTransmitter;
     if(socket != NULL)
     {
         socket->close();
@@ -39,7 +44,6 @@ ActionReceiver::~ActionReceiver()
         socket = NULL;
     }
     qDebug()<<"ActionReceiver: disconnected";
-    delete socket;
 }
 
 void ActionReceiver::terminateServer()
@@ -55,83 +59,8 @@ void ActionReceiver::terminateServer()
     deleteLater();
 }
 
-void ActionReceiver::readData()
+void ActionReceiver::processRequest(std::string data)
 {
-    std::string arr(socket->readAll().constData());
-    processData(arr);
-}
-
-void ActionReceiver::processData(std::string byteArray)
-{
-    std::string::size_type endIndex, startIndex;
-    endIndex = byteArray.find(Connection::endByte);
-    startIndex = byteArray.find(Connection::startByte);
-
-    if (endIndex == std::string::npos)
-    {
-        if (startIndex == std::string::npos)
-        {
-            ///no endByte or startByte
-            if (collectingRequestData)
-            {
-                requestData.append(byteArray);
-            }
-        }
-        else
-        {
-            ///only startByte
-            if (collectingRequestData == false)
-            {
-                //what if last request did not end correctly? next request
-                //would be skipped (waiting for endByte)...
-                collectingRequestData = true;
-                requestData = byteArray.substr(startIndex-1);
-            }
-        }
-    }
-    else
-    {
-        if (startIndex == std::string::npos)
-        {
-            ///only endByte
-            if (collectingRequestData)
-            {
-                requestData.append(byteArray.substr(0, endIndex));
-                collectingRequestData = false;
-                processRequest();
-            }
-        }
-        else
-        {
-            ///startByte and endByte
-            if (startIndex<endIndex)
-            {
-                ///startByte before endByte
-                requestData = byteArray.substr(startIndex+1, endIndex-startIndex-1);
-                collectingRequestData = false;
-                processRequest();
-                processData(byteArray.substr(endIndex+1));
-            }
-            else
-            {
-                ///endByte before startByte
-                if (collectingRequestData)
-                {
-                    requestData.append(byteArray.substr(0, endIndex));
-                    collectingRequestData = false;
-                    processRequest();
-                    processData(byteArray.substr(endIndex+1));
-                }
-            }
-        }
-    }
-}
-
-void ActionReceiver::processRequest()
-{
-    QByteArray byteArray(requestData.c_str(), requestData.size());
-    byteArray = QByteArray::fromBase64(byteArray);
-    std::string data(byteArray.constData(), byteArray.size());
     unsigned char actionGroup = data[0];
     unsigned char action = data[1];
     if (data.size()>2)
@@ -150,15 +79,7 @@ void ActionReceiver::sendReply(unsigned char serverStatus, std::string dataToSen
     std::ostringstream data;
     writeChar(data, serverStatus);
     data<<dataToSend;
-    std::ostringstream finalData;
-    finalData<<Connection::startByte;
-    std::string dataStr = data.str();
-    QByteArray byteArray(dataStr.c_str(), dataStr.size());
-    byteArray = byteArray.toBase64();
-    dataStr = std::string(byteArray.constData(), byteArray.size());
-    finalData<<dataStr;
-    finalData<<Connection::endByte;
-    socket->write(finalData.str().c_str());
+    messageTransmitter->send(data.str());
 }
 
 void ActionReceiver::sendFrame(std::string frameToSend)

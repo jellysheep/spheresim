@@ -19,6 +19,7 @@ class QTcpSocket;
 
 namespace SphereSim
 {
+    class MessageTransmitter;
 
     /** \brief Receiver of client requests. */
     class ActionReceiver:public QObject
@@ -29,12 +30,8 @@ namespace SphereSim
         /** \brief Socket to client. */
         QTcpSocket* socket;
 
-        /** \brief Collected data from a client request. */
-        std::string requestData;
-
-        /** \brief Flag if currently data from a client request is being collected;
-         * if true, no new requests are accepted. */
-        bool collectingRequestData;
+        /** \brief Encapsulate and encode messages sent over network. */
+        MessageTransmitter* messageTransmitter;
 
         SimulatedSystem simulatedSystem;
 
@@ -42,13 +39,6 @@ namespace SphereSim
         SphereCalculator sphCalc;
 
         WorkQueue* workQueue;
-
-        /** \brief Process received request data.
-         * \param byteArray Data from network stream to process. */
-        void processData(std::string byteArray);
-
-        /** \brief Process and reply to received request. */
-        void processRequest();
 
     public:
         /** \brief Start a new server handling requests from the client.
@@ -63,8 +53,8 @@ namespace SphereSim
         ActionReceiver& operator=(const ActionReceiver&) = delete;
 
     public slots:
-        /** \brief New data available: Read data from client. */
-        void readData();
+        /** \brief Process and reply to received request. */
+        void processRequest(std::string data);
 
         void sendFrame(std::string frameToSend);
 

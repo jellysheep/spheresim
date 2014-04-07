@@ -25,6 +25,8 @@ class QTcpSocket;
 
 namespace SphereSim
 {
+    class MessageTransmitter;
+
     /** \brief Start client, build up server connection, send request to server. */
     class ActionSender : public QObject
     {
@@ -58,13 +60,6 @@ namespace SphereSim
         /** \brief Last server reply data. */
         std::string lastServerReplyData;
 
-        /** \brief Partial server reply data. */
-        std::string replyData;
-
-        /** \brief Flag for currently collecting server data.
-         * If true, no new replies are accepted. */
-        bool collectingReplyData;
-
         /** \brief Timer used to measure framerates. */
         QElapsedTimer framerateTimer;
 
@@ -74,12 +69,8 @@ namespace SphereSim
         /** \brief Measured rate of received frames per second. */
         Scalar receivedFramesPerSecond;
 
-        /** \brief Process received reply data.
-         * \param byteArray Received data to process. */
-        void processData(std::string byteArray);
-
-        /** \brief Process and answer to received reply. */
-        void processReply();
+        /** \brief Encapsulate and encode messages sent over network. */
+        MessageTransmitter* messageTransmitter;
 
         /** \brief Send an action request to the server.
          * \param actionGroup Group of the requested action.
@@ -201,8 +192,8 @@ namespace SphereSim
 
         void disconnected();
 
-        /** \brief Read data from server. */
-        void readData();
+        /** \brief Process and answer to received reply. */
+        void processReply(std::string data);
 
         /** \brief Executed when some measured event (e.g. received frame) happened.
          * \see newFrameReceived */

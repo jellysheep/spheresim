@@ -62,6 +62,7 @@ set(HEADERS
     ${PROJECT_INCLUDE_DIR}/Integrators.hpp
     ${PROJECT_INCLUDE_DIR}/Object.hpp
     ${PROJECT_INCLUDE_DIR}/SimulatedSystem.hpp
+    ${PROJECT_INCLUDE_DIR}/MessageTransmitter.hpp
 )
 set(GLOBAL_SOURCES
     ${COMMON_SOURCE_DIR}/Connection.cpp
@@ -69,6 +70,7 @@ set(GLOBAL_SOURCES
     ${COMMON_SOURCE_DIR}/SimulatedSystem.cpp
     ${COMMON_SOURCE_DIR}/Object.cpp
     ${COMMON_SOURCE_DIR}/DataTransmit.cpp
+    ${COMMON_SOURCE_DIR}/MessageTransmitter.cpp
 )
 
 #documentation:

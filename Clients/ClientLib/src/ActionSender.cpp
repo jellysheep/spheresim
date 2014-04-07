@@ -10,6 +10,7 @@
 #include "Connection.hpp"
 #include "Console.hpp"
 #include "DataTransmit.hpp"
+#include "MessageTransmitter.hpp"
 
 #include <QTcpSocket>
 #include <QHostAddress>
@@ -27,15 +28,17 @@ ActionSender::ActionSender(QStringList args, const char* addr, unsigned short po
     connectedFlag(false), connectionTryCount(0), serverProcess(),
     createdOwnServer(false), frameBuffer(10),
     lastServerStatus(ServerStatusReplies::acknowledge),
-    receivedServerReply(false), lastServerReplyData(), replyData(),
-    collectingReplyData(false), framerateTimer(), frameCounter(0),
-    receivedFramesPerSecond(0), failureExitWhenDisconnected(false),
-    simulatedSystem(nullptr)
+    receivedServerReply(false), lastServerReplyData(), framerateTimer(),
+    frameCounter(0), receivedFramesPerSecond(0),
+    messageTransmitter(new MessageTransmitter(socket)),
+    failureExitWhenDisconnected(false), simulatedSystem(nullptr)
 {
     qRegisterMetaType<std::string>();
     connect(socket, SIGNAL(connected()), SLOT(connected()));
     connect(socket, SIGNAL(disconnected()), SLOT(disconnected()));
-    connect(socket, SIGNAL(readyRead()), SLOT(readData()));
+    connect(socket, SIGNAL(readyRead()), messageTransmitter, SLOT(readData()));
+    connect(messageTransmitter, SIGNAL(processData(std::string)),
+        SLOT(processReply(std::string)));
     framerateTimer.start();
     frameBuffer.setActionSender(this);
     connect(this, SIGNAL(newFrameReceived()), SLOT(framerateEvent()));
@@ -76,6 +79,7 @@ ActionSender::~ActionSender()
         serverProcess.waitForFinished(200);
         serverProcess.kill();
     }
+    delete messageTransmitter;
     socket->close();
     delete socket;
 }
@@ -83,23 +87,11 @@ ActionSender::~ActionSender()
 void ActionSender::sendAction(unsigned char actionGroup, unsigned char action,
     const std::string& arr)
 {
-    //Console::white<<"ActionGroup: "<<(int)actionGroup<<"\n";
-    //Console::white<<"Action: "<<(int)action<<"\n";
     std::ostringstream data;
     writeChar(data, actionGroup);
     writeChar(data, action);
     data<<arr;
-    std::ostringstream finalData;
-    finalData<<Connection::startByte;
-    std::string dataStr = data.str();
-    QByteArray byteArray(dataStr.c_str(), dataStr.size());
-    //Console::white<<"Data: "<<byteArray<<"\n";
-    byteArray = byteArray.toBase64();
-    dataStr = std::string(byteArray.constData(), byteArray.size());
-    finalData<<dataStr;
-    finalData<<Connection::endByte;
-    //Console::white<<"Final data: "<<finalData.str().c_str()<<"\n";
-    socket->write(finalData.str().c_str());
+    messageTransmitter->send(data.str());
 }
 void ActionSender::sendAction(unsigned char actionGroup, unsigned char action)
 {
@@ -124,85 +116,8 @@ std::string ActionSender::sendReplyAction(unsigned char actionGroup,
     return sendReplyAction(actionGroup, action, std::string());
 }
 
-void ActionSender::readData()
+void ActionSender::processReply(std::string data)
 {
-    std::string arr(socket->readAll().constData());
-    processData(arr);
-}
-
-void ActionSender::processData(std::string byteArray)
-{
-    //Console::white<<"Received data: "<<byteArray.c_str()<<"\n";
-    std::string::size_type endIndex, startIndex;
-    endIndex = byteArray.find(Connection::endByte);
-    startIndex = byteArray.find(Connection::startByte);
-
-    if (endIndex == std::string::npos)
-    {
-        if (startIndex == std::string::npos)
-        {
-            ///no endByte or startByte
-            if (collectingReplyData)
-            {
-                replyData.append(byteArray);
-            }
-        }
-        else
-        {
-            ///only startByte
-            if (collectingReplyData == false)
-            {
-                //what if last reply did not end correctly? next reply would be
-                //skipped (waiting for endByte)...
-                collectingReplyData = true;
-                replyData = byteArray.substr(startIndex-1);
-            }
-        }
-    }
-    else
-    {
-        if (startIndex == std::string::npos)
-        {
-            ///only endByte
-            if (collectingReplyData)
-            {
-                replyData.append(byteArray.substr(0, endIndex));
-                collectingReplyData = false;
-                processReply();
-            }
-        }
-        else
-        {
-            ///startByte and endByte
-            if (startIndex<endIndex)
-            {
-                ///startByte before endByte
-                replyData = byteArray.substr(startIndex+1, endIndex-startIndex-1);
-                collectingReplyData = false;
-                processReply();
-                processData(byteArray.substr(endIndex+1));
-            }
-            else
-            {
-                ///endByte before startByte
-                if (collectingReplyData)
-                {
-                    replyData.append(byteArray.substr(0, endIndex));
-                    collectingReplyData = false;
-                    processReply();
-                    processData(byteArray.substr(endIndex+1));
-                }
-            }
-        }
-    }
-}
-
-void ActionSender::processReply()
-{
-    //Console::white<<"Process data: "<<replyData.c_str()<<"\n";
-    QByteArray byteArray(replyData.c_str(), replyData.size());
-    byteArray = QByteArray::fromBase64(byteArray);
-    std::string data(byteArray.constData(), byteArray.size());
     std::istringstream stream(data);
     lastServerStatus = readChar(stream);
 

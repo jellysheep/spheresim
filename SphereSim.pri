@@ -23,13 +23,15 @@ HEADERS     =   Actions.hpp         \
                 Wall.hpp            \
                 Integrators.hpp     \
                 Object.hpp          \
-                SimulatedSystem.hpp
+                SimulatedSystem.hpp \
+                MessageTransmitter.hpp
 
 SOURCES     =   Connection.cpp      \
                 Console.cpp         \
                 Object.cpp          \
                 SimulatedSystem.cpp \
-                DataTransmit.cpp
+                DataTransmit.cpp    \
+                MessageTransmitter.cpp
 
 QMAKE_CXXFLAGS_RELEASE  +=  -O3 -Wno-unused-local-typedefs -Wno-enum-compare \
                             -Wno-unused-parameter -Wno-unused-variable \
