@@ -11,6 +11,7 @@
 * Updated local includes to use double quotes.
 * Replaced Qt integral types by standard types.
 * Replaced QByteArray by std::string.
+* Moved SphereTransmit functions to its own source file.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

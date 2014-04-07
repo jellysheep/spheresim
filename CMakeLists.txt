@@ -68,6 +68,7 @@ set(GLOBAL_SOURCES
     ${COMMON_SOURCE_DIR}/Console.cpp
     ${COMMON_SOURCE_DIR}/SimulatedSystem.cpp
     ${COMMON_SOURCE_DIR}/Object.cpp
+    ${COMMON_SOURCE_DIR}/SphereTransmit.cpp
 )
 
 #documentation:

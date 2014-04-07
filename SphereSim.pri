@@ -28,7 +28,8 @@ HEADERS     =   Actions.hpp         \
 SOURCES     =   Connection.cpp      \
                 Console.cpp         \
                 Object.cpp          \
-                SimulatedSystem.cpp
+                SimulatedSystem.cpp \
+                SphereTransmit.cpp
 
 QMAKE_CXXFLAGS_RELEASE  +=  -O3 -Wno-unused-local-typedefs -Wno-enum-compare \
                             -Wno-unused-parameter -Wno-unused-variable \
