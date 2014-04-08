@@ -18,6 +18,7 @@
 * Improved exception handling.
 * Switched to custom hexadecimal message encoding.
 * Removed QStringList occurrences.
+* Removed unused include files.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

@@ -14,7 +14,6 @@
 
 #include <QTcpSocket>
 #include <QCoreApplication>
-#include <QDataStream>
 
 using namespace SphereSim;
 

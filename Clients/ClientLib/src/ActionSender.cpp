@@ -14,7 +14,6 @@
 
 #include <QTcpSocket>
 #include <QHostAddress>
-#include <QDataStream>
 #include <QCoreApplication>
 #include <string>
 

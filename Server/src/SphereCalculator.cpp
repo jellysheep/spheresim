@@ -14,7 +14,6 @@
 #include "ActionReceiver.hpp"
 
 #include <QDebug>
-#include <QDataStream>
 #include <QThread>
 #include <QTimer>
 #include <QElapsedTimer>

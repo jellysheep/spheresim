@@ -11,7 +11,6 @@
 
 #include <QDebug>
 #include <QElapsedTimer>
-#include <QDataStream>
 #include <sstream>
 
 using namespace SphereSim;

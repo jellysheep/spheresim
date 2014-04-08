@@ -13,8 +13,6 @@
 
 #include <QtGlobal>
 #include <QObject>
-#include <QFile>
-#include <QTextStream>
 #include <vector>
 
 class QTimer;

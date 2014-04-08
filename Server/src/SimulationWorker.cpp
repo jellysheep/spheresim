@@ -17,7 +17,6 @@
 
 #include <QDebug>
 #include <QCoreApplication>
-#include <QDataStream>
 #include <sstream>
 
 using namespace SphereSim;

@@ -9,8 +9,6 @@
 #ifndef _DIMENSION_HPP_
 #define _DIMENSION_HPP_
 
-#include <QTextStream>
-
 namespace SphereSim
 {
 

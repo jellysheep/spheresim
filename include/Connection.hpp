@@ -9,9 +9,6 @@
 #ifndef _CONNECTION_HPP_
 #define _CONNECTION_HPP_
 
-#include <QtGlobal>
-#include <QString>
-
 namespace SphereSim
 {
 

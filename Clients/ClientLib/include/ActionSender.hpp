@@ -16,7 +16,6 @@
 
 #include <QtGlobal>
 #include <QObject>
-#include <QAbstractSocket>
 #include <QProcess>
 #include <QElapsedTimer>
 #include <string>

@@ -14,6 +14,8 @@
 
 #include <QDebug>
 #include <QCoreApplication>
+#include <QFile>
+#include <QTextStream>
 #include <QTimer>
 #include <random>
 #include <chrono>

@@ -9,8 +9,6 @@
 #ifndef _INTEGRATORS_HPP_
 #define _INTEGRATORS_HPP_
 
-#include <QTextStream>
-
 namespace SphereSim
 {
 
