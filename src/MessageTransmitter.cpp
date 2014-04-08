@@ -9,7 +9,6 @@
 #include "Connection.hpp"
 #include "MessageTransmitter.hpp"
 
-#include <QByteArray>
 #include <QTcpSocket>
 
 using namespace SphereSim;
@@ -21,17 +20,22 @@ MessageTransmitter::MessageTransmitter(QTcpSocket* socket)
 
 std::string MessageTransmitter::encode(const std::string& data)
 {
-    QByteArray byteArray(data.c_str(), data.size());
-    byteArray = byteArray.toBase64();
-    std::string encodedData(byteArray.constData(), byteArray.size());
+    std::string encodedData(2*data.size(), '\0');
+    for(unsigned int i = 0; i<data.size(); i++)
+    {
+        encodedData[2*i] = 'a'+data[i]/16;
+        encodedData[2*i+1] = 'a'+data[i]%16;
+    }
     return encodedData;
 }
 
 std::string MessageTransmitter::decode(const std::string& data)
 {
-    QByteArray byteArray(data.c_str(), data.size());
-    byteArray = QByteArray::fromBase64(byteArray);
-    std::string decodedData(byteArray.constData(), byteArray.size());
+    std::string decodedData(data.size()/2, '\0');
+    for(unsigned int i = 0; i<data.size()/2; i++)
+    {
+        decodedData[i] = ((data[2*i]-'a')*16)+(data[2*i+1]-'a');
+    }
     return decodedData;
 }
 
