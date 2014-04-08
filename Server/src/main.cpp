@@ -11,7 +11,6 @@
 #include "Console.hpp"
 
 #include <QCoreApplication>
-#include <QStringList>
 #include <string>
 
 Q_DECLARE_METATYPE(std::string);
@@ -29,10 +28,9 @@ int main(int argc, char** argv)
     qRegisterMetaType<std::string>();
 
     QCoreApplication app(argc, argv);
-    QStringList args = app.arguments();
     try
     {
-        ActionServer actSvr(args, Connection::listeningAddress, Connection::port);
+        ActionServer actSvr(Connection::listeningAddress, Connection::port);
         return app.exec();
     }
     catch (std::exception ex)

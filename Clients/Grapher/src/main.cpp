@@ -11,7 +11,6 @@
 #include "Console.hpp"
 
 #include <QCoreApplication>
-#include <QStringList>
 #include <QTimer>
 
 using namespace SphereSim;
@@ -25,10 +24,9 @@ using namespace SphereSim;
 int main(int argc, char** argv)
 {
     QCoreApplication app(argc, argv);
-    QStringList args = app.arguments();
     try
     {
-        SimulationGrapher simGrapher(args, Connection::address, Connection::port);
+        SimulationGrapher simGrapher(Connection::address, Connection::port);
         return app.exec();
     }
     catch (std::exception ex)

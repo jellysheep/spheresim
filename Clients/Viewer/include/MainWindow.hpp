@@ -58,7 +58,7 @@ namespace SphereSim
 
     public:
         /** \brief Initialize member variables. */
-        MainWindow(QStringList args, const char* addr, unsigned short port,
+        MainWindow(const char* addr, unsigned short port,
             unsigned short sphCount, QWidget* parent = nullptr);
 
         /** \brief Clean up member variables. */

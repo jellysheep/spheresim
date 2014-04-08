@@ -16,8 +16,8 @@
 
 using namespace SphereSim;
 
-ServerBenchmark::ServerBenchmark(QStringList args, const char* addr, unsigned short port)
-    :sender(new ActionSender(args, addr, port, this))
+ServerBenchmark::ServerBenchmark(const char* addr, unsigned short port)
+    :sender(new ActionSender(addr, port, this))
 {
     sender->failureExitWhenDisconnected = true;
 }

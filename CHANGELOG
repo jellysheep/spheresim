@@ -17,6 +17,7 @@
 * Moved message encapsulation and encoding to MessageTransmitter class.
 * Improved exception handling.
 * Switched to custom hexadecimal message encoding.
+* Removed QStringList occurrences.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

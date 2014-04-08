@@ -61,10 +61,9 @@ namespace SphereSim
 
     public:
         /** \brief Start a SimulationGrapher with the specified address and port.
-         * \param args The arguments that the program was invoked with.
          * \param addr The address that the socket will be connecting to.
          * \param port The port that the socket will be connecting to. */
-        SimulationGrapher(QStringList args, const char* addr, unsigned short port);
+        SimulationGrapher(const char* addr, unsigned short port);
 
         ~SimulationGrapher();
 

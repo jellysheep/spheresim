@@ -20,8 +20,8 @@
 
 using namespace SphereSim;
 
-SimulationGrapher::SimulationGrapher(QStringList args, const char* addr, unsigned short port)
-    :actionSender(new ActionSender(args, addr, port, this)),
+SimulationGrapher::SimulationGrapher(const char* addr, unsigned short port)
+    :actionSender(new ActionSender(addr, port, this)),
     dataUpdateTimer(new QTimer(this)), counter(0), timeStep(1.0), time(1.0),
     sphereCountSqrt(1), sphereCount(1), dataPoints(2048), data(), temperatures(),
     stepsToEquilibrium(400), stepsBeforeMeasuring(30), graphNumber(1),

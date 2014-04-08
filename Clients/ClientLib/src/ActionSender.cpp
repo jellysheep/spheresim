@@ -22,7 +22,7 @@ Q_DECLARE_METATYPE(std::string);
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(QStringList args, const char* addr, unsigned short port,
+ActionSender::ActionSender(const char* addr, unsigned short port,
     QObject* client)
     :socket(new QTcpSocket()),
     connectedFlag(false), connectionTryCount(0), serverProcess(),

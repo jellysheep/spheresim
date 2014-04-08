@@ -101,10 +101,9 @@ namespace SphereSim
 
     public:
         /** \brief Start an ActionSender with the specified address and port.
-         * \param args The arguments that the program was invoked with.
          * \param addr The address that the socket will be connecting to.
          * \param port The port that the socket will be connecting to. */
-        ActionSender(QStringList args, const char* addr, unsigned short port,
+        ActionSender(const char* addr, unsigned short port,
             QObject* client);
 
         ~ActionSender();

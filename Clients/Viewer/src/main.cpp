@@ -27,7 +27,6 @@ int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
     app.setStyle("fusion");
-    QStringList args = app.arguments();
 
     unsigned short sphereCount = StartDialog().getSphereCount();
 
@@ -35,7 +34,7 @@ int main(int argc, char** argv)
     {
         try
         {
-            MainWindow mainWindow(args, Connection::address,
+            MainWindow mainWindow(Connection::address,
                 Connection::port, sphereCount);
             mainWindow.show();
 

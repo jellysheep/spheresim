@@ -30,10 +30,9 @@ namespace SphereSim
 
     public:
         /** \brief Start a QTcpServer and listen to the specified port.
-         * \param args The arguments that the program was invoked with.
          * \param addr The address that the server will be listening to.
          * \param port The port that the server will be listening to. */
-        ActionServer(QStringList args, const char* addr, unsigned short port);
+        ActionServer(const char* addr, unsigned short port);
 
         ~ActionServer();
 
