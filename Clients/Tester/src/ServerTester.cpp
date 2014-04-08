@@ -51,7 +51,7 @@ ServerTester::~ServerTester()
 
 void ServerTester::run()
 {
-    Console::out<<"\n";
+    Console()<<"\n";
     runTests_(ActionGroups::basic);
     runTests_(ActionGroups::spheresUpdating);
     runTests_(ActionGroups::calculation);
@@ -64,8 +64,8 @@ void ServerTester::runTests(unsigned char actionGroup, const char* groupName)
     testCounter = 0;
     successCounter = 0;
 
-    Console::out<<"ServerTester: ";
-    Console::bold<<"Testing "<<groupName<<". \n";
+    Console()<<"ServerTester: ";
+    Console(Color::white, Format::bold)<<"Testing "<<groupName<<". \n";
     switch (actionGroup)
     {
     case ActionGroups::basic:
@@ -81,22 +81,22 @@ void ServerTester::runTests(unsigned char actionGroup, const char* groupName)
         runFrameBufferTests();
         break;
     default:
-        Console::out<<"ServerTester: ";
-        Console::bold<<"Unknown action group requested. \n";
+        Console()<<"ServerTester: ";
+        Console(Color::white, Format::bold)<<"Unknown action group requested. \n";
         break;
     }
 
-    Console::out<<"ServerTester: ";
+    Console()<<"ServerTester: ";
     if (testCounter == successCounter)
     {
-        Console::greenBold<<"all "<<testCounter<<" tests passed.\n";
+        Console(Color::green, Format::bold)<<"all "<<testCounter<<" tests passed.\n";
     }
     else
     {
-        Console::redBold<<(testCounter-successCounter)<<" out of "<<testCounter
-            <<" tests failed.\n";
+        Console(Color::red, Format::bold)<<(testCounter-successCounter)<<" out of "
+            <<testCounter<<" tests failed.\n";
     }
-    Console::out<<"\n";
+    Console()<<"\n";
 }
 
 void ServerTester::runBasicActionTests()
@@ -106,14 +106,14 @@ void ServerTester::runBasicActionTests()
     endTest();
     if (sender->isConnected())
     {
-        Console::out<<"ServerTester: ";
-        Console::bold<<"SphereSim Tester v" VERSION_STR;
-        Console::out<<" (using floating type '"<<TOSTR(FLOATING_TYPE)<<"')\n";
-        Console::out<<"ServerTester: ";
-        Console::bold<<"SphereSim Server v";
-        Console::bold<<sender->simulatedSystem->get<std::string>(
+        Console()<<"ServerTester: ";
+        Console(Color::white, Format::bold)<<"SphereSim Tester v" VERSION_STR;
+        Console()<<" (using floating type '"<<TOSTR(FLOATING_TYPE)<<"')\n";
+        Console()<<"ServerTester: ";
+        Console(Color::white, Format::bold)<<"SphereSim Server v";
+        Console(Color::white, Format::bold)<<sender->simulatedSystem->get<std::string>(
             SimulationVariables::serverVersion).c_str();
-        Console::out<<" (using floating type '"
+        Console()<<" (using floating type '"
             <<sender->simulatedSystem->get<std::string>(
             SimulationVariables::serverFloatingType).c_str()<<"')\n";
     }
@@ -258,7 +258,7 @@ void ServerTester::runCalculationActionTests()
         }
         while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
         unsigned int steps = sender->popCalculationCounter();
-        Console::out<<"real steps: "<<steps<<" \t";
+        Console()<<"real steps: "<<steps<<" \t";
         verify(steps, Greater, 0);
     endTest();
 }
@@ -287,14 +287,14 @@ void ServerTester::runCalculationActionTests_internal(unsigned char order,
     }
     while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
     endEnergy = sender->getTotalEnergy();
-    Console::out<<"total energy: "<<beginEnergy<<" \t"<<endEnergy<<" \t";
+    Console()<<"total energy: "<<beginEnergy<<" \t"<<endEnergy<<" \t";
     Scalar relError = 1.0-(beginEnergy/endEnergy);
-    Console::out<<"rel. error: "<<relError<<" \t";
+    Console()<<"rel. error: "<<relError<<" \t";
     Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/steps);
     unsigned int realSteps = sender->popCalculationCounter();
-    Console::out<<"real steps: "<<realSteps<<" \t";
+    Console()<<"real steps: "<<realSteps<<" \t";
     Scalar integratorWorth = 20-0.1*log(fabs(relError))-log(realSteps);
-    Console::out<<"integrator worth: "<<integratorWorth<<" \t";
+    Console()<<"integrator worth: "<<integratorWorth<<" \t";
     verify(fabs(relError), Smaller, 0.01);
     verify(realSteps, Greater, 0);
     sender->removeLastSphere();
@@ -314,9 +314,9 @@ void ServerTester::runCalculationActionTests_internal(unsigned char order,
     realSteps = sender->popCalculationCounter();
     endEnergy = sender->getTotalEnergy();
     relError = 1.0-(beginEnergy/endEnergy);
-    Console::out<<"rel. error: "<<relError<<" \t";
+    Console()<<"rel. error: "<<relError<<" \t";
     integratorWorth = 20-0.1*log(fabs(relError))-log(realSteps);
-    Console::out<<"integrator worth: "<<integratorWorth
+    Console()<<"integrator worth: "<<integratorWorth
         <<" ("<<integratorMethod<<"). \t";
     sender->removeLastSphere();
 }
@@ -373,15 +373,15 @@ void ServerTester::startTest(const char* actionName)
 {
     testSuccess = true;
     testActionName = actionName;
-    Console::out<<"ServerTester: ";
-    Console::bold<<"test "<<++testCounter<<": ";
+    Console()<<"ServerTester: ";
+    Console(Color::white, Format::bold)<<"test "<<++testCounter<<": ";
 }
 void ServerTester::endTest()
 {
     if (testSuccess)
     {
         successCounter++;
-        Console::greenBold<<"test passed. \n";
+        Console(Color::green, Format::bold)<<"test passed. \n";
     }
 }
 void ServerTester::startNewTest(const char* actionName)

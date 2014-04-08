@@ -1189,7 +1189,7 @@ void SphereCalculator::updateSpherePositionsInBox(Scalar randomDisplacement,
 
     for (unsigned int i = 0; i<spheres.size(); i++)
     {
-        Console::out<<"SphereCalculator: sphere "<<(i+1)<<"|"<<spheres.size()<<"\r";
+        Console()<<"SphereCalculator: sphere "<<(i+1)<<"|"<<spheres.size()<<"\r";
         Sphere& s = spheres[i];
         s.pos = boxSize/2;
         s.pos(0) += boxSize(0)/sphereCount1D

@@ -13,7 +13,6 @@
 #include "Console.hpp"
 
 #include <QApplication>
-#include <QString>
 #include <QDialog>
 
 using namespace SphereSim;
@@ -42,7 +41,7 @@ int main(int argc, char** argv)
         }
         catch (std::exception ex)
         {
-            Console::red<<"Exception caught: "<<ex.what()<<"\n";
+            Console(Color::red, 0)<<"Exception caught: "<<ex.what()<<"\n";
             return 1;
         }
     }

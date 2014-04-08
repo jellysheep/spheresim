@@ -10,6 +10,7 @@
 #define _TWODIMARRAY_HPP_
 
 #include <vector>
+#include <QDebug>
 
 namespace SphereSim
 {

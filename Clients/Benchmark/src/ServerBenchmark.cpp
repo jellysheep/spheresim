@@ -49,11 +49,11 @@ void ServerBenchmark::run()
 void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
     bool calculateGravity, bool calculateLennardJonesPotential)
 {
-    Console::out<<"\nServerBenchmark: simulating with collision detection "
+    Console()<<"\nServerBenchmark: simulating with collision detection "
         <<(detectCollisions?"on":"off")<<".\n";
-    Console::out<<"ServerBenchmark: simulating with gravity calculation "
+    Console()<<"ServerBenchmark: simulating with gravity calculation "
         <<(calculateGravity?"on":"off")<<".\n";
-    Console::out<<"ServerBenchmark: simulating with "
+    Console()<<"ServerBenchmark: simulating with "
         <<"Lennard-Jones potential calculation "
         <<(calculateLennardJonesPotential?"on":"off")<<".\n";
 
@@ -93,7 +93,7 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
     }
 
     Scalar timeStep = 0.00001;
-    Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
+    Console()<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
     sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
     Scalar beginEnergy, endEnergy;
     beginEnergy = sender->getTotalEnergy();
@@ -107,7 +107,7 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
     {
         QTest::qWait(10*1000/numParts);
         stepCounter += sender->popStepCounter();
-        Console::out<<"\rServerBenchmark: progress: "<<(((i+1)*100)/numParts)<<" % ";
+        Console()<<"\rServerBenchmark: progress: "<<(((i+1)*100)/numParts)<<" % ";
     }
     sender->stopSimulation();
     while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating))
@@ -116,17 +116,17 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
     }
     unsigned int elapsedTime = timer.elapsed();
     Scalar stepsPerSecond = stepCounter/(elapsedTime*0.001);
-    Console::out<<"\rServerBenchmark: simulated steps per second: "
+    Console()<<"\rServerBenchmark: simulated steps per second: "
         <<stepsPerSecond<<"\t\t\n";
 
     Scalar simulatedSeconds = stepCounter*timeStep;
     Scalar simulatedSecondsPerSecond = simulatedSeconds/(elapsedTime*0.001);
-    Console::out<<"ServerBenchmark: simulated seconds per second: "
+    Console()<<"ServerBenchmark: simulated seconds per second: "
         <<simulatedSecondsPerSecond<<"\n";
 
     endEnergy = sender->getTotalEnergy();
     Scalar relError = 1.0-(beginEnergy/endEnergy);
-    Console::out<<"ServerBenchmark: rel. error: "<<relError<<"\n";
+    Console()<<"ServerBenchmark: rel. error: "<<relError<<"\n";
 
     sender->removeLastSphere();
     sender->removeLastSphere();
@@ -139,7 +139,7 @@ void ServerBenchmark::runBenchmark_internal2()
     systemCreator.createMacroscopicGravitationSystem(sphCount);
 
     Scalar timeStep = 0.01;
-    Console::out<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
+    Console()<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<"\n";
     sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
 
     Scalar beginEnergy, endEnergy;
@@ -151,7 +151,7 @@ void ServerBenchmark::runBenchmark_internal2()
     for (unsigned short i = 0; i<100; i++)
     {
         QTest::qWait(10*1000/100);
-        Console::out<<"\rServerBenchmark: progress: "<<(i+1)<<" % ";
+        Console()<<"\rServerBenchmark: progress: "<<(i+1)<<" % ";
     }
     sender->stopSimulation();
     while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating))
@@ -161,21 +161,21 @@ void ServerBenchmark::runBenchmark_internal2()
     unsigned int elapsedTime = timer.elapsed();
     unsigned int stepCounter = sender->popStepCounter();
     Scalar stepsPerSecond = stepCounter/(elapsedTime*0.001);
-    Console::out<<"\rServerBenchmark: simulated steps per second: "
+    Console()<<"\rServerBenchmark: simulated steps per second: "
         <<stepsPerSecond<<"\t\t\n";
     unsigned int calculationCounter = sender->popCalculationCounter();
     Scalar calculationsPerSecond = calculationCounter/(elapsedTime*0.001);
-    Console::out<<"\rServerBenchmark: calculations per second: "
+    Console()<<"\rServerBenchmark: calculations per second: "
         <<calculationsPerSecond<<"\t\t\n";
 
     Scalar simulatedSeconds = stepCounter*timeStep;
     Scalar simulatedSecondsPerSecond = simulatedSeconds/(elapsedTime*0.001);
-    Console::out<<"ServerBenchmark: simulated seconds per second: "
+    Console()<<"ServerBenchmark: simulated seconds per second: "
         <<simulatedSecondsPerSecond<<"\n";
 
     endEnergy = sender->getTotalEnergy();
     Scalar relError = 1.0-(beginEnergy/endEnergy);
-    Console::out<<"ServerBenchmark: rel. error: "<<relError<<"\n";
+    Console()<<"ServerBenchmark: rel. error: "<<relError<<"\n";
 
     for (unsigned short sphCounter = 0; sphCounter<sphCount; sphCounter++)
     {

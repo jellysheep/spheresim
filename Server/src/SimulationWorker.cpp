@@ -9,7 +9,6 @@
 #include "SimulationWorker.hpp"
 #include "SphereCalculator.hpp"
 #include "WorkQueue.hpp"
-#include "Console.hpp"
 #include "ActionReceiver.hpp"
 #include "Version.hpp"
 #include "Connection.hpp"

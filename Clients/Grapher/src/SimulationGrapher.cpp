@@ -96,7 +96,7 @@ void SimulationGrapher::timerUpdate()
                     actionSender->getLastStepCalculationTime();
                 //qDebug()<<"sphere count:"<<sphereCount;
                 //qDebug()<<"last step calculation time:"<<lastStepCalculationTime;
-                Console::out<<sphereCount<<" "<<lastStepCalculationTime<<"\n";
+                Console()<<sphereCount<<" "<<lastStepCalculationTime<<"\n";
             }
             if (counter > 100)
             {

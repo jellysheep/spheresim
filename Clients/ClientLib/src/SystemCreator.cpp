@@ -81,7 +81,7 @@ Scalar SystemCreator::createArgonGasSystem(unsigned short sphereCount,
     Scalar a = pow(0.66*1.3806504e-23*targetTemperature/s.mass, 1.0/2.0);
     for (unsigned int i = 0; i<sphereCount; i++)
     {
-        Console::out<<"SystemCreator: sphere "<<(i+1)<<"|"<<sphereCount<<"\r";
+        Console()<<"SystemCreator: sphere "<<(i+1)<<"|"<<sphereCount<<"\r";
         actionSender->addSphere();
         s.pos = boxSize;
         s.pos(0) += 7.5f*8/sphereCountSqrt*radius*((sphereCountSqrt-1)/2.0

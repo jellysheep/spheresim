@@ -9,7 +9,9 @@
 #ifndef _CONSOLE_HPP_
 #define _CONSOLE_HPP_
 
-#include <QTextStream>
+#include <iostream>
+#include <mutex>
+#include <sstream>
 
 namespace SphereSim
 {
@@ -22,7 +24,7 @@ namespace SphereSim
         {
             /** \brief Print console output in bold.
              * Bold text is usually brighter than normal. */
-            bold
+            bold = 1
         };
     }
 
@@ -52,16 +54,9 @@ namespace SphereSim
     }
 
     /** \brief Helper class used for formatted console output. */
-    class InternalConsole
+    class Console
     {
     private:
-        /** \brief Initialize console. */
-        InternalConsole();
-
-        /** \copydoc InternalConsole
-         * \param c Console color.
-         * \param f Text formatting. */
-        InternalConsole(unsigned short c, unsigned short f);
 
         /** \copydoc Color
          * \see Color */
@@ -70,88 +65,56 @@ namespace SphereSim
          * \see Format */
         unsigned short font;
 
-        /** \brief Qt console that is used internally to output text. */
-        static QTextStream console;
+        static std::mutex mutex;
+        std::stringstream stream;
 
     public:
-        InternalConsole(const InternalConsole&) = delete;
-        InternalConsole& operator=(const InternalConsole&) = delete;
+        /** \brief Initialize console. */
+        Console();
+
+        /** \copydoc Console
+         * \param c Console color.
+         * \param f Text formatting. */
+        Console(unsigned short c, unsigned short f);
+
+        Console(const Console&) = delete;
+        Console& operator=(const Console&) = delete;
+
+        ~Console()
+        {
+            flush();
+        }
 
         /** \brief Output formatted string.
          * \param t Object to be printed to console. */
         template <typename T>
-        InternalConsole& operator<<(T t)
+        Console& operator<<(T t)
         {
-            if (color>=0 && color<=Color::white)
-            {
-                console<<"\x1b[3";
-                console<<color;
-                if ((font & 1<<Format::bold)>0)
-                {
-                    console<<";1";
-                }
-                console<<"m";
-                console<<t;
-                console<<"\x1b[0m";
-                console.flush();
-            }
-            else
-            {
-                console<<t;
-            }
+            stream<<t;
             return *this;
         }
 
-        friend class Console;
-
-    };
-
-    /** \brief Manage formatted console output. */
-    class Console
-    {
-    public:
-        Console() = delete;
-        Console(const Console&) = delete;
-        Console& operator=(const Console&) = delete;
-
-        /** \brief Print out normally formatted text. */
-        static InternalConsole out;
-        /** \brief Print out bold and normally colored text. */
-        static InternalConsole bold;
-
-        /** \brief Print out black text. */
-        static InternalConsole black;
-        /** \brief Print out red text. */
-        static InternalConsole red;
-        /** \brief Print out green text. */
-        static InternalConsole green;
-        /** \brief Print out yellow text. */
-        static InternalConsole yellow;
-        /** \brief Print out blue text. */
-        static InternalConsole blue;
-        /** \brief Print out magenta text. */
-        static InternalConsole magenta;
-        /** \brief Print out cyan text. */
-        static InternalConsole cyan;
-        /** \brief Print out white text. */
-        static InternalConsole white;
-
-        /** \brief Print out bold black text. */
-        static InternalConsole blackBold;
-        /** \brief Print out bold red text. */
-        static InternalConsole redBold;
-        /** \brief Print out bold green text. */
-        static InternalConsole greenBold;
-        /** \brief Print out bold yellow text. */
-        static InternalConsole yellowBold;
-        /** \brief Print out bold blue text. */
-        static InternalConsole blueBold;
-        /** \brief Print out bold magenta text. */
-        static InternalConsole magentaBold;
-        /** \brief Print out bold cyan text. */
-        static InternalConsole cyanBold;
-        /** \brief Print out bold white text. */
-        static InternalConsole whiteBold;
+        void flush()
+        {
+            std::unique_lock<std::mutex> lock(mutex);
+            std::string str = stream.str();
+            stream.str(std::string());
+            if (color<=Color::white)
+            {
+                std::ostringstream stream2;
+                stream2<<"\x1b[3";
+                stream2<<color;
+                if (font == Format::bold)
+                {
+                    stream2<<";1";
+                }
+                stream2<<"m";
+                stream2<<str;
+                stream2<<"\x1b[0m";
+                str = stream2.str();
+            }
+            std::cout<<std::flush<<str<<std::flush;
+        }
 
     };
 

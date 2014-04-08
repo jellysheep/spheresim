@@ -112,5 +112,5 @@ void SimulatedSystem::receiveVariable(SimulationVariables::Variable var,
 void SimulatedSystem::printUpdatedVariable(int var)
 {
     Object::Type type = vars[var].getType();
-    Console::out<<"Variable: "<<var<<"\tType: "<<(char)type<<"\n";
+    Console()<<"Variable: "<<var<<"\tType: "<<(char)type<<"\n";
 }

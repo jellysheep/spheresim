@@ -10,7 +10,6 @@
 #define _BUTCHERTABLEAU_HPP_
 
 #include "Vector.hpp"
-#include "Console.hpp"
 
 #include <QtGlobal>
 

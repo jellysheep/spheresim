@@ -114,7 +114,7 @@ void FrameBuffer<T>::popFrame()
 template <typename T>
 void FrameBuffer<T>::print()
 {
-    Console::out<<"[Framebuffer ("<<bufferSize<<" frames x "
+    Console()<<"[Framebuffer ("<<bufferSize<<" frames x "
         <<elementsPerFrame<<" elements)]";
 }
 
@@ -169,17 +169,17 @@ namespace SphereSim
     template <>
     void FrameBuffer<unsigned char>::print()
     {
-        Console::out<<"[Framebuffer ("<<bufferSize<<" frames x "
+        Console()<<"[Framebuffer ("<<bufferSize<<" frames x "
             <<elementsPerFrame<<" elements): \n";
         for (unsigned short i = 0; i<bufferSize; i++)
         {
             for (unsigned short j = 0; j<elementsPerFrame; j++)
             {
-                Console::out<<frames[i*elementsPerFrame + j]<<"\t";
+                Console()<<frames[i*elementsPerFrame + j]<<"\t";
             }
-            Console::out<<"\n";
+            Console()<<"\n";
         }
-        Console::out<<"]\n";
+        Console()<<"]\n";
     }
 
     template class FrameBuffer<Sphere>;

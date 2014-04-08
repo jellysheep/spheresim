@@ -41,7 +41,7 @@ namespace SphereSim
         bool testSuccess;
 
         /** \brief Name of the currently tested action. */
-        QString testActionName;
+        std::string testActionName;
 
         /** \brief Dummy variable to name the framebuffer test. */
         static const int framebuffer;
@@ -92,7 +92,7 @@ namespace SphereSim
         /** \brief Declaration of different verification methods. */
         #define verifyFunc(name, op, invOp)                 \
         template <typename T1, typename T2>                 \
-        void verify##name(T1 t1, T2 t2, unsigned short line,       \
+        void verify##name(T1 t1, T2 t2, unsigned short line,\
                 const char* nameT1, const char* nameT2)     \
         {                                                   \
             if (testSuccess == false)                       \
@@ -101,19 +101,21 @@ namespace SphereSim
             }                                               \
             if ((t1 op t2) == false)                        \
             {                                               \
-                Console::redBold<<"test failed: ";          \
-                Console::out<<"\n              ";           \
-                Console::bold<<nameT1;                      \
-                Console::out<<" [\""<<t1<<"\"] ";           \
-                Console::bold<<TOSTR(invOp) " "<<nameT2;    \
-                Console::out<<" [\""<<t2<<"\"]";            \
-                Console::out<<"\n              ";           \
-                Console::out<<"(line "<<line;               \
+                Console(Color::red, Format::bold)<<"test failed: ";             \
+                Console()<<"\n              ";              \
+                Console(Color::white, Format::bold)<<nameT1;                    \
+                Console()<<" [\""<<t1<<"\"] ";              \
+                Console(Color::white, Format::bold)<<TOSTR(invOp) " "<<nameT2;  \
+                Console console;                            \
+                console<<" [\""<<t2<<"\"]";                 \
+                console<<"\n              ";                \
+                console<<"(line "<<line;                    \
                 if (testActionName.size()>0)                \
                 {                                           \
-                    Console::out<<", "<<testActionName;     \
+                    console<<", "<<testActionName;          \
                 }                                           \
-                Console::out<<")\n";                        \
+                console<<")\n";                             \
+                console.flush();                            \
                 testSuccess = false;                        \
                 testResult = 1;                             \
             }                                               \

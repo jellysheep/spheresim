@@ -8,7 +8,6 @@
 
 #include "ActionSender.hpp"
 #include "Connection.hpp"
-#include "Console.hpp"
 #include "DataTransmit.hpp"
 #include "MessageTransmitter.hpp"
 
