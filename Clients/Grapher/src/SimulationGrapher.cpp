@@ -12,7 +12,6 @@
 #include "SystemCreator.hpp"
 #include "Console.hpp"
 
-#include <QDebug>
 #include <QCoreApplication>
 #include <QFile>
 #include <QTextStream>
@@ -44,7 +43,7 @@ SimulationGrapher::~SimulationGrapher()
 
 void SimulationGrapher::run()
 {
-    qDebug()<<"starting simulation 1";
+    Console()<<"starting simulation 1.\n";
     actionSender->popStepCounter();
     actionSender->popCalculationCounter();
     counter = 0;
@@ -63,7 +62,7 @@ void SimulationGrapher::run()
 
 void SimulationGrapher::runSimulation2()
 {
-    qDebug()<<"starting simulation 2";
+    Console()<<"starting simulation 2.\n";
     actionSender->popStepCounter();
     actionSender->popCalculationCounter();
     counter = 0;
@@ -94,8 +93,9 @@ void SimulationGrapher::timerUpdate()
             {
                 unsigned int lastStepCalculationTime =
                     actionSender->getLastStepCalculationTime();
-                //qDebug()<<"sphere count:"<<sphereCount;
-                //qDebug()<<"last step calculation time:"<<lastStepCalculationTime;
+                //Console()<<"sphere count:"<<sphereCount<<".\n";
+                //Console()<<"last step calculation time:"
+                //    <<lastStepCalculationTime<<".\n";
                 Console()<<sphereCount<<" "<<lastStepCalculationTime<<"\n";
             }
             if (counter > 100)
@@ -118,16 +118,16 @@ void SimulationGrapher::timerUpdate()
         else if (graphNumber == 2)
         {
             Scalar kineticEnergy = actionSender->getKineticEnergy();
-            qDebug()<<"kin. energy:"<<kineticEnergy;
+            Console()<<"kin. energy:"<<kineticEnergy<<".\n";
             if (counter<10 || counter%10 == 0)
             {
                 actionSender->simulatedSystem->set(
                     SimulationVariables::targetTemperature, 473.15);
                 kineticEnergy = actionSender->getKineticEnergy();
-                qDebug()<<"updated kin. energy:"<<kineticEnergy;
+                Console()<<"updated kin. energy:"<<kineticEnergy<<".\n";
             }
             Scalar temperature = 2.0/3.0*kineticEnergy/(sphereCount*1.3806504e-23);
-            qDebug()<<"temperature:"<<temperature;
+            Console()<<"temperature:"<<temperature<<".\n";
             temperatures.push_back(temperature);
 
             Sphere s;

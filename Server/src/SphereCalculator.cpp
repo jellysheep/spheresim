@@ -13,7 +13,6 @@
 #include "DataTransmit.hpp"
 #include "ActionReceiver.hpp"
 
-#include <QDebug>
 #include <QThread>
 #include <QTimer>
 #include <QElapsedTimer>
@@ -102,14 +101,14 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
         SimulationVariables::lenJonPotSigma)),
     sphereSphereE(0), sphereWallE(0)
 {
-    qDebug()<<"SphereCalculator: constructor called";
+    Console()<<"SphereCalculator: constructor called.\n";
 #if NO_OPENMP != 1
     unsigned short ompThreads = 0;
     _Pragma("omp parallel")
     _Pragma("omp atomic")
     ompThreads++;
-    qDebug()<<"SphereCalculator: number of OpenMP threads:"
-        <<omp_get_num_threads()<<"|"<<ompThreads;
+    Console()<<"SphereCalculator: number of OpenMP threads: "
+        <<omp_get_num_threads()<<"|"<<ompThreads<<".\n";
 #endif
     updateSphereBox();
     massVectorSumPerCell = new Vector3[gravityAllCellCount];
@@ -1205,7 +1204,7 @@ void SphereCalculator::updateSpherePositionsInBox(Scalar randomDisplacement,
             s.speed(dim) += s.radius*randomSpeed*distribution(generator);
         }
     }
-    qDebug()<<"SphereCalculator: updateSpherePositionsInBox finished.";
+    Console()<<"SphereCalculator: updateSpherePositionsInBox finished.\n";
 }
 
 unsigned short SphereCalculator::updateAllSpheres(Sphere s)
@@ -1229,7 +1228,7 @@ void SphereCalculator::updateIntegratorMethod()
 
     if (integrMethod == IntegratorMethods::HeunEuler21)
     {
-        qDebug()<<"SphereCalculator: activated HeunEuler21 integrator.";
+        Console()<<"SphereCalculator: activated HeunEuler21 integrator.\n";
         const Scalar a[4] =
             {
                 0.0,    0.0,
@@ -1242,7 +1241,7 @@ void SphereCalculator::updateIntegratorMethod()
     }
     else if (integrMethod == IntegratorMethods::BogackiShampine32)
     {
-        qDebug()<<"SphereCalculator: activated BogackiShampine32 integrator.";
+        Console()<<"SphereCalculator: activated BogackiShampine32 integrator.\n";
         const Scalar a[16] =
             {
                 0.0,    0.0,    0.0,    0.0,
@@ -1257,7 +1256,7 @@ void SphereCalculator::updateIntegratorMethod()
     }
     else if (integrMethod == IntegratorMethods::CashKarp54)
     {
-        qDebug()<<"SphereCalculator: activated CashKarp54 integrator.";
+        Console()<<"SphereCalculator: activated CashKarp54 integrator.\n";
         const Scalar a[36] =
             {
                 0.0,            0.0,        0.0,
@@ -1292,7 +1291,7 @@ void SphereCalculator::updateIntegratorMethod()
     }
     else if (integrMethod == IntegratorMethods::DormandPrince54)
     {
-        qDebug()<<"SphereCalculator: activated DormandPrince54 integrator.";
+        Console()<<"SphereCalculator: activated DormandPrince54 integrator.\n";
         const Scalar a[49] =
             {
                 0.0,            0.0,                0.0,
@@ -1329,7 +1328,7 @@ void SphereCalculator::updateIntegratorMethod()
     }
     else
     {
-        qDebug()<<"SphereCalculator: activated RungeKuttaFehlberg54 integrator.";
+        Console()<<"SphereCalculator: activated RungeKuttaFehlberg54 integrator.\n";
         simulatedSystem->set(SimulationVariables::integratorMethod,
             (unsigned int)IntegratorMethods::RungeKuttaFehlberg54);
         const Scalar a[36] =

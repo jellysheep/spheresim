@@ -8,6 +8,7 @@
 
 #include "ActionReceiver.hpp"
 #include "Connection.hpp"
+#include "Console.hpp"
 #include "WorkQueue.hpp"
 #include "DataTransmit.hpp"
 #include "MessageTransmitter.hpp"
@@ -42,12 +43,12 @@ ActionReceiver::~ActionReceiver()
         delete socket;
         socket = NULL;
     }
-    qDebug()<<"ActionReceiver: disconnected";
+    Console()<<"ActionReceiver: disconnected.\n";
 }
 
 void ActionReceiver::terminateServer()
 {
-    qDebug()<<"Server terminating...";
+    Console()<<"Server terminating...\n";
     if (socket != NULL)
     {
         socket->close();

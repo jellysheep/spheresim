@@ -115,7 +115,7 @@ template <typename T>
 void FrameBuffer<T>::print()
 {
     Console()<<"[Framebuffer ("<<bufferSize<<" frames x "
-        <<elementsPerFrame<<" elements)]";
+        <<elementsPerFrame<<" elements)]\n";
 }
 
 template <typename T>
@@ -169,17 +169,18 @@ namespace SphereSim
     template <>
     void FrameBuffer<unsigned char>::print()
     {
-        Console()<<"[Framebuffer ("<<bufferSize<<" frames x "
+        Console console;
+        console<<"[Framebuffer ("<<bufferSize<<" frames x "
             <<elementsPerFrame<<" elements): \n";
         for (unsigned short i = 0; i<bufferSize; i++)
         {
             for (unsigned short j = 0; j<elementsPerFrame; j++)
             {
-                Console()<<frames[i*elementsPerFrame + j]<<"\t";
+                console<<frames[i*elementsPerFrame + j]<<"\t";
             }
-            Console()<<"\n";
+            console<<"\n";
         }
-        Console()<<"]\n";
+        console<<"]\n";
     }
 
     template class FrameBuffer<Sphere>;

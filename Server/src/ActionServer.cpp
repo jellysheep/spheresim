@@ -8,6 +8,7 @@
 
 #include "ActionServer.hpp"
 #include "ActionReceiver.hpp"
+#include "Console.hpp"
 
 #include <QHostAddress>
 #include <QTcpServer>
@@ -18,23 +19,23 @@ using namespace SphereSim;
 ActionServer::ActionServer(const char* addr, unsigned short port)
     :server(new QTcpServer())
 {
-    qDebug()<<"ActionServer: constructor called";
+    Console()<<"ActionServer: constructor called.\n";
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
     bool succeeded = server->listen(QHostAddress(addr), port);
     if (succeeded)
     {
-        qDebug()<<"ActionServer: listening did succeed.";
+        Console()<<"ActionServer: listening did succeed.\n";
     }
     else
     {
-        qDebug()<<"ActionServer: listening did not succeed. Exiting.";
+        Console()<<"ActionServer: listening did not succeed. Exiting.\n";
         qApp->exit(1);
     }
 }
 
 void ActionServer::newConnection()
 {
-    qDebug()<<"\nActionServer: got new connection";
+    Console()<<"\nActionServer: got new connection.\n";
     QTcpSocket* socket = server->nextPendingConnection();
     new ActionReceiver(socket);
 }

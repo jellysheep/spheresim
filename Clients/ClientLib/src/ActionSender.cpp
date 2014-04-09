@@ -8,6 +8,7 @@
 
 #include "ActionSender.hpp"
 #include "Connection.hpp"
+#include "Console.hpp"
 #include "DataTransmit.hpp"
 #include "MessageTransmitter.hpp"
 
@@ -47,10 +48,10 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
         socket->waitForConnected(100);
         if (connectedFlag == false)
         {
-            qDebug()<<"ActionSender: retrying to connect to host.";
+            Console()<<"ActionSender: retrying to connect to host.\n";
             if (connectionTryCount<=1)
             {
-                qDebug()<<"ActionSender: starting Server.";
+                Console()<<"ActionSender: starting Server.\n";
                 serverProcess.start("SphereSim_Server");
                 createdOwnServer = true;
             }
@@ -72,7 +73,7 @@ ActionSender::~ActionSender()
     {
         sendReplyAction(ActionGroups::basic, BasicActions::terminateServer);
         serverProcess.waitForFinished(200);
-        qDebug()<<"ActionSender: killing Server.";
+        Console()<<"ActionSender: killing Server.\n";
         serverProcess.terminate();
         serverProcess.waitForFinished(200);
         serverProcess.kill();
@@ -361,7 +362,7 @@ void ActionSender::framerateEvent()
 
 void ActionSender::disconnected()
 {
-    qDebug()<<"Server connection closed."<<failureExitWhenDisconnected;
+    Console()<<"Server connection closed.\n";
     emit connectionClosed();
     if (failureExitWhenDisconnected)
     {

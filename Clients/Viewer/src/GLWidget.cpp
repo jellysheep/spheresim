@@ -9,7 +9,6 @@
 #include "GLWidget.hpp"
 #include "Console.hpp"
 
-#include <QDebug>
 #include <QtOpenGL>
 #include <QtGui>
 #include <QTimer>
@@ -108,7 +107,7 @@ void GLWidget::initializeGL()
 
 void GLWidget::shaderLoadError()
 {
-    Console()<<Console::red<<Console::bold<<"GLWidget: error loading shaders!";
+    Console()<<Console::red<<Console::bold<<"GLWidget: error loading shaders!\n";
 }
 
 void GLWidget::resizeGL(int width, int height)
@@ -226,8 +225,8 @@ void GLWidget::updateTimerFrequency(int frameBufferPercentageLevel)
         Scalar amplitude = 20;
         Scalar fps = 60+(factor*amplitude);
         sleepTime = (unsigned short)(std::max)(0, (int)std::round(1000.0/fps));
-        qDebug()<<"GLWidget: level:"<<frameBufferPercentageLevelAverage
-            <<"\tfps:"<<fps<<"\tms:"<<sleepTime;
+        Console()<<"GLWidget: level: "<<frameBufferPercentageLevelAverage
+            <<"\tfps: "<<fps<<"\tms: "<<sleepTime<<".\n";
         frameBufferPercentageLevelSum = 0;
         frameBufferPercentageLevelCounter = 0;
     }

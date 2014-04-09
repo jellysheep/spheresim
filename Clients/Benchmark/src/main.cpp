@@ -31,7 +31,8 @@ int main(int argc, char** argv)
     }
     catch (std::exception ex)
     {
-        Console()<<Console::red<<"Exception caught: "<<ex.what()<<"\n";
+        Console()<<Console::red<<Console::bold
+            <<"Exception caught: "<<ex.what()<<"\n";
         return 1;
     }
 }

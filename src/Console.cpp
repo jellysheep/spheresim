@@ -70,5 +70,6 @@ void Console::flush()
     endFormatting();
     std::string str = stream.str();
     stream.str(std::string());
+    beginFormatting();
     std::cout<<std::flush<<str<<std::flush;
 }

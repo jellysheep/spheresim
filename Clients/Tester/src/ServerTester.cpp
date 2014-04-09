@@ -38,7 +38,7 @@ const int ServerTester::framebuffer = 255;
 ServerTester::ServerTester(const char* addr, unsigned short port)
     :sender(new ActionSender(addr, port, this)), testCounter(0),
     successCounter(0), testSuccess(true), testActionName(), testResult(0),
-    systemCreator(new SystemCreator(sender))
+    systemCreator(new SystemCreator(sender)), currentTestConsole()
 {
     sender->failureExitWhenDisconnected = true;
 }
@@ -64,8 +64,7 @@ void ServerTester::runTests(unsigned char actionGroup, const char* groupName)
     testCounter = 0;
     successCounter = 0;
 
-    Console()<<"ServerTester: ";
-    Console()<<Console::white<<Console::bold<<"Testing "<<groupName<<". \n";
+    Console()<<"ServerTester: "<<Console::bold<<"Testing "<<groupName<<". \n";
     switch (actionGroup)
     {
     case ActionGroups::basic:
@@ -81,22 +80,23 @@ void ServerTester::runTests(unsigned char actionGroup, const char* groupName)
         runFrameBufferTests();
         break;
     default:
-        Console()<<"ServerTester: ";
-        Console()<<Console::white<<Console::bold<<"Unknown action group requested. \n";
+        Console()<<"ServerTester: "
+            <<Console::bold<<"Unknown action group requested. \n";
         break;
     }
 
-    Console()<<"ServerTester: ";
+    Console console;
+    console<<"ServerTester: "<<Console::bold;
     if (testCounter == successCounter)
     {
-        Console()<<Console::green<<Console::bold<<"all "<<testCounter<<" tests passed.\n";
+        console<<Console::green<<"all "<<testCounter<<" tests passed.\n";
     }
     else
     {
-        Console()<<Console::red<<Console::bold<<(testCounter-successCounter)<<" out of "
+        console<<Console::red<<(testCounter-successCounter)<<" out of "
             <<testCounter<<" tests failed.\n";
     }
-    Console()<<"\n";
+    console<<"\n";
 }
 
 void ServerTester::runBasicActionTests()
@@ -106,16 +106,18 @@ void ServerTester::runBasicActionTests()
     endTest();
     if (sender->isConnected())
     {
-        Console()<<"ServerTester: ";
-        Console()<<Console::white<<Console::bold<<"SphereSim Tester v" VERSION_STR;
-        Console()<<" (using floating type '"<<TOSTR(FLOATING_TYPE)<<"')\n";
-        Console()<<"ServerTester: ";
-        Console()<<Console::white<<Console::bold<<"SphereSim Server v";
-        Console()<<Console::white<<Console::bold<<sender->simulatedSystem->get<std::string>(
-            SimulationVariables::serverVersion).c_str();
-        Console()<<" (using floating type '"
+        Console console;
+        console<<"ServerTester: ";
+        console<<Console::bold<<"SphereSim Tester v" VERSION_STR;
+        console<<Console::light<<" (using floating type '"
+            <<TOSTR(FLOATING_TYPE)<<"')\n";
+        console<<"ServerTester: ";
+        console<<Console::bold<<"SphereSim Server v";
+        console<<sender->simulatedSystem->get<std::string>(
+            SimulationVariables::serverVersion);
+        console<<Console::light<<" (using floating type '"
             <<sender->simulatedSystem->get<std::string>(
-            SimulationVariables::serverFloatingType).c_str()<<"')\n";
+            SimulationVariables::serverFloatingType)<<"')\n";
     }
     sender->simulatedSystem->set(SimulationVariables::frameSending, false);
 }
@@ -258,7 +260,7 @@ void ServerTester::runCalculationActionTests()
         }
         while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
         unsigned int steps = sender->popCalculationCounter();
-        Console()<<"real steps: "<<steps<<" \t";
+        currentTestConsole<<"real steps: "<<steps<<" \t";
         verify(steps, Greater, 0);
     endTest();
 }
@@ -287,14 +289,14 @@ void ServerTester::runCalculationActionTests_internal(unsigned char order,
     }
     while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
     endEnergy = sender->getTotalEnergy();
-    Console()<<"total energy: "<<beginEnergy<<" \t"<<endEnergy<<" \t";
+    currentTestConsole<<"total energy: "<<beginEnergy<<" \t"<<endEnergy<<" \t";
     Scalar relError = 1.0-(beginEnergy/endEnergy);
-    Console()<<"rel. error: "<<relError<<" \t";
+    currentTestConsole<<"rel. error: "<<relError<<" \t";
     Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/steps);
     unsigned int realSteps = sender->popCalculationCounter();
-    Console()<<"real steps: "<<realSteps<<" \t";
+    currentTestConsole<<"real steps: "<<realSteps<<" \t";
     Scalar integratorWorth = 20-0.1*log(fabs(relError))-log(realSteps);
-    Console()<<"integrator worth: "<<integratorWorth<<" \t";
+    currentTestConsole<<"integrator worth: "<<integratorWorth<<" \t";
     verify(fabs(relError), Smaller, 0.01);
     verify(realSteps, Greater, 0);
     sender->removeLastSphere();
@@ -314,9 +316,9 @@ void ServerTester::runCalculationActionTests_internal(unsigned char order,
     realSteps = sender->popCalculationCounter();
     endEnergy = sender->getTotalEnergy();
     relError = 1.0-(beginEnergy/endEnergy);
-    Console()<<"rel. error: "<<relError<<" \t";
+    currentTestConsole<<"rel. error: "<<relError<<" \t";
     integratorWorth = 20-0.1*log(fabs(relError))-log(realSteps);
-    Console()<<"integrator worth: "<<integratorWorth
+    currentTestConsole<<"integrator worth: "<<integratorWorth
         <<" ("<<integratorMethod<<"). \t";
     sender->removeLastSphere();
 }
@@ -373,16 +375,19 @@ void ServerTester::startTest(const char* actionName)
 {
     testSuccess = true;
     testActionName = actionName;
-    Console()<<"ServerTester: ";
-    Console()<<Console::white<<Console::bold<<"test "<<++testCounter<<": ";
+    currentTestConsole<<"ServerTester: ";
+    currentTestConsole<<Console::bold<<"test "<<++testCounter<<": ";
+    currentTestConsole<<Console::light;
 }
 void ServerTester::endTest()
 {
     if (testSuccess)
     {
         successCounter++;
-        Console()<<Console::green<<Console::bold<<"test passed. \n";
+        currentTestConsole<<Console::green<<Console::bold<<"test passed. \n";
     }
+    currentTestConsole.flush();
+    currentTestConsole<<Console::white<<Console::light;
 }
 void ServerTester::startNewTest(const char* actionName)
 {

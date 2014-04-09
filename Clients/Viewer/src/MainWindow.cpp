@@ -8,6 +8,7 @@
 
 #include "MainWindow.hpp"
 #include "ActionSender.hpp"
+#include "Console.hpp"
 #include "SystemCreator.hpp"
 #include "Version.hpp"
 #include <ui_MainWindow.h>
@@ -122,7 +123,7 @@ void MainWindow::prepareSystem2()
 void MainWindow::prepareSystem3(unsigned short sphCount)
 {
     Scalar length = systemCreator->createArgonGasSystem(sphCount, 473.15);
-    qDebug()<<"system box length:"<<length;
+    Console()<<"system box length: "<<length<<".\n";
     updateBoxLength(length);
     actionSender->simulatedSystem->set(SimulationVariables::timeStep, 2.0e-14);
 }
@@ -130,7 +131,7 @@ void MainWindow::prepareSystem3(unsigned short sphCount)
 void MainWindow::prepareSystem4()
 {
     Scalar length = systemCreator->createMacroscopicGravitationSystem(8*8*8);
-    qDebug()<<"system box length:"<<length;
+    Console()<<"system box length: "<<length<<".\n";
     updateBoxLength(length);
     actionSender->simulatedSystem->set(SimulationVariables::timeStep, 1.0);
 }
@@ -178,7 +179,7 @@ void MainWindow::updateTargetTemperature()
             return;
         }
         timer.restart();
-        qDebug()<<"energy:"<<actionSender->getTotalEnergy();
+        Console()<<"energy: "<<actionSender->getTotalEnergy()<<".\n";
     }
 }
 

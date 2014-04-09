@@ -10,7 +10,6 @@
 #define _SERVERBENCHMARK_HPP_
 
 #include "Actions.hpp"
-#include "Console.hpp"
 
 #include <QtGlobal>
 #include <QObject>

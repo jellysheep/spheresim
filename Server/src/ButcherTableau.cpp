@@ -9,8 +9,6 @@
 #include "ButcherTableau.hpp"
 #include "Console.hpp"
 
-#include <QDebug>
-
 using namespace SphereSim;
 
 ButcherTableau::ButcherTableau()

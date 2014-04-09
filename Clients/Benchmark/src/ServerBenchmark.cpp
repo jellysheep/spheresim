@@ -7,6 +7,7 @@
  * Full license text is under the file "LICENSE" provided with this code. */
 
 #include "ActionSender.hpp"
+#include "Console.hpp"
 #include "ServerBenchmark.hpp"
 #include "Integrators.hpp"
 #include "SystemCreator.hpp"

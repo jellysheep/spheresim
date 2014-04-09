@@ -51,6 +51,8 @@ namespace SphereSim
 
         SystemCreator* systemCreator;
 
+        Console currentTestConsole;
+
     public:
         /** \brief Start a ServerTester with the specified address and port.
          * \param addr The address that the socket will be connecting to.
@@ -90,35 +92,33 @@ namespace SphereSim
         #define verify(t1, op, t2)                          \
             verify##op(t1, t2, __LINE__, TOSTR(t1), TOSTR(t2));
         /** \brief Declaration of different verification methods. */
-        #define verifyFunc(name, op, invOp)                 \
-        template <typename T1, typename T2>                 \
-        void verify##name(T1 t1, T2 t2, unsigned short line,\
-                const char* nameT1, const char* nameT2)     \
-        {                                                   \
-            if (testSuccess == false)                       \
-            {                                               \
-                return;                                     \
-            }                                               \
-            if ((t1 op t2) == false)                        \
-            {                                               \
-                Console()<<Console::red<<Console::bold<<"test failed: ";             \
-                Console()<<"\n              ";              \
-                Console()<<Console::white<<Console::bold<<nameT1;                    \
-                Console()<<" [\""<<t1<<"\"] ";              \
-                Console()<<Console::white<<Console::bold<<TOSTR(invOp) " "<<nameT2;  \
-                Console console;                            \
-                console<<" [\""<<t2<<"\"]";                 \
-                console<<"\n              ";                \
-                console<<"(line "<<line;                    \
-                if (testActionName.size()>0)                \
-                {                                           \
-                    console<<", "<<testActionName;          \
-                }                                           \
-                console<<")\n";                             \
-                console.flush();                            \
-                testSuccess = false;                        \
-                testResult = 1;                             \
-            }                                               \
+        #define verifyFunc(name, op, invOp)                             \
+        template <typename T1, typename T2>                             \
+        void verify##name(T1 t1, T2 t2, unsigned short line,            \
+                const char* nameT1, const char* nameT2)                 \
+        {                                                               \
+            if (testSuccess == false)                                   \
+            {                                                           \
+                return;                                                 \
+            }                                                           \
+            if ((t1 op t2) == false)                                    \
+            {                                                           \
+                Console console;                                        \
+                console<<Console::red<<Console::bold<<"test failed: ";  \
+                console<<Console::white<<"\n              ";            \
+                console<<Console::bold<<nameT1;                         \
+                console<<Console::light<<" [\""<<t1<<"\"] ";            \
+                console<<Console::bold<<TOSTR(invOp) " "<<nameT2;       \
+                console<<Console::light<<" [\""<<t2<<"\"]";             \
+                console<<"\n              "<<"(line "<<line;            \
+                if (testActionName.size()>0)                            \
+                {                                                       \
+                    console<<", "<<testActionName;                      \
+                }                                                       \
+                console<<")\n";                                         \
+                testSuccess = false;                                    \
+                testResult = 1;                                         \
+            }                                                           \
         }
         verifyFunc(Equal, ==, !=);
         verifyFunc(Greater, >, <=);

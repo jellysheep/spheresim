@@ -14,7 +14,6 @@
 #include "Connection.hpp"
 #include "DataTransmit.hpp"
 
-#include <QDebug>
 #include <QCoreApplication>
 #include <sstream>
 
@@ -234,16 +233,14 @@ void SimulationWorker::handleWorkQueueAction(WorkQueueItem* workQueueItem)
 
 void SimulationWorker::handleUnknownActionGroup(WorkQueueItem* workQueueItem)
 {
-    qWarning()<<"SimulationWorker: Warning: received unknown action group"
-        <<Connection::startByte<<(int)workQueueItem->actionGroup
-        <<(int)workQueueItem->action<<Connection::endByte;
+    Console()<<"SimulationWorker: Warning: received unknown action group "
+        <<(int)workQueueItem->actionGroup<<'|'<<(int)workQueueItem->action<<".\n";
     emit sendReply(ServerStatusReplies::unknownActionGroup, "unknown action group");
 }
 
 void SimulationWorker::handleUnknownAction(WorkQueueItem* workQueueItem)
 {
-    qWarning()<<"SimulationWorker: Warning: received unknown action"
-        <<Connection::startByte<<(int)workQueueItem->actionGroup
-        <<(int)workQueueItem->action<<Connection::endByte;
+    Console()<<"SimulationWorker: Warning: received unknown action"
+        <<(int)workQueueItem->actionGroup<<'|'<<(int)workQueueItem->action<<".\n";
     emit sendReply(ServerStatusReplies::unknownAction, "unknown action");
 }

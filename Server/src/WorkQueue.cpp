@@ -9,9 +9,9 @@
 #include "WorkQueue.hpp"
 #include "DataTransmit.hpp"
 
-#include <QDebug>
 #include <QElapsedTimer>
 #include <sstream>
+#include <stdexcept>
 
 using namespace SphereSim;
 
@@ -128,7 +128,7 @@ WorkQueueItem* WorkQueue::popItem()
             }
             else if (continuousSimulationRunning == false)
             {
-                qDebug()<<"error!";
+                throw std::runtime_error("WorkQueue failed.");
             }
         }
         if (item->actionGroup == ActionGroups::workQueue &&
