@@ -36,7 +36,7 @@ ActionReceiver::ActionReceiver(QTcpSocket* socket)
 ActionReceiver::~ActionReceiver()
 {
     delete messageTransmitter;
-    if(socket != NULL)
+    if (socket != NULL)
     {
         socket->close();
         delete socket;
@@ -48,7 +48,7 @@ ActionReceiver::~ActionReceiver()
 void ActionReceiver::terminateServer()
 {
     qDebug()<<"Server terminating...";
-    if(socket != NULL)
+    if (socket != NULL)
     {
         socket->close();
         delete socket;

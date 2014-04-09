@@ -21,7 +21,7 @@ MessageTransmitter::MessageTransmitter(QTcpSocket* socket)
 std::string MessageTransmitter::encode(const std::string& data)
 {
     std::string encodedData(2*data.size(), '\0');
-    for(unsigned int i = 0; i<data.size(); i++)
+    for (unsigned int i = 0; i<data.size(); i++)
     {
         encodedData[2*i] = 'a'+data[i]/16;
         encodedData[2*i+1] = 'a'+data[i]%16;
@@ -32,7 +32,7 @@ std::string MessageTransmitter::encode(const std::string& data)
 std::string MessageTransmitter::decode(const std::string& data)
 {
     std::string decodedData(data.size()/2, '\0');
-    for(unsigned int i = 0; i<data.size()/2; i++)
+    for (unsigned int i = 0; i<data.size()/2; i++)
     {
         decodedData[i] = ((data[2*i]-'a')*16)+(data[2*i+1]-'a');
     }
@@ -123,5 +123,5 @@ void MessageTransmitter::readData()
             }
         }
     }
-    while(dataLeft);
+    while (dataLeft);
 }
