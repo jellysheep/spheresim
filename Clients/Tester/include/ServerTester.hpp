@@ -101,11 +101,11 @@ namespace SphereSim
             }                                               \
             if ((t1 op t2) == false)                        \
             {                                               \
-                Console(Color::red, Format::bold)<<"test failed: ";             \
+                Console()<<Console::red<<Console::bold<<"test failed: ";             \
                 Console()<<"\n              ";              \
-                Console(Color::white, Format::bold)<<nameT1;                    \
+                Console()<<Console::white<<Console::bold<<nameT1;                    \
                 Console()<<" [\""<<t1<<"\"] ";              \
-                Console(Color::white, Format::bold)<<TOSTR(invOp) " "<<nameT2;  \
+                Console()<<Console::white<<Console::bold<<TOSTR(invOp) " "<<nameT2;  \
                 Console console;                            \
                 console<<" [\""<<t2<<"\"]";                 \
                 console<<"\n              ";                \

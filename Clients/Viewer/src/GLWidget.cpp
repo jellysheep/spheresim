@@ -108,7 +108,7 @@ void GLWidget::initializeGL()
 
 void GLWidget::shaderLoadError()
 {
-    Console(Color::red, Format::bold)<<"GLWidget: error loading shaders!";
+    Console()<<Console::red<<Console::bold<<"GLWidget: error loading shaders!";
 }
 
 void GLWidget::resizeGL(int width, int height)

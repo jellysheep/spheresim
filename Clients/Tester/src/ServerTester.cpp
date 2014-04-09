@@ -65,7 +65,7 @@ void ServerTester::runTests(unsigned char actionGroup, const char* groupName)
     successCounter = 0;
 
     Console()<<"ServerTester: ";
-    Console(Color::white, Format::bold)<<"Testing "<<groupName<<". \n";
+    Console()<<Console::white<<Console::bold<<"Testing "<<groupName<<". \n";
     switch (actionGroup)
     {
     case ActionGroups::basic:
@@ -82,18 +82,18 @@ void ServerTester::runTests(unsigned char actionGroup, const char* groupName)
         break;
     default:
         Console()<<"ServerTester: ";
-        Console(Color::white, Format::bold)<<"Unknown action group requested. \n";
+        Console()<<Console::white<<Console::bold<<"Unknown action group requested. \n";
         break;
     }
 
     Console()<<"ServerTester: ";
     if (testCounter == successCounter)
     {
-        Console(Color::green, Format::bold)<<"all "<<testCounter<<" tests passed.\n";
+        Console()<<Console::green<<Console::bold<<"all "<<testCounter<<" tests passed.\n";
     }
     else
     {
-        Console(Color::red, Format::bold)<<(testCounter-successCounter)<<" out of "
+        Console()<<Console::red<<Console::bold<<(testCounter-successCounter)<<" out of "
             <<testCounter<<" tests failed.\n";
     }
     Console()<<"\n";
@@ -107,11 +107,11 @@ void ServerTester::runBasicActionTests()
     if (sender->isConnected())
     {
         Console()<<"ServerTester: ";
-        Console(Color::white, Format::bold)<<"SphereSim Tester v" VERSION_STR;
+        Console()<<Console::white<<Console::bold<<"SphereSim Tester v" VERSION_STR;
         Console()<<" (using floating type '"<<TOSTR(FLOATING_TYPE)<<"')\n";
         Console()<<"ServerTester: ";
-        Console(Color::white, Format::bold)<<"SphereSim Server v";
-        Console(Color::white, Format::bold)<<sender->simulatedSystem->get<std::string>(
+        Console()<<Console::white<<Console::bold<<"SphereSim Server v";
+        Console()<<Console::white<<Console::bold<<sender->simulatedSystem->get<std::string>(
             SimulationVariables::serverVersion).c_str();
         Console()<<" (using floating type '"
             <<sender->simulatedSystem->get<std::string>(
@@ -374,14 +374,14 @@ void ServerTester::startTest(const char* actionName)
     testSuccess = true;
     testActionName = actionName;
     Console()<<"ServerTester: ";
-    Console(Color::white, Format::bold)<<"test "<<++testCounter<<": ";
+    Console()<<Console::white<<Console::bold<<"test "<<++testCounter<<": ";
 }
 void ServerTester::endTest()
 {
     if (testSuccess)
     {
         successCounter++;
-        Console(Color::green, Format::bold)<<"test passed. \n";
+        Console()<<Console::green<<Console::bold<<"test passed. \n";
     }
 }
 void ServerTester::startNewTest(const char* actionName)

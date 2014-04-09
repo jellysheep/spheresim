@@ -42,7 +42,7 @@ ButcherTableau::ButcherTableau(unsigned char _order, const Scalar* _a, const Sca
         c[x] = _c[x];
         if (fabs(checksum-c[x])>0.0001*(checksum+c[x]))
         {
-            Console(Color::red, Format::bold)
+            Console()<<Console::red<<Console::bold
                 <<"Error: Butcher tableau checksum is wrong!\n";
         }
     }

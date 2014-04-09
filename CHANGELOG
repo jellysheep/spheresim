@@ -21,6 +21,7 @@
 * Removed unused include files.
 * Improved Console to use mutex locked std::cout output.
 * Moved Console code from header to source file.
+* Improved way of setting console color.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

@@ -15,23 +15,35 @@
 
 namespace SphereSim
 {
-
-    /** \brief Types of Format for the console output. */
-    namespace Format
+    /** \brief Helper class used for formatted console output. */
+    class Console
     {
-        /** \see Format */
+    private:
+
+        /** \copydoc Color
+         * \see Color */
+        unsigned short color;
+        /** \copydoc Format
+         * \see Format */
+        unsigned short font;
+
+        static std::mutex mutex;
+        std::stringstream stream;
+
+        void beginFormatting();
+        void endFormatting();
+
+    public:
+        /** \brief Types of Format for the console output. */
         enum Format
         {
+            light,
             /** \brief Print console output in bold.
              * Bold text is usually brighter than normal. */
-            bold = 1
+            bold
         };
-    }
 
-    /** \brief Color used for the console output. */
-    namespace Color
-    {
-        /** \see Color */
+        /** \brief Color used for the console output. */
         enum Color
         {
             /** \brief Print console output in black. */
@@ -51,31 +63,9 @@ namespace SphereSim
             /** \brief Print console output in white. */
             white
         };
-    }
 
-    /** \brief Helper class used for formatted console output. */
-    class Console
-    {
-    private:
-
-        /** \copydoc Color
-         * \see Color */
-        unsigned short color;
-        /** \copydoc Format
-         * \see Format */
-        unsigned short font;
-
-        static std::mutex mutex;
-        std::stringstream stream;
-
-    public:
         /** \brief Initialize console. */
         Console();
-
-        /** \copydoc Console
-         * \param c Console color.
-         * \param f Text formatting. */
-        Console(unsigned short c, unsigned short f);
 
         Console(const Console&) = delete;
         Console& operator=(const Console&) = delete;
@@ -90,6 +80,10 @@ namespace SphereSim
             stream<<t;
             return *this;
         }
+
+        Console& operator<<(Format f);
+
+        Console& operator<<(Color c);
 
         void flush();
 
