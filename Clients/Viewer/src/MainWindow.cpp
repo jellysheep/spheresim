@@ -61,8 +61,6 @@ MainWindow::MainWindow(const char* addr, unsigned short port,
     case 1:
         prepareSystem1();
         break;
-    default:
-        systemToPrepare = 2;
     case 2:
         prepareSystem2();
         break;
@@ -74,6 +72,10 @@ MainWindow::MainWindow(const char* addr, unsigned short port,
         break;
     case 5:
         prepareSystem5();
+        break;
+    default:
+        systemToPrepare = 2;
+        prepareSystem2();
         break;
     }
 }

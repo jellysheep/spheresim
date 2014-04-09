@@ -25,6 +25,7 @@
 * Improved code style.
 * Improved console output and removed QDebug occurrences.
 * Improved console output formatting using field width.
+* Fixed missing break in switch.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.
