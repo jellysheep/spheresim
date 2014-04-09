@@ -10,6 +10,8 @@
 
 using namespace SphereSim;
 
+std::mutex Console::mutex = {};
+
 Console::Console()
     :color(Color::white), font(0), stream()
 {
@@ -20,4 +22,29 @@ Console::Console(unsigned short c, unsigned short f)
 {
 }
 
-std::mutex Console::mutex = {};
+Console::~Console()
+{
+    flush();
+}
+
+void Console::flush()
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    std::string str = stream.str();
+    stream.str(std::string());
+    if (color<=Color::white)
+    {
+        std::ostringstream stream2;
+        stream2<<"\x1b[3";
+        stream2<<color;
+        if (font == Format::bold)
+        {
+            stream2<<";1";
+        }
+        stream2<<"m";
+        stream2<<str;
+        stream2<<"\x1b[0m";
+        str = stream2.str();
+    }
+    std::cout<<std::flush<<str<<std::flush;
+}

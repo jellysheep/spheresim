@@ -80,10 +80,7 @@ namespace SphereSim
         Console(const Console&) = delete;
         Console& operator=(const Console&) = delete;
 
-        ~Console()
-        {
-            flush();
-        }
+        ~Console();
 
         /** \brief Output formatted string.
          * \param t Object to be printed to console. */
@@ -94,27 +91,7 @@ namespace SphereSim
             return *this;
         }
 
-        void flush()
-        {
-            std::unique_lock<std::mutex> lock(mutex);
-            std::string str = stream.str();
-            stream.str(std::string());
-            if (color<=Color::white)
-            {
-                std::ostringstream stream2;
-                stream2<<"\x1b[3";
-                stream2<<color;
-                if (font == Format::bold)
-                {
-                    stream2<<";1";
-                }
-                stream2<<"m";
-                stream2<<str;
-                stream2<<"\x1b[0m";
-                str = stream2.str();
-            }
-            std::cout<<std::flush<<str<<std::flush;
-        }
+        void flush();
 
     };
 
