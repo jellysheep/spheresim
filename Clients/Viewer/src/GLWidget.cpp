@@ -9,6 +9,7 @@
 #include "GLWidget.hpp"
 #include "Console.hpp"
 
+#include <iomanip>
 #include <QtOpenGL>
 #include <QtGui>
 #include <QTimer>
@@ -225,8 +226,9 @@ void GLWidget::updateTimerFrequency(int frameBufferPercentageLevel)
         Scalar amplitude = 20;
         Scalar fps = 60+(factor*amplitude);
         sleepTime = (unsigned short)(std::max)(0, (int)std::round(1000.0/fps));
-        Console()<<"GLWidget: level: "<<frameBufferPercentageLevelAverage
-            <<"\tfps: "<<fps<<"\tms: "<<sleepTime<<".\n";
+        Console()<<"GLWidget: level: "<<std::setw(5)
+            <<frameBufferPercentageLevelAverage<<" fps: "<<std::setw(8)<<fps
+            <<" ms: "<<std::setw(6)<<sleepTime<<".\n";
         frameBufferPercentageLevelSum = 0;
         frameBufferPercentageLevelCounter = 0;
     }

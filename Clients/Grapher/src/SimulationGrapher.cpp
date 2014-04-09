@@ -96,7 +96,7 @@ void SimulationGrapher::timerUpdate()
                 //Console()<<"sphere count:"<<sphereCount<<".\n";
                 //Console()<<"last step calculation time:"
                 //    <<lastStepCalculationTime<<".\n";
-                Console()<<sphereCount<<" "<<lastStepCalculationTime<<"\n";
+                Console()<<sphereCount<<" "<<lastStepCalculationTime<<'\n';
             }
             if (counter > 100)
             {
@@ -150,10 +150,10 @@ void SimulationGrapher::timerUpdate()
                 QFile file("./graphdata.txt");
                 QTextStream stream(&file);
                 file.open(QIODevice::WriteOnly);
-                stream<<0<<"\t"<<0<<"\n";
+                stream<<0<<"\t"<<0<<'\n';
                 for (unsigned short i = 0; i<data.size(); i++)
                 {
-                    stream<<data[i]<<"\t"<<((i+1)*factor)<<"\n";
+                    stream<<data[i]<<"\t"<<((i+1)*factor)<<'\n';
                 }
                 stream.flush();
                 file.close();
@@ -163,7 +163,7 @@ void SimulationGrapher::timerUpdate()
                 file3.open(QIODevice::WriteOnly);
                 for (unsigned short i = 0; i<temperatures.size(); i++)
                 {
-                    stream3<<(i*time/timeStep)<<"\t"<<temperatures[i]<<"\n";
+                    stream3<<(i*time/timeStep)<<"\t"<<temperatures[i]<<'\n';
                 }
                 stream3.flush();
                 file3.close();

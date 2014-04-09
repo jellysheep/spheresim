@@ -10,6 +10,8 @@
 #include "Console.hpp"
 #include "ActionSender.hpp"
 
+#include <iomanip>
+
 using namespace SphereSim;
 
 template <typename T>
@@ -176,9 +178,9 @@ namespace SphereSim
         {
             for (unsigned short j = 0; j<elementsPerFrame; j++)
             {
-                console<<frames[i*elementsPerFrame + j]<<"\t";
+                console<<std::setw(2)<<frames[i*elementsPerFrame + j]<<' ';
             }
-            console<<"\n";
+            console<<'\n';
         }
         console<<"]\n";
     }

@@ -14,6 +14,7 @@
 
 #include <QtTest/QTest>
 #include <iostream>
+#include <iomanip>
 
 #define runTests_(x) \
     runTests(x, TOSTR(x));
@@ -51,7 +52,7 @@ ServerTester::~ServerTester()
 
 void ServerTester::run()
 {
-    Console()<<"\n";
+    Console()<<'\n';
     runTests_(ActionGroups::basic);
     runTests_(ActionGroups::spheresUpdating);
     runTests_(ActionGroups::calculation);
@@ -89,14 +90,14 @@ void ServerTester::runTests(unsigned char actionGroup, const char* groupName)
     console<<"ServerTester: "<<Console::bold;
     if (testCounter == successCounter)
     {
-        console<<Console::green<<"all "<<testCounter<<" tests passed.\n";
+        console<<Console::green<<"all tests passed.\n";
     }
     else
     {
         console<<Console::red<<(testCounter-successCounter)<<" out of "
             <<testCounter<<" tests failed.\n";
     }
-    console<<"\n";
+    console<<'\n';
 }
 
 void ServerTester::runBasicActionTests()
@@ -260,7 +261,7 @@ void ServerTester::runCalculationActionTests()
         }
         while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
         unsigned int steps = sender->popCalculationCounter();
-        currentTestConsole<<"real steps: "<<steps<<" \t";
+        currentTestConsole<<"real steps: "<<std::setw(6)<<steps<<". ";
         verify(steps, Greater, 0);
     endTest();
 }
@@ -289,14 +290,13 @@ void ServerTester::runCalculationActionTests_internal(unsigned char order,
     }
     while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
     endEnergy = sender->getTotalEnergy();
-    currentTestConsole<<"total energy: "<<beginEnergy<<" \t"<<endEnergy<<" \t";
     Scalar relError = 1.0-(beginEnergy/endEnergy);
-    currentTestConsole<<"rel. error: "<<relError<<" \t";
+    currentTestConsole<<"rel. error: "<<std::setw(14)<<relError<<". ";
     Scalar relErrorPerStep = 1.0-pow(beginEnergy/endEnergy, 1.0/steps);
     unsigned int realSteps = sender->popCalculationCounter();
-    currentTestConsole<<"real steps: "<<realSteps<<" \t";
+    currentTestConsole<<"real steps: "<<std::setw(6)<<realSteps<<". ";
     Scalar integratorWorth = 20-0.1*log(fabs(relError))-log(realSteps);
-    currentTestConsole<<"integrator worth: "<<integratorWorth<<" \t";
+    currentTestConsole<<"integrator worth: "<<std::setw(8)<<integratorWorth<<". ";
     verify(fabs(relError), Smaller, 0.01);
     verify(realSteps, Greater, 0);
     sender->removeLastSphere();
@@ -316,10 +316,10 @@ void ServerTester::runCalculationActionTests_internal(unsigned char order,
     realSteps = sender->popCalculationCounter();
     endEnergy = sender->getTotalEnergy();
     relError = 1.0-(beginEnergy/endEnergy);
-    currentTestConsole<<"rel. error: "<<relError<<" \t";
+    currentTestConsole<<"adapted: "<<std::setw(14)<<relError<<" | ";
     integratorWorth = 20-0.1*log(fabs(relError))-log(realSteps);
-    currentTestConsole<<"integrator worth: "<<integratorWorth
-        <<" ("<<integratorMethod<<"). \t";
+    currentTestConsole<<std::setw(8)<<integratorWorth
+        <<" ("<<integratorMethod<<"). ";
     sender->removeLastSphere();
 }
 
@@ -376,7 +376,7 @@ void ServerTester::startTest(const char* actionName)
     testSuccess = true;
     testActionName = actionName;
     currentTestConsole<<"ServerTester: ";
-    currentTestConsole<<Console::bold<<"test "<<++testCounter<<": ";
+    currentTestConsole<<Console::bold<<"test "<<std::setw(2)<<++testCounter<<": ";
     currentTestConsole<<Console::light;
 }
 void ServerTester::endTest()
