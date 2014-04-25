@@ -9,8 +9,7 @@
 #ifndef _VECTOR_HPP_
 #define _VECTOR_HPP_
 
-//#define NDEBUG
-#include <Eigen/Dense>
+#include <cmath>
 
 #if USE_DOUBLE
     #define FLOATING_TYPE double
@@ -19,89 +18,88 @@
 #endif
 typedef FLOATING_TYPE Scalar;
 
-/** Vector proxy class forwarding to Eigen. */
+/** Vector class. */
 class Vector3
 {
 private:
-    typedef Eigen::Matrix<Scalar, 3, 1> EigenVector3;
-    EigenVector3 eigenVector;
+    Scalar x, y, z;
 
 public:
     Vector3()
-        :eigenVector(0, 0, 0)
+        :x(0), y(0), z(0)
     {
     }
-    Vector3(Scalar x, Scalar y, Scalar z)
-        :eigenVector(x, y, z)
-    {
-    }
-    Vector3(Vector3&& v)
-        :eigenVector(std::move(v.eigenVector))
+    Vector3(const Scalar x, const Scalar y, const Scalar z)
+        :x(x), y(y), z(z)
     {
     }
     Vector3(const Vector3& v)
-        :eigenVector(v.eigenVector)
-    {
-    }
-    explicit Vector3(const EigenVector3& v)
-        :eigenVector(v)
+        :x(v.x), y(v.y), z(v.z)
     {
     }
     Vector3& operator=(const Vector3& v)
     {
-        eigenVector = v.eigenVector;
+        x = v.x;
+        y = v.y;
+        z = v.z;
         return *this;
     }
 
-    ~Vector3()
+    Scalar& operator()(const unsigned char index)
     {
+        return *(&x + index);
     }
-
-    Scalar& operator()(unsigned char index)
+    const Scalar& operator()(const unsigned char index) const
     {
-        return eigenVector(index);
-    }
-    const Scalar& operator()(unsigned char index) const
-    {
-        return eigenVector(index);
+        return *(&x + index);
     }
     bool operator==(const Vector3& v) const
     {
-        return eigenVector == v.eigenVector;
+        return (x == v.x) && (y == v.y) && (z == v.z);
     }
 
-    Scalar norm() const
-    {
-        return eigenVector.norm();
-    }
     Scalar squaredNorm() const
     {
-        return eigenVector.squaredNorm();
+        return (x*x) + (y*y) + (z*z);
+    }
+    Scalar norm() const
+    {
+        return std::sqrt(squaredNorm());
     }
     Scalar dot(const Vector3& v) const
     {
-        return eigenVector.dot(v.eigenVector);
+        return (x*v.x) + (y*v.y) + (z*v.z);
     }
     void setZero()
     {
-        eigenVector.setZero();
+        x = 0;
+        y = 0;
+        z = 0;
     }
 
-    void operator*=(Scalar s)
+    void operator*=(const Scalar s)
     {
-        eigenVector *= s;
+        x *= s;
+        y *= s;
+        z *= s;
     }
-    void operator/=(Scalar s)
+    void operator/=(const Scalar s)
     {
-        eigenVector /= s;
+        x /= s;
+        y /= s;
+        z /= s;
     }
-    void operator+=(Vector3 v)
+    void operator+=(const Vector3& v)
     {
-        eigenVector += v.eigenVector;
+        x += v.x;
+        y += v.y;
+        z += v.z;
     }
-    void operator-=(Vector3 v)
+    void operator-=(const Vector3& v)
     {
-        eigenVector -= v.eigenVector;
+        x -= v.x;
+        y -= v.y;
+        z -= v.z;
     }
 };
 

@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <type_traits>
+#include <sstream>
 #include <stdexcept>
 
 const char* errorMessage = "Wrong Object type specified.";
