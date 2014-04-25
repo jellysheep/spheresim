@@ -27,6 +27,7 @@
 * Improved console output formatting using field width.
 * Fixed missing break in switch.
 * Added comparable score to Benchmark.
+* Added a vector proxy class forwarding to Eigen.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

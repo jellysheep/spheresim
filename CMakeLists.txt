@@ -51,7 +51,6 @@ set(HEADERS
     ${PROJECT_INCLUDE_DIR}/Actions.hpp
     ${PROJECT_INCLUDE_DIR}/Connection.hpp
     ${PROJECT_INCLUDE_DIR}/Version.hpp
-    ${PROJECT_INCLUDE_DIR}/VectorLib.hpp
     ${PROJECT_INCLUDE_DIR}/Vector.hpp
     ${PROJECT_INCLUDE_DIR}/Sphere.hpp
     ${PROJECT_INCLUDE_DIR}/DataTransmit.hpp

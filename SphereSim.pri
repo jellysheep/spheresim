@@ -14,7 +14,6 @@ VPATH       +=  $$PWD/include/ $$PWD/src/
 HEADERS     =   Actions.hpp         \
                 Connection.hpp      \
                 Version.hpp         \
-                VectorLib.hpp       \
                 Vector.hpp          \
                 Sphere.hpp          \
                 DataTransmit.hpp    \
