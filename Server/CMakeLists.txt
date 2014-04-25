@@ -9,7 +9,7 @@ add_definitions("-DUSE_DOUBLE=${USE_DOUBLE}")
 set(NO_OPENMP 1)
 add_definitions("-DNO_OPENMP=${NO_OPENMP}")
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -fno-fast-math")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -fno-fast-math -g")
 if(NO_OPENMP EQUAL 0)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 endif()

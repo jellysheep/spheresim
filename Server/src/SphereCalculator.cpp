@@ -28,6 +28,11 @@
     #include <omp.h>
 #endif
 
+#define POW4(x) ((x)*(x)*(x)*(x))
+#define POW5(x) ((x)*(x)*(x)*(x)*(x))
+#define POW6(x) ((x)*(x)*(x)*(x)*(x)*(x))
+#define POW7(x) ((x)*(x)*(x)*(x)*(x)*(x)*(x))
+
 using namespace SphereSim;
 
 SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
@@ -318,9 +323,12 @@ Vector3 SphereCalculator::sphereAcceleration(unsigned short sphereIndex, Sphere 
                 if (lennardJonesPotential)
                 {
                     Vector3 tmp = dVec;
+                    Scalar pow14 = lenJonPotSigma/d;
+                    pow14 *= pow14;
+                    Scalar pow8 = POW4(pow14);
+                    pow14 = POW7(pow14);
                     tmp *= (48*lenJonPotEpsilon/(lenJonPotSigma*lenJonPotSigma)
-                        * (pow(lenJonPotSigma/d, 14)
-                        -0.5*pow(lenJonPotSigma/d, 8)));
+                        * (pow14-0.5*pow8));
                     force -= tmp;
                 }
             }
@@ -352,8 +360,12 @@ Vector3 SphereCalculator::sphereAcceleration(unsigned short sphereIndex, Sphere 
             if (lennardJonesPotential)
             {
                 Vector3 tmp = dVec;
+                Scalar pow14 = lenJonPotSigma/d;
+                pow14 *= pow14;
+                Scalar pow8 = POW4(pow14);
+                pow14 = POW7(pow14);
                 tmp *= (48*lenJonPotEpsilon/(lenJonPotSigma*lenJonPotSigma)
-                    * (pow(lenJonPotSigma/d, 14)-0.5*pow(lenJonPotSigma/d, 8))
+                    * (pow14-0.5*pow8)
                     *sphereCountPerGravityCell[gravityCellIndex2]);
                 force -= tmp;
 
@@ -398,11 +410,11 @@ Scalar SphereCalculator::getTotalEnergy_internal()
         {
             if ((d = (sphere.radius - sphere.pos(dim))) > 0)
             {
-                sphereEnergy += 8.0/15.0*sphereWallE*sqrt(sphere.radius)*pow(d, 2.5);
+                sphereEnergy += 8.0/15.0*sphereWallE*sqrt(sphere.radius*POW5(d));
             }
             if ((d = (sphere.radius + sphere.pos(dim) - boxSize(dim))) > 0)
             {
-                sphereEnergy += 8.0/15.0*sphereWallE*sqrt(sphere.radius)*pow(d, 2.5);
+                sphereEnergy += 8.0/15.0*sphereWallE*sqrt(sphere.radius*POW5(d));
             }
         }
 
@@ -434,8 +446,8 @@ Scalar SphereCalculator::getTotalEnergy_internal()
                             {
                                 dOverlapping = bothRadii - d;
                                 R = 1/((1/sphere.radius)+(1/sphere2.radius));
-                                energy = 8.0/15.0*sphereSphereE*sqrt(R)
-                                    *pow(dOverlapping, 2.5);
+                                energy = 8.0/15.0*sphereSphereE
+                                    *sqrt(R*POW5(dOverlapping));
                                 sphereEnergy += energy;
                             }
                         }
@@ -476,8 +488,10 @@ Scalar SphereCalculator::getTotalEnergy_internal()
                     }
                     if (lennardJonesPotential)
                     {
-                        sphereEnergy += 4*lenJonPotEpsilon
-                            *(pow(lenJonPotSigma/d, 12)-pow(lenJonPotSigma/d, 6));
+                        Scalar pow6 = lenJonPotSigma/d;
+                        pow6 = POW6(pow6);
+                        Scalar pow12 = pow6*pow6;
+                        sphereEnergy += 4*lenJonPotEpsilon*(pow12-pow6);
                     }
                 }
             }
@@ -506,8 +520,10 @@ Scalar SphereCalculator::getTotalEnergy_internal()
                 }
                 if (lennardJonesPotential)
                 {
-                    sphereEnergy += 4*lenJonPotEpsilon
-                        *(pow(lenJonPotSigma/d, 12)-pow(lenJonPotSigma/d, 6))
+                    Scalar pow6 = lenJonPotSigma/d;
+                    pow6 = POW6(pow6);
+                    Scalar pow12 = pow6*pow6;
+                    sphereEnergy += 4*lenJonPotEpsilon*(pow12-pow6)
                         *sphereCountPerGravityCell[gravityCellIndex2];
                 }
             }

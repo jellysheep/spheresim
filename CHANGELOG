@@ -32,6 +32,7 @@
 * Replaced Eigen library by custom vector implementation.
 * Removed Eigen dependency occurrences.
 * Added macros and assertions to TwoDimArray class.
+* Improved calculator speed by using macros instead of std::pow.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.
