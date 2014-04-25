@@ -14,6 +14,7 @@
 
 #include <QtTest/QTest>
 #include <QCoreApplication>
+#include <iomanip>
 
 using namespace SphereSim;
 
@@ -39,22 +40,24 @@ void ServerBenchmark::run()
 
     //runBenchmark_internal2();
 
-    runBenchmark_internal(false, false, true);
-    //runBenchmark_internal(false, true, false);
-    //runBenchmark_internal(true, false, false);
-    //runBenchmark_internal(false, false, false);
+    Scalar totalScore = 0;
+    totalScore += runBenchmark_internal(false, false, true);
+    totalScore += runBenchmark_internal(false, true, false);
+    totalScore += runBenchmark_internal(true, false, false);
+    totalScore += runBenchmark_internal(false, false, false);
+    Console()<<"\ntotal score: "<<std::setprecision(3)<<totalScore<<".\n";
 
     qApp->exit(0);
 }
 
-void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
+Scalar ServerBenchmark::runBenchmark_internal(bool detectCollisions,
     bool calculateGravity, bool calculateLennardJonesPotential)
 {
-    Console()<<"\nServerBenchmark: simulating with collision detection "
+    Console()<<"\nsimulating with collision detection "
         <<(detectCollisions?"on":"off")<<".\n";
-    Console()<<"ServerBenchmark: simulating with gravity calculation "
+    Console()<<"simulating with gravity calculation "
         <<(calculateGravity?"on":"off")<<".\n";
-    Console()<<"ServerBenchmark: simulating with "
+    Console()<<"simulating with "
         <<"Lennard-Jones potential calculation "
         <<(calculateLennardJonesPotential?"on":"off")<<".\n";
 
@@ -94,7 +97,7 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
     }
 
     Scalar timeStep = 0.00001;
-    Console()<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<'\n';
+    Console()<<"simulated seconds per step: "<<timeStep<<'\n';
     sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
     Scalar beginEnergy, endEnergy;
     beginEnergy = sender->getTotalEnergy();
@@ -106,9 +109,9 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
     unsigned short numParts = 100;
     for (unsigned short i = 0; i<numParts; i++)
     {
-        QTest::qWait(10*1000/numParts);
+        QTest::qWait(2*1000/numParts);
         stepCounter += sender->popStepCounter();
-        Console()<<"\rServerBenchmark: progress: "<<(((i+1)*100)/numParts)<<" % ";
+        Console()<<"\rprogress: "<<(((i+1)*100)/numParts)<<" % ";
     }
     sender->stopSimulation();
     while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating))
@@ -117,20 +120,25 @@ void ServerBenchmark::runBenchmark_internal(bool detectCollisions,
     }
     unsigned int elapsedTime = timer.elapsed();
     Scalar stepsPerSecond = stepCounter/(elapsedTime*0.001);
-    Console()<<"\nServerBenchmark: simulated steps per second: "
+    Console()<<"\nsimulated steps per second: "
         <<stepsPerSecond<<'\n';
 
     Scalar simulatedSeconds = stepCounter*timeStep;
     Scalar simulatedSecondsPerSecond = simulatedSeconds/(elapsedTime*0.001);
-    Console()<<"ServerBenchmark: simulated seconds per second: "
+    Console()<<"simulated seconds per second: "
         <<simulatedSecondsPerSecond<<'\n';
 
     endEnergy = sender->getTotalEnergy();
     Scalar relError = 1.0-(beginEnergy/endEnergy);
-    Console()<<"ServerBenchmark: rel. error: "<<relError<<'\n';
+    Console()<<"rel. error: "<<relError<<'\n';
 
     sender->removeLastSphere();
     sender->removeLastSphere();
+
+    Scalar simulatedMSecondsPerSecond = 1000*simulatedSecondsPerSecond;
+    Scalar score = std::log(simulatedMSecondsPerSecond);
+    Console()<<"\npartial score: "<<std::setprecision(3)<<score<<".\n";
+    return score;
 }
 
 void ServerBenchmark::runBenchmark_internal2()
@@ -140,7 +148,7 @@ void ServerBenchmark::runBenchmark_internal2()
     systemCreator.createMacroscopicGravitationSystem(sphCount);
 
     Scalar timeStep = 0.01;
-    Console()<<"ServerBenchmark: simulated seconds per step: "<<timeStep<<'\n';
+    Console()<<"simulated seconds per step: "<<timeStep<<'\n';
     sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
 
     Scalar beginEnergy, endEnergy;
@@ -152,7 +160,7 @@ void ServerBenchmark::runBenchmark_internal2()
     for (unsigned short i = 0; i<100; i++)
     {
         QTest::qWait(10*1000/100);
-        Console()<<"\rServerBenchmark: progress: "<<(i+1)<<" % ";
+        Console()<<"\rprogress: "<<(i+1)<<" % ";
     }
     sender->stopSimulation();
     while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating))
@@ -162,21 +170,21 @@ void ServerBenchmark::runBenchmark_internal2()
     unsigned int elapsedTime = timer.elapsed();
     unsigned int stepCounter = sender->popStepCounter();
     Scalar stepsPerSecond = stepCounter/(elapsedTime*0.001);
-    Console()<<"\rServerBenchmark: simulated steps per second: "
+    Console()<<"\rsimulated steps per second: "
         <<stepsPerSecond<<"\n";
     unsigned int calculationCounter = sender->popCalculationCounter();
     Scalar calculationsPerSecond = calculationCounter/(elapsedTime*0.001);
-    Console()<<"\rServerBenchmark: calculations per second: "
+    Console()<<"\rcalculations per second: "
         <<calculationsPerSecond<<"\n";
 
     Scalar simulatedSeconds = stepCounter*timeStep;
     Scalar simulatedSecondsPerSecond = simulatedSeconds/(elapsedTime*0.001);
-    Console()<<"ServerBenchmark: simulated seconds per second: "
+    Console()<<"simulated seconds per second: "
         <<simulatedSecondsPerSecond<<'\n';
 
     endEnergy = sender->getTotalEnergy();
     Scalar relError = 1.0-(beginEnergy/endEnergy);
-    Console()<<"ServerBenchmark: rel. error: "<<relError<<'\n';
+    Console()<<"rel. error: "<<relError<<'\n';
 
     for (unsigned short sphCounter = 0; sphCounter<sphCount; sphCounter++)
     {
