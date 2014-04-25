@@ -12,19 +12,12 @@
 #include "Console.hpp"
 
 #include <vector>
+#include <exception>
 
 namespace SphereSim
 {
-    class ArrayException : public std::exception
-    {
-        const char* what() const noexcept
-        {
-            return "Array exception.";
-        }
-    };
 
-
-    template <typename T, bool extremeSpeed=true, bool throwExceptions=true>
+    template <typename T>
     class TwoDimArray
     {
     private:
@@ -104,55 +97,32 @@ namespace SphereSim
 
         inline T* operator[](const unsigned int index)
         {
-            if (extremeSpeed == false)
-            {
-                if (index >= outerSize || subArrays == nullptr
-                    || subArrays[index] == nullptr)
-                {
-                    Console()<<"TwoDimArray::operator[] error.\n";
-                    if (throwExceptions)
-                    {
-                        throw ArrayException();
-                    }
-                    return nullptr;
-                }
-            }
+            #ifndef NDEBUG
+                assert(index < outerSize);
+                assert(subArrays != nullptr);
+                assert(subArrays[index] != nullptr);
+            #endif
             return subArrays[index];
         }
 
         inline const T* operator[](const unsigned int index) const
         {
-            if (extremeSpeed == false)
-            {
-                if (index >= outerSize || subArrays == nullptr
-                    || subArrays[index] == nullptr)
-                {
-                    Console()<<"TwoDimArray::operator[] const error.\n";
-                    if (throwExceptions)
-                    {
-                        throw ArrayException();
-                    }
-                    return nullptr;
-                }
-            }
+            #ifndef NDEBUG
+                assert(index < outerSize);
+                assert(subArrays != nullptr);
+                assert(subArrays[index] != nullptr);
+            #endif
             return subArrays[index];
         }
 
         inline void addElement(const unsigned int index, T& element)
         {
-            if (extremeSpeed == false)
-            {
-                if (counter == nullptr || index >= outerSize || subArrays == nullptr
-                    || subArrays[index] == nullptr)
-                {
-                    Console()<<"TwoDimArray::addElement error.\n";
-                    if (throwExceptions)
-                    {
-                        throw ArrayException();
-                    }
-                    return;
-                }
-            }
+            #ifndef NDEBUG
+                assert(counter != nullptr);
+                assert(index < outerSize);
+                assert(subArrays != nullptr);
+                assert(subArrays[index] != nullptr);
+            #endif
             if (counter[index] < constInnerSize)
             {
                 subArrays[index][counter[index]++] = element;
@@ -161,28 +131,18 @@ namespace SphereSim
             {
                 Console()<<"TwoDimArray::addElement error: full.\n"<<counter[index]
                     <<constInnerSize;
-                if (throwExceptions)
-                {
-                    throw ArrayException();
-                }
+                throw std::runtime_error("TwoDimArray::addElement error: full.\n");
             }
         }
 
         inline bool addElementIfNotContained(const unsigned int index, T& element)
         {
-            if (extremeSpeed == false)
-            {
-                if (counter == nullptr || index >= outerSize || subArrays == nullptr
-                    || subArrays[index] == nullptr)
-                {
-                    Console()<<"TwoDimArray::addElementIfNotContained error.\n";
-                    if (throwExceptions)
-                    {
-                        throw ArrayException();
-                    }
-                    return false;
-                }
-            }
+            #ifndef NDEBUG
+                assert(counter != nullptr);
+                assert(index < outerSize);
+                assert(subArrays != nullptr);
+                assert(subArrays[index] != nullptr);
+            #endif
             if (counter[index] < constInnerSize)
             {
                 T* subArray = subArrays[index];
@@ -196,50 +156,35 @@ namespace SphereSim
                 subArray[counter[index]++] = element;
                 return true;
             }
-            Console()<<"TwoDimArray::addElementIfNotContained error: full.\n";
-            if (throwExceptions)
+            else
             {
-                throw ArrayException();
+                Console()<<"TwoDimArray::addElementIfNotContained error: full.\n"
+                    <<counter[index]<<constInnerSize;
+                throw std::runtime_error(
+                    "TwoDimArray::addElementIfNotContained error: full.\n");
             }
-            return false;
         }
 
-        inline unsigned int count()
+        inline unsigned int count() const
         {
             return outerSize;
         }
 
-        inline unsigned int getCounter(const unsigned int index)
+        inline unsigned int getCounter(const unsigned int index) const
         {
-            if (extremeSpeed == false)
-            {
-                if (counter == nullptr || index >= outerSize)
-                {
-                    Console()<<"TwoDimArray::getCount error.\n";
-                    if (throwExceptions)
-                    {
-                        throw ArrayException();
-                    }
-                    return 0;
-                }
-            }
+            #ifndef NDEBUG
+                assert(counter != nullptr);
+                assert(index < outerSize);
+            #endif
             return counter[index];
         }
 
         inline void resetCounter(const unsigned int index)
         {
-            if (extremeSpeed == false)
-            {
-                if (counter == nullptr || index >= outerSize)
-                {
-                    Console()<<"TwoDimArray::resetCounter error.\n";
-                    if (throwExceptions)
-                    {
-                        throw ArrayException();
-                    }
-                    return;
-                }
-            }
+            #ifndef NDEBUG
+                assert(counter != nullptr);
+                assert(index < outerSize);
+            #endif
             counter[index] = 0;
         }
 

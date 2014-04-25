@@ -78,13 +78,13 @@ namespace SphereSim
 
         const unsigned short maxCellsPerSphere;
 
-        TwoDimArray<unsigned short, true> sphereIndicesInCells;
+        TwoDimArray<unsigned short> sphereIndicesInCells;
 
-        TwoDimArray<unsigned int, true> cellIndicesOfSpheres;
+        TwoDimArray<unsigned int> cellIndicesOfSpheres;
 
         const unsigned short maxCollidingSpheresPerSphere;
 
-        TwoDimArray<unsigned short, true> collidingSpheresPerSphere;
+        TwoDimArray<unsigned short> collidingSpheresPerSphere;
 
         const unsigned short gravityCellCount;
 
@@ -94,7 +94,7 @@ namespace SphereSim
 
         const unsigned short maxSpheresPerGravityCell;
 
-        TwoDimArray<unsigned short, true> sphereIndicesInGravityCells;
+        TwoDimArray<unsigned short> sphereIndicesInGravityCells;
 
         Vector3 *massVectorSumPerCell;
 
@@ -110,13 +110,13 @@ namespace SphereSim
 
         const unsigned short maxApproximatingCellsPerGravityCell;
 
-        TwoDimArray<unsigned int, true> approximatingCellsPerGravityCell;
+        TwoDimArray<unsigned int> approximatingCellsPerGravityCell;
 
-        TwoDimArray<Vector3, true> approximatingCellsOffsetPerGravityCell;
+        TwoDimArray<Vector3> approximatingCellsOffsetPerGravityCell;
 
         const unsigned short maxPairwiseCellsPerGravityCell;
 
-        TwoDimArray<unsigned int, true> pairwiseCellsPerGravityCell;
+        TwoDimArray<unsigned int> pairwiseCellsPerGravityCell;
 
         unsigned int *gravityCellIndexOfSpheres;
 
