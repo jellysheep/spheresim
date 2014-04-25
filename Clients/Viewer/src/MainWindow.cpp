@@ -99,13 +99,15 @@ void MainWindow::prepareSystem2()
     Vector3 boxSize(boxLength, boxLength, boxLength);
     Sphere s;
     s.radius = 0.03;
-    s.pos = boxSize/2 + Vector3(0, 0.2, 0);
+    s.pos = boxSize;
+    s.pos /= 2;
+    s.pos(1) += 0.2;
     s.speed = Vector3(+0.02, 0, 0);
     s.acc.setZero();
     s.mass = 1;
     actionSender->addSphere();
     actionSender->updateSphere(0, s);
-    s.pos = boxSize/2 - Vector3(0, 0.2, 0);
+    s.pos(1) -= 0.4;
     s.speed *= -1;
     actionSender->addSphere();
     actionSender->updateSphere(1, s);

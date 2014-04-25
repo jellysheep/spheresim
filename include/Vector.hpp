@@ -87,23 +87,6 @@ public:
         eigenVector.setZero();
     }
 
-    Vector3 operator*(Scalar s) const
-    {
-        return Vector3(eigenVector*s);
-    }
-    Vector3 operator/(Scalar s) const
-    {
-        return Vector3(eigenVector/s);
-    }
-    Vector3 operator+(Vector3 v) const
-    {
-        return Vector3(eigenVector+v.eigenVector);
-    }
-    Vector3 operator-(Vector3 v) const
-    {
-        return Vector3(eigenVector-v.eigenVector);
-    }
-
     void operator*=(Scalar s)
     {
         eigenVector *= s;
