@@ -21,7 +21,7 @@ Coverity Scan result:
 Build instructions
 ------------------
 
-* Install dependencies (Qt5, CMake, Eigen3).
+* Install dependencies (Qt5, CMake).
 * Execute the following in a shell:
   - `mkdir build`
   - `cd build`

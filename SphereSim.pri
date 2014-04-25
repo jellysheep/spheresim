@@ -1,13 +1,12 @@
 
-DEFINES     +=  USE_EIGEN_LIBRARY=1 \
-                VERSION=$$system(cat VERSION)
+DEFINES     +=  VERSION=$$system(cat VERSION)
 
 QT          -=  gui
 QT          +=  network
 
 CONFIG      +=  c++11
 
-INCLUDEPATH +=  $$PWD/include/ /usr/include/eigen3
+INCLUDEPATH +=  $$PWD/include/
 
 VPATH       +=  $$PWD/include/ $$PWD/src/
 
