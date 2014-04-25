@@ -33,6 +33,7 @@
 * Removed Eigen dependency occurrences.
 * Added macros and assertions to TwoDimArray class.
 * Improved calculator speed by using macros instead of std::pow.
+* Added missing header include for assert().
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

@@ -12,6 +12,7 @@
 #include "Console.hpp"
 
 #include <vector>
+#include <cassert>
 #include <exception>
 
 namespace SphereSim
