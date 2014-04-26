@@ -99,8 +99,7 @@ void MainWindow::prepareSystem2()
     Vector3 boxSize(boxLength, boxLength, boxLength);
     Sphere s;
     s.radius = 0.03;
-    s.pos = boxSize;
-    s.pos /= 2;
+    s.pos.set_ax(boxSize, 0.5);
     s.pos(1) += 0.2;
     s.speed = Vector3(+0.02, 0, 0);
     s.acc.setZero();

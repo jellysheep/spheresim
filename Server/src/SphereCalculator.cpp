@@ -194,8 +194,7 @@ Vector3 SphereCalculator::sphereAcceleration(unsigned short sphereIndex, Sphere 
     Vector3 sphere2Pos;
     Scalar sphere2Radius;
 
-    force = earthGravity;
-    force *= sphere.mass;
+    force.set_ax(sphere.mass, earthGravity);
     for (unsigned char dim = 0; dim<3; dim++)
     {
         if ((d = (sphere.radius - sphere.pos(dim))) > 0)
@@ -225,9 +224,8 @@ Vector3 SphereCalculator::sphereAcceleration(unsigned short sphereIndex, Sphere 
                     if (collidingSpheresPerSphere.addElementIfNotContained(
                         sphereIndex, sphereIndex2))
                     {
-                        sphere2Pos = spheres[sphereIndex2].speed;
-                        sphere2Pos *= timeDiff;
-                        sphere2Pos += spheres[sphereIndex2].pos;
+                        sphere2Pos.set_axpy(timeDiff, spheres[sphereIndex2].speed,
+                            spheres[sphereIndex2].pos);
                             // + 0.5*sphere2.acc*timeDiff*timeDiff;
                         sphere2Radius = spheres[sphereIndex2].radius;
                         dVec = sphere2Pos;
@@ -236,14 +234,12 @@ Vector3 SphereCalculator::sphereAcceleration(unsigned short sphereIndex, Sphere 
                         bothRadii = sphere2Radius + sphere.radius;
                         if (d < bothRadii)
                         {
-                            dNormalized = dVec;
-                            dNormalized /= d;
+                            dNormalized.set_ax(1/d, dVec);
                             dOverlapping = bothRadii - d;
                             R = 1/((1/sphere.radius)+(1/sphere2Radius));
                             forceNorm = 4.0f/3.0f*sphereSphereE
                                 *sqrt(R*dOverlapping*dOverlapping*dOverlapping);
-                            dNormalized *= forceNorm;
-                            force -= dNormalized;
+                            force.add_ax(-forceNorm, dNormalized);
                         }
                     }
                 }
@@ -274,9 +270,8 @@ Vector3 SphereCalculator::sphereAcceleration(unsigned short sphereIndex, Sphere 
                 {
                     continue;
                 }
-                sphere2Pos = spheres[sphereIndex2].speed;
-                sphere2Pos *= timeDiff;
-                sphere2Pos += spheres[sphereIndex2].pos;
+                sphere2Pos.set_axpy(timeDiff, spheres[sphereIndex2].speed,
+                    spheres[sphereIndex2].pos);
                     // + 0.5*sphere2.acc*timeDiff*timeDiff;
                 dVec = sphere2Pos;
                 dVec -= sphere.pos;
@@ -315,21 +310,16 @@ Vector3 SphereCalculator::sphereAcceleration(unsigned short sphereIndex, Sphere 
                 }
                 if (gravity)
                 {
-                    Vector3 tmp = dVec;
-                    tmp *= (gravitationalConstant * sphere.mass
-                        * spheres[sphereIndex2].mass / d / d / d);
-                    force += tmp;
+                    force.add_ax(gravitationalConstant * sphere.mass
+                        * spheres[sphereIndex2].mass / d / d / d, dVec);
                 }
                 if (lennardJonesPotential)
                 {
-                    Vector3 tmp = dVec;
-                    Scalar pow14 = lenJonPotSigma/d;
-                    pow14 *= pow14;
-                    Scalar pow8 = POW4(pow14);
-                    pow14 = POW7(pow14);
-                    tmp *= (48*lenJonPotEpsilon/(lenJonPotSigma*lenJonPotSigma)
-                        * (pow14-0.5*pow8));
-                    force -= tmp;
+                    const Scalar pow2 = (lenJonPotSigma/d)*(lenJonPotSigma/d);
+                    const Scalar pow8 = POW4(pow2);
+                    const Scalar pow14 = POW7(pow2);
+                    force.add_ax(-48*lenJonPotEpsilon/(lenJonPotSigma*lenJonPotSigma)
+                        * (pow14-0.5*pow8), dVec);
                 }
             }
         }
@@ -352,29 +342,22 @@ Vector3 SphereCalculator::sphereAcceleration(unsigned short sphereIndex, Sphere 
             d = dVec.norm();
             if (gravity)
             {
-                Vector3 tmp = dVec;
-                tmp *= (gravitationalConstant * sphere.mass
-                    * massSumPerCell[gravityCellIndex2] / d / d / d);
-                force += tmp;
+                force.add_ax(gravitationalConstant * sphere.mass
+                    * massSumPerCell[gravityCellIndex2] / d / d / d, dVec);
             }
             if (lennardJonesPotential)
             {
-                Vector3 tmp = dVec;
-                Scalar pow14 = lenJonPotSigma/d;
-                pow14 *= pow14;
-                Scalar pow8 = POW4(pow14);
-                pow14 = POW7(pow14);
-                tmp *= (48*lenJonPotEpsilon/(lenJonPotSigma*lenJonPotSigma)
+                const Scalar pow2 = (lenJonPotSigma/d)*(lenJonPotSigma/d);
+                const Scalar pow8 = POW4(pow2);
+                const Scalar pow14 = POW7(pow2);
+                force.add_ax(-48*lenJonPotEpsilon/(lenJonPotSigma*lenJonPotSigma)
                     * (pow14-0.5*pow8)
-                    *sphereCountPerGravityCell[gravityCellIndex2]);
-                force -= tmp;
-
+                    * sphereCountPerGravityCell[gravityCellIndex2], dVec);
             }
         }
     }
 
-    acc = force;
-    acc /= sphere.mass;
+    acc.set_ax(1/sphere.mass, force);
     _Pragma("omp atomic")
     calculationCounter++;
     return acc;
@@ -718,9 +701,7 @@ unsigned int SphereCalculator::integrateRungeKuttaStep_internal(unsigned short s
         sphere.pos = origSphere.pos;
         for (unsigned char j = 0; j<n; j++)
         {
-            Vector3 tmp = k_speed[j];
-            tmp *= stepLength*butcherTableau.a[n][j];
-            sphere.pos += tmp;
+            sphere.pos.add_ax(stepLength*butcherTableau.a[n][j], k_speed[j]);
         }
         k_acc[n] = sphereAcceleration<detectCollisions, gravity,
             lennardJonesPotential, periodicBoundaries>(sphereIndex, sphere,
@@ -729,9 +710,7 @@ unsigned int SphereCalculator::integrateRungeKuttaStep_internal(unsigned short s
         k_speed[n] = origSphere.speed;
         for (unsigned char j = 0; j<n; j++)
         {
-            Vector3 tmp = k_acc[j];
-            tmp *= stepLength*butcherTableau.a[n][j];
-            k_speed[n] += tmp;
+            k_speed[n].add_ax(stepLength*butcherTableau.a[n][j], k_acc[j]);
         }
     }
 
@@ -741,34 +720,22 @@ unsigned int SphereCalculator::integrateRungeKuttaStep_internal(unsigned short s
     Vector3 speed_ = speed;
     for (unsigned char j = 0; j<integratorOrder; j++)
     {
-        Vector3 tmp = k_speed[j];
-        tmp *= stepLength*butcherTableau.b[j];
-        pos += tmp;
-        tmp = k_speed[j];
-        tmp *= stepLength*butcherTableau.b_[j];
-        pos_ += tmp;
-        tmp = k_acc[j];
-        tmp *= stepLength*butcherTableau.b[j];
-        speed += tmp;
-        tmp = k_acc[j];
-        tmp *= stepLength*butcherTableau.b_[j];
-        speed_ += tmp;
+        pos.add_ax(stepLength*butcherTableau.b[j], k_speed[j]);
+        pos_.add_ax(stepLength*butcherTableau.b_[j], k_speed[j]);
+        speed.add_ax(stepLength*butcherTableau.b[j], k_acc[j]);
+        speed_.add_ax(stepLength*butcherTableau.b_[j], k_acc[j]);
     }
 
-    spheres[sphereIndex].acc = speed;
-    spheres[sphereIndex].acc -= origSphere.speed;
-    Scalar dSpeed = spheres[sphereIndex].acc.norm();
-    spheres[sphereIndex].acc /= stepLength;
+    Vector3 dSpeed = speed;
+    dSpeed -= origSphere.speed;
+    Scalar dSpeedNorm = dSpeed.norm();
     if (stepDivisionCounter < maximumStepDivision)
     {
-        pos_ -= pos;
-        Scalar error_pos_ = pos_.norm();
-        speed_ -= speed;
-        Scalar error_speed_ = speed_.norm();
-        origSphere.pos -= pos;
-        Scalar dPos = origSphere.pos.norm();
-        if (error_pos_ > dPos*maximumStepError
-            || error_speed_ > dSpeed*maximumStepError)
+        Scalar error_pos_ = pos.distance(pos_);
+        Scalar error_speed_ = speed.distance(speed_);
+        Scalar dPosNorm = pos.distance(origSphere.pos);
+        if (error_pos_ > dPosNorm*maximumStepError
+            || error_speed_ > dSpeedNorm*maximumStepError)
         {
             unsigned int stepCount = 0;
             stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity,
@@ -777,11 +744,13 @@ unsigned int SphereCalculator::integrateRungeKuttaStep_internal(unsigned short s
             stepCount += integrateRungeKuttaStep_internal<detectCollisions, gravity,
                 lennardJonesPotential, periodicBoundaries>(sphereIndex, stepLength/2,
                 timeDiff+(stepLength/2), stepDivisionCounter+1);
+            spheres[sphereIndex].acc.set_ax(1/stepLength, dSpeed);
             return stepCount;
         }
     }
     newSpherePos[sphereIndex] = pos;
     spheres[sphereIndex].speed = speed;
+    spheres[sphereIndex].acc.set_ax(1/stepLength, dSpeed);
     return 1;
 }
 
@@ -1005,9 +974,7 @@ void SphereCalculator::buildGravityCells()
     }
     for (cellIndex = gravityAllCellCount-1; cellIndex >= 1; cellIndex--)
     {
-        Vector3 tmp = gravityCellSizes[cellIndex];
-        tmp /= 2;
-        gravityCellPositions[cellIndex] += tmp;
+        gravityCellPositions[cellIndex].add_ax(0.5, gravityCellSizes[cellIndex]);
     }
 }
 
@@ -1087,9 +1054,8 @@ void SphereCalculator::rebuildGravityCellPairs(unsigned int currentCellIndex,
     Scalar maxCellLength = 2*fmax(gravityCellHalfDiagonalLength[currentCellIndex],
         gravityCellHalfDiagonalLength[testCellIndex]);
     testCellPos += testCellOffset;
-    currentCellPos -= testCellPos;
     Scalar minimalDistance =
-        fmax(currentCellPos.norm()
+        fmax(currentCellPos.distance(testCellPos)
         -gravityCellHalfDiagonalLength[currentCellIndex]
         -gravityCellHalfDiagonalLength[testCellIndex], 0.0000001);
     Scalar theta = maxCellLength / minimalDistance;
@@ -1142,8 +1108,7 @@ void SphereCalculator::updateGravityCellData()
     {
         s = spheres[sphereIndex];
         cellIndex = gravityCellCount3 + gravityCellIndexOfSpheres[sphereIndex];
-        s.pos *= s.mass;
-        massVectorSumPerCell[cellIndex] += s.pos;
+        massVectorSumPerCell[cellIndex].add_ax(s.mass, s.pos);
         massSumPerCell[cellIndex] += s.mass;
         sphereCountPerGravityCell[cellIndex]++;
     }
@@ -1156,8 +1121,8 @@ void SphereCalculator::updateGravityCellData()
             massVectorSumPerCell[parentCellIndex] += massVectorSumPerCell[cellIndex];
             massSumPerCell[parentCellIndex] += massSumPerCell[cellIndex];
 
-            massCenterPerCell[cellIndex] = massVectorSumPerCell[cellIndex];
-            massCenterPerCell[cellIndex] /= massSumPerCell[cellIndex];
+            massCenterPerCell[cellIndex].set_ax(1/massSumPerCell[cellIndex],
+                massVectorSumPerCell[cellIndex]);
             sphereCountPerGravityCell[parentCellIndex] +=
                 sphereCountPerGravityCell[cellIndex];
         }
@@ -1248,8 +1213,7 @@ void SphereCalculator::updateSpherePositionsInBox(Scalar randomDisplacement,
     {
         Console()<<"SphereCalculator: sphere "<<(i+1)<<"|"<<spheres.size()<<"\r";
         Sphere& s = spheres[i];
-        s.pos = boxSize;
-        s.pos /= 2;
+        s.pos.set_ax(0.5, boxSize);
         s.pos(0) += boxSize(0)/sphereCount1D
             *((sphereCount1D-1)/2.0-(i%sphereCount1D));
         s.pos(1) += boxSize(1)/sphereCount1D
