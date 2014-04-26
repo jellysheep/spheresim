@@ -34,6 +34,7 @@
 * Added macros and assertions to TwoDimArray class.
 * Improved calculator speed by using macros instead of std::pow.
 * Added missing header include for assert().
+* Fixed wrong acceleration calculation.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.

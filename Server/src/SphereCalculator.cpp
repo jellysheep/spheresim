@@ -374,7 +374,7 @@ Vector3 SphereCalculator::sphereAcceleration(unsigned short sphereIndex, Sphere 
     }
 
     acc = force;
-    force /= sphere.mass;
+    acc /= sphere.mass;
     _Pragma("omp atomic")
     calculationCounter++;
     return acc;
