@@ -1,3 +1,4 @@
+SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.
 * Improved coding style.
 * Removed empty SimulatedSystemActions.
@@ -39,6 +40,7 @@
 * Improved Benchmark by removing all spheres at once.
 * Improved Vector class to make it more usable.
 * Fixed a few minor bugs.
+* Updated version number.
 
 SphereSim 3.0.2:
 * Fixed Viewer linking.
