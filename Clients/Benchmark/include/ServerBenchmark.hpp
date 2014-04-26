@@ -36,8 +36,11 @@ namespace SphereSim
         Scalar runBenchmark_internal(bool detectCollisions, bool calculateGravity,
             bool calculateLennardJonesPotential);
 
-        /** \brief Run a benchmark test with many spheres. */
-        void runBenchmark_internal2();
+        /** \brief Run a benchmark test with gravitation of many spheres. */
+        Scalar runBenchmark_internal2();
+
+        /** \brief Run a benchmark test with Lennard-Jones potential. */
+        Scalar runBenchmark_internal3();
 
     public:
         /** \brief Start a ServerBenchmark with the specified address and port.

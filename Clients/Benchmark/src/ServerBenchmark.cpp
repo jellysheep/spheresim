@@ -38,13 +38,13 @@ void ServerBenchmark::run()
     sender->simulatedSystem->set(SimulationVariables::earthGravity,
         Vector3(0, -9.81, 0));
 
-    //runBenchmark_internal2();
-
     Scalar totalScore = 0;
     totalScore += runBenchmark_internal(false, false, true);
     totalScore += runBenchmark_internal(false, true, false);
     totalScore += runBenchmark_internal(true, false, false);
     totalScore += runBenchmark_internal(false, false, false);
+    totalScore += runBenchmark_internal2();
+    totalScore += runBenchmark_internal3();
     Console()<<"\ntotal score: "<<std::setprecision(3)<<totalScore<<".\n";
 
     qApp->exit(0);
@@ -141,9 +141,11 @@ Scalar ServerBenchmark::runBenchmark_internal(bool detectCollisions,
     return score;
 }
 
-void ServerBenchmark::runBenchmark_internal2()
+Scalar ServerBenchmark::runBenchmark_internal2()
 {
     unsigned short sphCount = 512;
+    Console()<<"\nsimulating macroscopic gravitation system with "
+        <<sphCount<<" spheres.\n";
     SystemCreator systemCreator(sender);
     systemCreator.createMacroscopicGravitationSystem(sphCount);
 
@@ -190,4 +192,68 @@ void ServerBenchmark::runBenchmark_internal2()
     {
         sender->removeLastSphere();
     }
+
+    Scalar simulatedMSecondsPerSecond = 1000*simulatedSecondsPerSecond;
+    Scalar score = std::log(simulatedMSecondsPerSecond);
+    Console()<<"\npartial score: "<<std::setprecision(3)<<score<<".\n";
+    return score;
+}
+
+Scalar ServerBenchmark::runBenchmark_internal3()
+{
+    // use square numbers
+    unsigned short sphCount = 64;
+    Console()<<"\nsimulating microscopic Lennard-Jones potential system with "
+        <<sphCount<<" spheres.\n";
+    SystemCreator systemCreator(sender);
+    systemCreator.createArgonGasSystem(sphCount, 473.15);
+
+    Scalar timeStep = 2.0e-14;
+    Console()<<"simulated seconds per step: "<<timeStep<<'\n';
+    sender->simulatedSystem->set(SimulationVariables::timeStep, timeStep);
+
+    Scalar beginEnergy, endEnergy;
+    beginEnergy = sender->getTotalEnergy();
+
+    QElapsedTimer timer = QElapsedTimer();
+    sender->startSimulation();
+    timer.start();
+    for (unsigned short i = 0; i<100; i++)
+    {
+        QTest::qWait(10*1000/100);
+        Console()<<"\rprogress: "<<(i+1)<<" % ";
+    }
+    sender->stopSimulation();
+    while (sender->simulatedSystem->get<bool>(SimulationVariables::simulating))
+    {
+        QCoreApplication::processEvents();
+    }
+    unsigned int elapsedTime = timer.elapsed();
+    unsigned int stepCounter = sender->popStepCounter();
+    Scalar stepsPerSecond = stepCounter/(elapsedTime*0.001);
+    Console()<<"\rsimulated steps per second: "
+        <<stepsPerSecond<<"\n";
+    unsigned int calculationCounter = sender->popCalculationCounter();
+    Scalar calculationsPerSecond = calculationCounter/(elapsedTime*0.001);
+    Console()<<"\rcalculations per second: "
+        <<calculationsPerSecond<<"\n";
+
+    Scalar simulatedSeconds = stepCounter*timeStep;
+    Scalar simulatedSecondsPerSecond = simulatedSeconds/(elapsedTime*0.001);
+    Console()<<"simulated seconds per second: "
+        <<simulatedSecondsPerSecond<<'\n';
+
+    endEnergy = sender->getTotalEnergy();
+    Scalar relError = 1.0-(beginEnergy/endEnergy);
+    Console()<<"rel. error: "<<relError<<'\n';
+
+    for (unsigned short sphCounter = 0; sphCounter<sphCount; sphCounter++)
+    {
+        sender->removeLastSphere();
+    }
+
+    Scalar simulatedMSecondsPerSecond = 1000*simulatedSecondsPerSecond;
+    Scalar score = std::log(simulatedMSecondsPerSecond);
+    Console()<<"\npartial score: "<<std::setprecision(3)<<score<<".\n";
+    return score;
 }
