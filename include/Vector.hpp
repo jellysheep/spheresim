@@ -48,13 +48,11 @@ public:
 
     Scalar& operator()(const unsigned char index)
     {
-        assert(index >= 0);
         assert(index < 3);
         return x[index];
     }
     const Scalar& operator()(const unsigned char index) const
     {
-        assert(index >= 0);
         assert(index < 3);
         return x[index];
     }
