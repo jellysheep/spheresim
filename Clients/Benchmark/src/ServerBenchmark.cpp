@@ -132,8 +132,7 @@ Scalar ServerBenchmark::runBenchmark_internal(bool detectCollisions,
     Scalar relError = 1.0-(beginEnergy/endEnergy);
     Console()<<"rel. error: "<<relError<<'\n';
 
-    sender->removeLastSphere();
-    sender->removeLastSphere();
+    sender->removeSomeLastSpheres(2);
 
     Scalar simulatedMSecondsPerSecond = 1000*simulatedSecondsPerSecond;
     Scalar score = std::log(simulatedMSecondsPerSecond);
@@ -161,7 +160,7 @@ Scalar ServerBenchmark::runBenchmark_internal2()
     timer.start();
     for (unsigned short i = 0; i<100; i++)
     {
-        QTest::qWait(10*1000/100);
+        QTest::qWait(2*1000/100);
         Console()<<"\rprogress: "<<(i+1)<<" % ";
     }
     sender->stopSimulation();
@@ -188,10 +187,7 @@ Scalar ServerBenchmark::runBenchmark_internal2()
     Scalar relError = 1.0-(beginEnergy/endEnergy);
     Console()<<"rel. error: "<<relError<<'\n';
 
-    for (unsigned short sphCounter = 0; sphCounter<sphCount; sphCounter++)
-    {
-        sender->removeLastSphere();
-    }
+    sender->removeSomeLastSpheres(sphCount);
 
     Scalar simulatedMSecondsPerSecond = 1000*simulatedSecondsPerSecond;
     Scalar score = std::log(simulatedMSecondsPerSecond);
@@ -220,7 +216,7 @@ Scalar ServerBenchmark::runBenchmark_internal3()
     timer.start();
     for (unsigned short i = 0; i<100; i++)
     {
-        QTest::qWait(10*1000/100);
+        QTest::qWait(2*1000/100);
         Console()<<"\rprogress: "<<(i+1)<<" % ";
     }
     sender->stopSimulation();
@@ -247,10 +243,7 @@ Scalar ServerBenchmark::runBenchmark_internal3()
     Scalar relError = 1.0-(beginEnergy/endEnergy);
     Console()<<"rel. error: "<<relError<<'\n';
 
-    for (unsigned short sphCounter = 0; sphCounter<sphCount; sphCounter++)
-    {
-        sender->removeLastSphere();
-    }
+    sender->removeSomeLastSpheres(sphCount);
 
     Scalar simulatedMSecondsPerSecond = 1000*simulatedSecondsPerSecond;
     Scalar score = std::log(simulatedMSecondsPerSecond);
