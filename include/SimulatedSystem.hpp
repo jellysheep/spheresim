@@ -78,4 +78,4 @@ namespace SphereSim
     };
 }
 
-#endif
+#endif /*_SIMULATEDSYSTEM_HPP_*/

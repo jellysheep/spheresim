@@ -11,10 +11,10 @@
 
 #ifndef VERSION
     #define VERSION unknown
-#endif
+#endif /*VERSION*/
 
 #define TOSTR2(x) #x
 #define TOSTR(x) TOSTR2(x)
 #define VERSION_STR TOSTR(VERSION)
 
-#endif
+#endif /*_VERSION_HPP_*/

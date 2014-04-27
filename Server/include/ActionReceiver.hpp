@@ -72,4 +72,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_ACTIONRECEIVER_HPP_*/

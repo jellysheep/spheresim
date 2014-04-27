@@ -46,4 +46,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_STARTDIALOG_HPP_*/

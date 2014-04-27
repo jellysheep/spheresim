@@ -54,4 +54,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_BUTCHERTABLEAU_HPP_*/

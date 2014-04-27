@@ -324,4 +324,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_SPHERECALCULATOR_HPP_*/

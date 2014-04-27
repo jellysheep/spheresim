@@ -62,4 +62,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_SERVERBENCHMARK_HPP_*/

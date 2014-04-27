@@ -127,4 +127,4 @@ namespace SphereSim
 /** \brief Make GLWidget known to Qt GUI classes. */
 typedef SphereSim::GLWidget GLWidget;
 
-#endif
+#endif /*_GLWIDGET_HPP_*/

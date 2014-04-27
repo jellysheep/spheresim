@@ -29,4 +29,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_CONNECTION_HPP_*/

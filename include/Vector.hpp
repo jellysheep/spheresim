@@ -16,7 +16,7 @@
     #define FLOATING_TYPE double
 #else
     #define FLOATING_TYPE float
-#endif
+#endif /*USE_DOUBLE*/
 typedef FLOATING_TYPE Scalar;
 
 /** Vector class. */
@@ -133,4 +133,4 @@ public:
     }
 };
 
-#endif
+#endif /*_VECTOR_HPP_*/

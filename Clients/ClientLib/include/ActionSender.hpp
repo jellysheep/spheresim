@@ -243,4 +243,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_ACTIONSENDER_HPP_*/

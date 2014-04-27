@@ -105,4 +105,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_SIMULATIONWORKER_HPP_*/

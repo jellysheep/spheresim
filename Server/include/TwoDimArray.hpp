@@ -102,7 +102,7 @@ namespace SphereSim
                 assert(index < outerSize);
                 assert(subArrays != nullptr);
                 assert(subArrays[index] != nullptr);
-            #endif
+            #endif /*NDEBUG*/
             return subArrays[index];
         }
 
@@ -112,7 +112,7 @@ namespace SphereSim
                 assert(index < outerSize);
                 assert(subArrays != nullptr);
                 assert(subArrays[index] != nullptr);
-            #endif
+            #endif /*NDEBUG*/
             return subArrays[index];
         }
 
@@ -123,7 +123,7 @@ namespace SphereSim
                 assert(index < outerSize);
                 assert(subArrays != nullptr);
                 assert(subArrays[index] != nullptr);
-            #endif
+            #endif /*NDEBUG*/
             if (counter[index] < constInnerSize)
             {
                 subArrays[index][counter[index]++] = element;
@@ -143,7 +143,7 @@ namespace SphereSim
                 assert(index < outerSize);
                 assert(subArrays != nullptr);
                 assert(subArrays[index] != nullptr);
-            #endif
+            #endif /*NDEBUG*/
             if (counter[index] < constInnerSize)
             {
                 T* subArray = subArrays[index];
@@ -176,7 +176,7 @@ namespace SphereSim
             #ifndef NDEBUG
                 assert(counter != nullptr);
                 assert(index < outerSize);
-            #endif
+            #endif /*NDEBUG*/
             return counter[index];
         }
 
@@ -185,7 +185,7 @@ namespace SphereSim
             #ifndef NDEBUG
                 assert(counter != nullptr);
                 assert(index < outerSize);
-            #endif
+            #endif /*NDEBUG*/
             counter[index] = 0;
         }
 
@@ -202,4 +202,4 @@ namespace SphereSim
     };
 }
 
-#endif
+#endif /*_TWODIMARRAY_HPP_*/

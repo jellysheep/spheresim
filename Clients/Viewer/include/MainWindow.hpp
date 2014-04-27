@@ -83,4 +83,4 @@ namespace SphereSim
 /** \brief Make MainWindow known to Qt GUI classes. */
 typedef SphereSim::MainWindow MainWindow;
 
-#endif
+#endif /*_MAINWINDOW_HPP_*/

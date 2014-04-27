@@ -48,4 +48,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_ACTIONSERVER_HPP_*/

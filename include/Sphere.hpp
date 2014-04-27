@@ -37,4 +37,4 @@ namespace SphereSim
     };
 }
 
-#endif
+#endif /*_SPHERE_HPP_*/

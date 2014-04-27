@@ -156,4 +156,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_SERVERTESTER_HPP_*/

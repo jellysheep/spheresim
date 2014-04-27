@@ -112,4 +112,4 @@ namespace SphereSim
     };
 }
 
-#endif
+#endif /*_FRAMEBUFFER_HPP_*/

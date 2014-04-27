@@ -91,4 +91,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_CONSOLE_HPP_*/

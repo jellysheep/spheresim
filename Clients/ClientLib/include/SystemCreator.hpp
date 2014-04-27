@@ -41,4 +41,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_SYSTEMCREATOR_HPP_*/

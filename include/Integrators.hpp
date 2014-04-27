@@ -32,4 +32,4 @@ namespace SphereSim
     }
 }
 
-#endif
+#endif /*_INTEGRATORS_HPP_*/

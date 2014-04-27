@@ -23,10 +23,10 @@
 
 #ifndef NO_OPENMP
     #define NO_OPENMP 0
-#endif
+#endif /*NO_OPENMP*/
 #if NO_OPENMP != 1
     #include <omp.h>
-#endif
+#endif /*NO_OPENMP != 1*/
 
 #define POW4(x) ((x)*(x)*(x)*(x))
 #define POW5(x) ((x)*(x)*(x)*(x)*(x))
@@ -114,7 +114,7 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
     ompThreads++;
     Console()<<"SphereCalculator: number of OpenMP threads: "
         <<omp_get_num_threads()<<"|"<<ompThreads<<".\n";
-#endif
+#endif /*NO_OPENMP != 1*/
     updateSphereBox();
     massVectorSumPerCell = new Vector3[gravityAllCellCount];
     massSumPerCell = new Scalar[gravityAllCellCount];

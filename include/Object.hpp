@@ -28,7 +28,7 @@ namespace SphereSim
             SCALAR  = 'd',
         #else
             SCALAR  = 'f',
-        #endif
+        #endif /*USE_DOUBLE*/
             DOUBLE  = 'd',
             FLOAT   = 'f',
             VECTOR3 = 'v',
@@ -95,4 +95,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_OBJECT_HPP_*/

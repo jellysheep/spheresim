@@ -82,4 +82,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_SIMULATIONGRAPHER_HPP_*/

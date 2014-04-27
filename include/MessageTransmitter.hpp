@@ -59,4 +59,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_MESSAGETRANSMITTER_HPP_*/

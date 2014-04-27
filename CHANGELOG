@@ -1,3 +1,5 @@
+* Added #endif comments.
+
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.
 * Improved coding style.

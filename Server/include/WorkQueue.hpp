@@ -128,4 +128,4 @@ namespace SphereSim
 
 }
 
-#endif
+#endif /*_WORKQUEUE_HPP_*/
