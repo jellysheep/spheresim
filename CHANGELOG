@@ -1,4 +1,5 @@
 * Added #endif comments.
+* Moved Vector3 class to SphereSim namespace.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.
