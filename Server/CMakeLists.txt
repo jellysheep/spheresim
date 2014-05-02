@@ -6,10 +6,10 @@ set (PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(USE_DOUBLE 1)
 add_definitions("-DUSE_DOUBLE=${USE_DOUBLE}")
-set(NO_OPENMP 1)
+set(NO_OPENMP 0)
 add_definitions("-DNO_OPENMP=${NO_OPENMP}")
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Ofast -fno-fast-math -g")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 if(NO_OPENMP EQUAL 0)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 endif()

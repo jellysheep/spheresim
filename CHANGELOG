@@ -1,5 +1,6 @@
 * Added #endif comments.
 * Moved Vector3 class to SphereSim namespace.
+* Switched to -O2 and enabled OpenMP.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.
