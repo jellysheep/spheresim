@@ -68,6 +68,9 @@ namespace SphereSim
         void sendReply(unsigned char serverStatus, std::string dataToSend);
 
         void terminateServer();
+
+        void serverReady();
+
     };
 
 }

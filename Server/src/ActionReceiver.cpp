@@ -30,8 +30,8 @@ ActionReceiver::ActionReceiver(QTcpSocket* socket)
     connect(&sphCalc, SIGNAL(frameToSend(std::string)), SLOT(sendFrame(std::string)));
     connect(&simulatedSystem, SIGNAL(variableToSend(std::string)),
         SLOT(sendVariable(std::string)));
+    connect(&simulatedSystem, SIGNAL(serverReady()), SLOT(serverReady()));
     connect(workQueue, SIGNAL(simulating(bool)), SLOT(simulating(bool)));
-    simulatedSystem.sendAllVariables();
 }
 
 ActionReceiver::~ActionReceiver()
@@ -95,4 +95,9 @@ void ActionReceiver::sendVariable(std::string variableToSend)
 void ActionReceiver::simulating(bool isSimulating)
 {
     simulatedSystem.set(SimulationVariables::simulating, isSimulating);
+}
+
+void ActionReceiver::serverReady()
+{
+    sendReply(ServerStatusReplies::serverReady, "");
 }

@@ -68,7 +68,7 @@ namespace SphereSim
 
         void variableUpdated(int var);
 
-        void receivedAllVariables();
+        void serverReady();
 
     public slots:
         void sendAllVariables();

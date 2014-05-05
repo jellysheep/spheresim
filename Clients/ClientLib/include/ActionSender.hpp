@@ -232,6 +232,8 @@ namespace SphereSim
 
         /** \brief Server connection was closed. */
         void connectionClosed();
+
+        void serverReady();
     };
 
 }

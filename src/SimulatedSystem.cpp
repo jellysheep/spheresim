@@ -51,7 +51,6 @@ SimulatedSystem::SimulatedSystem()
     addVariable(kBoltzmann, Object::SCALAR, 1.3806504e-23);
     addVariable(lenJonPotEpsilon, Object::SCALAR, 1.6540e-21);
     addVariable(lenJonPotSigma, Object::SCALAR, 0.3405e-9);
-    addVariable(allVariablesReceived, Object::BOOL, false);
 }
 
 template <typename T>
@@ -67,17 +66,7 @@ void SimulatedSystem::addVariable(SimulationVariables::Variable var,
 
 void SimulatedSystem::sendVariable(SimulationVariables::Variable var)
 {
-    std::string bytes;
-    if (var == allVariablesReceived)
-    {
-        bytes = std::string(2, Object::BOOL);
-    }
-    else
-    {
-        Object &o = vars[var];
-        bytes = o.getData();
-    }
-
+    std::string bytes = vars[var].getData();
     std::ostringstream data;
     writeShort(data, (unsigned short)var);
     data<<bytes;
@@ -90,6 +79,9 @@ void SimulatedSystem::sendAllVariables()
     {
         sendVariable((SimulationVariables::Variable) var);
     }
+    std::ostringstream data;
+    writeShort(data, (unsigned short) numberOfVariables);
+    emit variableToSend(data.str());
 }
 
 void SimulatedSystem::receiveVariable(SimulationVariables::Variable var,
@@ -97,6 +89,10 @@ void SimulatedSystem::receiveVariable(SimulationVariables::Variable var,
 {
     if (var >= numberOfVariables)
     {
+        if (var == numberOfVariables)
+        {
+            emit serverReady();
+        }
         return;
     }
 
@@ -104,10 +100,6 @@ void SimulatedSystem::receiveVariable(SimulationVariables::Variable var,
     if (o.setData(data))
     {
         emit variableUpdated((int)var);
-        if (var == allVariablesReceived)
-        {
-            emit receivedAllVariables();
-        }
     }
 }
 

@@ -41,6 +41,8 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
     framerateTimer.start();
     frameBuffer.setActionSender(this);
     connect(this, SIGNAL(newFrameReceived()), SLOT(framerateEvent()));
+    connect(this, SIGNAL(serverReady()), client, SLOT(run()),
+        Qt::QueuedConnection);
     while (connectionTryCount<1000 && (connectedFlag == false))
     {
         socket->connectToHost(QHostAddress(addr), port);
@@ -54,8 +56,6 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
             SLOT(sendVariable(std::string)));
         connect(simulatedSystem, SIGNAL(variableUpdated(int)),
             SLOT(variableUpdated(int)));
-        connect(simulatedSystem, SIGNAL(receivedAllVariables()), client, SLOT(run()),
-            Qt::QueuedConnection);
         simulatedSystem->sendAllVariables();
     }
     else
@@ -135,6 +135,10 @@ void ActionSender::processReply(std::string data)
         SimulationVariables::Variable var = (SimulationVariables::Variable)_var;
         std::string varData = data.substr(3);
         simulatedSystem->receiveVariable(var, varData);
+    }
+    else if (lastServerStatus == ServerStatusReplies::serverReady)
+    {
+        emit serverReady();
     }
     else
     {

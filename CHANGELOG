@@ -2,6 +2,7 @@
 * Moved Vector3 class to SphereSim namespace.
 * Switched to -O2 and enabled OpenMP.
 * Removed Server autostart and added exit on error to ActionSender.
+* Improved data initializing on connecting.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.

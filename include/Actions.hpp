@@ -68,8 +68,6 @@ namespace SphereSim
             lenJonPotEpsilon,
             /** \brief Sigma used for Lennard-Jones potential. */
             lenJonPotSigma,
-            /** \brief Enum value indicating if all variables have been received. */
-            allVariablesReceived,
             /** \brief Last enum value equals number of variables. */
             numberOfVariables
         };
@@ -197,7 +195,9 @@ namespace SphereSim
             /** \brief The server is terminating. */
             terminating,
             /** \brief The server is sending an updated variable. */
-            sendVariable
+            sendVariable,
+            /** \brief The server received all variables and is ready. */
+            serverReady
         };
     }
 
