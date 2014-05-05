@@ -16,7 +16,6 @@
 
 #include <QtGlobal>
 #include <QObject>
-#include <QProcess>
 #include <QElapsedTimer>
 #include <string>
 
@@ -40,12 +39,6 @@ namespace SphereSim
 
         /** \brief Number of server connection tries. */
         unsigned short connectionTryCount;
-
-        /** \brief Process of the automatically started server. */
-        QProcess serverProcess;
-
-        /** \brief Flag for automatically started server. */
-        bool createdOwnServer;
 
         /** \brief Buffer for the spheres received from server. */
         FrameBuffer<Sphere> frameBuffer;

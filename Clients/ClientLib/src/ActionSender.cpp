@@ -15,6 +15,7 @@
 #include <QTcpSocket>
 #include <QHostAddress>
 #include <QCoreApplication>
+#include <QTimer>
 #include <string>
 
 Q_DECLARE_METATYPE(std::string);
@@ -24,8 +25,7 @@ using namespace SphereSim;
 ActionSender::ActionSender(const char* addr, unsigned short port,
     QObject* client)
     :socket(new QTcpSocket()),
-    connectedFlag(false), connectionTryCount(0), serverProcess(),
-    createdOwnServer(false), frameBuffer(10),
+    connectedFlag(false), connectionTryCount(0), frameBuffer(10),
     lastServerStatus(ServerStatusReplies::acknowledge),
     receivedServerReply(false), lastServerReplyData(), framerateTimer(),
     frameCounter(0), receivedFramesPerSecond(0),
@@ -46,37 +46,30 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
         socket->connectToHost(QHostAddress(addr), port);
         connectionTryCount++;
         socket->waitForConnected(100);
-        if (connectedFlag == false)
-        {
-            Console()<<"ActionSender: retrying to connect to host.\n";
-            if (connectionTryCount<=1)
-            {
-                Console()<<"ActionSender: starting Server.\n";
-                serverProcess.start("SphereSim_Server");
-                createdOwnServer = true;
-            }
-        }
     }
-    simulatedSystem = new SimulatedSystem();
-    connect(simulatedSystem, SIGNAL(variableToSend(std::string)),
-        SLOT(sendVariable(std::string)));
-    connect(simulatedSystem, SIGNAL(variableUpdated(int)),
-        SLOT(variableUpdated(int)));
-    connect(simulatedSystem, SIGNAL(receivedAllVariables()), client, SLOT(run()),
-        Qt::QueuedConnection);
-    simulatedSystem->sendAllVariables();
+    if (connectedFlag == true)
+    {
+        simulatedSystem = new SimulatedSystem();
+        connect(simulatedSystem, SIGNAL(variableToSend(std::string)),
+            SLOT(sendVariable(std::string)));
+        connect(simulatedSystem, SIGNAL(variableUpdated(int)),
+            SLOT(variableUpdated(int)));
+        connect(simulatedSystem, SIGNAL(receivedAllVariables()), client, SLOT(run()),
+            Qt::QueuedConnection);
+        simulatedSystem->sendAllVariables();
+    }
+    else
+    {
+        Console()<<"ActionSender: connecting to host failed.\n";
+        QTimer::singleShot(0, qApp, SLOT(quit()));
+    }
 }
 
 ActionSender::~ActionSender()
 {
-    if (createdOwnServer)
+    if (simulatedSystem != nullptr)
     {
-        sendReplyAction(ActionGroups::basic, BasicActions::terminateServer);
-        serverProcess.waitForFinished(200);
-        Console()<<"ActionSender: killing Server.\n";
-        serverProcess.terminate();
-        serverProcess.waitForFinished(200);
-        serverProcess.kill();
+        delete simulatedSystem;
     }
     delete messageTransmitter;
     socket->close();
