@@ -13,9 +13,8 @@
 #include "SphereCalculator.hpp"
 
 #include <QObject>
+#include <nanomsg/nn.hpp>
 #include <string>
-
-class QTcpSocket;
 
 namespace SphereSim
 {
@@ -28,7 +27,7 @@ namespace SphereSim
 
     private:
         /** \brief Socket to client. */
-        QTcpSocket* socket;
+        nn::socket* socket;
 
         /** \brief Encapsulate and encode messages sent over network. */
         MessageTransmitter* messageTransmitter;
@@ -42,8 +41,8 @@ namespace SphereSim
 
     public:
         /** \brief Start a new server handling requests from the client.
-         * \param sock Socket of the connection to the client. */
-        ActionReceiver(QTcpSocket* sock);
+         * \param socket Socket of the connection to the client. */
+        ActionReceiver(nn::socket* socket);
 
         /** \brief Clean up member variables. */
         ~ActionReceiver();

@@ -12,10 +12,9 @@
 #include "DataTransmit.hpp"
 #include "MessageTransmitter.hpp"
 
-#include <QTcpSocket>
-#include <QHostAddress>
 #include <QCoreApplication>
 #include <QTimer>
+#include <nanomsg/pair.h>
 #include <string>
 
 Q_DECLARE_METATYPE(std::string);
@@ -24,18 +23,17 @@ using namespace SphereSim;
 
 ActionSender::ActionSender(const char* addr, unsigned short port,
     QObject* client)
-    :socket(new QTcpSocket()),
+    :socket(AF_SP, NN_PAIR),
     connectedFlag(false), connectionTryCount(0), frameBuffer(10),
     lastServerStatus(ServerStatusReplies::acknowledge),
     receivedServerReply(false), lastServerReplyData(), framerateTimer(),
     frameCounter(0), receivedFramesPerSecond(0),
-    messageTransmitter(new MessageTransmitter(socket)),
+    messageTransmitter(new MessageTransmitter(&socket)),
     failureExitWhenDisconnected(false), simulatedSystem(nullptr)
 {
     qRegisterMetaType<std::string>();
-    connect(socket, SIGNAL(connected()), SLOT(connected()));
-    connect(socket, SIGNAL(disconnected()), SLOT(disconnected()));
-    connect(socket, SIGNAL(readyRead()), messageTransmitter, SLOT(readData()));
+    //~ connect(socket, SIGNAL(connected()), SLOT(connected()));
+    //~ connect(socket, SIGNAL(disconnected()), SLOT(disconnected()));
     connect(messageTransmitter, SIGNAL(processData(std::string)),
         SLOT(processReply(std::string)));
     framerateTimer.start();
@@ -43,14 +41,24 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
     connect(this, SIGNAL(newFrameReceived()), SLOT(framerateEvent()));
     connect(this, SIGNAL(serverReady()), client, SLOT(run()),
         Qt::QueuedConnection);
-    while (connectionTryCount<1000 && (connectedFlag == false))
+    std::ostringstream address;
+    address<<"tcp://"<<addr<<':'<<port;
+    do
     {
-        socket->connectToHost(QHostAddress(addr), port);
         connectionTryCount++;
-        socket->waitForConnected(100);
+        try
+        {
+            socket.connect(address.str().c_str());
+            connectedFlag = true;
+        }
+        catch (...)
+        {
+        }
     }
+    while (connectionTryCount<1000 && (connectedFlag == false));
     if (connectedFlag == true)
     {
+        messageTransmitter->start();
         simulatedSystem = new SimulatedSystem();
         connect(simulatedSystem, SIGNAL(variableToSend(std::string)),
             SLOT(sendVariable(std::string)));
@@ -72,8 +80,6 @@ ActionSender::~ActionSender()
         delete simulatedSystem;
     }
     delete messageTransmitter;
-    socket->close();
-    delete socket;
 }
 
 void ActionSender::sendAction(unsigned char actionGroup, unsigned char action,
@@ -160,7 +166,6 @@ void ActionSender::willBeSimulating()
 
 bool ActionSender::isConnected()
 {
-    socket->waitForConnected(10);
     return connectedFlag;
 }
 
@@ -354,16 +359,6 @@ void ActionSender::framerateEvent()
             emit framerateUpdate();
         }
         framerateTimer.restart();
-    }
-}
-
-void ActionSender::disconnected()
-{
-    Console()<<"Server connection closed.\n";
-    emit connectionClosed();
-    if (failureExitWhenDisconnected)
-    {
-        qApp->exit(1);
     }
 }
 

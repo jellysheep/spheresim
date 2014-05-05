@@ -21,7 +21,6 @@ set(HEADERS ${HEADERS}
 )
 
 find_package(Qt5Core REQUIRED)
-find_package(Qt5Network REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
 
@@ -37,7 +36,7 @@ if(WIN32)
 else()
     target_link_libraries(SphereSim_Viewer SphereSim_ClientLib ${OPENGL_LIBRARIES})
 endif()
-qt5_use_modules(SphereSim_Viewer Core Network Widgets OpenGL)
+qt5_use_modules(SphereSim_Viewer Core Widgets OpenGL)
 
 install(TARGETS SphereSim_Viewer
     RUNTIME DESTINATION bin)

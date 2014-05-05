@@ -8,7 +8,6 @@ include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
 
 find_package(Qt5Core REQUIRED)
-find_package(Qt5Network REQUIRED)
 find_package(Qt5Test REQUIRED)
 
 set(SOURCES ${SOURCES}
@@ -21,7 +20,7 @@ set(HEADERS ${HEADERS}
 
 add_executable(SphereSim_Grapher ${SOURCES} ${HEADERS})
 target_link_libraries(SphereSim_Grapher SphereSim_ClientLib)
-qt5_use_modules(SphereSim_Grapher Core Network)
+qt5_use_modules(SphereSim_Grapher Core)
 
 install(TARGETS SphereSim_Grapher
     RUNTIME DESTINATION bin)

@@ -18,7 +18,6 @@ include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
 
 find_package(Qt5Core REQUIRED)
-find_package(Qt5Network REQUIRED)
 
 set(SOURCES ${SOURCES}
     ${PROJECT_SOURCE_DIR}/main.cpp
@@ -41,11 +40,11 @@ set(HEADERS ${HEADERS}
 
 add_executable(SphereSim_Server ${SOURCES} ${GLOBAL_SOURCES} ${HEADERS})
 if(NO_OPENMP EQUAL 0)
-    target_link_libraries(SphereSim_Server gomp)
+    target_link_libraries(SphereSim_Server gomp nanomsg)
 else()
-    target_link_libraries(SphereSim_Server)
+    target_link_libraries(SphereSim_Server nanomsg)
 endif()
-qt5_use_modules(SphereSim_Server Core Network)
+qt5_use_modules(SphereSim_Server Core)
 
 install(TARGETS SphereSim_Server
     RUNTIME DESTINATION bin)

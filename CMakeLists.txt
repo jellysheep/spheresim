@@ -38,7 +38,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -fno-rtti")
 set(CMAKE_AUTOMOC ON)
 
 find_package(Qt5Core REQUIRED)
-find_package(Qt5Network REQUIRED)
 
 set(HEADERS
     ${PROJECT_INCLUDE_DIR}/Actions.hpp

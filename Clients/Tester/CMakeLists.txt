@@ -10,7 +10,6 @@ include_directories("${PROJECT_SOURCE_DIR}")
 add_definitions("-DQT_NO_DEBUG_OUTPUT")
 
 find_package(Qt5Core REQUIRED)
-find_package(Qt5Network REQUIRED)
 find_package(Qt5Test REQUIRED)
 
 set(SOURCES ${SOURCES}
@@ -23,7 +22,7 @@ set(HEADERS ${HEADERS}
 
 add_executable(SphereSim_Tester ${SOURCES} ${HEADERS})
 target_link_libraries(SphereSim_Tester SphereSim_ClientLib)
-qt5_use_modules(SphereSim_Tester Core Network Test)
+qt5_use_modules(SphereSim_Tester Core Test)
 
 install(TARGETS SphereSim_Tester
     RUNTIME DESTINATION bin)

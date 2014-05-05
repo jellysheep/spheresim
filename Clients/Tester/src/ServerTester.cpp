@@ -253,7 +253,12 @@ void ServerTester::runCalculationActionTests()
         (unsigned int)IntegratorMethods::CashKarp54);
     startTest_(CalculationActions::startSimulation);
         sender->startSimulation();
-        QTest::qWait(10);
+        do
+        {
+            QTest::qWait(10);
+        }
+        while (!sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
+        QTest::qWait(100);
         sender->stopSimulation();
         do
         {

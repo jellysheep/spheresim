@@ -13,18 +13,15 @@
 #include "DataTransmit.hpp"
 #include "MessageTransmitter.hpp"
 
-#include <QTcpSocket>
 #include <QCoreApplication>
 
 using namespace SphereSim;
 
-ActionReceiver::ActionReceiver(QTcpSocket* socket)
+ActionReceiver::ActionReceiver(nn::socket* socket)
     :socket(socket), messageTransmitter(new MessageTransmitter(socket)),
     simulatedSystem(), sphCalc(this, &simulatedSystem),
     workQueue(sphCalc.getWorkQueue())
 {
-    connect(socket, SIGNAL(disconnected()), SLOT(deleteLater()));
-    connect(socket, SIGNAL(readyRead()), messageTransmitter, SLOT(readData()));
     connect(messageTransmitter, SIGNAL(processData(std::string)),
         SLOT(processRequest(std::string)));
     connect(&sphCalc, SIGNAL(frameToSend(std::string)), SLOT(sendFrame(std::string)));
@@ -32,30 +29,19 @@ ActionReceiver::ActionReceiver(QTcpSocket* socket)
         SLOT(sendVariable(std::string)));
     connect(&simulatedSystem, SIGNAL(serverReady()), SLOT(serverReady()));
     connect(workQueue, SIGNAL(simulating(bool)), SLOT(simulating(bool)));
+    messageTransmitter->start();
 }
 
 ActionReceiver::~ActionReceiver()
 {
     delete messageTransmitter;
-    if (socket != NULL)
-    {
-        socket->close();
-        delete socket;
-        socket = NULL;
-    }
     Console()<<"ActionReceiver: disconnected.\n";
 }
 
 void ActionReceiver::terminateServer()
 {
     Console()<<"Server terminating...\n";
-    if (socket != NULL)
-    {
-        socket->close();
-        delete socket;
-        socket = NULL;
-    }
-    emit QCoreApplication::instance()->quit();
+    emit qApp->quit();
     deleteLater();
 }
 

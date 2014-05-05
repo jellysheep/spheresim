@@ -17,9 +17,8 @@
 #include <QtGlobal>
 #include <QObject>
 #include <QElapsedTimer>
+#include <nanomsg/nn.hpp>
 #include <string>
-
-class QTcpSocket;
 
 namespace SphereSim
 {
@@ -32,7 +31,7 @@ namespace SphereSim
 
     private:
         /** \brief Server connection socket. */
-        QTcpSocket* socket;
+        nn::socket socket;
 
         /** \brief Flag for connection to server. */
         bool connectedFlag;
@@ -174,15 +173,6 @@ namespace SphereSim
         Scalar getKineticEnergy();
 
     public slots:
-        /** Set connectedFlag to true.
-         * \see connectedFlag */
-        void connected()
-        {
-            connectedFlag = true;
-        }
-
-        void disconnected();
-
         /** \brief Process and answer to received reply. */
         void processReply(std::string data);
 

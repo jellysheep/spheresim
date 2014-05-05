@@ -5,7 +5,6 @@ set (PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set (PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 find_package(Qt5Core REQUIRED)
-find_package(Qt5Network REQUIRED)
 
 include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
@@ -23,5 +22,5 @@ set(HEADERS ${HEADERS}
 )
 
 add_library(SphereSim_ClientLib STATIC ${SOURCES} ${GLOBAL_SOURCES} ${HEADERS})
-target_link_libraries(SphereSim_ClientLib)
-qt5_use_modules(SphereSim_ClientLib Core Network)
+target_link_libraries(SphereSim_ClientLib nanomsg)
+qt5_use_modules(SphereSim_ClientLib Core)

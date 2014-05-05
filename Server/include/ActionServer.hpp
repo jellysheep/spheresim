@@ -13,11 +13,11 @@
 
 #include <QtGlobal>
 #include <QObject>
-
-class QTcpServer;
+#include <nanomsg/nn.hpp>
 
 namespace SphereSim
 {
+    class ActionReceiver;
 
     /** \brief Start server and wait for incoming connections from clients. */
     class ActionServer:private QObject
@@ -25,11 +25,12 @@ namespace SphereSim
         Q_OBJECT
 
     private:
-        /** \brief Listening server object. */
-        QTcpServer* server;
+        nn::socket socket;
+
+        ActionReceiver* actionReceiver;
 
     public:
-        /** \brief Start a QTcpServer and listen to the specified port.
+        /** \brief Start a server and listen to the specified port.
          * \param addr The address that the server will be listening to.
          * \param port The port that the server will be listening to. */
         ActionServer(const char* addr, unsigned short port);
@@ -39,10 +40,6 @@ namespace SphereSim
         ActionServer() = delete;
         ActionServer(const ActionServer&) = delete;
         ActionServer& operator=(const ActionServer&) = delete;
-
-    public slots:
-        /** \brief Get connection from client and create a new ActionReceiver. */
-        void newConnection();
 
     };
 

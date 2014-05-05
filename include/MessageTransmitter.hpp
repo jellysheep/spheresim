@@ -10,10 +10,10 @@
 #define _MESSAGETRANSMITTER_HPP_
 
 #include <QObject>
+#include <QTimer>
+#include <nanomsg/nn.hpp>
 #include <sstream>
 #include <string>
-
-class QTcpSocket;
 
 namespace SphereSim
 {
@@ -23,14 +23,9 @@ namespace SphereSim
         Q_OBJECT
 
     private:
-        QTcpSocket* socket;
+        nn::socket* socket;
 
-        /** \brief Partial data. */
-        std::ostringstream partialData;
-
-        /** \brief Flag for currently collecting data.
-         * If true, no new requests are accepted. */
-        bool collectingData;
+        QTimer timer;
 
         /** \brief Base64-encode message. */
         std::string encode(const std::string& data);
@@ -39,16 +34,17 @@ namespace SphereSim
         std::string decode(const std::string& data);
 
     public:
-        MessageTransmitter(QTcpSocket* socket);
+        MessageTransmitter(nn::socket* socket);
 
         MessageTransmitter() = delete;
         MessageTransmitter(const MessageTransmitter&) = delete;
         MessageTransmitter& operator=(const MessageTransmitter&) = delete;
 
+        void start();
+
         void send(std::string data);
 
     public slots:
-
         /** \brief Read new available data. */
         void readData();
 

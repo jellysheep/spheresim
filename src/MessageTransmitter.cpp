@@ -7,15 +7,16 @@
  * Full license text is under the file "LICENSE" provided with this code. */
 
 #include "Connection.hpp"
+#include "Console.hpp"
 #include "MessageTransmitter.hpp"
-
-#include <QTcpSocket>
 
 using namespace SphereSim;
 
-MessageTransmitter::MessageTransmitter(QTcpSocket* socket)
-    :socket(socket), partialData(), collectingData(false)
+MessageTransmitter::MessageTransmitter(nn::socket* socket)
+    :socket(socket), timer(this)
 {
+    timer.setInterval(10);
+    connect(&timer, SIGNAL(timeout()), this, SLOT(readData()));
 }
 
 std::string MessageTransmitter::encode(const std::string& data)
@@ -39,89 +40,34 @@ std::string MessageTransmitter::decode(const std::string& data)
     return decodedData;
 }
 
+void MessageTransmitter::start()
+{
+    timer.start();
+}
+
 void MessageTransmitter::send(std::string data)
 {
+    data = encode(data);
     std::ostringstream finalData;
     finalData<<Connection::startByte;
-    finalData<<encode(data);
+    finalData<<data;
     finalData<<Connection::endByte;
-    socket->write(finalData.str().c_str());
+    std::string str = finalData.str();
+    socket->send(str.c_str(), str.size(), 0);
 }
 
 void MessageTransmitter::readData()
 {
-    QByteArray byteArray = socket->readAll();
-    std::string data(byteArray.constData(), byteArray.size());
-
-    std::string::size_type endIndex, startIndex;
-    bool dataLeft;
-    do
+    constexpr int buffer_length = 1024;
+    while (true)
     {
-        dataLeft = false;
-        endIndex = data.find(Connection::endByte);
-        startIndex = data.find(Connection::startByte);
-
-        if (endIndex == std::string::npos)
+        char buffer[buffer_length];
+        int length = socket->recv(buffer, buffer_length, NN_DONTWAIT);
+        if (length <= 0)
         {
-            if (startIndex == std::string::npos)
-            {
-                ///no endByte or startByte
-                if (collectingData)
-                {
-                    partialData<<data;
-                }
-            }
-            else
-            {
-                ///only startByte
-                if (collectingData == false)
-                {
-                    //what if last reply did not end correctly? next reply would be
-                    //skipped (waiting for endByte)...
-                    collectingData = true;
-                    partialData.str(data.substr(startIndex-1));
-                }
-            }
+            break;
         }
-        else
-        {
-            if (startIndex == std::string::npos)
-            {
-                ///only endByte
-                if (collectingData)
-                {
-                    partialData<<data.substr(0, endIndex);
-                    collectingData = false;
-                    emit processData(decode(partialData.str()));
-                }
-            }
-            else
-            {
-                ///startByte and endByte
-                if (startIndex<endIndex)
-                {
-                    ///startByte before endByte
-                    partialData.str(
-                        data.substr(startIndex+1, endIndex-startIndex-1));
-                    collectingData = false;
-                    emit processData(decode(partialData.str()));
-                    data = data.substr(endIndex+1);
-                    dataLeft = true;
-                }
-                else
-                {
-                    ///endByte before startByte
-                    if (collectingData)
-                    {
-                        partialData<<data.substr(0, endIndex);
-                        collectingData = false;
-                        emit processData(decode(partialData.str()));
-                        data = data.substr(endIndex+1);
-                        dataLeft = true;
-                    }
-                }
-            }
-        }
+        std::string data(buffer+1, length-2);
+        emit processData(decode(data));
     }
-    while (dataLeft);
 }

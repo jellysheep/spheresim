@@ -10,38 +10,26 @@
 #include "ActionReceiver.hpp"
 #include "Console.hpp"
 
-#include <QHostAddress>
-#include <QTcpServer>
-#include <QCoreApplication>
+#include <nanomsg/pair.h>
+#include <sstream>
 
 using namespace SphereSim;
 
 ActionServer::ActionServer(const char* addr, unsigned short port)
-    :server(new QTcpServer())
+    :socket(AF_SP, NN_PAIR), actionReceiver(nullptr)
 {
     Console()<<"ActionServer: constructor called.\n";
-    connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-    bool succeeded = server->listen(QHostAddress(addr), port);
-    if (succeeded)
-    {
-        Console()<<"ActionServer: listening did succeed.\n";
-    }
-    else
-    {
-        Console()<<"ActionServer: listening did not succeed. Exiting.\n";
-        qApp->exit(1);
-    }
-}
-
-void ActionServer::newConnection()
-{
-    Console()<<"\nActionServer: got new connection.\n";
-    QTcpSocket* socket = server->nextPendingConnection();
-    new ActionReceiver(socket);
+    std::ostringstream address;
+    address<<"tcp://"<<addr<<':'<<port;
+    socket.bind(address.str().c_str());
+    Console()<<"ActionServer: listening did succeed.\n";
+    actionReceiver = new ActionReceiver(&socket);
 }
 
 ActionServer::~ActionServer()
 {
-    server->close();
-    delete server;
+    if (actionReceiver != nullptr)
+    {
+        delete actionReceiver;
+    }
 }
