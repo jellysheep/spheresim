@@ -4,6 +4,7 @@
 * Removed Server autostart and added exit on error to ActionSender.
 * Improved data initializing on connecting.
 * Replaced Qt networking by nanomsg.
+* Switched to per-sphere frame sending.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.

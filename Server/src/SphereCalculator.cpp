@@ -774,13 +774,14 @@ void SphereCalculator::stopWorker()
 
 void SphereCalculator::prepareFrameData()
 {
-    std::stringstream dataStream;
-    writeShort(dataStream, spheres.size());
+    std::ostringstream dataStream;
     for (unsigned short i = 0; i<spheres.size(); i++)
     {
+        dataStream.str(std::string());
+        writeShort(dataStream, i);
         writeBasicSphereData(dataStream, spheres[i]);
+        emit frameToSend(dataStream.str());
     }
-    emit frameToSend(dataStream.str());
 }
 
 void SphereCalculator::updateSphereBox()

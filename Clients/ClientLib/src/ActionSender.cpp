@@ -121,19 +121,17 @@ void ActionSender::processReply(std::string data)
 
     if (lastServerStatus == ServerStatusReplies::sendFrame)
     {
-        unsigned short sphCount = readShort(stream);
-        emit sphereCountChanged(sphCount);
-        emit sphereCountChangedDouble((double)sphCount);
-        frameBuffer.updateElementsPerFrame(sphCount);
+        unsigned short sphereIndex = readShort(stream);
         Sphere sphere;
-        while (stream.good())
+        readBasicSphereData(stream, sphere);
+        frameBuffer.pushElement(sphere);
+        if (sphereIndex == simulatedSystem->get<unsigned int>(
+            SimulationVariables::sphereCount)-1)
         {
-            readBasicSphereData(stream, sphere);
-            frameBuffer.pushElement(sphere);
+            frameBuffer.pushFrame();
+            frameCounter++;
+            emit newFrameReceived();
         }
-        frameBuffer.pushFrame();
-        frameCounter++;
-        emit newFrameReceived();
     }
     else if (lastServerStatus == ServerStatusReplies::sendVariable)
     {
@@ -375,5 +373,6 @@ void ActionSender::variableUpdated(int var)
             simulatedSystem->get<unsigned int>(SimulationVariables::sphereCount);
         emit sphereCountChanged(sphCount);
         emit sphereCountChangedDouble((double)sphCount);
+        frameBuffer.updateElementsPerFrame(sphCount);
     }
 }
