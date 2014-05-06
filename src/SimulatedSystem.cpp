@@ -36,7 +36,7 @@ SimulatedSystem::SimulatedSystem()
     addVariable(collisionDetection, Object::BOOL, true);
     addVariable(gravityCalculation, Object::BOOL, false);
     addVariable(lennardJonesPotential, Object::BOOL, false);
-    addVariable(maximumStepDivision, Object::INT, 16u);
+    addVariable(maximumStepDivision, Object::INT, 4u);
     addVariable(maximumStepError, Object::SCALAR, 1.0e-4);
     addVariable(sphereE, Object::SCALAR, 5000.0);
     addVariable(spherePoissonRatio, Object::SCALAR, 0.5);

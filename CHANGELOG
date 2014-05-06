@@ -5,6 +5,7 @@
 * Improved data initializing on connecting.
 * Replaced Qt networking by nanomsg.
 * Switched to per-sphere frame sending.
+* Improved simulation systems.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.

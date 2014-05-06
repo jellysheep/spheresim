@@ -44,7 +44,7 @@ namespace SphereSim
 
         SystemCreator* systemCreator;
 
-        void prepareSystem1();
+        void prepareSystem1(unsigned short sphCount);
 
         void prepareSystem2();
 

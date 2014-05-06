@@ -59,7 +59,7 @@ MainWindow::MainWindow(const char* addr, unsigned short port,
     switch (systemToPrepare)
     {
     case 1:
-        prepareSystem1();
+        prepareSystem1(sphCount);
         break;
     case 2:
         prepareSystem2();
@@ -86,11 +86,11 @@ MainWindow::~MainWindow()
     delete systemCreator;
 }
 
-void MainWindow::prepareSystem1()
+void MainWindow::prepareSystem1(unsigned short sphCount)
 {
-    Scalar length = systemCreator->createMacroscopic2DCollisionSystem(64);
+    Scalar length = systemCreator->createMacroscopic2DCollisionSystem(sphCount);
     updateBoxLength(length);
-    actionSender->simulatedSystem->set(SimulationVariables::timeStep, 0.001);
+    actionSender->simulatedSystem->set(SimulationVariables::timeStep, 0.0001);
 }
 
 void MainWindow::prepareSystem2()
@@ -117,10 +117,8 @@ void MainWindow::prepareSystem2()
         SimulationVariables::gravitationalConstant, 3.0e-4);
     actionSender->simulatedSystem->set(
         SimulationVariables::earthGravity, Vector3(0, 0, 0));
-    actionSender->simulatedSystem->set(
-        SimulationVariables::timeStep, 0.02);
-    actionSender->simulatedSystem->set(
-        SimulationVariables::maximumStepError, 1.0e-12);
+    actionSender->simulatedSystem->set(SimulationVariables::timeStep, 0.03);
+    actionSender->simulatedSystem->set(SimulationVariables::maximumStepDivision, 0);
 }
 
 void MainWindow::prepareSystem3(unsigned short sphCount)
@@ -133,7 +131,7 @@ void MainWindow::prepareSystem3(unsigned short sphCount)
 
 void MainWindow::prepareSystem4()
 {
-    Scalar length = systemCreator->createMacroscopicGravitationSystem(8*8*8);
+    Scalar length = systemCreator->createMacroscopicGravitationSystem(2*2*2);
     Console()<<"system box length: "<<length<<".\n";
     updateBoxLength(length);
     actionSender->simulatedSystem->set(SimulationVariables::timeStep, 1.0);
@@ -143,7 +141,7 @@ void MainWindow::prepareSystem5()
 {
     Scalar length = systemCreator->createSimpleWallCollisionSystem();
     updateBoxLength(length);
-    actionSender->simulatedSystem->set(SimulationVariables::timeStep, 1.0);
+    actionSender->simulatedSystem->set(SimulationVariables::timeStep, 0.0001);
 }
 
 void MainWindow::updateBoxLength(Scalar length)

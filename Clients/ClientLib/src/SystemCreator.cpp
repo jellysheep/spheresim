@@ -192,14 +192,14 @@ Scalar SystemCreator::createSimpleWallCollisionSystem()
     s.pos(0) = 0.11;
     s.pos(1) = 0.11;
     s.pos(2) = 0.11;
-    s.speed(0) = 0.0;
+    s.speed(0) = 1;
     s.speed(1) = 0.0;
     s.speed(2) = 0.0;
     s.acc(0) = 0.0;
     s.acc(1) = 0.0;
     s.acc(2) = 0.0;
     s.mass = 1.0;
-    s.radius = 0.1;
+    s.radius = 0.05;
     actionSender->updateSphere(0, s);
 
     actionSender->simulatedSystem->set(

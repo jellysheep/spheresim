@@ -48,12 +48,16 @@ void MessageTransmitter::start()
 void MessageTransmitter::send(std::string data)
 {
     data = encode(data);
+    if (data.size() > 184)
+    {
+        abort();
+    }
     std::ostringstream finalData;
     finalData<<Connection::startByte;
     finalData<<data;
     finalData<<Connection::endByte;
     std::string str = finalData.str();
-    socket->send(str.c_str(), str.size(), 0);
+    socket->send(str.c_str(), str.size(), NN_DONTWAIT);
 }
 
 void MessageTransmitter::readData()
