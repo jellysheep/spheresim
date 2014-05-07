@@ -24,6 +24,8 @@ SOURCES     +=  main.cpp                \
                 SimulationWorker.cpp    \
                 WorkQueue.cpp
 
+LIBS        +=  -lnanomsg
+
 equals(NO_OPENMP, "true") {
     DEFINES         +=  NO_OPENMP=1
 } else {

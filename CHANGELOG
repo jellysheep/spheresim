@@ -7,6 +7,7 @@
 * Switched to per-sphere frame sending.
 * Improved simulation systems.
 * Added nanomsg install to .travis.yml file.
+* Added nanomsg library to QMake build files.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.
