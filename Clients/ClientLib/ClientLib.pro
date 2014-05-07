@@ -6,7 +6,6 @@ LIBS_SAVE   =   $$LIBS
 }
 
 LIBS        =   $$LIBS_SAVE
-LIBS        +=  -lnanomsg
 
 TEMPLATE    =   lib
 

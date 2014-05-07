@@ -9,4 +9,4 @@ VPATH       +=  $$PWD/ClientLib/include/
 
 HEADERS     +=  ActionSender.hpp
 
-LIBS        +=  -L../ClientLib -lClientLib
+LIBS        +=  -L../ClientLib -lClientLib -lnanomsg
