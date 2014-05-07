@@ -20,7 +20,9 @@ before_install:
  - sudo apt-add-repository ppa:ubuntu-sdk-team/ppa -y
  - sudo apt-get update -q -y
 install:
- - sudo apt-get install -q -y gcc-4.8 g++-4.8 qt5-default libqt5opengl5-dev
+ - sudo apt-get install -q -y gcc-4.8 g++-4.8 qt5-default libqt5opengl5-dev autoconf libtool make cmake
  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
+ - pushd /tmp; git clone https://github.com/nanomsg/nanomsg.git; cd nanomsg; ./autogen.sh; ./configure; make -j2; make check; sudo make install; popd
+ - pushd /tmp; git clone https://github.com/nanomsg/cppnanomsg.git; cd cppnanomsg; mkdir build; cd build; cmake ../; make; make test; sudo make install; popd
 script: mkdir -p build && cd build && qmake ../ && make -j4
