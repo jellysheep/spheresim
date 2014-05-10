@@ -172,6 +172,19 @@ void WorkQueue::stop()
     pushItem(item);
 }
 
+void WorkQueue::reset()
+{
+    mutex->lock();
+        continuousSimulationRunning = false;
+        simulationSteps = 0;
+        items.clear();
+        queueEmpty = true;
+        isSimulating = false;
+        emit simulating(isSimulating);
+        updateStatus();
+    mutex->unlock();
+}
+
 void WorkQueue::sendFrameData()
 {
     if (sendFramesRegularly == false)

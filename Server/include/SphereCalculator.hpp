@@ -179,9 +179,6 @@ namespace SphereSim
         unsigned int integrateRungeKuttaStep_internal(unsigned short sphereIndex,
             Scalar stepLength, Scalar timeDiff, unsigned short stepDivisionCounter);
 
-        /** \brief Stop the worker. */
-        void stopWorker();
-
         /** \brief Remove a specific sphere.
          * \param i Index of the sphere to remove.
          * \return Current sphere count. */
@@ -221,6 +218,10 @@ namespace SphereSim
 
         unsigned short getAndUpdateSphereCount();
 
+        void startUp();
+
+        void tearDown();
+
     public:
         SphereCalculator(ActionReceiver* actRcv, SimulatedSystem* simulatedSystem);
         ~SphereCalculator();
@@ -239,6 +240,9 @@ namespace SphereSim
 
         /** \brief Stop and delete the worker. */
         void requestingWorkerStop();
+
+        /** \brief Stop and reset the worker. */
+        void requestingWorkerReset();
 
         /** \brief Send frame to client. */
         void frameToSend(std::string frameData);
@@ -300,9 +304,6 @@ namespace SphereSim
         /** \copydoc CalculationActions::startSimulation */
         void startSimulation();
 
-        /** \copydoc CalculationActions::stopSimulation */
-        void stopSimulation();
-
         /** \copydoc CalculationActions::popStepCounter
          * \return Requested number of calculated steps. */
         unsigned int popStepCounter();
@@ -319,6 +320,8 @@ namespace SphereSim
         Scalar getKineticEnergy();
 
         void variableUpdated(int var);
+
+        void resetServer();
 
     };
 

@@ -121,6 +121,9 @@ namespace SphereSim
         /** \brief Stop the worker. */
         void stop();
 
+        /** \brief Reset the worker. */
+        void reset();
+
     signals:
         void simulating(bool isSimulating);
 

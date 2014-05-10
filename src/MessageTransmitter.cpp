@@ -48,6 +48,7 @@ void MessageTransmitter::start()
 void MessageTransmitter::send(std::string data)
 {
     data = encode(data);
+    //~ Console()<<"send: "<<data<<".\n";
     if (data.size() > 184)
     {
         abort();
@@ -72,6 +73,7 @@ void MessageTransmitter::readData()
             break;
         }
         std::string data(buffer+1, length-2);
+        //~ Console()<<"recv: "<<data<<".\n";
         emit processData(decode(data));
     }
 }

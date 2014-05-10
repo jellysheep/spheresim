@@ -115,22 +115,13 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
     Console()<<"SphereCalculator: number of OpenMP threads: "
         <<omp_get_num_threads()<<"|"<<ompThreads<<".\n";
 #endif /*NO_OPENMP != 1*/
-    updateSphereBox();
-    massVectorSumPerCell = new Vector3[gravityAllCellCount];
-    massSumPerCell = new Scalar[gravityAllCellCount];
-    massCenterPerCell = new Vector3[gravityAllCellCount];
-    gravityCellSizes = new Vector3[gravityAllCellCount];
-    gravityCellHalfDiagonalLength = new Scalar[gravityAllCellCount];
-    gravityCellPositions = new Vector3[gravityAllCellCount];
-    sphereCountPerGravityCell = new unsigned short[gravityAllCellCount];
-    updateGravityCellIndexOfSpheresArray();
-    buildGravityCells();
-    rebuildGravityCellPairs();
-    updateIntegratorMethod();
-    updateSphereSphereE();
-    updateSphereWallE();
+
+    startUp();
+
     QObject::connect(simulatedSystem, SIGNAL(variableUpdated(int)),
         SLOT(variableUpdated(int)));
+    QObject::connect(simulatedSystem, SIGNAL(serverReady()),
+        SLOT(resetServer()));
 
     simulationWorker->moveToThread(simulationThread);
     QObject::connect(simulationThread, SIGNAL(started()),
@@ -147,6 +138,8 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
         simulationWorker, SLOT(stop()));
     QObject::connect(this, SIGNAL(requestingWorkerStop()),
         workQueue, SLOT(stop()));
+    QObject::connect(this, SIGNAL(requestingWorkerReset()),
+        workQueue, SLOT(reset()));
     QObject::connect(simulationWorker, SIGNAL(sendReply(unsigned char, std::string)),
         actRcv, SLOT(sendReply(unsigned char, std::string)));
     simulationThread->start();
@@ -154,21 +147,11 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
 
 SphereCalculator::~SphereCalculator()
 {
-    stopWorker();
+    tearDown();
+    emit requestingWorkerStop();
     while (simulationWorker->getHasFinished() == false)
     {
     }
-    delete[] massVectorSumPerCell;
-    delete[] massSumPerCell;
-    delete[] massCenterPerCell;
-    delete[] gravityCellSizes;
-    delete[] gravityCellHalfDiagonalLength;
-    delete[] gravityCellPositions;
-    if (gravityCellIndexOfSpheres != nullptr)
-    {
-        delete[] gravityCellIndexOfSpheres;
-    }
-    delete[] sphereCountPerGravityCell;
     delete elapsedTimer;
 }
 
@@ -767,11 +750,6 @@ unsigned short SphereCalculator::removeSphere(unsigned short i)
     return getAndUpdateSphereCount();
 }
 
-void SphereCalculator::stopWorker()
-{
-    emit requestingWorkerStop();
-}
-
 void SphereCalculator::prepareFrameData()
 {
     std::ostringstream dataStream;
@@ -1130,6 +1108,82 @@ void SphereCalculator::updateGravityCellData()
     }
 }
 
+void SphereCalculator::startUp()
+{
+    tearDown();
+    Console()<<"SphereCalculator: starting up.\n";
+
+    emit requestingWorkerReset();
+    spheres.clear();
+    newSpherePos.clear();
+    calculationCounter = 0;
+    stepCounter = 0;
+    cellIndicesOfSpheres.resize(0);
+    collidingSpheresPerSphere.resize(0);
+
+    updateSphereBox();
+    massVectorSumPerCell = new Vector3[gravityAllCellCount];
+    massSumPerCell = new Scalar[gravityAllCellCount];
+    massCenterPerCell = new Vector3[gravityAllCellCount];
+    gravityCellSizes = new Vector3[gravityAllCellCount];
+    gravityCellHalfDiagonalLength = new Scalar[gravityAllCellCount];
+    gravityCellPositions = new Vector3[gravityAllCellCount];
+    sphereCountPerGravityCell = new unsigned short[gravityAllCellCount];
+    updateGravityCellIndexOfSpheresArray();
+    buildGravityCells();
+    rebuildGravityCellPairs();
+    updateIntegratorMethod();
+    updateSphereSphereE();
+    updateSphereWallE();
+
+    elapsedTimer->start();
+}
+
+void SphereCalculator::tearDown()
+{
+    Console()<<"SphereCalculator: tearing down.\n";
+    if (massVectorSumPerCell != nullptr)
+    {
+        delete[] massVectorSumPerCell;
+        massVectorSumPerCell = nullptr;
+    }
+    if (massSumPerCell != nullptr)
+    {
+        delete[] massSumPerCell;
+        massSumPerCell = nullptr;
+    }
+    if (massCenterPerCell != nullptr)
+    {
+        delete[] massCenterPerCell;
+        massCenterPerCell = nullptr;
+    }
+    if (gravityCellSizes != nullptr)
+    {
+        delete[] gravityCellSizes;
+        gravityCellSizes = nullptr;
+    }
+    if (gravityCellHalfDiagonalLength != nullptr)
+    {
+        delete[] gravityCellHalfDiagonalLength;
+        gravityCellHalfDiagonalLength = nullptr;
+    }
+    if (gravityCellPositions != nullptr)
+    {
+        delete[] gravityCellPositions;
+        gravityCellPositions = nullptr;
+    }
+    if (gravityCellIndexOfSpheres != nullptr)
+    {
+        delete[] gravityCellIndexOfSpheres;
+        gravityCellIndexOfSpheres = nullptr;
+    }
+    if (sphereCountPerGravityCell != nullptr)
+    {
+        delete[] sphereCountPerGravityCell;
+        sphereCountPerGravityCell = nullptr;
+    }
+}
+
 unsigned short SphereCalculator::addSphere()
 {
     spheres.push_back(Sphere());
@@ -1413,11 +1467,6 @@ void SphereCalculator::startSimulation()
     calculateSomeSteps(0);
 }
 
-void SphereCalculator::stopSimulation()
-{
-    emit requestingSimulationStop();
-}
-
 unsigned int SphereCalculator::popStepCounter()
 {
     unsigned int counter = stepCounter;
@@ -1596,4 +1645,9 @@ void SphereCalculator::variableUpdated(int var)
         updateIntegratorMethod();
         break;
     }
+}
+
+void SphereCalculator::resetServer()
+{
+    startUp();
 }
