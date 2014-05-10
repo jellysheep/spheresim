@@ -121,17 +121,17 @@ void ActionSender::processReply(std::string data)
 
     if (lastServerStatus == ServerStatusReplies::sendFrame)
     {
+        unsigned int serverFrameCounter = readInt(stream);
+        if (serverFrameCounter > frameCounter)
+        {
+            frameBuffer.pushFrame();
+            frameCounter = serverFrameCounter;
+            emit newFrameReceived();
+        }
         unsigned short sphereIndex = readShort(stream);
         Sphere sphere;
         readBasicSphereData(stream, sphere);
         frameBuffer.pushElement(sphere);
-        if (sphereIndex == simulatedSystem->get<unsigned int>(
-            SimulationVariables::sphereCount)-1)
-        {
-            frameBuffer.pushFrame();
-            frameCounter++;
-            emit newFrameReceived();
-        }
     }
     else if (lastServerStatus == ServerStatusReplies::sendVariable)
     {

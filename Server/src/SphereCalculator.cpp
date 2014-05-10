@@ -38,7 +38,7 @@ using namespace SphereSim;
 SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
     SimulatedSystem *simulatedSystem)
     :spheres(), newSpherePos(), butcherTableau(), calculationCounter(0),
-    stepCounter(0), simulatedSystem(simulatedSystem),
+    stepCounter(0), frameCounter(0), simulatedSystem(simulatedSystem),
     simulationThread(new QThread()), workQueueMutex(new QMutex()),
     workQueue(new WorkQueue(workQueueMutex,
         simulatedSystem->getRef<bool>(SimulationVariables::frameSending))),
@@ -756,10 +756,12 @@ void SphereCalculator::prepareFrameData()
     for (unsigned short i = 0; i<spheres.size(); i++)
     {
         dataStream.str(std::string());
+        writeInt(dataStream, frameCounter);
         writeShort(dataStream, i);
         writeBasicSphereData(dataStream, spheres[i]);
         emit frameToSend(dataStream.str());
     }
+    frameCounter++;
 }
 
 void SphereCalculator::updateSphereBox()
@@ -1118,6 +1120,7 @@ void SphereCalculator::startUp()
     newSpherePos.clear();
     calculationCounter = 0;
     stepCounter = 0;
+    frameCounter = 0;
     cellIndicesOfSpheres.resize(0);
     collidingSpheresPerSphere.resize(0);
 

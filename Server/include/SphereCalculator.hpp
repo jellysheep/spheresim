@@ -51,6 +51,9 @@ namespace SphereSim
         /** \brief Number of calculated steps. */
         unsigned int stepCounter;
 
+        /** \brief Number of sent frames. */
+        unsigned int frameCounter;
+
         /** \brief Storage for physical constants and other variables. */
         SimulatedSystem* simulatedSystem;
 

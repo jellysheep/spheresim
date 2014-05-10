@@ -22,7 +22,7 @@ MainWindow::MainWindow(const char* addr, unsigned short port,
     unsigned short sphCount, QWidget* parent)
     :QMainWindow(parent), ui(new Ui::MainWindow()),
     actionSender(new ActionSender(addr, port, this)),
-    timer(), boxLength(0), systemToPrepare(3),
+    timer(), boxLength(0), systemToPrepare(2),
     systemCreator(new SystemCreator(actionSender))
 {
     ui->setupUi(this);

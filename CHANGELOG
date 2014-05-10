@@ -11,6 +11,7 @@
 * Fixed nanomsg library in QMake build files.
 * Added nanomsg dependencies to PKGBUILD files.
 * Added clean tear-down and start-up to Server.
+* Added frame counter to Server.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.
