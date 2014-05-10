@@ -13,7 +13,6 @@
 #include "Console.hpp"
 #include "Version.hpp"
 
-#include <QtGlobal>
 #include <QObject>
 
 class ActionSender;

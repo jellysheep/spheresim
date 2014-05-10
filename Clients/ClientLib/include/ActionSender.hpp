@@ -14,7 +14,6 @@
 #include "FrameBuffer.hpp"
 #include "SimulatedSystem.hpp"
 
-#include <QtGlobal>
 #include <QObject>
 #include <QElapsedTimer>
 #include <nanomsg/nn.hpp>

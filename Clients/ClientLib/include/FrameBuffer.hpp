@@ -11,8 +11,6 @@
 
 #include "Sphere.hpp"
 
-#include <QtGlobal>
-
 namespace SphereSim
 {
     class ActionSender;

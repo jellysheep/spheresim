@@ -11,8 +11,6 @@
 
 #include "Actions.hpp"
 
-#include <QtGlobal>
-#include <QObject>
 #include <nanomsg/nn.hpp>
 
 namespace SphereSim
@@ -20,10 +18,8 @@ namespace SphereSim
     class ActionReceiver;
 
     /** \brief Start server and wait for incoming connections from clients. */
-    class ActionServer:private QObject
+    class ActionServer
     {
-        Q_OBJECT
-
     private:
         nn::socket socket;
 

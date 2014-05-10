@@ -13,6 +13,7 @@
 * Added clean tear-down and start-up to Server.
 * Added frame counter to Server.
 * Improved Viewer and Server communication.
+* Removed unused includes.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.

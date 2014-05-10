@@ -10,7 +10,6 @@
 #define _STARTDIALOG_HPP_
 
 #include <QDialog>
-#include <QtGlobal>
 
 namespace Ui
 {

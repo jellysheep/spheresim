@@ -11,7 +11,6 @@
 
 #include "Sphere.hpp"
 
-#include <QtGlobal>
 #include <QObject>
 #include <vector>
 

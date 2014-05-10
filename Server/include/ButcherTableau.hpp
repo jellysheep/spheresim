@@ -11,8 +11,6 @@
 
 #include "Vector.hpp"
 
-#include <QtGlobal>
-
 namespace SphereSim
 {
 

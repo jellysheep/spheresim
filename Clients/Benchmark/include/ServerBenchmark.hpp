@@ -12,7 +12,6 @@
 #include "Actions.hpp"
 #include "Vector.hpp"
 
-#include <QtGlobal>
 #include <QObject>
 
 class ActionSender;
