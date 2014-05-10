@@ -36,6 +36,8 @@ namespace SphereSim
         /** \brief ActionSender used to send signals. */
         ActionSender* actionSender;
 
+        unsigned short sphCount;
+
         QElapsedTimer timer;
 
         Scalar boxLength;

@@ -12,6 +12,7 @@
 * Added nanomsg dependencies to PKGBUILD files.
 * Added clean tear-down and start-up to Server.
 * Added frame counter to Server.
+* Improved Viewer and Server communication.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.

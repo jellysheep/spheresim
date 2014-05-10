@@ -58,6 +58,7 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
     while (connectionTryCount<1000 && (connectedFlag == false));
     if (connectedFlag == true)
     {
+        Console()<<"ActionSender: connected to host.\n";
         messageTransmitter->start();
         simulatedSystem = new SimulatedSystem();
         connect(simulatedSystem, SIGNAL(variableToSend(std::string)),

@@ -22,7 +22,7 @@ MainWindow::MainWindow(const char* addr, unsigned short port,
     unsigned short sphCount, QWidget* parent)
     :QMainWindow(parent), ui(new Ui::MainWindow()),
     actionSender(new ActionSender(addr, port, this)),
-    timer(), boxLength(0), systemToPrepare(2),
+    sphCount(sphCount), timer(), boxLength(0), systemToPrepare(2),
     systemCreator(new SystemCreator(actionSender))
 {
     ui->setupUi(this);
@@ -42,42 +42,8 @@ MainWindow::MainWindow(const char* addr, unsigned short port,
         SLOT(updateTargetTemperature()), Qt::QueuedConnection);
     connect(actionSender, SIGNAL(sphereCountChangedDouble(double)),
         ui->sphereCount, SLOT(setValue(double)));
+
     timer.start();
-
-    updateBoxLength(1);
-    actionSender->simulatedSystem->set(
-        SimulationVariables::timeStep, 0.001);
-    actionSender->simulatedSystem->set(
-        SimulationVariables::earthGravity, Vector3(0, -0.81, 0));
-    actionSender->simulatedSystem->set(
-        SimulationVariables::sphereE, 20000.0);
-    actionSender->simulatedSystem->set(
-        SimulationVariables::wallE, 20000.0);
-    actionSender->simulatedSystem->set(
-        SimulationVariables::frameSending, true);
-
-    switch (systemToPrepare)
-    {
-    case 1:
-        prepareSystem1(sphCount);
-        break;
-    case 2:
-        prepareSystem2();
-        break;
-    case 3:
-        prepareSystem3(sphCount);
-        break;
-    case 4:
-        prepareSystem4();
-        break;
-    case 5:
-        prepareSystem5();
-        break;
-    default:
-        systemToPrepare = 2;
-        prepareSystem2();
-        break;
-    }
 }
 
 MainWindow::~MainWindow()
@@ -186,5 +152,39 @@ void MainWindow::updateTargetTemperature()
 
 void MainWindow::run()
 {
-    //emit ui->startButton->clicked();
+    Console()<<"MainWindow: run().\n";
+    updateBoxLength(1);
+    actionSender->simulatedSystem->set(
+        SimulationVariables::timeStep, 0.001);
+    actionSender->simulatedSystem->set(
+        SimulationVariables::earthGravity, Vector3(0, -0.81, 0));
+    actionSender->simulatedSystem->set(
+        SimulationVariables::sphereE, 20000.0);
+    actionSender->simulatedSystem->set(
+        SimulationVariables::wallE, 20000.0);
+    actionSender->simulatedSystem->set(
+        SimulationVariables::frameSending, true);
+
+    switch (systemToPrepare)
+    {
+    case 1:
+        prepareSystem1(sphCount);
+        break;
+    case 2:
+        prepareSystem2();
+        break;
+    case 3:
+        prepareSystem3(sphCount);
+        break;
+    case 4:
+        prepareSystem4();
+        break;
+    case 5:
+        prepareSystem5();
+        break;
+    default:
+        systemToPrepare = 2;
+        prepareSystem2();
+        break;
+    }
 }

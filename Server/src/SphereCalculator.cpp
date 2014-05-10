@@ -138,8 +138,6 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
         simulationWorker, SLOT(stop()));
     QObject::connect(this, SIGNAL(requestingWorkerStop()),
         workQueue, SLOT(stop()));
-    QObject::connect(this, SIGNAL(requestingWorkerReset()),
-        workQueue, SLOT(reset()));
     QObject::connect(simulationWorker, SIGNAL(sendReply(unsigned char, std::string)),
         actRcv, SLOT(sendReply(unsigned char, std::string)));
     simulationThread->start();
@@ -1112,10 +1110,8 @@ void SphereCalculator::updateGravityCellData()
 
 void SphereCalculator::startUp()
 {
-    tearDown();
     Console()<<"SphereCalculator: starting up.\n";
 
-    emit requestingWorkerReset();
     spheres.clear();
     newSpherePos.clear();
     calculationCounter = 0;
@@ -1145,6 +1141,7 @@ void SphereCalculator::startUp()
 void SphereCalculator::tearDown()
 {
     Console()<<"SphereCalculator: tearing down.\n";
+    workQueue->reset();
     if (massVectorSumPerCell != nullptr)
     {
         delete[] massVectorSumPerCell;
@@ -1652,5 +1649,6 @@ void SphereCalculator::variableUpdated(int var)
 
 void SphereCalculator::resetServer()
 {
+    tearDown();
     startUp();
 }

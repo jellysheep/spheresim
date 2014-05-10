@@ -244,9 +244,6 @@ namespace SphereSim
         /** \brief Stop and delete the worker. */
         void requestingWorkerStop();
 
-        /** \brief Stop and reset the worker. */
-        void requestingWorkerReset();
-
         /** \brief Send frame to client. */
         void frameToSend(std::string frameData);
 
