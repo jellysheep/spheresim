@@ -24,8 +24,8 @@ std::string MessageTransmitter::encode(const std::string& data)
     std::string encodedData(2*data.size(), '\0');
     for (unsigned int i = 0; i<data.size(); i++)
     {
-        encodedData[2*i] = 'a'+data[i]/16;
-        encodedData[2*i+1] = 'a'+data[i]%16;
+        encodedData[2*i] = 'a'+(unsigned char)data[i]/16;
+        encodedData[2*i+1] = 'a'+(unsigned char)data[i]%16;
     }
     return encodedData;
 }
@@ -35,7 +35,8 @@ std::string MessageTransmitter::decode(const std::string& data)
     std::string decodedData(data.size()/2, '\0');
     for (unsigned int i = 0; i<data.size()/2; i++)
     {
-        decodedData[i] = ((data[2*i]-'a')*16)+(data[2*i+1]-'a');
+        decodedData[i] = (((unsigned char)data[2*i]-'a')*16)
+            +((unsigned char)data[2*i+1]-'a');
     }
     return decodedData;
 }
