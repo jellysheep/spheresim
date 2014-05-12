@@ -10,6 +10,7 @@
 #define _MESSAGETRANSMITTER_HPP_
 
 #include <QObject>
+#include <QElapsedTimer>
 #include <QTimer>
 #include <nanomsg/nn.hpp>
 #include <sstream>
@@ -26,6 +27,10 @@ namespace SphereSim
         nn::socket* socket;
 
         QTimer timer;
+
+        QElapsedTimer elapsedTimer;
+
+        bool connected;
 
         /** \brief Base64-encode message. */
         std::string encode(const std::string& data);
@@ -50,6 +55,8 @@ namespace SphereSim
 
     signals:
         void processData(std::string data);
+
+        void receiveTimeout();
 
     };
 

@@ -13,7 +13,7 @@
 using namespace SphereSim;
 
 MessageTransmitter::MessageTransmitter(nn::socket* socket)
-    :socket(socket), timer(this)
+    :socket(socket), timer(this), elapsedTimer(), connected(false)
 {
     timer.setInterval(10);
     connect(&timer, SIGNAL(timeout()), this, SLOT(readData()));
@@ -44,6 +44,7 @@ std::string MessageTransmitter::decode(const std::string& data)
 void MessageTransmitter::start()
 {
     timer.start();
+    elapsedTimer.start();
 }
 
 void MessageTransmitter::send(std::string data)
@@ -71,8 +72,15 @@ void MessageTransmitter::readData()
         int length = socket->recv(buffer, buffer_length, NN_DONTWAIT);
         if (length <= 0)
         {
+            if (connected && nn_errno() == EAGAIN && elapsedTimer.elapsed()>2000)
+            {
+                connected = false;
+                emit receiveTimeout();
+            }
             break;
         }
+        connected = true;
+        elapsedTimer.restart();
         std::string data(buffer+1, length-2);
         //~ Console()<<"recv: "<<data<<".\n";
         emit processData(decode(data));

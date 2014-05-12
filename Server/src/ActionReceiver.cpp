@@ -24,6 +24,8 @@ ActionReceiver::ActionReceiver(nn::socket* socket)
 {
     connect(messageTransmitter, SIGNAL(processData(std::string)),
         SLOT(processRequest(std::string)));
+    connect(messageTransmitter, SIGNAL(receiveTimeout()), &sphCalc,
+        SLOT(resetServer()));
     connect(&sphCalc, SIGNAL(frameToSend(std::string)), SLOT(sendFrame(std::string)));
     connect(&simulatedSystem, SIGNAL(variableToSend(std::string)),
         SLOT(sendVariable(std::string)));

@@ -1,3 +1,4 @@
+SphereSim 3.0.4:
 * Added #endif comments.
 * Moved Vector3 class to SphereSim namespace.
 * Switched to -O2 and enabled OpenMP.
@@ -18,6 +19,7 @@
 * Fixed message encoding.
 * Fixed connection issues.
 * Added heartbeat sending to clients.
+* Added heartbeat receiving and timeout to Server.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.

@@ -29,8 +29,8 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
     receivedServerReply(false), lastServerReplyData(), framerateTimer(),
     frameCounter(0), oldFrameCounter(0), receivedFramesPerSecond(0),
     messageTransmitter(new MessageTransmitter(&socket)),
-    failureExitWhenDisconnected(false), simulatedSystem(nullptr), readyToRun(false),
-    heartbeatTimer()
+    readyToRun(false), heartbeatTimer(),
+    failureExitWhenDisconnected(false),  simulatedSystem(nullptr)
 {
     qRegisterMetaType<std::string>();
     //~ connect(socket, SIGNAL(connected()), SLOT(connected()));
