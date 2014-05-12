@@ -99,6 +99,8 @@ void SimulationWorker::handleBasicAction(WorkQueueItem* workQueueItem)
         varData = workQueueItem->data.substr(2);
         sphCalc->simulatedSystem->receiveVariable(var, varData);
         break;
+    case BasicActions::heartbeat:
+        break;
     default:
         handleUnknownAction(workQueueItem);
         break;
@@ -240,7 +242,7 @@ void SimulationWorker::handleUnknownActionGroup(WorkQueueItem* workQueueItem)
 
 void SimulationWorker::handleUnknownAction(WorkQueueItem* workQueueItem)
 {
-    Console()<<"SimulationWorker: Warning: received unknown action"
+    Console()<<"SimulationWorker: Warning: received unknown action "
         <<(int)workQueueItem->actionGroup<<'|'<<(int)workQueueItem->action<<".\n";
     emit sendReply(ServerStatusReplies::unknownAction, "unknown action");
 }

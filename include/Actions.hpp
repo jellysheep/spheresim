@@ -108,7 +108,9 @@ namespace SphereSim
             /** \brief Terminate the server. */
             terminateServer,
             /** \brief Inform about an updated variable. */
-            updateVariable
+            updateVariable,
+            /** \brief Confirm connection with heartbeat. */
+            heartbeat
         };
     }
 

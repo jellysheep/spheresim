@@ -17,6 +17,7 @@
 * Fixed frame counting in ActionSender.
 * Fixed message encoding.
 * Fixed connection issues.
+* Added heartbeat sending to clients.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.

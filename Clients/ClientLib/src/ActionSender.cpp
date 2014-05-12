@@ -29,7 +29,8 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
     receivedServerReply(false), lastServerReplyData(), framerateTimer(),
     frameCounter(0), oldFrameCounter(0), receivedFramesPerSecond(0),
     messageTransmitter(new MessageTransmitter(&socket)),
-    failureExitWhenDisconnected(false), simulatedSystem(nullptr), readyToRun(false)
+    failureExitWhenDisconnected(false), simulatedSystem(nullptr), readyToRun(false),
+    heartbeatTimer()
 {
     qRegisterMetaType<std::string>();
     //~ connect(socket, SIGNAL(connected()), SLOT(connected()));
@@ -41,6 +42,7 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
     connect(this, SIGNAL(newFrameReceived()), SLOT(framerateEvent()));
     connect(this, SIGNAL(serverReady()), client, SLOT(run()),
         Qt::QueuedConnection);
+    connect(&heartbeatTimer, SIGNAL(timeout()), SLOT(heartbeat()));
     std::ostringstream address;
     address<<"tcp://"<<addr<<':'<<port;
     do
@@ -59,6 +61,7 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
     if (connectedFlag == true)
     {
         Console()<<"ActionSender: connected to host.\n";
+        heartbeatTimer.start(1000);
         messageTransmitter->start();
         simulatedSystem = new SimulatedSystem();
         connect(simulatedSystem, SIGNAL(variableToSend(std::string)),
@@ -379,4 +382,9 @@ void ActionSender::variableUpdated(int var)
         emit sphereCountChangedDouble((double)sphCount);
         frameBuffer.updateElementsPerFrame(sphCount);
     }
+}
+
+void ActionSender::heartbeat()
+{
+    sendAction(ActionGroups::basic, BasicActions::heartbeat);
 }

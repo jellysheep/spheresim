@@ -15,6 +15,7 @@
 #include "SimulatedSystem.hpp"
 
 #include <QObject>
+#include <QTimer>
 #include <QElapsedTimer>
 #include <nanomsg/nn.hpp>
 #include <string>
@@ -67,6 +68,9 @@ namespace SphereSim
 
         /** \brief Server and client are connected and ready. */
         bool readyToRun;
+
+        /** \brief Heartbeat sending timer. */
+        QTimer heartbeatTimer;
 
         /** \brief Send an action request to the server.
          * \param actionGroup Group of the requested action.
@@ -202,6 +206,8 @@ namespace SphereSim
         void sendVariable(std::string variableToSend);
 
         void variableUpdated(int var);
+
+        void heartbeat();
 
     signals:
         /** \brief New frame received from server. */
