@@ -24,12 +24,12 @@ using namespace SphereSim;
 ActionSender::ActionSender(const char* addr, unsigned short port,
     QObject* client)
     :socket(AF_SP, NN_PAIR),
-    connectedFlag(false), connectionTryCount(0), frameBuffer(10),
+    connectedFlag(false), connectionTryCount(0), frameBuffer(30),
     lastServerStatus(ServerStatusReplies::acknowledge),
     receivedServerReply(false), lastServerReplyData(), framerateTimer(),
     frameCounter(0), oldFrameCounter(0), receivedFramesPerSecond(0),
     messageTransmitter(new MessageTransmitter(&socket)),
-    failureExitWhenDisconnected(false), simulatedSystem(nullptr)
+    failureExitWhenDisconnected(false), simulatedSystem(nullptr), readyToRun(false)
 {
     qRegisterMetaType<std::string>();
     //~ connect(socket, SIGNAL(connected()), SLOT(connected()));
@@ -65,7 +65,7 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
             SLOT(sendVariable(std::string)));
         connect(simulatedSystem, SIGNAL(variableUpdated(int)),
             SLOT(variableUpdated(int)));
-        simulatedSystem->sendAllVariables();
+        QTimer::singleShot(250, simulatedSystem, SLOT(sendAllVariables()));
     }
     else
     {
@@ -122,6 +122,10 @@ void ActionSender::processReply(std::string data)
 
     if (lastServerStatus == ServerStatusReplies::sendFrame)
     {
+        if (readyToRun == false)
+        {
+            return;
+        }
         unsigned int serverFrameCounter = readInt(stream);
         if (serverFrameCounter > frameCounter)
         {
@@ -143,6 +147,7 @@ void ActionSender::processReply(std::string data)
     }
     else if (lastServerStatus == ServerStatusReplies::serverReady)
     {
+        readyToRun = true;
         emit serverReady();
     }
     else

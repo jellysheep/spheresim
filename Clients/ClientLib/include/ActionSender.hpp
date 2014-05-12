@@ -65,6 +65,9 @@ namespace SphereSim
         /** \brief Encapsulate and encode messages sent over network. */
         MessageTransmitter* messageTransmitter;
 
+        /** \brief Server and client are connected and ready. */
+        bool readyToRun;
+
         /** \brief Send an action request to the server.
          * \param actionGroup Group of the requested action.
          * \param action Requested action. */

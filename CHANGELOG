@@ -16,6 +16,7 @@
 * Removed unused includes.
 * Fixed frame counting in ActionSender.
 * Fixed message encoding.
+* Fixed connection issues.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.
