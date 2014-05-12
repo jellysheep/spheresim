@@ -53,8 +53,11 @@ namespace SphereSim
         /** \brief Timer used to measure framerates. */
         QElapsedTimer framerateTimer;
 
-        /** \brief Number of received frames since last counter reset. */
+        /** \brief Number of received frames. */
         unsigned int frameCounter;
+
+        /** \brief Number of received frames until last second. */
+        unsigned int oldFrameCounter;
 
         /** \brief Measured rate of received frames per second. */
         Scalar receivedFramesPerSecond;

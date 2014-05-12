@@ -27,7 +27,7 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
     connectedFlag(false), connectionTryCount(0), frameBuffer(10),
     lastServerStatus(ServerStatusReplies::acknowledge),
     receivedServerReply(false), lastServerReplyData(), framerateTimer(),
-    frameCounter(0), receivedFramesPerSecond(0),
+    frameCounter(0), oldFrameCounter(0), receivedFramesPerSecond(0),
     messageTransmitter(new MessageTransmitter(&socket)),
     failureExitWhenDisconnected(false), simulatedSystem(nullptr)
 {
@@ -351,12 +351,10 @@ void ActionSender::framerateEvent()
 {
     if (framerateTimer.elapsed()>1000)
     {
-        if (frameCounter > 0)
-        {
-            receivedFramesPerSecond = frameCounter*1000.0/framerateTimer.elapsed();
-            frameCounter = 0;
-            emit framerateUpdate();
-        }
+        receivedFramesPerSecond = (frameCounter-oldFrameCounter)
+            *1000.0/framerateTimer.elapsed();
+        oldFrameCounter = frameCounter;
+        emit framerateUpdate();
         framerateTimer.restart();
     }
 }

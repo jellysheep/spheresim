@@ -14,6 +14,7 @@
 * Added frame counter to Server.
 * Improved Viewer and Server communication.
 * Removed unused includes.
+* Fixed frame counting in ActionSender.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.
