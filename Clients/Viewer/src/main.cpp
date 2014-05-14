@@ -33,8 +33,8 @@ int main(int argc, char** argv)
     {
         try
         {
-            MainWindow mainWindow(Connection::address,
-                Connection::port, sphereCount);
+            MainWindow mainWindow(Connection::address, Connection::serverRecvPort,
+                Connection::serverSendPort, sphereCount);
             mainWindow.show();
 
             return app.exec();

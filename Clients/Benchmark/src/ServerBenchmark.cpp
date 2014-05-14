@@ -18,8 +18,9 @@
 
 using namespace SphereSim;
 
-ServerBenchmark::ServerBenchmark(const char* addr, unsigned short port)
-    :sender(new ActionSender(addr, port, this))
+ServerBenchmark::ServerBenchmark(const char* addr, unsigned short sendPort,
+    unsigned short recvPort)
+    :sender(new ActionSender(addr, sendPort, recvPort, this))
 {
     sender->failureExitWhenDisconnected = true;
 }

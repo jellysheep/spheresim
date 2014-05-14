@@ -21,15 +21,18 @@ namespace SphereSim
     class ActionServer
     {
     private:
-        nn::socket socket;
+        nn::socket sendSocket;
+        nn::socket recvSocket;
 
         ActionReceiver* actionReceiver;
 
     public:
         /** \brief Start a server and listen to the specified port.
          * \param addr The address that the server will be listening to.
-         * \param port The port that the server will be listening to. */
-        ActionServer(const char* addr, unsigned short port);
+         * \param sendPort The port that the server will be sending to.
+         * \param recvPort The port that the server will be listening to. */
+        ActionServer(const char* addr,
+            unsigned short sendPort, unsigned short recvPort);
 
         ~ActionServer();
 

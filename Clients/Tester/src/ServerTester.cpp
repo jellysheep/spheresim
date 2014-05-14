@@ -36,8 +36,9 @@ using namespace SphereSim;
 
 const int ServerTester::framebuffer = 255;
 
-ServerTester::ServerTester(const char* addr, unsigned short port)
-    :sender(new ActionSender(addr, port, this)), testCounter(0),
+ServerTester::ServerTester(const char* addr, unsigned short sendPort,
+    unsigned short recvPort)
+    :sender(new ActionSender(addr, sendPort, recvPort, this)), testCounter(0),
     successCounter(0), testSuccess(true), testActionName(), testResult(0),
     systemCreator(new SystemCreator(sender)), currentTestConsole()
 {

@@ -26,8 +26,11 @@ namespace SphereSim
         Q_OBJECT
 
     private:
-        /** \brief Socket to client. */
-        nn::socket* socket;
+        /** \brief Socket sending to client. */
+        nn::socket* sendSocket;
+
+        /** \brief Socket receiving from client. */
+        nn::socket* recvSocket;
 
         /** \brief Encapsulate and encode messages sent over network. */
         MessageTransmitter* messageTransmitter;
@@ -41,8 +44,9 @@ namespace SphereSim
 
     public:
         /** \brief Start a new server handling requests from the client.
-         * \param socket Socket of the connection to the client. */
-        ActionReceiver(nn::socket* socket);
+         * \param sendSocket Socket sending to client.
+         * \param recvSocket Socket receiving from client. */
+        ActionReceiver(nn::socket* sendSocket, nn::socket* recvSocket);
 
         /** \brief Clean up member variables. */
         ~ActionReceiver();

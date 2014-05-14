@@ -30,7 +30,8 @@ int main(int argc, char** argv)
     QCoreApplication app(argc, argv);
     try
     {
-        ActionServer actSvr(Connection::listeningAddress, Connection::port);
+        ActionServer actSvr(Connection::listeningAddress,
+            Connection::serverSendPort, Connection::serverRecvPort);
         return app.exec();
     }
     catch (std::exception ex)

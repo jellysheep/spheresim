@@ -26,7 +26,8 @@ int main(int argc, char** argv)
     QCoreApplication app(argc, argv);
     try
     {
-        SimulationGrapher simGrapher(Connection::address, Connection::port);
+        SimulationGrapher simGrapher(Connection::address, Connection::serverRecvPort,
+            Connection::serverSendPort);
         return app.exec();
     }
     catch (std::exception ex)

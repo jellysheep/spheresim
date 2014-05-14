@@ -26,7 +26,8 @@ int main(int argc, char** argv)
     QCoreApplication app(argc, argv);
     try
     {
-        ServerBenchmark svrBenchmark(Connection::address, Connection::port);
+        ServerBenchmark svrBenchmark(Connection::address, Connection::serverRecvPort,
+            Connection::serverSendPort);
         return app.exec();
     }
     catch (std::exception ex)

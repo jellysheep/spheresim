@@ -24,7 +24,8 @@ namespace SphereSim
         Q_OBJECT
 
     private:
-        nn::socket* socket;
+        nn::socket* sendSocket;
+        nn::socket* recvSocket;
 
         QTimer timer;
 
@@ -39,7 +40,7 @@ namespace SphereSim
         std::string decode(const std::string& data);
 
     public:
-        MessageTransmitter(nn::socket* socket);
+        MessageTransmitter(nn::socket* sendSocket, nn::socket* recvSocket);
 
         MessageTransmitter() = delete;
         MessageTransmitter(const MessageTransmitter&) = delete;

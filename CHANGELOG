@@ -20,6 +20,7 @@ SphereSim 3.0.4:
 * Fixed connection issues.
 * Added heartbeat sending to clients.
 * Added heartbeat receiving and timeout to Server.
+* Switched to publish/subscribe sockets.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.

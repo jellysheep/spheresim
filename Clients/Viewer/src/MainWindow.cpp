@@ -18,10 +18,10 @@
 
 using namespace SphereSim;
 
-MainWindow::MainWindow(const char* addr, unsigned short port,
-    unsigned short sphCount, QWidget* parent)
+MainWindow::MainWindow(const char* addr, unsigned short sendPort,
+    unsigned short recvPort, unsigned short sphCount, QWidget* parent)
     :QMainWindow(parent), ui(new Ui::MainWindow()),
-    actionSender(new ActionSender(addr, port, this)),
+    actionSender(new ActionSender(addr, sendPort, recvPort, this)),
     sphCount(sphCount), timer(), boxLength(0), systemToPrepare(2),
     systemCreator(new SystemCreator(actionSender))
 {

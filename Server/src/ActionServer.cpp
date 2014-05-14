@@ -10,20 +10,26 @@
 #include "ActionReceiver.hpp"
 #include "Console.hpp"
 
-#include <nanomsg/pair.h>
+#include <nanomsg/pubsub.h>
 #include <sstream>
 
 using namespace SphereSim;
 
-ActionServer::ActionServer(const char* addr, unsigned short port)
-    :socket(AF_SP, NN_PAIR), actionReceiver(nullptr)
+ActionServer::ActionServer(const char* addr,
+    unsigned short sendPort, unsigned short recvPort)
+    :sendSocket(AF_SP, NN_PUB), recvSocket(AF_SP, NN_SUB),
+    actionReceiver(nullptr)
 {
     Console()<<"ActionServer: constructor called.\n";
-    std::ostringstream address;
-    address<<"tcp://"<<addr<<':'<<port;
-    socket.bind(address.str().c_str());
+    std::ostringstream sendAddress;
+    sendAddress<<"tcp://"<<addr<<':'<<sendPort;
+    sendSocket.bind(sendAddress.str().c_str());
+    std::ostringstream recvAddress;
+    recvAddress<<"tcp://"<<addr<<':'<<recvPort;
+    recvSocket.bind(recvAddress.str().c_str());
+    recvSocket.setsockopt(NN_SUB, NN_SUB_SUBSCRIBE, "", 0);
     Console()<<"ActionServer: listening did succeed.\n";
-    actionReceiver = new ActionReceiver(&socket);
+    actionReceiver = new ActionReceiver(&sendSocket, &recvSocket);
 }
 
 ActionServer::~ActionServer()

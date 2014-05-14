@@ -30,14 +30,14 @@ namespace SphereSim
         Q_OBJECT
 
     private:
-        /** \brief Server connection socket. */
-        nn::socket socket;
+        /** \brief Socket sending to server. */
+        nn::socket sendSocket;
+
+        /** \brief Socket receiving from server. */
+        nn::socket recvSocket;
 
         /** \brief Flag for connection to server. */
         bool connectedFlag;
-
-        /** \brief Number of server connection tries. */
-        unsigned short connectionTryCount;
 
         /** \brief Buffer for the spheres received from server. */
         FrameBuffer<Sphere> frameBuffer;
@@ -102,9 +102,10 @@ namespace SphereSim
     public:
         /** \brief Start an ActionSender with the specified address and port.
          * \param addr The address that the socket will be connecting to.
-         * \param port The port that the socket will be connecting to. */
-        ActionSender(const char* addr, unsigned short port,
-            QObject* client);
+         * \param sendPort The port that the client will be sending to.
+         * \param recvPort The port that the client will be listening to. */
+        ActionSender(const char* addr, unsigned short sendPort,
+            unsigned short recvPort, QObject* client);
 
         ~ActionSender();
 

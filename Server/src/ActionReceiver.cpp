@@ -17,8 +17,9 @@
 
 using namespace SphereSim;
 
-ActionReceiver::ActionReceiver(nn::socket* socket)
-    :socket(socket), messageTransmitter(new MessageTransmitter(socket)),
+ActionReceiver::ActionReceiver(nn::socket* sendSocket, nn::socket* recvSocket)
+    :sendSocket(sendSocket), recvSocket(recvSocket),
+    messageTransmitter(new MessageTransmitter(sendSocket, recvSocket)),
     simulatedSystem(), sphCalc(this, &simulatedSystem),
     workQueue(sphCalc.getWorkQueue())
 {

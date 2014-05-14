@@ -15,7 +15,8 @@ namespace SphereSim
     {
         const char* listeningAddress = "127.0.0.1";
         const char* address = "127.0.0.1";
-        unsigned short port = 8765;
+        unsigned short serverSendPort = 8764;
+        unsigned short serverRecvPort = 8765;
         char startByte = '<', endByte = '>';
     }
 

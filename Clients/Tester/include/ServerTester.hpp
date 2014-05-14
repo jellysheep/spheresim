@@ -55,8 +55,10 @@ namespace SphereSim
     public:
         /** \brief Start a ServerTester with the specified address and port.
          * \param addr The address that the socket will be connecting to.
-         * \param port The port that the socket will be connecting to. */
-        ServerTester(const char* addr, unsigned short port);
+         * \param sendPort The port that the client will be sending to.
+         * \param recvPort The port that the client will be listening to. */
+        ServerTester(const char* addr, unsigned short sendPort,
+            unsigned short recvPort);
 
         ~ServerTester();
 

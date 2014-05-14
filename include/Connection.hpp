@@ -15,12 +15,14 @@ namespace SphereSim
     /** \brief Connection details for client and server. */
     namespace Connection
     {
-        /** \brief The address the server is listening to. */
+        /** \brief The address the server listens to. */
         extern const char* listeningAddress;
-        /** \brief The address the client is connecting to. */
+        /** \brief The address the client connects to. */
         extern const char* address;
-        /** \brief The port that client and server use. */
-        extern unsigned short port;
+        /** \brief The port that the client listens to. */
+        extern unsigned short serverSendPort;
+        /** \brief The port that the server listens to. */
+        extern unsigned short serverRecvPort;
         /** \brief The byte used to start an encoded request. */
         extern char startByte;
         /** \brief The byte used to end an encoded request. */

@@ -14,21 +14,21 @@
 
 #include <QCoreApplication>
 #include <QTimer>
-#include <nanomsg/pair.h>
+#include <nanomsg/pubsub.h>
 #include <string>
 
 Q_DECLARE_METATYPE(std::string);
 
 using namespace SphereSim;
 
-ActionSender::ActionSender(const char* addr, unsigned short port,
-    QObject* client)
-    :socket(AF_SP, NN_PAIR),
-    connectedFlag(false), connectionTryCount(0), frameBuffer(30),
+ActionSender::ActionSender(const char* addr, unsigned short sendPort,
+    unsigned short recvPort, QObject* client)
+    :sendSocket(AF_SP, NN_PUB), recvSocket(AF_SP, NN_SUB),
+    connectedFlag(false), frameBuffer(30),
     lastServerStatus(ServerStatusReplies::acknowledge),
     receivedServerReply(false), lastServerReplyData(), framerateTimer(),
     frameCounter(0), oldFrameCounter(0), receivedFramesPerSecond(0),
-    messageTransmitter(new MessageTransmitter(&socket)),
+    messageTransmitter(new MessageTransmitter(&sendSocket, &recvSocket)),
     readyToRun(false), heartbeatTimer(),
     failureExitWhenDisconnected(false),  simulatedSystem(nullptr)
 {
@@ -43,38 +43,25 @@ ActionSender::ActionSender(const char* addr, unsigned short port,
     connect(this, SIGNAL(serverReady()), client, SLOT(run()),
         Qt::QueuedConnection);
     connect(&heartbeatTimer, SIGNAL(timeout()), SLOT(heartbeat()));
-    std::ostringstream address;
-    address<<"tcp://"<<addr<<':'<<port;
-    do
-    {
-        connectionTryCount++;
-        try
-        {
-            socket.connect(address.str().c_str());
-            connectedFlag = true;
-        }
-        catch (...)
-        {
-        }
-    }
-    while (connectionTryCount<1000 && (connectedFlag == false));
-    if (connectedFlag == true)
-    {
-        Console()<<"ActionSender: connected to host.\n";
-        heartbeatTimer.start(1000);
-        messageTransmitter->start();
-        simulatedSystem = new SimulatedSystem();
-        connect(simulatedSystem, SIGNAL(variableToSend(std::string)),
-            SLOT(sendVariable(std::string)));
-        connect(simulatedSystem, SIGNAL(variableUpdated(int)),
-            SLOT(variableUpdated(int)));
-        QTimer::singleShot(250, simulatedSystem, SLOT(sendAllVariables()));
-    }
-    else
-    {
-        Console()<<"ActionSender: connecting to host failed.\n";
-        QTimer::singleShot(0, qApp, SLOT(quit()));
-    }
+
+    std::ostringstream sendAddress;
+    sendAddress<<"tcp://"<<addr<<':'<<sendPort;
+    sendSocket.connect(sendAddress.str().c_str());
+    std::ostringstream recvAddress;
+    recvAddress<<"tcp://"<<addr<<':'<<recvPort;
+    recvSocket.connect(recvAddress.str().c_str());
+    recvSocket.setsockopt(NN_SUB, NN_SUB_SUBSCRIBE, "", 0);
+    Console()<<"ActionSender: connected to host.\n";
+    connectedFlag = true;
+    heartbeatTimer.start(1000);
+    messageTransmitter->start();
+
+    simulatedSystem = new SimulatedSystem();
+    connect(simulatedSystem, SIGNAL(variableToSend(std::string)),
+        SLOT(sendVariable(std::string)));
+    connect(simulatedSystem, SIGNAL(variableUpdated(int)),
+        SLOT(variableUpdated(int)));
+    QTimer::singleShot(250, simulatedSystem, SLOT(sendAllVariables()));
 }
 
 ActionSender::~ActionSender()

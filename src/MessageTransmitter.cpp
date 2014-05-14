@@ -12,8 +12,10 @@
 
 using namespace SphereSim;
 
-MessageTransmitter::MessageTransmitter(nn::socket* socket)
-    :socket(socket), timer(this), elapsedTimer(), connected(false)
+MessageTransmitter::MessageTransmitter(nn::socket* sendSocket,
+    nn::socket* recvSocket)
+    :sendSocket(sendSocket), recvSocket(recvSocket),
+    timer(this), elapsedTimer(), connected(false)
 {
     timer.setInterval(10);
     connect(&timer, SIGNAL(timeout()), this, SLOT(readData()));
@@ -60,7 +62,7 @@ void MessageTransmitter::send(std::string data)
     finalData<<data;
     finalData<<Connection::endByte;
     std::string str = finalData.str();
-    socket->send(str.c_str(), str.size(), NN_DONTWAIT);
+    sendSocket->send(str.c_str(), str.size(), NN_DONTWAIT);
 }
 
 void MessageTransmitter::readData()
@@ -69,7 +71,7 @@ void MessageTransmitter::readData()
     while (true)
     {
         char buffer[buffer_length];
-        int length = socket->recv(buffer, buffer_length, NN_DONTWAIT);
+        int length = recvSocket->recv(buffer, buffer_length, NN_DONTWAIT);
         if (length <= 0)
         {
             if (connected && nn_errno() == EAGAIN && elapsedTimer.elapsed()>2000)
