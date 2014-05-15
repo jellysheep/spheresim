@@ -26,15 +26,6 @@ namespace SphereSim
         Q_OBJECT
 
     private:
-        /** \brief Socket sending to client. */
-        nn::socket* sendSocket;
-
-        /** \brief Socket receiving from client. */
-        nn::socket* recvSocket;
-
-        /** \brief Encapsulate and encode messages sent over network. */
-        MessageTransmitter* messageTransmitter;
-
         SimulatedSystem simulatedSystem;
 
         /** \brief Storage and calculator of sphere data. */
@@ -43,15 +34,12 @@ namespace SphereSim
         WorkQueue* workQueue;
 
     public:
-        /** \brief Start a new server handling requests from the client.
-         * \param sendSocket Socket sending to client.
-         * \param recvSocket Socket receiving from client. */
-        ActionReceiver(nn::socket* sendSocket, nn::socket* recvSocket);
+        /** \brief Start a new server handling requests from the client. */
+        ActionReceiver();
 
         /** \brief Clean up member variables. */
         ~ActionReceiver();
 
-        ActionReceiver() = delete;
         ActionReceiver(const ActionReceiver&) = delete;
         ActionReceiver& operator=(const ActionReceiver&) = delete;
 
@@ -73,6 +61,9 @@ namespace SphereSim
         void terminateServer();
 
         void serverReady();
+
+    signals:
+        void sendReply(std::string reply);
 
     };
 

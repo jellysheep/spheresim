@@ -16,6 +16,7 @@
 namespace SphereSim
 {
     class ActionReceiver;
+    class MessageTransmitter;
 
     /** \brief Start server and wait for incoming connections from clients. */
     class ActionServer
@@ -25,6 +26,8 @@ namespace SphereSim
         nn::socket recvSocket;
 
         ActionReceiver* actionReceiver;
+
+        MessageTransmitter* messageTransmitter;
 
     public:
         /** \brief Start a server and listen to the specified port.

@@ -48,9 +48,9 @@ namespace SphereSim
 
         void start();
 
+    public slots:
         void send(std::string data);
 
-    public slots:
         /** \brief Read new available data. */
         void readData();
 

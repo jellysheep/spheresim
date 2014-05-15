@@ -9,6 +9,7 @@
 #include "ActionServer.hpp"
 #include "ActionReceiver.hpp"
 #include "Console.hpp"
+#include "MessageTransmitter.hpp"
 
 #include <nanomsg/pubsub.h>
 #include <sstream>
@@ -18,7 +19,7 @@ using namespace SphereSim;
 ActionServer::ActionServer(const char* addr,
     unsigned short sendPort, unsigned short recvPort)
     :sendSocket(AF_SP, NN_PUB), recvSocket(AF_SP, NN_SUB),
-    actionReceiver(nullptr)
+    actionReceiver(nullptr), messageTransmitter(nullptr)
 {
     Console()<<"ActionServer: constructor called.\n";
     std::ostringstream sendAddress;
@@ -29,7 +30,13 @@ ActionServer::ActionServer(const char* addr,
     recvSocket.bind(recvAddress.str().c_str());
     recvSocket.setsockopt(NN_SUB, NN_SUB_SUBSCRIBE, "", 0);
     Console()<<"ActionServer: listening did succeed.\n";
-    actionReceiver = new ActionReceiver(&sendSocket, &recvSocket);
+    messageTransmitter = new MessageTransmitter(&sendSocket, &recvSocket);
+    actionReceiver = new ActionReceiver();
+    QObject::connect(messageTransmitter, SIGNAL(processData(std::string)),
+        actionReceiver, SLOT(processRequest(std::string)));
+    QObject::connect(actionReceiver, SIGNAL(sendReply(std::string)),
+        messageTransmitter, SLOT(send(std::string)));
+    messageTransmitter->start();
 }
 
 ActionServer::~ActionServer()
@@ -37,5 +44,9 @@ ActionServer::~ActionServer()
     if (actionReceiver != nullptr)
     {
         delete actionReceiver;
+    }
+    if (messageTransmitter != nullptr)
+    {
+        delete messageTransmitter;
     }
 }

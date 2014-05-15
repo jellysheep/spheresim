@@ -17,27 +17,21 @@
 
 using namespace SphereSim;
 
-ActionReceiver::ActionReceiver(nn::socket* sendSocket, nn::socket* recvSocket)
-    :sendSocket(sendSocket), recvSocket(recvSocket),
-    messageTransmitter(new MessageTransmitter(sendSocket, recvSocket)),
-    simulatedSystem(), sphCalc(this, &simulatedSystem),
+ActionReceiver::ActionReceiver()
+    :simulatedSystem(), sphCalc(this, &simulatedSystem),
     workQueue(sphCalc.getWorkQueue())
 {
-    connect(messageTransmitter, SIGNAL(processData(std::string)),
-        SLOT(processRequest(std::string)));
-    connect(messageTransmitter, SIGNAL(receiveTimeout()), &sphCalc,
-        SLOT(resetServer()));
+    //~ connect(messageTransmitter, SIGNAL(receiveTimeout()), &sphCalc,
+        //~ SLOT(resetServer()));
     connect(&sphCalc, SIGNAL(frameToSend(std::string)), SLOT(sendFrame(std::string)));
     connect(&simulatedSystem, SIGNAL(variableToSend(std::string)),
         SLOT(sendVariable(std::string)));
     connect(&simulatedSystem, SIGNAL(serverReady()), SLOT(serverReady()));
     connect(workQueue, SIGNAL(simulating(bool)), SLOT(simulating(bool)));
-    messageTransmitter->start();
 }
 
 ActionReceiver::~ActionReceiver()
 {
-    delete messageTransmitter;
     Console()<<"ActionReceiver: disconnected.\n";
 }
 
@@ -68,7 +62,7 @@ void ActionReceiver::sendReply(unsigned char serverStatus, std::string dataToSen
     std::ostringstream data;
     writeChar(data, serverStatus);
     data<<dataToSend;
-    messageTransmitter->send(data.str());
+    emit sendReply(data.str());
 }
 
 void ActionReceiver::sendFrame(std::string frameToSend)
