@@ -136,8 +136,9 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
         simulationWorker, SLOT(stop()));
     QObject::connect(this, SIGNAL(requestingWorkerStop()),
         workQueue, SLOT(stop()));
-    QObject::connect(simulationWorker, SIGNAL(sendReply(unsigned char, std::string)),
-        actRcv, SLOT(sendReply(unsigned char, std::string)));
+    QObject::connect(simulationWorker,
+        SIGNAL(sendReply(unsigned short, std::string)),
+        actRcv, SLOT(sendReply(unsigned short, std::string)));
     simulationThread->start();
 }
 
