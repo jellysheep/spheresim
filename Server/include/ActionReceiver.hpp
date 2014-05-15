@@ -26,6 +26,8 @@ namespace SphereSim
         Q_OBJECT
 
     private:
+        const unsigned int clientID;
+
         SimulatedSystem simulatedSystem;
 
         /** \brief Storage and calculator of sphere data. */
@@ -33,13 +35,16 @@ namespace SphereSim
 
         WorkQueue* workQueue;
 
+        bool clientAccepted;
+
     public:
         /** \brief Start a new server handling requests from the client. */
-        ActionReceiver();
+        ActionReceiver(const unsigned int clientID);
 
         /** \brief Clean up member variables. */
         ~ActionReceiver();
 
+        ActionReceiver() = delete;
         ActionReceiver(const ActionReceiver&) = delete;
         ActionReceiver& operator=(const ActionReceiver&) = delete;
 
@@ -56,14 +61,12 @@ namespace SphereSim
         /** \brief Send encoded data to client.
          * \param serverStatus Server status to be sent.
          * \param data Data to be sent to client. */
-        void sendReply(unsigned char serverStatus, std::string dataToSend);
+        void sendReply(unsigned short serverStatus, std::string dataToSend);
 
         void terminateServer();
 
-        void serverReady();
-
     signals:
-        void sendReply(std::string reply);
+        void send(unsigned int clientID, std::string reply);
 
     };
 

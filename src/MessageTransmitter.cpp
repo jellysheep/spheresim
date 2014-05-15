@@ -49,14 +49,15 @@ void MessageTransmitter::start()
     elapsedTimer.start();
 }
 
+void MessageTransmitter::stop()
+{
+    timer.stop();
+}
+
 void MessageTransmitter::send(std::string data)
 {
     data = encode(data);
     //~ Console()<<"send: "<<data<<".\n";
-    if (data.size() > 184)
-    {
-        abort();
-    }
     std::ostringstream finalData;
     finalData<<Connection::startByte;
     finalData<<data;

@@ -39,11 +39,14 @@ namespace SphereSim
         /** \brief Flag for connection to server. */
         bool connectedFlag;
 
+        /** \brief Client ID for communication with server. */
+        unsigned int clientID;
+
         /** \brief Buffer for the spheres received from server. */
         FrameBuffer<Sphere> frameBuffer;
 
         /** \brief Last received server status. */
-        unsigned char lastServerStatus;
+        unsigned short lastServerStatus;
 
         /** \brief Flag for server replies. */
         bool receivedServerReply;

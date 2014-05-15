@@ -99,7 +99,7 @@ namespace SphereSim
         /** \brief Worker stopped working. */
         void finished();
 
-        void sendReply(unsigned char serverStatus, std::string data);
+        void sendReply(unsigned short serverStatus, std::string data);
 
     };
 

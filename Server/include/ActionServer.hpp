@@ -9,8 +9,8 @@
 #ifndef _ACTIONSERVER_HPP_
 #define _ACTIONSERVER_HPP_
 
-#include "Actions.hpp"
-
+#include <QObject>
+#include <map>
 #include <nanomsg/nn.hpp>
 
 namespace SphereSim
@@ -19,15 +19,18 @@ namespace SphereSim
     class MessageTransmitter;
 
     /** \brief Start server and wait for incoming connections from clients. */
-    class ActionServer
+    class ActionServer:private QObject
     {
+        Q_OBJECT
+
     private:
         nn::socket sendSocket;
         nn::socket recvSocket;
 
-        ActionReceiver* actionReceiver;
-
         MessageTransmitter* messageTransmitter;
+
+        typedef std::map<unsigned int, ActionReceiver*> ActionReceiverMap;
+        ActionReceiverMap actionReceivers;
 
     public:
         /** \brief Start a server and listen to the specified port.
@@ -42,6 +45,11 @@ namespace SphereSim
         ActionServer() = delete;
         ActionServer(const ActionServer&) = delete;
         ActionServer& operator=(const ActionServer&) = delete;
+
+    public slots:
+        void send(unsigned int clientID, std::string reply);
+
+        void receiveRequest(std::string request);
 
     };
 

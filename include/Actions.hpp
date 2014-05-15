@@ -198,8 +198,8 @@ namespace SphereSim
             terminating,
             /** \brief The server is sending an updated variable. */
             sendVariable,
-            /** \brief The server received all variables and is ready. */
-            serverReady
+            /** \brief The server accepted the client connection. */
+            clientAccepted
         };
     }
 

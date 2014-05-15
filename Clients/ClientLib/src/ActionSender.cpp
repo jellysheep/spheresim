@@ -15,6 +15,8 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include <nanomsg/pubsub.h>
+#include <chrono>
+#include <random>
 #include <string>
 
 Q_DECLARE_METATYPE(std::string);
@@ -24,7 +26,7 @@ using namespace SphereSim;
 ActionSender::ActionSender(const char* addr, unsigned short sendPort,
     unsigned short recvPort, QObject* client)
     :sendSocket(AF_SP, NN_PUB), recvSocket(AF_SP, NN_SUB),
-    connectedFlag(false), frameBuffer(30),
+    connectedFlag(false), clientID(0), frameBuffer(30),
     lastServerStatus(ServerStatusReplies::acknowledge),
     receivedServerReply(false), lastServerReplyData(), framerateTimer(),
     frameCounter(0), oldFrameCounter(0), receivedFramesPerSecond(0),
@@ -51,17 +53,19 @@ ActionSender::ActionSender(const char* addr, unsigned short sendPort,
     recvAddress<<"tcp://"<<addr<<':'<<recvPort;
     recvSocket.connect(recvAddress.str().c_str());
     recvSocket.setsockopt(NN_SUB, NN_SUB_SUBSCRIBE, "", 0);
-    Console()<<"ActionSender: connected to host.\n";
-    connectedFlag = true;
-    heartbeatTimer.start(1000);
-    messageTransmitter->start();
 
     simulatedSystem = new SimulatedSystem();
     connect(simulatedSystem, SIGNAL(variableToSend(std::string)),
         SLOT(sendVariable(std::string)));
     connect(simulatedSystem, SIGNAL(variableUpdated(int)),
         SLOT(variableUpdated(int)));
-    QTimer::singleShot(250, simulatedSystem, SLOT(sendAllVariables()));
+
+    std::random_device randomDevice;
+    std::uniform_int_distribution<unsigned int> distribution;
+    clientID = distribution(randomDevice);
+    Console()<<"ActionSender: ClientID: "<<std::hex<<clientID<<".\n";
+    messageTransmitter->start();
+    heartbeatTimer.start(1000);
 }
 
 ActionSender::~ActionSender()
@@ -77,6 +81,7 @@ void ActionSender::sendAction(unsigned char actionGroup, unsigned char action,
     const std::string& arr)
 {
     std::ostringstream data;
+    writeInt(data, clientID);
     writeChar(data, actionGroup);
     writeChar(data, action);
     data<<arr;
@@ -108,7 +113,13 @@ std::string ActionSender::sendReplyAction(unsigned char actionGroup,
 void ActionSender::processReply(std::string data)
 {
     std::istringstream stream(data);
-    lastServerStatus = readChar(stream);
+    const unsigned int receiverClientID = readInt(stream);
+    if (receiverClientID != clientID)
+    {
+        //~ Console()<<"ActionSender: received message for another client.\n";
+        return;
+    }
+    lastServerStatus = readShort(stream);
 
     if (lastServerStatus == ServerStatusReplies::sendFrame)
     {
@@ -132,17 +143,20 @@ void ActionSender::processReply(std::string data)
     {
         unsigned short _var = readShort(stream);
         SimulationVariables::Variable var = (SimulationVariables::Variable)_var;
-        std::string varData = data.substr(3);
+        std::string varData = data.substr(8);
         simulatedSystem->receiveVariable(var, varData);
     }
-    else if (lastServerStatus == ServerStatusReplies::serverReady)
+    else if (lastServerStatus == ServerStatusReplies::clientAccepted)
     {
+        Console()<<"ActionSender: connected to host.\n";
+        connectedFlag = true;
+        simulatedSystem->sendAllVariables();
         readyToRun = true;
         emit serverReady();
     }
     else
     {
-        std::string replyData = data.substr(1);
+        std::string replyData = data.substr(6);
         lastServerReplyData = replyData;
         receivedServerReply = true;
     }

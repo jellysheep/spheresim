@@ -9,6 +9,7 @@
 #include "ActionServer.hpp"
 #include "ActionReceiver.hpp"
 #include "Console.hpp"
+#include "DataTransmit.hpp"
 #include "MessageTransmitter.hpp"
 
 #include <nanomsg/pubsub.h>
@@ -19,7 +20,7 @@ using namespace SphereSim;
 ActionServer::ActionServer(const char* addr,
     unsigned short sendPort, unsigned short recvPort)
     :sendSocket(AF_SP, NN_PUB), recvSocket(AF_SP, NN_SUB),
-    actionReceiver(nullptr), messageTransmitter(nullptr)
+    messageTransmitter(nullptr), actionReceivers()
 {
     Console()<<"ActionServer: constructor called.\n";
     std::ostringstream sendAddress;
@@ -31,22 +32,55 @@ ActionServer::ActionServer(const char* addr,
     recvSocket.setsockopt(NN_SUB, NN_SUB_SUBSCRIBE, "", 0);
     Console()<<"ActionServer: listening did succeed.\n";
     messageTransmitter = new MessageTransmitter(&sendSocket, &recvSocket);
-    actionReceiver = new ActionReceiver();
-    QObject::connect(messageTransmitter, SIGNAL(processData(std::string)),
-        actionReceiver, SLOT(processRequest(std::string)));
-    QObject::connect(actionReceiver, SIGNAL(sendReply(std::string)),
-        messageTransmitter, SLOT(send(std::string)));
+    connect(messageTransmitter, SIGNAL(processData(std::string)),
+        SLOT(receiveRequest(std::string)));
     messageTransmitter->start();
 }
 
 ActionServer::~ActionServer()
 {
-    if (actionReceiver != nullptr)
+    messageTransmitter->stop();
+    for (ActionReceiverMap::iterator it = actionReceivers.begin();
+        it != actionReceivers.end(); ++it)
     {
-        delete actionReceiver;
+        it->second->deleteLater();
     }
     if (messageTransmitter != nullptr)
     {
-        delete messageTransmitter;
+        messageTransmitter->deleteLater();
     }
+}
+
+void ActionServer::receiveRequest(std::string request)
+{
+    std::istringstream stream(request);
+    unsigned int clientID = readInt(stream);
+    ActionReceiver* actionReceiver;
+    ActionReceiverMap::iterator it = actionReceivers.find(clientID);
+    if (it != actionReceivers.end())
+    {
+        actionReceiver = it->second;
+    }
+    else
+    {
+        Console()<<"Registering ClientID "<<std::hex<<clientID<<".\n";
+        actionReceiver = new ActionReceiver(clientID);
+        connect(actionReceiver, SIGNAL(send(unsigned int, std::string)),
+            SLOT(send(unsigned int, std::string)));
+        actionReceivers.emplace(clientID, actionReceiver);
+    }
+    request = request.substr(4);
+    actionReceiver->processRequest(request);
+}
+
+void ActionServer::send(unsigned int clientID, std::string reply)
+{
+    if (actionReceivers.count(clientID) == 0)
+    {
+        Console()<<Console::red<<Console::bold<<"Bad server reply (ClientID).\n";
+    }
+    std::ostringstream stream;
+    writeInt(stream, clientID);
+    stream<<reply;
+    messageTransmitter->send(stream.str());
 }

@@ -120,8 +120,6 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
 
     QObject::connect(simulatedSystem, SIGNAL(variableUpdated(int)),
         SLOT(variableUpdated(int)));
-    QObject::connect(simulatedSystem, SIGNAL(serverReady()),
-        SLOT(resetServer()));
 
     simulationWorker->moveToThread(simulationThread);
     QObject::connect(simulationThread, SIGNAL(started()),
@@ -1645,10 +1643,4 @@ void SphereCalculator::variableUpdated(int var)
         updateIntegratorMethod();
         break;
     }
-}
-
-void SphereCalculator::resetServer()
-{
-    tearDown();
-    startUp();
 }

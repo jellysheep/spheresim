@@ -17,16 +17,13 @@
 
 using namespace SphereSim;
 
-ActionReceiver::ActionReceiver()
-    :simulatedSystem(), sphCalc(this, &simulatedSystem),
-    workQueue(sphCalc.getWorkQueue())
+ActionReceiver::ActionReceiver(const unsigned int clientID)
+    :clientID(clientID), simulatedSystem(), sphCalc(this, &simulatedSystem),
+    workQueue(sphCalc.getWorkQueue()), clientAccepted(false)
 {
-    //~ connect(messageTransmitter, SIGNAL(receiveTimeout()), &sphCalc,
-        //~ SLOT(resetServer()));
     connect(&sphCalc, SIGNAL(frameToSend(std::string)), SLOT(sendFrame(std::string)));
     connect(&simulatedSystem, SIGNAL(variableToSend(std::string)),
         SLOT(sendVariable(std::string)));
-    connect(&simulatedSystem, SIGNAL(serverReady()), SLOT(serverReady()));
     connect(workQueue, SIGNAL(simulating(bool)), SLOT(simulating(bool)));
 }
 
@@ -46,6 +43,13 @@ void ActionReceiver::processRequest(std::string data)
 {
     unsigned char actionGroup = data[0];
     unsigned char action = data[1];
+    if (clientAccepted == false && actionGroup == ActionGroups::basic
+        && action == BasicActions::heartbeat)
+    {
+        clientAccepted = true;
+        sendReply(ServerStatusReplies::clientAccepted, std::string());
+        return;
+    }
     if (data.size()>2)
     {
         data = data.substr(2);
@@ -57,12 +61,12 @@ void ActionReceiver::processRequest(std::string data)
     workQueue->pushItem(actionGroup, action, data);
 }
 
-void ActionReceiver::sendReply(unsigned char serverStatus, std::string dataToSend)
+void ActionReceiver::sendReply(unsigned short serverStatus, std::string dataToSend)
 {
     std::ostringstream data;
-    writeChar(data, serverStatus);
+    writeShort(data, serverStatus);
     data<<dataToSend;
-    emit sendReply(data.str());
+    emit send(clientID, data.str());
 }
 
 void ActionReceiver::sendFrame(std::string frameToSend)
@@ -78,9 +82,4 @@ void ActionReceiver::sendVariable(std::string variableToSend)
 void ActionReceiver::simulating(bool isSimulating)
 {
     simulatedSystem.set(SimulationVariables::simulating, isSimulating);
-}
-
-void ActionReceiver::serverReady()
-{
-    sendReply(ServerStatusReplies::serverReady, "");
 }

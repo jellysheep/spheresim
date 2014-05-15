@@ -47,6 +47,7 @@ namespace SphereSim
         MessageTransmitter& operator=(const MessageTransmitter&) = delete;
 
         void start();
+        void stop();
 
     public slots:
         void send(std::string data);

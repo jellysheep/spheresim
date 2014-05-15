@@ -321,8 +321,6 @@ namespace SphereSim
 
         void variableUpdated(int var);
 
-        void resetServer();
-
     };
 
 }

@@ -79,9 +79,6 @@ void SimulatedSystem::sendAllVariables()
     {
         sendVariable((SimulationVariables::Variable) var);
     }
-    std::ostringstream data;
-    writeShort(data, (unsigned short) numberOfVariables);
-    emit variableToSend(data.str());
 }
 
 void SimulatedSystem::receiveVariable(SimulationVariables::Variable var,
@@ -89,10 +86,6 @@ void SimulatedSystem::receiveVariable(SimulationVariables::Variable var,
 {
     if (var >= numberOfVariables)
     {
-        if (var == numberOfVariables)
-        {
-            emit serverReady();
-        }
         return;
     }
 
