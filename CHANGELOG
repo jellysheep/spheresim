@@ -25,6 +25,7 @@ SphereSim 3.0.4:
 * Implemented ClientID connections.
 * Fixed type of server status.
 * Removed message encoding and encapsulation.
+* Added subscribing to ActionSender.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.

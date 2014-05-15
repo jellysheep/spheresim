@@ -116,7 +116,6 @@ void ActionSender::processReply(std::string data)
     const unsigned int receiverClientID = readInt(stream);
     if (receiverClientID != clientID)
     {
-        //~ Console()<<"ActionSender: received message for another client.\n";
         return;
     }
     lastServerStatus = readShort(stream);
@@ -148,8 +147,18 @@ void ActionSender::processReply(std::string data)
     }
     else if (lastServerStatus == ServerStatusReplies::clientAccepted)
     {
+        if (connectedFlag == true)
+        {
+            return;
+        }
         Console()<<"ActionSender: connected to host.\n";
         connectedFlag = true;
+        std::ostringstream stream;
+        writeInt(stream, clientID);
+        std::string idString = stream.str();
+        recvSocket.setsockopt(NN_SUB, NN_SUB_SUBSCRIBE,
+            idString.c_str(), idString.size());
+        recvSocket.setsockopt(NN_SUB, NN_SUB_UNSUBSCRIBE, "", 0);
         simulatedSystem->sendAllVariables();
         readyToRun = true;
         emit serverReady();
