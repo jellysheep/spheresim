@@ -24,6 +24,7 @@ SphereSim 3.0.4:
 * Moved message sending logic to ActionServer.
 * Implemented ClientID connections.
 * Fixed type of server status.
+* Removed message encoding and encapsulation.
 
 SphereSim 3.0.3:
 * Removed custom Array class, replaced by std::vector.

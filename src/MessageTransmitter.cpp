@@ -21,28 +21,6 @@ MessageTransmitter::MessageTransmitter(nn::socket* sendSocket,
     connect(&timer, SIGNAL(timeout()), this, SLOT(readData()));
 }
 
-std::string MessageTransmitter::encode(const std::string& data)
-{
-    std::string encodedData(2*data.size(), '\0');
-    for (unsigned int i = 0; i<data.size(); i++)
-    {
-        encodedData[2*i] = 'a'+(unsigned char)data[i]/16;
-        encodedData[2*i+1] = 'a'+(unsigned char)data[i]%16;
-    }
-    return encodedData;
-}
-
-std::string MessageTransmitter::decode(const std::string& data)
-{
-    std::string decodedData(data.size()/2, '\0');
-    for (unsigned int i = 0; i<data.size()/2; i++)
-    {
-        decodedData[i] = (((unsigned char)data[2*i]-'a')*16)
-            +((unsigned char)data[2*i+1]-'a');
-    }
-    return decodedData;
-}
-
 void MessageTransmitter::start()
 {
     timer.start();
@@ -56,23 +34,17 @@ void MessageTransmitter::stop()
 
 void MessageTransmitter::send(std::string data)
 {
-    data = encode(data);
     //~ Console()<<"send: "<<data<<".\n";
-    std::ostringstream finalData;
-    finalData<<Connection::startByte;
-    finalData<<data;
-    finalData<<Connection::endByte;
-    std::string str = finalData.str();
-    sendSocket->send(str.c_str(), str.size(), NN_DONTWAIT);
+    sendSocket->send(data.c_str(), data.size(), NN_DONTWAIT);
 }
 
 void MessageTransmitter::readData()
 {
-    constexpr int buffer_length = 1024;
+    constexpr int bufferLength = 1024;
     while (true)
     {
-        char buffer[buffer_length];
-        int length = recvSocket->recv(buffer, buffer_length, NN_DONTWAIT);
+        char buffer[bufferLength];
+        int length = recvSocket->recv(buffer, bufferLength, NN_DONTWAIT);
         if (length <= 0)
         {
             if (connected && nn_errno() == EAGAIN && elapsedTimer.elapsed()>2000)
@@ -84,8 +56,8 @@ void MessageTransmitter::readData()
         }
         connected = true;
         elapsedTimer.restart();
-        std::string data(buffer+1, length-2);
+        std::string data(buffer, length);
         //~ Console()<<"recv: "<<data<<".\n";
-        emit processData(decode(data));
+        emit processData(data);
     }
 }

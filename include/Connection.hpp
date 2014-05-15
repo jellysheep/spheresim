@@ -23,10 +23,6 @@ namespace SphereSim
         extern unsigned short serverSendPort;
         /** \brief The port that the server listens to. */
         extern unsigned short serverRecvPort;
-        /** \brief The byte used to start an encoded request. */
-        extern char startByte;
-        /** \brief The byte used to end an encoded request. */
-        extern char endByte;
     }
 
 }

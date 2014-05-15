@@ -33,12 +33,6 @@ namespace SphereSim
 
         bool connected;
 
-        /** \brief Base64-encode message. */
-        std::string encode(const std::string& data);
-
-        /** \brief Base64-decode message. */
-        std::string decode(const std::string& data);
-
     public:
         MessageTransmitter(nn::socket* sendSocket, nn::socket* recvSocket);
 
