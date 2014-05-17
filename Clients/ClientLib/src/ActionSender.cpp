@@ -191,6 +191,11 @@ FrameBuffer<Sphere>* ActionSender::getFrameBuffer()
     return &frameBuffer;
 }
 
+void ActionSender::terminateServer()
+{
+    sendAction(ActionGroups::basic, BasicActions::terminateServer);
+}
+
 unsigned short ActionSender::addSphere()
 {
     std::string retData = sendReplyAction(ActionGroups::spheresUpdating,

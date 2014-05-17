@@ -126,6 +126,9 @@ namespace SphereSim
 
         FrameBuffer<Sphere>* getFrameBuffer();
 
+        /** \copydoc BasicActions::terminateServer */
+        void terminateServer();
+
         /** \copydoc SpheresUpdatingActions::updateSphere
          * \param i Sphere index.
          * \param s Sphere data. */

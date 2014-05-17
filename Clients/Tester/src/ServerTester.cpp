@@ -58,6 +58,7 @@ void ServerTester::run()
     runTests_(ActionGroups::spheresUpdating);
     runTests_(ActionGroups::calculation);
     runTests_(ServerTester::framebuffer);
+    sender->terminateServer();
     qApp->exit(result());
 }
 
@@ -258,7 +259,8 @@ void ServerTester::runCalculationActionTests()
         {
             QTest::qWait(10);
         }
-        while (!sender->simulatedSystem->get<bool>(SimulationVariables::simulating));
+        while (sender->simulatedSystem->get<bool>(
+            SimulationVariables::simulating) == false);
         QTest::qWait(100);
         sender->stopSimulation();
         do
