@@ -51,6 +51,8 @@ namespace SphereSim
 
         void receiveRequest(std::string request);
 
+        void tearDown();
+
     };
 
 }

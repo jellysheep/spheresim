@@ -53,27 +53,27 @@ namespace SphereSim
     {
         void* operator()(bool*)
         {
-            return new bool;
+            return new bool(false);
         }
         void* operator()(unsigned int*)
         {
-            return new unsigned int;
+            return new unsigned int(0);
         }
         void* operator()(double*)
         {
-            return new double;
+            return new double(0.0);
         }
         void* operator()(float*)
         {
-            return new float;
+            return new float(0.0f);
         }
         void* operator()(Vector3*)
         {
-            return new Vector3;
+            return new Vector3(0, 0, 0);
         }
         void* operator()(std::string*)
         {
-            return new std::string;
+            return new std::string("");
         }
     };
 

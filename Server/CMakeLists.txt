@@ -7,11 +7,12 @@ set (PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(USE_DOUBLE 1)
 add_definitions("-DUSE_DOUBLE=${USE_DOUBLE}")
 set(NO_OPENMP 0)
-add_definitions("-DNO_OPENMP=${NO_OPENMP}")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DNO_OPENMP=1")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNO_OPENMP=${NO_OPENMP}")
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 if(NO_OPENMP EQUAL 0)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fopenmp")
 endif()
 
 include_directories("${PROJECT_INCLUDE_DIR}")
@@ -40,7 +41,7 @@ set(HEADERS ${HEADERS}
 
 add_executable(SphereSim_Server ${SOURCES} ${GLOBAL_SOURCES} ${HEADERS})
 if(NO_OPENMP EQUAL 0)
-    target_link_libraries(SphereSim_Server gomp nanomsg)
+    target_link_libraries(SphereSim_Server nanomsg optimized gomp)
 else()
     target_link_libraries(SphereSim_Server nanomsg)
 endif()

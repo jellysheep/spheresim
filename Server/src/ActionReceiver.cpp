@@ -32,15 +32,6 @@ ActionReceiver::~ActionReceiver()
     Console()<<"ActionReceiver: disconnected.\n";
 }
 
-void ActionReceiver::terminateServer()
-{
-#ifndef NDEBUG
-    Console()<<"Server terminating...\n";
-    emit qApp->quit();
-    deleteLater();
-#endif /*NDEBUG*/
-}
-
 void ActionReceiver::processRequest(std::string data)
 {
     unsigned char actionGroup = data[0];

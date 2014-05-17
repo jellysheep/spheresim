@@ -26,11 +26,6 @@ SimulationWorker::SimulationWorker(SphereCalculator* sphCalc, WorkQueue* queue,
 {
 }
 
-SimulationWorker::~SimulationWorker()
-{
-    delete queue;
-}
-
 void SimulationWorker::work()
 {
     WorkQueueItem* workQueueItem;
@@ -91,7 +86,7 @@ void SimulationWorker::handleBasicAction(WorkQueueItem* workQueueItem)
     {
     case BasicActions::terminateServer:
         emit sendReply(ServerStatusReplies::terminating, "Server terminating...");
-        actRcv->terminateServer();
+        emit actRcv->terminateServer();
         break;
     case BasicActions::updateVariable:
         _var = readShort(stream);

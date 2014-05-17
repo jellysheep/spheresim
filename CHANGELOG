@@ -5,6 +5,7 @@
 * Removed message encoding and encapsulation.
 * Added subscribing to ActionSender.
 * Fixed changelog and enabled terminateServer debug action.
+* Fixed errors and memory leaks.
 
 SphereSim 3.0.4:
 * Added #endif comments.

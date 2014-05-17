@@ -12,6 +12,7 @@
 #include "DataTransmit.hpp"
 #include "MessageTransmitter.hpp"
 
+#include <QCoreApplication>
 #include <nanomsg/pubsub.h>
 #include <sstream>
 
@@ -39,16 +40,23 @@ ActionServer::ActionServer(const char* addr,
 
 ActionServer::~ActionServer()
 {
-    messageTransmitter->stop();
+    tearDown();
+}
+
+void ActionServer::tearDown()
+{
     for (ActionReceiverMap::iterator it = actionReceivers.begin();
         it != actionReceivers.end(); ++it)
     {
-        it->second->deleteLater();
+        delete &(*it->second);
     }
+    actionReceivers.clear();
     if (messageTransmitter != nullptr)
     {
         messageTransmitter->deleteLater();
+        messageTransmitter = nullptr;
     }
+    qApp->quit();
 }
 
 void ActionServer::receiveRequest(std::string request)
@@ -67,6 +75,10 @@ void ActionServer::receiveRequest(std::string request)
         actionReceiver = new ActionReceiver(clientID);
         connect(actionReceiver, SIGNAL(send(unsigned int, std::string)),
             SLOT(send(unsigned int, std::string)));
+#ifndef NDEBUG
+        connect(actionReceiver, SIGNAL(terminateServer()),
+            SLOT(tearDown()));
+#endif /*NDEBUG*/
         actionReceivers.emplace(clientID, actionReceiver);
     }
     request = request.substr(4);
@@ -78,6 +90,7 @@ void ActionServer::send(unsigned int clientID, std::string reply)
     if (actionReceivers.count(clientID) == 0)
     {
         Console()<<Console::red<<Console::bold<<"Bad server reply (ClientID).\n";
+        return;
     }
     std::ostringstream stream;
     writeInt(stream, clientID);

@@ -16,6 +16,7 @@
 #include <QThread>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <QCoreApplication>
 #include <cmath>
 #include <random>
 #include <chrono>
@@ -39,10 +40,8 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
     SimulatedSystem *simulatedSystem)
     :spheres(), newSpherePos(), butcherTableau(), calculationCounter(0),
     stepCounter(0), frameCounter(0), simulatedSystem(simulatedSystem),
-    simulationThread(new QThread()), workQueueMutex(new QMutex()),
-    workQueue(new WorkQueue(workQueueMutex,
-        simulatedSystem->getRef<bool>(SimulationVariables::frameSending))),
-    simulationWorker(new SimulationWorker(this, workQueue, actRcv)),
+    simulationThread(nullptr), workQueueMutex(nullptr), workQueue(nullptr),
+    simulationWorker(nullptr),
     sphereBoxSize(0, 0, 0), sphereBoxPosition(0, 0, 0), cellCount(8),
     cellCount3((unsigned int)cellCount*cellCount*cellCount),
     maxSpheresPerCell(1024), maxCellsPerSphere(1024),
@@ -63,7 +62,7 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
     maxPairwiseCellsPerGravityCell(gravityCellCount3), pairwiseCellsPerGravityCell(
         maxPairwiseCellsPerGravityCell, gravityAllCellCount),
     gravityCellIndexOfSpheres(nullptr), sphereCountPerGravityCell(nullptr),
-    lastStepCalculationTime(0), elapsedTimer(new QElapsedTimer()),
+    lastStepCalculationTime(0), elapsedTimer(nullptr),
     sphereCount(simulatedSystem->getRef<unsigned int>(SimulationVariables::sphereCount)),
     timeStep(simulatedSystem->getRef<Scalar>(SimulationVariables::timeStep)),
     integratorMethod(simulatedSystem->getRef<unsigned int>(
@@ -104,7 +103,7 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
         SimulationVariables::lenJonPotEpsilon)),
     lenJonPotSigma(simulatedSystem->getRef<Scalar>(
         SimulationVariables::lenJonPotSigma)),
-    sphereSphereE(0), sphereWallE(0)
+    sphereSphereE(0), sphereWallE(0), isSimulationThreadDestroyed(false)
 {
     Console()<<"SphereCalculator: constructor called.\n";
 #if NO_OPENMP != 1
@@ -116,6 +115,13 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
         <<omp_get_num_threads()<<"|"<<ompThreads<<".\n";
 #endif /*NO_OPENMP != 1*/
 
+    simulationThread = new QThread();
+    workQueueMutex = new QMutex();
+    workQueue = new WorkQueue(workQueueMutex,
+        simulatedSystem->getRef<bool>(SimulationVariables::frameSending));
+    simulationWorker = new SimulationWorker(this, workQueue, actRcv);
+    elapsedTimer = new QElapsedTimer();
+
     startUp();
 
     QObject::connect(simulatedSystem, SIGNAL(variableUpdated(int)),
@@ -126,10 +132,10 @@ SphereCalculator::SphereCalculator(ActionReceiver* actRcv,
         simulationWorker, SLOT(work()));
     QObject::connect(simulationWorker, SIGNAL(finished()),
         simulationThread, SLOT(quit()));
-    QObject::connect(simulationWorker, SIGNAL(finished()),
-        simulationWorker, SLOT(deleteLater()));
     QObject::connect(simulationThread, SIGNAL(finished()),
         simulationThread, SLOT(deleteLater()));
+    QObject::connect(simulationThread, SIGNAL(destroyed()),
+        this, SLOT(simulationThreadDestroyed()));
     QObject::connect(this, SIGNAL(requestingSimulationStop()),
         workQueue, SLOT(stopSimulation()));
     QObject::connect(this, SIGNAL(requestingWorkerStop()),
@@ -149,7 +155,13 @@ SphereCalculator::~SphereCalculator()
     while (simulationWorker->getHasFinished() == false)
     {
     }
+    delete simulationWorker;
+    delete workQueue;
     delete elapsedTimer;
+    while (isSimulationThreadDestroyed == false)
+    {
+        QCoreApplication::processEvents();
+    }
 }
 
 WorkQueue* SphereCalculator::getWorkQueue()
@@ -1644,4 +1656,9 @@ void SphereCalculator::variableUpdated(int var)
         updateIntegratorMethod();
         break;
     }
+}
+
+void SphereCalculator::simulationThreadDestroyed()
+{
+    isSimulationThreadDestroyed = true;
 }

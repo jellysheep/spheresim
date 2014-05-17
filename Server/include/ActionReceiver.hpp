@@ -63,10 +63,10 @@ namespace SphereSim
          * \param data Data to be sent to client. */
         void sendReply(unsigned short serverStatus, std::string dataToSend);
 
-        void terminateServer();
-
     signals:
         void send(unsigned int clientID, std::string reply);
+
+        void terminateServer();
 
     };
 

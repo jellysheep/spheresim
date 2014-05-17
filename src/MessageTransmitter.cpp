@@ -27,11 +27,6 @@ void MessageTransmitter::start()
     elapsedTimer.start();
 }
 
-void MessageTransmitter::stop()
-{
-    timer.stop();
-}
-
 void MessageTransmitter::send(std::string data)
 {
     //~ Console()<<"send: "<<data<<".\n";

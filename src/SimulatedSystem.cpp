@@ -61,7 +61,7 @@ void SimulatedSystem::addVariable(SimulationVariables::Variable var,
     {
         throw new std::exception();
     }
-    vars.push_back(Object(type, t));
+    vars.emplace_back(type, t);
 }
 
 void SimulatedSystem::sendVariable(SimulationVariables::Variable var)

@@ -79,9 +79,6 @@ namespace SphereSim
         SimulationWorker(SphereCalculator* sphCalc, WorkQueue* queue,
             ActionReceiver* actRcv);
 
-        /** \brief Clean up member variables. */
-        ~SimulationWorker();
-
         SimulationWorker() = delete;
         SimulationWorker(const SimulationWorker&) = delete;
         SimulationWorker& operator=(const SimulationWorker&) = delete;

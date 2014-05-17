@@ -154,6 +154,8 @@ namespace SphereSim
         Scalar sphereSphereE;
         Scalar sphereWallE;
 
+        bool isSimulationThreadDestroyed;
+
         /** \brief Calculate the current sphere acceleration.
          * \param sphereIndex Index of the sphere to be calculated.
          * \param sphere Sphere to be calculated.
@@ -320,6 +322,8 @@ namespace SphereSim
         Scalar getKineticEnergy();
 
         void variableUpdated(int var);
+
+        void simulationThreadDestroyed();
 
     };
 
