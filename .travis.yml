@@ -24,5 +24,5 @@ install:
  - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
  - pushd /tmp; git clone https://github.com/nanomsg/nanomsg.git; cd nanomsg; ./autogen.sh; ./configure; make -j2; make check; sudo make install; popd
- - pushd /tmp; git clone https://github.com/nanomsg/cppnanomsg.git; cd cppnanomsg; mkdir build; cd build; cmake ../; make; make test; sudo make install; popd
+ - pushd /tmp; git clone https://github.com/nanomsg/cppnanomsg.git; cd cppnanomsg; mkdir build; cd build; cmake ../; make; sudo make install; popd
 script: mkdir -p build && cd build && qmake ../ && make -j4

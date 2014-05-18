@@ -6,6 +6,7 @@
 * Added subscribing to ActionSender.
 * Fixed changelog and enabled terminateServer debug action.
 * Fixed errors and memory leaks.
+* Removed cppnanomsg tests from .travis.yml file.
 
 SphereSim 3.0.4:
 * Added #endif comments.
