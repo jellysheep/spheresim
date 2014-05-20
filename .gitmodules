@@ -1,0 +1,3 @@
+[submodule "spheresim.wiki"]
+	path = spheresim.wiki
+	url = git://github.com/jellysheep/spheresim.wiki

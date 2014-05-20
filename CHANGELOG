@@ -7,6 +7,7 @@
 * Fixed changelog and enabled terminateServer debug action.
 * Fixed errors and memory leaks.
 * Removed cppnanomsg tests from .travis.yml file.
+* Added wiki submodule.
 
 SphereSim 3.0.4:
 * Added #endif comments.
