@@ -8,6 +8,7 @@
 * Fixed errors and memory leaks.
 * Removed cppnanomsg tests from .travis.yml file.
 * Added wiki submodule.
+* Moved wiki submodule to subdirectory.
 
 SphereSim 3.0.4:
 * Added #endif comments.
