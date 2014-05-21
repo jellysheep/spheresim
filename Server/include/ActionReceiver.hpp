@@ -37,6 +37,8 @@ namespace SphereSim
 
         bool clientAccepted;
 
+        bool receivedRequests;
+
     public:
         /** \brief Start a new server handling requests from the client. */
         ActionReceiver(const unsigned int clientID);
@@ -47,6 +49,8 @@ namespace SphereSim
         ActionReceiver() = delete;
         ActionReceiver(const ActionReceiver&) = delete;
         ActionReceiver& operator=(const ActionReceiver&) = delete;
+
+        bool hasReceivedRequests();
 
     public slots:
         /** \brief Process and reply to received request. */

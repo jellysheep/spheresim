@@ -10,6 +10,7 @@
 #define _ACTIONSERVER_HPP_
 
 #include <QObject>
+#include <QTimer>
 #include <map>
 #include <nanomsg/nn.hpp>
 
@@ -32,6 +33,8 @@ namespace SphereSim
         typedef std::map<unsigned int, ActionReceiver*> ActionReceiverMap;
         ActionReceiverMap actionReceivers;
 
+        QTimer disconnectionTimer;
+
     public:
         /** \brief Start a server and listen to the specified port.
          * \param addr The address that the server will be listening to.
@@ -52,6 +55,8 @@ namespace SphereSim
         void receiveRequest(std::string request);
 
         void tearDown();
+
+        void disconnectionCheck();
 
     };
 

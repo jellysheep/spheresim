@@ -19,7 +19,7 @@ using namespace SphereSim;
 
 ActionReceiver::ActionReceiver(const unsigned int clientID)
     :clientID(clientID), simulatedSystem(), sphCalc(this, &simulatedSystem),
-    workQueue(sphCalc.getWorkQueue()), clientAccepted(false)
+    workQueue(sphCalc.getWorkQueue()), clientAccepted(false), receivedRequests(false)
 {
     connect(&sphCalc, SIGNAL(frameToSend(std::string)), SLOT(sendFrame(std::string)));
     connect(&simulatedSystem, SIGNAL(variableToSend(std::string)),
@@ -32,8 +32,16 @@ ActionReceiver::~ActionReceiver()
     Console()<<"ActionReceiver: disconnected.\n";
 }
 
+bool ActionReceiver::hasReceivedRequests()
+{
+    bool tmp = receivedRequests;
+    receivedRequests = false;
+    return tmp;
+}
+
 void ActionReceiver::processRequest(std::string data)
 {
+    receivedRequests = true;
     unsigned char actionGroup = data[0];
     unsigned char action = data[1];
     if (clientAccepted == false && actionGroup == ActionGroups::basic

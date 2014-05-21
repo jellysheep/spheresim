@@ -58,7 +58,7 @@ void ServerTester::run()
     runTests_(ActionGroups::spheresUpdating);
     runTests_(ActionGroups::calculation);
     runTests_(ServerTester::framebuffer);
-    sender->terminateServer();
+    //~ sender->terminateServer();
     qApp->exit(result());
 }
 

@@ -12,6 +12,7 @@
 * Updated wiki pages.
 * Updated README file.
 * Updated README file.
+* Added heartbeat timeout to Server.
 
 SphereSim 3.0.4:
 * Added #endif comments.

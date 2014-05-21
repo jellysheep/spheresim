@@ -21,7 +21,7 @@ using namespace SphereSim;
 ActionServer::ActionServer(const char* addr,
     unsigned short sendPort, unsigned short recvPort)
     :sendSocket(AF_SP, NN_PUB), recvSocket(AF_SP, NN_SUB),
-    messageTransmitter(nullptr), actionReceivers()
+    messageTransmitter(nullptr), actionReceivers(), disconnectionTimer(this)
 {
     Console()<<"ActionServer: constructor called.\n";
     std::ostringstream sendAddress;
@@ -35,6 +35,8 @@ ActionServer::ActionServer(const char* addr,
     messageTransmitter = new MessageTransmitter(&sendSocket, &recvSocket);
     connect(messageTransmitter, SIGNAL(processData(std::string)),
         SLOT(receiveRequest(std::string)));
+    connect(&disconnectionTimer, SIGNAL(timeout()), SLOT(disconnectionCheck()));
+    disconnectionTimer.start(5000);
     messageTransmitter->start();
 }
 
@@ -96,4 +98,22 @@ void ActionServer::send(unsigned int clientID, std::string reply)
     writeInt(stream, clientID);
     stream<<reply;
     messageTransmitter->send(stream.str());
+}
+
+void ActionServer::disconnectionCheck()
+{
+    for (ActionReceiverMap::iterator it = actionReceivers.begin();
+        it != actionReceivers.end(); )
+    {
+        if (it->second->hasReceivedRequests() == false)
+        {
+            Console()<<"Deregistering ClientID "<<std::hex<<it->first<<".\n";
+            delete &(*it->second);
+            it = actionReceivers.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
