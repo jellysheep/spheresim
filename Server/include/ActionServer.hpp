@@ -35,6 +35,7 @@ namespace SphereSim
         typedef std::map<unsigned int, ActionReceiver*> ActionReceiverMap;
         ActionReceiverMap actionReceivers;
 
+        QTimer heartbeatTimer;
         QTimer disconnectionTimer;
 
     public:
@@ -57,6 +58,8 @@ namespace SphereSim
         void receiveRequest(std::string request);
 
         void tearDown();
+
+        void sendHeartbeat();
 
         void disconnectionCheck();
 

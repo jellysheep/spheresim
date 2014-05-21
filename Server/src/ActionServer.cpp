@@ -21,7 +21,8 @@ using namespace SphereSim;
 ActionServer::ActionServer(const char* addr,
     unsigned short sendPort, unsigned short recvPort)
     :sendSocket(AF_SP, NN_PUB), recvSocket(AF_SP, NN_SUB), serverID(0),
-    messageTransmitter(nullptr), actionReceivers(), disconnectionTimer(this)
+    messageTransmitter(nullptr), actionReceivers(),
+    heartbeatTimer(this), disconnectionTimer(this)
 {
     Console()<<"ActionServer: constructor called.\n";
 
@@ -40,9 +41,11 @@ ActionServer::ActionServer(const char* addr,
 
     connect(messageTransmitter, SIGNAL(processData(std::string)),
         SLOT(receiveRequest(std::string)));
+    connect(&heartbeatTimer, SIGNAL(timeout()), SLOT(sendHeartbeat()));
     connect(&disconnectionTimer, SIGNAL(timeout()), SLOT(disconnectionCheck()));
-    disconnectionTimer.start(5000);
     messageTransmitter->start();
+    heartbeatTimer.start(1000);
+    disconnectionTimer.start(5000);
 }
 
 ActionServer::~ActionServer()
@@ -109,6 +112,15 @@ void ActionServer::send(unsigned int simulationID, std::string reply)
     writeInt(stream, simulationID);
     writeInt(stream, serverID);
     stream<<reply;
+    messageTransmitter->send(stream.str());
+}
+
+void ActionServer::sendHeartbeat()
+{
+    std::ostringstream stream;
+    writeInt(stream, 0);
+    writeInt(stream, serverID);
+    writeShort(stream, ServerStatusReplies::serverHeartbeat);
     messageTransmitter->send(stream.str());
 }
 

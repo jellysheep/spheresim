@@ -199,7 +199,9 @@ namespace SphereSim
             /** \brief The server is sending an updated variable. */
             sendVariable,
             /** \brief The server accepted the client connection. */
-            clientAccepted
+            clientAccepted,
+            /** \brief Confirm connection with heartbeat. */
+            serverHeartbeat
         };
     }
 
