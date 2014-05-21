@@ -20,10 +20,15 @@ using namespace SphereSim;
 
 ActionServer::ActionServer(const char* addr,
     unsigned short sendPort, unsigned short recvPort)
-    :sendSocket(AF_SP, NN_PUB), recvSocket(AF_SP, NN_SUB),
+    :sendSocket(AF_SP, NN_PUB), recvSocket(AF_SP, NN_SUB), serverID(0),
     messageTransmitter(nullptr), actionReceivers(), disconnectionTimer(this)
 {
     Console()<<"ActionServer: constructor called.\n";
+
+    std::random_device randomDevice;
+    std::uniform_int_distribution<unsigned int> distribution;
+    serverID = distribution(randomDevice) & ~1; // even number as server ID
+
     std::ostringstream sendAddress;
     sendAddress<<"tcp://"<<addr<<':'<<sendPort;
     sendSocket.bind(sendAddress.str().c_str());
@@ -31,8 +36,8 @@ ActionServer::ActionServer(const char* addr,
     recvAddress<<"tcp://"<<addr<<':'<<recvPort;
     recvSocket.bind(recvAddress.str().c_str());
     recvSocket.setsockopt(NN_SUB, NN_SUB_SUBSCRIBE, "", 0);
-    Console()<<"ActionServer: listening did succeed.\n";
     messageTransmitter = new MessageTransmitter(&sendSocket, &recvSocket);
+
     connect(messageTransmitter, SIGNAL(processData(std::string)),
         SLOT(receiveRequest(std::string)));
     connect(&disconnectionTimer, SIGNAL(timeout()), SLOT(disconnectionCheck()));
@@ -64,38 +69,45 @@ void ActionServer::tearDown()
 void ActionServer::receiveRequest(std::string request)
 {
     std::istringstream stream(request);
-    unsigned int clientID = readInt(stream);
+    unsigned int simulationID = readInt(stream);
+    unsigned int senderID = readInt(stream);
+    if ((senderID & 1) != 1)
+    {
+        // requests from other servers not supported yet
+        return;
+    }
     ActionReceiver* actionReceiver;
-    ActionReceiverMap::iterator it = actionReceivers.find(clientID);
+    ActionReceiverMap::iterator it = actionReceivers.find(simulationID);
     if (it != actionReceivers.end())
     {
         actionReceiver = it->second;
     }
     else
     {
-        Console()<<"Registering ClientID "<<std::hex<<clientID<<".\n";
-        actionReceiver = new ActionReceiver(clientID);
+        Console()<<"Registering simulation ID "<<std::hex<<simulationID<<".\n";
+        actionReceiver = new ActionReceiver(simulationID);
         connect(actionReceiver, SIGNAL(send(unsigned int, std::string)),
             SLOT(send(unsigned int, std::string)));
 #ifndef NDEBUG
         connect(actionReceiver, SIGNAL(terminateServer()),
             SLOT(tearDown()));
 #endif /*NDEBUG*/
-        actionReceivers.emplace(clientID, actionReceiver);
+        actionReceivers.emplace(simulationID, actionReceiver);
     }
-    request = request.substr(4);
+    request = request.substr(8);
     actionReceiver->processRequest(request);
 }
 
-void ActionServer::send(unsigned int clientID, std::string reply)
+void ActionServer::send(unsigned int simulationID, std::string reply)
 {
-    if (actionReceivers.count(clientID) == 0)
+    if (actionReceivers.count(simulationID) == 0 || (simulationID & 1) != 1)
     {
-        Console()<<Console::red<<Console::bold<<"Bad server reply (ClientID).\n";
+        Console()<<Console::red<<Console::bold<<"Bad simulation ID reply.\n";
         return;
     }
     std::ostringstream stream;
-    writeInt(stream, clientID);
+    writeInt(stream, simulationID);
+    writeInt(stream, serverID);
     stream<<reply;
     messageTransmitter->send(stream.str());
 }
@@ -107,7 +119,7 @@ void ActionServer::disconnectionCheck()
     {
         if (it->second->hasReceivedRequests() == false)
         {
-            Console()<<"Deregistering ClientID "<<std::hex<<it->first<<".\n";
+            Console()<<"Deregistering simulation ID "<<std::hex<<it->first<<".\n";
             delete &(*it->second);
             it = actionReceivers.erase(it);
         }

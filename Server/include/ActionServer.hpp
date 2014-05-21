@@ -28,6 +28,8 @@ namespace SphereSim
         nn::socket sendSocket;
         nn::socket recvSocket;
 
+        unsigned int serverID;
+
         MessageTransmitter* messageTransmitter;
 
         typedef std::map<unsigned int, ActionReceiver*> ActionReceiverMap;

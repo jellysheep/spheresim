@@ -13,6 +13,7 @@
 * Updated README file.
 * Updated README file.
 * Added heartbeat timeout to Server.
+* Implemented SphTP message structure.
 
 SphereSim 3.0.4:
 * Added #endif comments.

@@ -15,7 +15,6 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include <nanomsg/pubsub.h>
-#include <chrono>
 #include <random>
 #include <string>
 
@@ -62,7 +61,7 @@ ActionSender::ActionSender(const char* addr, unsigned short sendPort,
 
     std::random_device randomDevice;
     std::uniform_int_distribution<unsigned int> distribution;
-    clientID = distribution(randomDevice);
+    clientID = distribution(randomDevice) | 1; // odd number as simulation/client ID
     Console()<<"ActionSender: ClientID: "<<std::hex<<clientID<<".\n";
     messageTransmitter->start();
     heartbeatTimer.start(1000);
@@ -81,6 +80,7 @@ void ActionSender::sendAction(unsigned char actionGroup, unsigned char action,
     const std::string& arr)
 {
     std::ostringstream data;
+    writeInt(data, clientID); // simulation ID is same as client ID
     writeInt(data, clientID);
     writeChar(data, actionGroup);
     writeChar(data, action);
@@ -113,11 +113,12 @@ std::string ActionSender::sendReplyAction(unsigned char actionGroup,
 void ActionSender::processReply(std::string data)
 {
     std::istringstream stream(data);
-    const unsigned int receiverClientID = readInt(stream);
-    if (receiverClientID != clientID)
+    const unsigned int simulationID = readInt(stream);
+    if (simulationID != clientID)
     {
         return;
     }
+    const unsigned int serverID = readInt(stream);
     lastServerStatus = readShort(stream);
 
     if (lastServerStatus == ServerStatusReplies::sendFrame)
@@ -142,7 +143,7 @@ void ActionSender::processReply(std::string data)
     {
         unsigned short _var = readShort(stream);
         SimulationVariables::Variable var = (SimulationVariables::Variable)_var;
-        std::string varData = data.substr(8);
+        std::string varData = data.substr(12);
         simulatedSystem->receiveVariable(var, varData);
     }
     else if (lastServerStatus == ServerStatusReplies::clientAccepted)
@@ -165,7 +166,7 @@ void ActionSender::processReply(std::string data)
     }
     else
     {
-        std::string replyData = data.substr(6);
+        std::string replyData = data.substr(10);
         lastServerReplyData = replyData;
         receivedServerReply = true;
     }
