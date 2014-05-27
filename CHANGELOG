@@ -16,6 +16,7 @@
 * Implemented SphTP message structure.
 * Added heartbeat sending to Server.
 * Updated wiki.
+* Updated wiki pages.
 
 SphereSim 3.0.4:
 * Added #endif comments.
