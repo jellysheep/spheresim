@@ -15,6 +15,7 @@
 * Added heartbeat timeout to Server.
 * Implemented SphTP message structure.
 * Added heartbeat sending to Server.
+* Updated wiki.
 
 SphereSim 3.0.4:
 * Added #endif comments.
